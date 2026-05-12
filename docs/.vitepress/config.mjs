@@ -5,10 +5,7 @@ export default withMermaid(
   defineConfig({
     title: 'SocTalk',
     description: 'SocTalk documentation',
-    // base is /soctalk-docs/ while the site is served on the github.io URL
-    // (https://soctalk.github.io/soctalk-docs/). Flip back to '/' once the
-    // docs.soctalk.ai custom domain is verified.
-    base: '/soctalk-docs/',
+    base: '/',
 
     head: [
       ['link', { rel: 'icon', type: 'image/png', href: '/logo.png' }],
