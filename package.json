@@ -1,0 +1,17 @@
+{
+  "name": "soctalk-docs",
+  "version": "0.1.0",
+  "description": "SocTalk Documentation Site",
+  "scripts": {
+    "dev": "vitepress dev docs",
+    "build": "vitepress build docs",
+    "preview": "vitepress preview docs"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.4",
+    "vitepress-plugin-mermaid": "^2.0.17"
+  },
+  "keywords": ["soctalk", "security", "soc", "mssp", "wazuh", "documentation"],
+  "author": "Gianluca Brigandi",
+  "license": "Apache-2.0"
+}
