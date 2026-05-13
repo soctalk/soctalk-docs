@@ -54,14 +54,16 @@ ingress:
     mssp: mssp.example.com
     customer: "*.customers.example.com"  # per-tenant subdomain routing
 
-# Authentication mode. `internal` = SocTalk owns login/sessions/passwords
-# (default for new installs). `proxy` = an upstream OIDC proxy
-# (OAuth2-Proxy, Keycloak, Dex) terminates auth and forwards trusted
-# identity headers; the OIDC block below is only consulted in this mode.
+# Authentication. Chart deploys `internal` mode (SocTalk-owned
+# login/sessions/passwords). The runtime also supports `proxy` mode
+# (OAuth2-Proxy / Keycloak / Dex forwards trusted identity headers),
+# selectable via the `SOCTALK_AUTH_MODE` env var on the API
+# Deployment — chart values do not yet expose this switch.
 auth:
-  mode: internal              # internal | proxy
+  cookieSecure: true            # production TLS: true; HTTP-only dev: false
+  publicOriginOverride: ""      # set when browser origin includes a non-default port
 
-# OIDC (only used when auth.mode = proxy)
+# OIDC trusted-header config (consumed by the API only in proxy mode).
 oidc:
   trustedHeaderUser: X-Forwarded-User
   trustedHeaderEmail: X-Forwarded-Email

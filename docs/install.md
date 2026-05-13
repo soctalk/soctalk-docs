@@ -68,7 +68,7 @@ spec:
 
 cert-manager has solver recipes for Route 53, Cloud DNS, Azure DNS, RFC 2136, and others. Pick the one for your zone provider.
 
-> If you do not need wildcard customer hostnames (i.e., you enumerate customer hosts individually), you can use HTTP-01 with `solvers: [- http01: { ingress: { class: nginx } }]` instead. The `soctalk-system` values default to `className: nginx`; the ACME solver's `ingress.class` (HTTP-01) or DNS provider must match the chart's ingress class. For Traefik, set `class: traefik`.
+> If you do not need wildcard customer hostnames (i.e., you enumerate customer hosts individually), you can use HTTP-01 with `solvers: [- http01: { ingress: { class: traefik } }]` instead. The `soctalk-system` values default to `className: traefik`; the ACME solver's `ingress.class` (HTTP-01) or DNS provider must match the chart's ingress class. For ingress-nginx, set `class: nginx` on both sides.
 
 ### Ingress controller
 
@@ -92,46 +92,11 @@ kubectl label namespace ingress-system managed-by=ingress
 
 ### Authentication mode
 
-Two modes, set via `SOCTALK_AUTH_MODE`. The default for new installs is `internal`: SocTalk owns login, sessions, and password storage, and the bootstrap Job seeds an initial admin into a Secret (see [Run the bootstrap](#run-the-bootstrap)). The alternative is `proxy`, where you front SocTalk with OAuth2-Proxy (or Keycloak / Dex) so an upstream IdP handles login and forwards trusted identity headers. Pick `proxy` if you already operate central SSO.
+The API reads `SOCTALK_AUTH_MODE` (`internal | proxy`) at startup. The `soctalk-system` chart deploys in `internal` mode: SocTalk owns login, sessions, and password storage, and the bootstrap Job seeds an initial admin into a Secret (see [Run the bootstrap](#run-the-bootstrap)).
+
+`proxy` mode — front SocTalk with OAuth2-Proxy / Keycloak / Dex and trust upstream identity headers — is supported by the runtime but not yet exposed as a chart values knob. Treat it as a future-release item; if you operate central SSO and want to pilot it now, set the env var directly on the API Deployment after install.
 
 Full details: [Internal auth](/reference/internal-auth).
-
-#### Optional: proxy mode (OIDC via OAuth2-Proxy)
-
-Skip this section on an `internal`-mode install.
-
-```bash
-helm repo add oauth2-proxy https://oauth2-proxy.github.io/manifests
-helm install oauth2-proxy oauth2-proxy/oauth2-proxy -n ingress-system -f oauth2-proxy-values.yaml
-```
-
-Minimal `oauth2-proxy-values.yaml`:
-
-```yaml
-config:
-  clientID: <your OIDC client ID>
-  clientSecret: <your OIDC client secret>
-  cookieSecret: <32-byte base64>
-extraArgs:
-  provider: oidc
-  oidc-issuer-url: https://your-idp.example/
-  upstream: static://202
-  set-xauthrequest: true
-  pass-authorization-header: true
-  reverse-proxy: true
-```
-
-Configure your ingress to route `/oauth2/*` to OAuth2-Proxy and protect the SocTalk UIs with an auth-snippet. Example for ingress-nginx:
-
-```yaml
-metadata:
-  annotations:
-    nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
-    nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
-    nginx.ingress.kubernetes.io/auth-response-headers: X-Auth-Request-User, X-Auth-Request-Email, X-Auth-Request-Groups
-```
-
-Then set `auth.mode: proxy` in `soctalk-system-values.yaml` (see below).
 
 ### StorageClass
 
@@ -156,7 +121,7 @@ image:
 
 ingress:
   enabled: true
-  className: nginx
+  className: traefik          # chart default; set to "nginx" for ingress-nginx
   tls:
     issuerRef: letsencrypt-prod
     secretName: soctalk-tls
@@ -164,15 +129,18 @@ ingress:
     mssp: mssp.your-mssp.example
     customer: "*.customers.your-mssp.example"
 
-# Authentication mode. Default is "internal"; flip to "proxy" if you
-# completed the OAuth2-Proxy setup above. The oidc block below is only
-# consulted in proxy mode.
+# Auth knobs the chart accepts today. See the Authentication mode
+# section above for proxy mode (not yet wired through values).
 auth:
-  mode: internal              # set to "proxy" for OAuth2-Proxy installs
+  cookieSecure: true          # production TLS: keep true; HTTP-only dev: false
 
+# Trusted headers and proxy CIDRs are read by the API only in proxy
+# mode (which today requires a manual env-var override after install).
+# Defaults shown for reference; safe to omit when running internal mode.
 oidc:
-  trustedHeaderUser: X-Auth-Request-User
-  trustedHeaderEmail: X-Auth-Request-Email
+  trustedHeaderUser: X-Forwarded-User
+  trustedHeaderEmail: X-Forwarded-Email
+  trustedHeaderGroups: X-Forwarded-Groups
   trustedProxyCIDRs:
     - 10.42.0.0/16   # your pod CIDR / ingress CIDR
 
