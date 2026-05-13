@@ -11,7 +11,7 @@ hero:
       link: /install
     - theme: alt
       text: GitHub
-      link: https://github.com/gbrigandi/soctalk
+      link: https://github.com/soctalk/soctalk
 
 features:
   - title: Multi-tenant
@@ -28,4 +28,4 @@ If you're installing SocTalk, start with Install. Once it's running, Operate has
 
 ## Where things live
 
-The product home is at [soctalk.ai](https://soctalk.ai). Source lives on [GitHub](https://github.com/gbrigandi/soctalk), which is also where issues and RFCs go.
+The product home is at [soctalk.ai](https://soctalk.ai). Source lives on [GitHub](https://github.com/soctalk/soctalk), which is also where issues and RFCs go.

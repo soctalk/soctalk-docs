@@ -151,7 +151,7 @@ install:
   installLabel: "pilot-prod"
 
 image:
-  registry: ghcr.io/gbrigandi
+  registry: ghcr.io/soctalk
   tag: "0.1.0"
 
 ingress:
@@ -184,7 +184,7 @@ postgres:
 ### Install
 
 ```bash
-helm install soctalk-system oci://ghcr.io/gbrigandi/charts/soctalk-system \
+helm install soctalk-system oci://ghcr.io/soctalk/charts/soctalk-system \
   --version 0.1.0 \
   --namespace soctalk-system --create-namespace \
   -f soctalk-system-values.yaml
@@ -204,7 +204,7 @@ kubectl -n soctalk-system delete job soctalk-system-alembic-upgrade \
   --ignore-not-found
 
 # Render the Job template for this release and apply.
-helm template soctalk-system oci://ghcr.io/gbrigandi/charts/soctalk-system \
+helm template soctalk-system oci://ghcr.io/soctalk/charts/soctalk-system \
   --version 0.1.0 \
   --namespace soctalk-system \
   -f soctalk-system-values.yaml \

@@ -11,7 +11,7 @@ Before any upgrade:
 3. **Back up.** Snapshot Postgres + all tenant PVCs. See the [database restore section](/operations#database-restore-disaster-recovery) in operations.
 4. **Dry-run** with `helm diff`:
    ```bash
-   helm diff upgrade soctalk-system oci://ghcr.io/gbrigandi/charts/soctalk-system \
+   helm diff upgrade soctalk-system oci://ghcr.io/soctalk/charts/soctalk-system \
      --version <new> -n soctalk-system -f values.yaml
    ```
 
@@ -27,7 +27,7 @@ kubectl -n soctalk-system delete job soctalk-system-alembic-upgrade \
   --ignore-not-found
 
 # 2. Render and apply the Alembic Job at the target chart + image version.
-helm template soctalk-system oci://ghcr.io/gbrigandi/charts/soctalk-system \
+helm template soctalk-system oci://ghcr.io/soctalk/charts/soctalk-system \
   --version <new-version> \
   --namespace soctalk-system \
   -f soctalk-system-values.yaml \
@@ -42,7 +42,7 @@ kubectl -n soctalk-system logs job/soctalk-system-alembic-upgrade
 
 # 4. Now run the chart upgrade. The new API image starts against the
 #    already-migrated schema, so --wait can succeed.
-helm upgrade soctalk-system oci://ghcr.io/gbrigandi/charts/soctalk-system \
+helm upgrade soctalk-system oci://ghcr.io/soctalk/charts/soctalk-system \
   --version <new-version> \
   --namespace soctalk-system \
   -f soctalk-system-values.yaml \
@@ -63,7 +63,7 @@ If the upgrade introduced a migration that touched data, `helm rollback` will no
 ## Upgrade a single tenant's data plane
 
 ```bash
-helm upgrade tenant-<slug> oci://ghcr.io/gbrigandi/charts/soctalk-tenant \
+helm upgrade tenant-<slug> oci://ghcr.io/soctalk/charts/soctalk-tenant \
   --version <new-tenant-chart-version> \
   --namespace tenant-<slug> \
   -f /tmp/tenant-<slug>-values.yaml \
@@ -94,7 +94,7 @@ kubectl get ns -l tenant=true,managed-by=soctalk \
 # Upgrade each, pausing between.
 for ns in tenant-acme tenant-beta tenant-gamma; do
   echo "upgrading $ns..."
-  helm upgrade ${ns} oci://ghcr.io/gbrigandi/charts/soctalk-tenant \
+  helm upgrade ${ns} oci://ghcr.io/soctalk/charts/soctalk-tenant \
     --version <new> -n $ns -f /tmp/${ns}-values.yaml --wait --timeout 15m
   kubectl -n $ns rollout status deploy/soctalk-adapter
   sleep 60   # let heartbeat settle before next.
