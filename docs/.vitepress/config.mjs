@@ -28,7 +28,7 @@ export default withMermaid(
         { text: 'Get Started', link: '/install' },
         { text: 'Operate', link: '/operations' },
         { text: 'Reference', link: '/reference/architecture' },
-        { text: 'GitHub', link: 'https://github.com/gbrigandi/soctalk' },
+        { text: 'GitHub', link: 'https://github.com/soctalk/soctalk' },
       ],
 
       sidebar: [
@@ -64,7 +64,7 @@ export default withMermaid(
       ],
 
       socialLinks: [
-        { icon: 'github', link: 'https://github.com/gbrigandi/soctalk' },
+        { icon: 'github', link: 'https://github.com/soctalk/soctalk' },
       ],
 
       footer: {
@@ -78,7 +78,7 @@ export default withMermaid(
 
       editLink: {
         pattern:
-          'https://github.com/gbrigandi/soctalk-docs/edit/main/docs/:path',
+          'https://github.com/soctalk/soctalk-docs/edit/main/docs/:path',
         text: 'Edit this page on GitHub',
       },
     },
