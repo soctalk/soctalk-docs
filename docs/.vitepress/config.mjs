@@ -5,10 +5,10 @@ export default withMermaid(
   defineConfig({
     title: 'SocTalk',
     description: 'SocTalk documentation',
-    base: '/',
+    base: '/soctalk-docs/',
 
     head: [
-      ['link', { rel: 'icon', type: 'image/png', href: '/logo.png' }],
+      ['link', { rel: 'icon', type: 'image/png', href: '/soctalk-docs/logo.png' }],
       ['meta', { name: 'theme-color', content: '#f43f5e' }],
       ['meta', { property: 'og:type', content: 'website' }],
       ['meta', { property: 'og:title', content: 'SocTalk Documentation' }],
