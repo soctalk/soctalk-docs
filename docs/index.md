@@ -26,6 +26,3 @@ features:
 
 If you're installing SocTalk, start with Install. Once it's running, Operate has the day-2 procedures (ops, upgrades, troubleshooting). Reference is for digging into the architecture, RLS hygiene, chart contract, network policy, secrets, and sizing.
 
-## Where things live
-
-The product home is at [soctalk.ai](https://soctalk.ai). Source lives on [GitHub](https://github.com/soctalk/soctalk), which is also where issues and RFCs go.
