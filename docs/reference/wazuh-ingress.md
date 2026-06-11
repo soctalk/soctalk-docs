@@ -23,7 +23,7 @@ Each tenant gets a dedicated DNS name (`acme.soc.mssp.example.com`) that resolve
 
 Two implementations of per-tenant addressing are supported:
 
-1. **Per-tenant LoadBalancer Service (recommended).** The `soctalk-tenant` chart creates a `Service` of type `LoadBalancer` in each tenant namespace for the Wazuh manager on 1514/1515. On a cloud cluster the cloud LB controller assigns a unique public IP; on bare metal use MetalLB (or kube-vip) to draw from a pool. DNS for `<slug>.soc.mssp.example.com` points at that tenant's LB IP.
+1. **Per-tenant LoadBalancer Service (recommended pattern; not yet wired in the chart).** The current `wazuh` subchart creates the Wazuh manager `Service` as `ClusterIP` only — there is **no automatic LoadBalancer or DNS provisioning** in this release. To get a tenant routable from the public internet today, you must either: layer an external LoadBalancer Service yourself (manual `kubectl apply`), put each tenant behind an edge HAProxy / NGINX with per-tenant SNI or port mapping, or use the per-tenant-port topology described below. Cloud LB + per-tenant DNS is the documented destination; getting there requires MSSP-side manual wiring.
 2. **Per-tenant port at a single edge IP (fallback).** When unique IPs are scarce, allocate a port range at one edge IP and assign `(1514, 1515)` offsets per tenant (e.g., acme → 15140/15141, beta → 15142/15143). DNS uses `SRV` records or the agent's `manager_address:port` config to dispatch. Operationally awkward but works.
 
 ### Topology
@@ -56,7 +56,7 @@ DNS resolves to the LoadBalancer IP for tenant-acme
 
 ### DNS
 
-Per-tenant `A`/`AAAA` record: `<slug>.soc.mssp.example.com → <tenant LB IP>`. SocTalk emits the record into the MSSP's DNS provider when the tenant becomes `active` (via external-dns or an explicit provider integration; see the tenant-provisioning flow).
+Per-tenant `A`/`AAAA` record: `<slug>.soc.mssp.example.com → <tenant LB IP>` is the target design. **In V1, SocTalk does NOT emit DNS records** — the operator manages DNS manually (external-dns / provider console) once the per-tenant LB has been provisioned out-of-band. A SocTalk-driven DNS-emission path (external-dns annotations or direct provider integration) is on the roadmap.
 
 Wildcard DNS does not work for the LoadBalancer pattern because each tenant has its own IP. It only works under the fallback (per-tenant port) topology, where every name resolves to the same edge IP.
 
@@ -80,7 +80,7 @@ The MSSP runs one of:
 | Bare-metal or on-prem | MetalLB (L2 or BGP mode) with an address pool, or kube-vip. |
 | Single-IP edge with port mapping | Run an external L4 proxy (HAProxy, Envoy, nginx-stream) that forwards `(IP, port)` pairs to the tenant `Service`. Use this only under the fallback per-port topology. |
 
-The `soctalk-tenant` chart's `Service` is annotated so cloud controllers and MetalLB can apply pool/IP-class selection (e.g., `metallb.universe.tf/address-pool: wazuh-agents`). The SocTalk controller records the resulting LB IP and writes the per-tenant DNS record.
+The target design is that the `soctalk-tenant` chart's `Service` is annotated so cloud controllers and MetalLB can apply pool/IP-class selection (e.g., `metallb.universe.tf/address-pool: wazuh-agents`), and the SocTalk controller records the resulting LB IP and writes the per-tenant DNS record. **In V1 neither of these is wired** — the Wazuh manager Service is `ClusterIP` only and the controller does not poll for LB IP assignment.
 
 If you must use a single edge IP (fallback), a reference HAProxy mapping looks like this:
 
@@ -114,7 +114,7 @@ Do not branch on `req.ssl_sni` for Wazuh 1514. Wazuh's agent protocol is not sta
 
 ## Agent enrollment flow
 
-Wazuh's `authd` registration on 1515/TCP requires a shared secret. Each tenant has its own `authd` secret (stored in `Secret/wazuh-authd-secret` in the tenant namespace). Enrollment:
+Wazuh's `authd` registration on 1515/TCP requires a shared secret. Each tenant has its own `authd` secret, stored in `Secret/wazuh-<slug>-wazuh-creds` (key: `AUTHD_PASS`) in the tenant namespace. Enrollment:
 
 1. **MSSP operator** onboards a new customer. SocTalk generates the `authd` shared secret at tenant-provisioning time.
 2. **MSSP operator** provides customer-endpoint admin with:
@@ -146,10 +146,19 @@ Customer-side:
 
 ## Certificate revocation / agent removal
 
-To revoke a specific agent:
+> **UI status:** the per-tenant Agents tab described below is planned. Until it ships, use the workaround at the end of this section.
+
+To revoke a specific agent (planned UX):
 1. MSSP operator opens tenant in MSSP UI → Agents tab → revokes.
 2. SocTalk calls Wazuh manager API to remove the agent's registration.
 3. Customer-endpoint admin uninstalls the agent (optional, housekeeping).
+
+**Today**, revoke directly from the embedded Wazuh dashboard (Tenants list → **Open SOC** → Agents) or via the Wazuh manager API:
+
+```bash
+kubectl -n tenant-<slug> exec deploy/wazuh-manager -- \
+  /var/ossec/bin/manage_agents -r <agent-id>
+```
 
 To revoke all agents for a tenant (e.g., customer offboarding):
 1. Rotate tenant's `authd` shared secret (re-enrollment required for new agents).
@@ -177,7 +186,11 @@ For MSSPs with geographic separation (EU, US, APAC), run multiple edge proxies i
 
 ## Runbook: onboarding a customer's first agent
 
-1. MSSP operator creates tenant in MSSP UI → SocTalk provisions stack, generates `authd` secret.
+> **UI status:** the dedicated "Agent Onboarding" panel on tenant detail is planned but not yet in the current build. The runbook below describes the target UX; the workaround beneath it is the present path.
+
+**Planned UX:**
+
+1. MSSP operator creates tenant in [MSSP UI](/mssp-ui) → SocTalk provisions stack, generates `authd` secret.
 2. MSSP operator navigates to tenant detail → "Agent Onboarding" section.
 3. Section displays:
    - Tenant hostname: `acme.soc.mssp.example.com`
@@ -188,6 +201,18 @@ For MSSPs with geographic separation (EU, US, APAC), run multiple edge proxies i
 4. MSSP operator copies to secure channel, shares with customer endpoint admin.
 5. Customer endpoint admin installs + enrolls.
 6. MSSP operator watches tenant detail → Agents tab, sees agent appear within ~30 seconds.
+
+**Present workaround:**
+
+1. Create the tenant from [MSSP UI](/mssp-ui) → Tenants → **+ New Tenant**.
+2. Once the lifecycle events show `workloads_ready`, retrieve the `authd` shared secret from Kubernetes:
+   ```bash
+   kubectl -n tenant-<slug> get secret wazuh-<slug>-wazuh-creds \
+     -o jsonpath='{.data.AUTHD_PASS}' | base64 -d
+   ```
+3. Compute the tenant Wazuh manager hostname from the install's wildcard pattern (`<slug>.soc.<mssp-domain>`).
+4. Share both with the customer endpoint admin via a secure channel; they run `agent-auth` as shown above.
+5. Confirm the agent appears in the embedded Wazuh dashboard (Tenants → **Open SOC** → Agents).
 
 ## Testing (pre-release + pilot validation)
 

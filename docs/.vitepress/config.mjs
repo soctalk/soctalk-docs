@@ -25,8 +25,9 @@ export default withMermaid(
       logo: '/logo.png',
 
       nav: [
-        { text: 'Get Started', link: '/install' },
+        { text: 'Get Started', link: '/quickstart-vm' },
         { text: 'Operate', link: '/operations' },
+        { text: 'Integrate', link: '/integrate/llm-providers' },
         { text: 'Reference', link: '/reference/architecture' },
         { text: 'GitHub', link: 'https://github.com/soctalk/soctalk' },
       ],
@@ -35,15 +36,39 @@ export default withMermaid(
         {
           text: 'Get Started',
           items: [
-            { text: 'Install', link: '/install' },
+            { text: 'Quickstart: demo VM', link: '/quickstart-vm' },
+            { text: 'Downloads', link: '/downloads' },
+            { text: 'Setup wizard', link: '/setup-wizard' },
+            { text: 'Production install', link: '/install' },
+            { text: 'MSSP UI Tour', link: '/mssp-ui' },
+          ],
+        },
+        {
+          text: 'Concepts',
+          items: [
+            { text: 'AI pipeline', link: '/ai-pipeline' },
+            { text: 'Tenant lifecycle', link: '/tenant-lifecycle' },
           ],
         },
         {
           text: 'Operate',
           items: [
             { text: 'Daily Operations', link: '/operations' },
+            { text: 'Users and roles', link: '/users-and-roles' },
+            { text: 'Human review (HIL)', link: '/human-review' },
+            { text: 'Observability', link: '/observability' },
+            { text: 'Backup and restore', link: '/backup-restore' },
             { text: 'Upgrades', link: '/upgrades' },
             { text: 'Troubleshooting', link: '/troubleshooting' },
+          ],
+        },
+        {
+          text: 'Integrate',
+          items: [
+            { text: 'LLM providers', link: '/integrate/llm-providers' },
+            { text: 'TheHive', link: '/integrate/thehive' },
+            { text: 'Cortex', link: '/integrate/cortex' },
+            { text: 'Slack', link: '/integrate/slack' },
           ],
         },
         {
@@ -59,6 +84,16 @@ export default withMermaid(
             { text: 'Chart Audit', link: '/reference/chart-audit' },
             { text: 'Wazuh Ingress', link: '/reference/wazuh-ingress' },
             { text: 'Sizing', link: '/reference/sizing' },
+            { text: 'REST API', link: '/reference/api' },
+            { text: 'CLI and scripts', link: '/reference/cli' },
+            { text: 'Attack simulator', link: '/reference/attack-simulator' },
+          ],
+        },
+        {
+          text: 'Project',
+          items: [
+            { text: 'FAQ', link: '/faq' },
+            { text: 'Contribute', link: '/contribute' },
           ],
         },
       ],

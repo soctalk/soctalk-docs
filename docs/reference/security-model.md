@@ -2,13 +2,15 @@
 
 Principal catalog, actor×resource matrix, RLS policy matrix, Postgres role model, endpoint classification, token claim schemas, audit requirements, secret placement.
 
+> **V1 deployment note.** The endpoint examples below (e.g. `/api/mssp/impersonate/:tenant_id`, `/api/mssp/users` POST/list, `/api/mssp/fleet/summary`) and several principal entries (Cloud license issuer; the impersonation actor) describe the **target security surface**. In V1 the mounted MSSP endpoints are: tenant CRUD (`/onboard`, `/{id}:retry|suspend|resume|decommission|retry-install|issue-agent`), audit (`/api/audit`), admin password reset (`/api/mssp/users/{id}/password/reset`), and `/api/auth/assume-tenant` for session-tenant scoping (not user impersonation). Use the matrices below as the design intent; consult [REST API](/reference/api) for what's actually live.
+
 ## Principal catalog
 
 Eight principals.
 
 | # | Principal | Category | Scope | Authenticates via |
 |---|---|---|---|---|
-| 1 | **User** (role ∈ {platform_admin, mssp_admin, analyst, customer_viewer}) | Human | Role-derived | Ingress OIDC → SocTalk JWT |
+| 1 | **User** (role ∈ {platform_admin, mssp_admin, analyst, tenant_admin, customer_viewer}) | Human | Role-derived | Ingress OIDC → SocTalk JWT |
 | 2 | **Worker** | SocTalk service (background) | One tenant per job | Service JWT, short-lived, issued by SocTalk API at dispatch |
 | 3 | **System** | SocTalk service (cross-tenant ops) | Install-wide, RLS-bypass | Code-path gated; no JWT |
 | 4 | **SocTalk K8s ServiceAccount** | SocTalk service (K8s identity) | Cluster, name-convention-scoped to `tenant-*` | K8s projected token |
@@ -26,7 +28,7 @@ Eight principals.
 | `analyst` | Cross-tenant | Triage, approvals, investigation work; auditable impersonation into any tenant |
 | `customer_viewer` | Single tenant | Read-only dashboards, incidents, reports, audit trail |
 
-Scope derivation: `role ∈ {platform_admin, mssp_admin, analyst}` ⇒ `tenant_id` NULL in DB, cross-tenant access via elevated Postgres role or explicit impersonation. `role = customer_viewer` ⇒ `tenant_id` required in user row and JWT.
+Scope derivation: `role ∈ {platform_admin, mssp_admin, analyst}` ⇒ `tenant_id` NULL in DB, cross-tenant access via elevated Postgres role or session-tenant scoping (`/api/auth/assume-tenant`). `role ∈ {tenant_admin, customer_viewer}` ⇒ `tenant_id` required in user row and JWT.
 
 ### Worker principal discipline
 
@@ -111,9 +113,9 @@ Three categories. Never one endpoint that serves two categories.
 
 Cross-tenant capable. When a handler needs cross-tenant visibility (rollups, fleet views), it uses the `System` principal through `system_context()`. When a handler acts on a specific tenant (impersonation), it sets `app.current_tenant_id` and stays RLS-subject.
 
-Examples: `POST /api/mssp/tenants`, `GET /api/mssp/tenants`, `POST /api/mssp/impersonate/:tenant_id`, `GET /api/mssp/audit`, `POST /api/mssp/users`, `GET /api/mssp/fleet/summary`.
+Examples (this release): `POST /api/mssp/tenants/onboard`, `GET /api/mssp/tenants`, `POST /api/mssp/tenants/{id}:retry`, `POST /api/mssp/tenants/{id}:suspend|:resume|:decommission`, `GET /api/audit`, `POST /api/mssp/users/{id}/password/reset`. (Impersonation, user create, and fleet rollups are roadmap.)
 
-### `/api/tenant/*` — Tenant-side (requires `customer_viewer`)
+### `/api/tenant/*` — Tenant-side (requires `tenant_admin` | `customer_viewer`)
 
 Hard-scoped. Tenant context from JWT; no impersonation entry. All queries RLS-enforced via `soctalk_app`. Read-only in this release (except user self-service).
 

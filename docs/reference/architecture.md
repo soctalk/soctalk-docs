@@ -1,5 +1,7 @@
 # Architecture
 
+> **V1 deployment note.** The entity-list naming below uses legacy "case_*" prefixes for several tables; the actual V1 schema names are: `cases`, `investigation_runs`, `investigation_events`, `investigation_iocs`, `investigation_assets`, `investigation_links`, `investigation_outbox`, `proposals`. The `cases` table name is unchanged for backwards compatibility, but per-investigation child tables all use the `investigation_*` prefix. Of these, the cases / investigation_runs / investigation_events tables are exercised by the current orchestrator; `proposals` and `investigation_outbox` are present in the schema but the executor side that consumes them is on the roadmap. Read this page as the architectural intent; consult [`src/soctalk/core/ir/models.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/core/ir/models.py) for the exact schema.
+
 ## 1. Core entities
 
 Minimal shape. Full column lists live in the migration; only load-bearing

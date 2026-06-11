@@ -6,8 +6,8 @@ Both chart classes upgrade via `helm upgrade`. Today this is a runbook; a fleet-
 
 Before any upgrade:
 
-1. **Read the release notes** for the target version. Migrations are forward-only; a surprise schema change cannot be reverted with `helm rollback`.
-2. **Verify the compatibility matrix.** MSSP UI → System → Versions shows which `soctalk-tenant` versions are supported by the target `soctalk-system`. Upgrade `soctalk-system` first, then tenants.
+1. **Read the [release notes](https://github.com/soctalk/soctalk/releases)** for the target version. Migrations are forward-only; a surprise schema change cannot be reverted with `helm rollback`.
+2. **Upgrade `soctalk-system` before tenants.** A formal compatibility-matrix surface (System → Versions UI, `controller.can_upgrade` validation) is described in [Chart Contract](/reference/chart-contract) as the architectural target but is **not implemented in this release**. Until it ships, follow the release notes' "tested combinations" line, upgrade `soctalk-system` first, then bump each tenant once you've verified the system-side upgrade.
 3. **Back up.** Snapshot Postgres + all tenant PVCs. See the [database restore section](/operations#database-restore-disaster-recovery) in operations.
 4. **Dry-run** with `helm diff`:
    ```bash
@@ -17,40 +17,26 @@ Before any upgrade:
 
 ## Upgrade `soctalk-system` (install-level)
 
-Order matters: migrations must finish before the new API pods are gated on readiness. The API pod only has the `soctalk_app` role and never runs migrations; if it starts against an old schema with new code, readiness fails and `helm upgrade --wait` hangs. Run the Alembic Job first, then upgrade the chart.
+`soctalk-system-values.yaml` from the install pins `image.tag` to the original release. Override on each upgrade so the new chart renders the new image. Either bump the file in version control, or pass `--set image.tag=<new-version>` on every command below.
 
-`soctalk-system-values.yaml` from the install pins `image.tag` to the original release (e.g. `"0.1.0"`). Override that on each upgrade so the new chart actually renders the new image. Either bump the file in version control, or pass `--set image.tag=<new-version>` on every command below.
+Migrations run inside the API pod's init command (see [Install → Migrations and bootstrap](/install#migrations-and-bootstrap-run-automatically)). A `helm upgrade` rolls the API pod; the init command runs `alembic upgrade head` before the new app starts. Alembic is idempotent — re-running on a current schema is a no-op.
 
 ```bash
-# 1. Delete any previous Alembic Job so a new Pod can spawn.
-kubectl -n soctalk-system delete job soctalk-system-alembic-upgrade \
-  --ignore-not-found
-
-# 2. Render and apply the Alembic Job at the target chart + image version.
-helm template soctalk-system oci://ghcr.io/soctalk/charts/soctalk-system \
-  --version <new-version> \
-  --namespace soctalk-system \
-  -f soctalk-system-values.yaml \
-  --set image.tag=<new-version> \
-  --show-only templates/jobs/alembic-upgrade.yaml \
-  | kubectl apply -n soctalk-system -f -
-
-# 3. Wait for migrations to complete.
-kubectl -n soctalk-system wait --for=condition=complete \
-  job/soctalk-system-alembic-upgrade --timeout=10m
-kubectl -n soctalk-system logs job/soctalk-system-alembic-upgrade
-
-# 4. Now run the chart upgrade. The new API image starts against the
-#    already-migrated schema, so --wait can succeed.
 helm upgrade soctalk-system oci://ghcr.io/soctalk/charts/soctalk-system \
   --version <new-version> \
   --namespace soctalk-system \
   -f soctalk-system-values.yaml \
   --set image.tag=<new-version> \
-  --wait --timeout 10m
+  --wait --timeout 15m
 ```
 
-If the release notes confirm no schema changes, steps 1–3 still work (Alembic no-ops at head); you can also skip them and go straight to step 4.
+Watch the migration:
+
+```bash
+kubectl -n soctalk-system logs deploy/soctalk-system-api -c db-init --follow
+```
+
+If `--wait` hangs, the most common cause is a migration failure — read the init logs.
 
 ### Rollback
 
@@ -70,11 +56,13 @@ helm upgrade tenant-<slug> oci://ghcr.io/soctalk/charts/soctalk-tenant \
   --wait --timeout 15m
 ```
 
-`/tmp/tenant-<slug>-values.yaml` is the SocTalk-rendered values file. Retrieve it from the SocTalk API or regenerate:
+`/tmp/tenant-<slug>-values.yaml` is the SocTalk-rendered values file. Today there is no operator-facing CLI to dump it; pull the last-rendered values from the tenant's Helm release secret:
 
 ```bash
-soctalk-cli render-values --tenant <slug> > /tmp/tenant-<slug>-values.yaml
+helm get values tenant-<slug> -n tenant-<slug> -a > /tmp/tenant-<slug>-values.yaml
 ```
+
+A `soctalk-cli render-values` command was previously mentioned in this guide but does not exist — the only CLI tool today is `soctalk-auth`.
 
 ### Per-tenant rollback
 

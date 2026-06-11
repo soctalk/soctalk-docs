@@ -1,5 +1,6 @@
 # CNI + NetworkPolicy Design
 
+> **V1 deployment note.** The CiliumNetworkPolicy templates below describe the **target architecture** for east-west isolation and FQDN-pinned egress to per-tenant LLMs. The V1 chart today renders simpler policies: a permissive egress for the `soctalk-system-api` Deployment (the orchestrator is co-located in that pod), and a `runs-worker-egress` policy in each `tenant-<slug>` namespace that allows broad TCP/443 egress to the LLM provider (no per-tenant FQDN allowlist). Wazuh ingress on 1514/1515 **is** allowed from the `ingress-system` namespace in the rendered policies. Read the rest of this page as the design destination; consult [`charts/soctalk-system/templates/50-networkpolicy.yaml`](https://github.com/soctalk/soctalk/blob/main/charts/soctalk-system/templates/50-networkpolicy.yaml) for what currently ships.
 
 ## Decision: Cilium as primary CNI
 

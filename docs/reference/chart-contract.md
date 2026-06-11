@@ -1,5 +1,6 @@
 # Two-Chart Contract
 
+> **V1 status.** Sections below describe the **target contract**. Concretely, in this release: the `chart_compatibility` table, `compatibility.yaml` artifact, `controller.can_upgrade(system, tenant)` validation, and the MSSP-UI "System → Versions" surface are **not implemented**. Treat compatibility as a release-notes contract (tested combinations only) until those ship. The schema and matrix below remain useful as the design target.
 
 ## Chart classes
 
@@ -130,8 +131,9 @@ llm:
   baseUrl: https://api.openai.com/v1
   model: gpt-4o
   apiKeyRef:
-    namespace: soctalk-system   # see secret-placement; this is the install ns
-    name: tenant-<id>-llm       # naming convention
+    # V1: provisioning renders this as a secretKeyRef to a Secret in the
+    # tenant's OWN namespace, not the system namespace.
+    name: tenant-llm-key        # in tenant-<slug> namespace
     key: api_key
 
 # Integration endpoints (tenant's external systems, if any)

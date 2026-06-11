@@ -2,6 +2,8 @@
 
 For MSSP cluster admins. Covers cluster prerequisites, the `soctalk-system` chart install, and onboarding the first customer.
 
+**Trying it for the first time? Use the [demo VM](/quickstart-vm) instead.** It's a single-image install with a browser-based wizard — much faster path to a running system. This page is the production path: K3s + Cilium + cert-manager + your own ingress controller.
+
 ## Cluster prerequisites
 
 Install these once per K3s cluster before `soctalk-system`. SocTalk expects Kubernetes 1.30+ because the system chart installs a native `ValidatingAdmissionPolicy` guard for tenant namespace operations.
@@ -9,7 +11,10 @@ Install these once per K3s cluster before `soctalk-system`. SocTalk expects Kube
 ### K3s with Cilium
 
 ```bash
-# K3s with flannel + kube-proxy disabled (Cilium will replace).
+# Production K3s: disable flannel + kube-proxy + traefik so Cilium (CNI)
+# and your chosen ingress controller take over. The demo VM image uses
+# the *bundled* Traefik instead — that's intentional for a zero-config
+# single-box install but not what you want for production.
 curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=" \
   --flannel-backend=none \
   --disable-network-policy \
@@ -147,6 +152,20 @@ oidc:
 postgres:
   enabled: true
   storage: { size: 20Gi }
+
+# Required if you want a working sign-in on first install. The chart's
+# db-init container creates this user inline; without it, no admin
+# exists and `soctalk-auth set-password` (which only updates existing
+# users) has nothing to update.
+install:
+  bootstrapAdmin:
+    email: "ops@your-mssp.example"
+    password: "changeMe-please-rotate"   # rotate via `soctalk-auth set-password` after first sign-in
+    displayName: "MSSP Admin"
+    # Production alternative: leave password empty and set
+    # existingSecret to a pre-provisioned Secret with key `password`
+    # so the credential never passes through helm values.
+    # existingSecret: "my-bootstrap-admin"
 ```
 
 ### Install
@@ -160,50 +179,34 @@ helm install soctalk-system oci://ghcr.io/soctalk/charts/soctalk-system \
 
 The chart's pre-install Job verifies cluster prerequisites and fails fast if any are missing.
 
-### Run migrations
+### Migrations and bootstrap run automatically
 
-Migrations need the `soctalk_admin` DB role, whose credentials are mounted only on the dedicated Alembic Job (not the long-running API pod). See [Postgres RLS](/reference/postgres-rls) for the role separation.
+Both happen inside the API pod's init command before the FastAPI app starts:
 
-A completed `Job` is not re-runnable: `kubectl apply` against an existing Job with the same name is a no-op. Delete the previous Job (if any) before rendering a new one, so each migration run produces a fresh Pod:
+1. Wait for Postgres to accept connections.
+2. `alembic upgrade head` to migrate to the latest schema.
+3. Bind per-role passwords (`soctalk_app`, `soctalk_mssp`).
+4. Seed the Organization row from `install.msspId` / `install.msspName`.
+5. If `install.bootstrapAdmin.email` and `install.bootstrapAdmin.password` are set in values, upsert the user as `mssp_admin` with `must_change=false` and the supplied password.
+
+So if you put the bootstrap admin credentials in values, **the API comes up with the admin already created** — no extra Job to run.
+
+The chart does **not** ship a separate Alembic Job; the previous edition of this page described one that didn't exist. Migrations are tied to the API pod's lifecycle. Watching them:
 
 ```bash
-# Delete any previous Alembic Job. --ignore-not-found is safe on first install.
-kubectl -n soctalk-system delete job soctalk-system-alembic-upgrade \
-  --ignore-not-found
-
-# Render the Job template for this release and apply.
-helm template soctalk-system oci://ghcr.io/soctalk/charts/soctalk-system \
-  --version 0.1.0 \
-  --namespace soctalk-system \
-  -f soctalk-system-values.yaml \
-  --show-only templates/jobs/alembic-upgrade.yaml \
-  | kubectl apply -n soctalk-system -f -
-
-# Wait for it to finish, then read the log.
-kubectl -n soctalk-system wait --for=condition=complete \
-  job/soctalk-system-alembic-upgrade --timeout=10m
-kubectl -n soctalk-system logs job/soctalk-system-alembic-upgrade
+kubectl -n soctalk-system logs deploy/soctalk-system-api -c db-init --follow
 ```
 
-Alembic itself is idempotent (no-ops if the DB is already at head), so re-running on an unchanged install is safe. The delete-then-apply pattern is what allows a fresh Pod to spawn on each invocation.
+On an upgrade, deleting the API pod re-runs the migration (alembic is idempotent, so re-running on an unchanged DB is a no-op).
 
-### Run the bootstrap
+If you did NOT supply `install.bootstrapAdmin.password` in values, set the admin password after install:
 
 ```bash
 kubectl -n soctalk-system exec -it deploy/soctalk-system-api -- \
-  python -m soctalk.core.provisioning.bootstrap
+  soctalk-auth set-password <admin-email>
 ```
 
-This seeds the Organization row. On an `internal`-mode install it also creates the initial `platform_admin` user and writes the credentials to the `soctalk-system-bootstrap-admin` Secret:
-
-```bash
-kubectl -n soctalk-system get secret soctalk-system-bootstrap-admin \
-  -o jsonpath='{.data.email}' | base64 -d; echo
-kubectl -n soctalk-system get secret soctalk-system-bootstrap-admin \
-  -o jsonpath='{.data.password}' | base64 -d; echo
-```
-
-The credential is flagged `must_change`, so first sign-in forces you to set a new password. On a `proxy`-mode install the bootstrap skips password creation; your IdP provisions the first user on their first authenticated request.
+In `proxy` auth mode, password endpoints are not mounted. **JIT user provisioning on first authenticated request is not implemented in V1** — you must seed the first MSSP user manually (e.g., via `kubectl exec` on the API pod and direct SQL `INSERT` against the `users` table) before any proxy-authenticated request can succeed. A real JIT path is on the roadmap.
 
 ## Verify the install
 
@@ -218,9 +221,11 @@ Sign in at `https://mssp.your-mssp.example` with the bootstrap admin. You should
 
 ![MSSP dashboard](/screenshots/mssp-dashboard.png)
 
+For a tour of every screen you'll see from here on, read the [MSSP UI Tour](/mssp-ui).
+
 ## Onboard the first customer
 
-In the MSSP UI go to **Tenants → New tenant**. The wizard collects identity, LLM config, integration URLs, and branding. Provisioning runs asynchronously; the detail page streams lifecycle events.
+In the MSSP UI go to **Tenants → New tenant**. The onboarding form collects: slug, display name, profile (`poc` | `persistent`), contact email, branding, and optional LLM base URL + model overrides. Customer-viewer invites are **not** in the form — that's configured after the tenant reaches `active`. Provisioning runs asynchronously; refresh the detail page to see new lifecycle events appear in the events table. (A live event stream is on the roadmap; `/api/events/stream` exists but emits pings only in this release.)
 
 ![Tenants list](/screenshots/tenants-list.png)
 

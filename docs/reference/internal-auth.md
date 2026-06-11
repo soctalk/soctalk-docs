@@ -9,7 +9,7 @@ decorators.py:120`, Postgres RLS) is unchanged. This spec only adds a
 new identity source that produces the same `UserIdentity` shape already
 consumed in `src/soctalk/core/tenancy/auth.py:67`.
 
-Two modes, selected at process start and surfaced on `/healthz`:
+Two modes, selected at process start and surfaced on `/health/live` and `/health/ready`:
 
 ```
 SOCTALK_AUTH_MODE = internal | proxy

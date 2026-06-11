@@ -1,6 +1,6 @@
 # Daily Operations
 
-Tasks MSSP operators run against a live SocTalk install.
+Tasks MSSP operators run against a live SocTalk install. If you haven't yet, read the [MSSP UI Tour](/mssp-ui) first — it catalogs every page referenced below.
 
 ## Investigation queue
 
@@ -10,7 +10,7 @@ Open **Investigations** to see active cases for every tenant on one view. Filter
 
 ## Proposal review queue
 
-**Reviews** is the cross-tenant queue of AI proposals waiting on a human. Approving writes an outbox row keyed by `proposal.idempotency_key`; the executor consumes it exactly once.
+**Reviews** is the cross-tenant queue of AI proposals waiting on a human. Approve / reject / more-info each update the review row in the database (and the audit log). There is **no outbox** in V1 — the executor / downstream notification pipeline is on the roadmap.
 
 ![Review queue](/screenshots/review-queue.png)
 
@@ -41,7 +41,7 @@ curl -X POST https://mssp.../api/mssp/tenants/<id>:decommission?force=true
 
 ## Tenant in `degraded` state
 
-`degraded` means SocTalk lost contact with the tenant adapter for more than 10 min.
+`degraded` is set by the provisioning controller on a provisioning failure, or set explicitly via the API. **There is no auto-degradation loop based on adapter heartbeat age in this release**; the `soctalk_tenant_adapter_heartbeat_age_seconds` metric is for your alerting.
 
 1. Check the adapter pod:
    ```bash
@@ -60,21 +60,18 @@ If the data plane is healthy but the adapter still cannot reach `soctalk-system`
 
 ## Rotate per-tenant LLM key
 
-1. MSSP admin → customer detail → Settings → LLM → paste new key → Save.
-2. SocTalk overwrites the `tenant-<id>-llm` Secret in `soctalk-system`. The orchestrator picks up the change on the next worker context build; no pod restart needed.
+1. MSSP admin → customer detail → Settings → LLM → paste new key → Save (or `PATCH /api/mssp/tenants/{id}/llm`).
+2. SocTalk's authoritative store is `IntegrationConfig.llm_api_key_plain` in Postgres. The provisioning controller materializes that value into `Secret/tenant-llm-key` in the tenant namespace (mounted by the runs-worker Deployment) and optionally mirrors a reference into `soctalk-system/<tenant-id>-llm` for audit.
+3. SocTalk best-effort restarts the `soctalk-runs-worker` Deployment in `tenant-<slug>` so the new key takes effect on the next investigation pick-up.
 
 ## Rotate data plane bootstrap secrets
 
-```bash
-soctalk-cli rotate-admin --tenant <slug> --service wazuh
-```
+There is no `soctalk-cli rotate-*` command in this release — that path was documented in earlier drafts. Today:
 
-Brief per-service interruption during rotation. Agents need to re-enroll only if the Wazuh `authd` shared secret is rotated:
+- **Wazuh / TheHive / Cortex admin passwords:** patch the relevant Secret in the tenant namespace, then restart the affected pod. The chart's bootstrap rerun on pod start will pick up the new credential.
+- **Wazuh `authd` shared secret:** patch `Secret/wazuh-authd-secret` in `tenant-<slug>`, restart the Wazuh manager. All existing agents must re-enroll with the new secret; distribute via your normal secure channel.
 
-```bash
-soctalk-cli rotate-agent-secret --tenant <slug>
-# Distribute new secret to customer endpoint admin via secure channel.
-```
+A wrapper CLI for these rotations is on the roadmap.
 
 ## Analytics
 
@@ -87,7 +84,7 @@ soctalk-cli rotate-agent-secret --tenant <slug>
 MSSP-wide audit log lives in **UI → Audit tab**. Filter by tenant, actor, action, or timestamp. For compliance exports, use the API:
 
 ```bash
-curl 'https://mssp.../api/mssp/audit?since=2026-01-01&tenant=<id>' > audit.json
+curl 'https://mssp.../api/audit?since=2026-01-01&tenant=<id>' > audit.json
 ```
 
 ![Audit log](/screenshots/audit-log.png)
@@ -96,21 +93,19 @@ curl 'https://mssp.../api/mssp/audit?since=2026-01-01&tenant=<id>' > audit.json
 
 Backups are MSSP-managed externally (Velero, cluster snapshots, external `pg_dump`). To restore:
 
-1. Stop SocTalk API and orchestrator:
+1. Stop the SocTalk API:
    ```bash
    kubectl -n soctalk-system scale deploy soctalk-system-api --replicas=0
-   kubectl -n soctalk-system scale deploy soctalk-system-orchestrator --replicas=0
    ```
+   (The V1 chart bundles the orchestrator into the API pod — no separate `soctalk-system-orchestrator` Deployment.)
 2. Restore Postgres data from your backup.
-3. Restart the workloads.
+3. Restart the API: `kubectl -n soctalk-system scale deploy soctalk-system-api --replicas=2` (or your normal replica count).
 
 Tenant data plane PVCs follow the same pattern: restore per-namespace, then `helm upgrade` the tenant release to re-attach.
 
 ## Emergency: disable a tenant immediately
 
-Preferred path is the UI **Suspend** action: it scales every Deployment/StatefulSet in the tenant namespace to zero, so no pods remain to send or receive traffic.
-
-If you need to cut the tenant off from the API layer immediately while pods are still terminating, combine the suspend with a deny-all NetworkPolicy. NetworkPolicy alone does not reliably kill long-lived connections that pre-date its application (Cilium re-evaluates on flow updates but established TCP flows can persist), so scaling pods to zero is the actual cut-off:
+The UI **Suspend** action in this release flips the tenant state to `suspended` and stops the orchestrator from scheduling new investigations — **but it does not scale workloads**. For an actual cut-off, run the steps below (scale all deployments + apply a deny-all NetworkPolicy as belt-and-braces):
 
 ```bash
 # 1. Scale all workloads in the tenant namespace to zero. This is the
@@ -130,7 +125,7 @@ spec:
 EOF
 ```
 
-Reverse by deleting the NetworkPolicy and scaling workloads back up (or, preferably, lifting the suspend from the UI which restores the recorded replica counts).
+Reverse by deleting the NetworkPolicy, scaling workloads back up to their original replica counts, and calling **Resume** in the UI. **Resume** also only updates the DB state in this release — it won't restore replica counts for you.
 
 ## Cross-tenant data leak suspicion
 

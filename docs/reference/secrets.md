@@ -1,42 +1,52 @@
 # Secret Placement Policy
 
+> **V1 deployment note.** Several entries below reference "orchestrator pods" as a distinct workload — in the V1 chart the orchestrator is co-located in the `soctalk-system-api` Deployment, so references to "orchestrator pod" mean "API pod" in this release. Specific K8s Secret names may also vary slightly from the chart's rendered names (see [`charts/soctalk-system/templates/60-secrets.yaml`](https://github.com/soctalk/soctalk/blob/main/charts/soctalk-system/templates/60-secrets.yaml) for the source of truth).
 
-## Invariant
+## Invariant (aspirational)
 
-**No raw secret material in the SocTalk database.** Postgres tables that track secrets store references only: `(namespace, name, version_label)`. The material itself is always in a Kubernetes `Secret` object, mounted into the pod that needs it. This:
+**Target:** no raw secret material in the SocTalk database. Postgres tables that track secrets store references only: `(namespace, name, version_label)`. The material itself is in a Kubernetes `Secret` object, mounted into the pod that needs it.
+
+**Today (V1):** there is **one documented exception** — `IntegrationConfig.llm_api_key_plain` in the database stores per-tenant LLM API keys in plaintext. This is required because the runs-worker reads the key from its tenant context at investigation pickup time and the V1 chart doesn't yet wire per-tenant LLM Secrets through the pod spec. Treat the Postgres credentials as protecting these keys, and rotate the LLM provider keys as if they were exposed if the DB credential rotates.
+
+Other secret categories — JWT signing, Postgres roles, integration credentials, Wazuh authd — all live in K8s Secrets and are referenced by name from the DB, not stored inline. The architecture goals (below) describe the destination state for all secret classes:
 
 - Limits blast radius of a SocTalk DB compromise (no material leaks).
 - Lets K8s-native rotation mechanisms work (Secret update → pod picks up new value on remount or on next Secret read).
 - Aligns with External Secrets Operator integration path in a future release.
 
-## Secret inventory
+## V1 Secret inventory (what the chart actually renders today)
 
-| Secret | Material | Location | Accessed by | Rotation | Notes |
-|---|---|---|---|---|---|
-| Postgres credentials (admin) | user/pw | `Secret/soctalk-postgres-admin-creds` in `soctalk-system` | Alembic Job only | Manual; runbook in a future release | Not mounted to long-running pods |
-| Postgres credentials (app) | user/pw | `Secret/soctalk-postgres-app-creds` in `soctalk-system` | SocTalk API + orchestrator pods | Manual | |
-| Postgres credentials (mssp) | user/pw | `Secret/soctalk-postgres-mssp-creds` in `soctalk-system` | SocTalk API pod only | Manual | Used only inside `system_context()` |
-| User JWT signing key | HMAC secret or RSA/Ed25519 private key | `Secret/soctalk-jwt-signing-key` in `soctalk-system` | SocTalk API pod | Manual; automated in a future release | HMAC for MVP simplicity; asymmetric when multi-pod |
-| Adapter token signing key | HMAC key | `Secret/soctalk-adapter-signing-key` in `soctalk-system` | SocTalk API + controller pod only | Manual; automated in a future release | Never mounted into tenant namespaces |
-| Tenant adapter bearer token | bearer token | `Secret/adapter-token` in `tenant-<slug>` | Tenant adapter pod | Minted on tenant provisioning; rotated by controller | Tenant-bound; cannot mint other tokens |
-| Per-tenant LLM API key | bearer token | `Secret/tenant-<id>-llm` in `soctalk-system` | Orchestrator pod (projected by tenant context) | MSSP-initiated via tenant config UI → SocTalk rewrites Secret | Never appears in any other tenant's context |
-| Per-tenant Wazuh API credentials | user/pw or token | `Secret/tenant-<id>-wazuh` in `soctalk-system` | Orchestrator MCP subprocess (env at spawn time, tenant context) | MSSP-initiated | |
-| Per-tenant TheHive API token | token | `Secret/tenant-<id>-thehive` in `soctalk-system` | Orchestrator MCP subprocess | MSSP-initiated | |
-| Per-tenant Cortex API key | token | `Secret/tenant-<id>-cortex` in `soctalk-system` | Orchestrator MCP subprocess | MSSP-initiated | |
-| Wazuh manager admin password (per tenant) | password | `Secret/wazuh-bootstrap` in `tenant-<slug>` | Wazuh Deployment pods in that namespace | Runbook; automated in a future release | Generated at tenant provisioning time |
-| TheHive admin credentials (per tenant) | user/pw | `Secret/thehive-bootstrap` in `tenant-<slug>` | TheHive Deployment pods | Runbook | |
-| Cortex admin credentials (per tenant) | user/pw | `Secret/cortex-bootstrap` in `tenant-<slug>` | Cortex Deployment pods | Runbook | |
-| Wazuh inter-service certs (manager↔indexer↔dashboard mTLS) | X.509 | `Secret/wazuh-certs` in `tenant-<slug>` | Wazuh pods in that namespace | Generated once at tenant provisioning; rotation a future release | Often via cert-manager per-tenant Issuer |
-| Wazuh agent enrollment secret | shared secret | `Secret/wazuh-authd-secret` in `tenant-<slug>` | Wazuh manager (for enrollment) | Regenerate to force re-enrollment of all agents | Distributed to customer-endpoint admins out-of-band during onboarding |
-| Cassandra credentials (TheHive-embedded) | user/pw | `Secret/cassandra-creds` in `tenant-<slug>` | Cassandra StatefulSet + TheHive | Runbook | |
-| License material (a future release) | signed JWT | `Secret/soctalk-license` in `soctalk-system` | SocTalk API pod | Issued by Cloud; drop into Secret manually | Single file; `kubectl patch secret` for refresh |
+| Secret | Material | Location | Accessed by | Rotation |
+|---|---|---|---|---|
+| `soctalk-system-postgres-admin-creds` | user/pw | `soctalk-system` ns | API pod `db-init` container only (migrations + bootstrap) | Manual |
+| `soctalk-system-postgres-app-creds` | user/pw | `soctalk-system` ns | API pod (runtime, RLS-subject) | Manual |
+| `soctalk-system-postgres-mssp-creds` | user/pw | `soctalk-system` ns | API pod (`system_context()` cross-tenant queries) | Manual |
+| `soctalk-system-jwt-signing-key` | HMAC secret | `soctalk-system` ns | API pod | Manual |
+| `soctalk-system-adapter-signing-key` | HMAC key | `soctalk-system` ns | API pod (mints per-tenant adapter tokens) | Manual |
+| `soctalk-system-bootstrap-admin` | email + password | `soctalk-system` ns | API pod `db-init` container only | Manual |
+| `soctalk-system-llm-api-key` | provider API keys (anthropic-api-key + openai-api-key) | `soctalk-system` ns | API pod (install-wide default) | Manual |
+| `adapter-token` | bearer token | `tenant-<slug>` ns | Tenant adapter pod | Minted on provisioning; rotation via re-provisioning |
+| `runs-worker-token` | bearer token | `tenant-<slug>` ns | Tenant runs-worker pod (calls `/api/internal/worker/runs/*`) | Same as above |
+| `tenant-llm-key` | LLM API key | `tenant-<slug>` ns | Tenant runs-worker pod (mounted via `secretKeyRef`) | MSSP-initiated via `PATCH /api/mssp/tenants/{id}/llm`; controller materializes from `IntegrationConfig.llm_api_key_plain` + restarts runs-worker |
+| `tenant-<id>-llm` | LLM API key (legacy / audit copy) | `soctalk-system` ns | Not mounted by any V1 pod | Same as above; this copy is written for audit but is **not the authoritative source** the runs-worker reads |
+| `wazuh-authd-secret` | shared secret | `tenant-<slug>` ns | Wazuh manager (enrollment) | Regenerate to force re-enrollment of all agents |
+| `wazuh-<slug>-wazuh-creds` | user/pw | `tenant-<slug>` ns | Wazuh manager + linux-ep pods (agent enrollment) | Generated at provisioning |
 
-## Cross-namespace mounting: not done
+**Triage executes in `soctalk-runs-worker` in each `tenant-<slug>` namespace** (not in the central API pod). That's why per-tenant secrets are mounted into the tenant namespace, not into `soctalk-system`.
 
-SocTalk orchestrator runs in `soctalk-system` and needs per-tenant LLM keys. Options considered:
+The LLM API key is **also stored in plaintext in `IntegrationConfig.llm_api_key_plain`** in Postgres — see the invariant disclaimer above. The K8s Secret is materialized from the DB value at provisioning / rotation time.
 
-1. **Store per-tenant keys in `tenant-<slug>` ns and mount cross-namespace**. K8s doesn't support cross-namespace Secret references in volume mounts. Workarounds exist (CSI driver, external-secrets) but add complexity.
-2. **Store per-tenant keys in `soctalk-system` ns**: straightforward; orchestrator lives here. Naming convention (`tenant-<id>-llm`) keeps them separated. **Chosen**.
+Stale items from earlier drafts (now removed): `tenant-<id>-wazuh`, `tenant-<id>-thehive`, `tenant-<id>-cortex`, `wazuh-bootstrap`, `thehive-bootstrap`, `cortex-bootstrap`, `cassandra-creds`, `soctalk-license`. `tenant-<id>-llm` in `soctalk-system` still exists in V1 as a legacy/audit copy, but it is **not** what the runs-worker reads. The architecture section below describes the design rationale; only the inventory above is current.
+
+## Per-tenant LLM key placement
+
+Triage executes in the per-tenant `soctalk-runs-worker` pod (in `tenant-<slug>` namespace), **not** in the central API pod. That's why per-tenant LLM keys live in the tenant namespace:
+
+- **Authoritative store:** `IntegrationConfig.llm_api_key_plain` in Postgres.
+- **Mounted source:** `Secret/tenant-llm-key` in `tenant-<slug>`, materialized by the controller from the DB value.
+- **On rotation (`PATCH /api/mssp/tenants/{id}/llm`):** controller rewrites the tenant-namespace Secret and restarts `Deployment/soctalk-runs-worker` so the new key takes effect on the next investigation claim.
+
+`Secret/tenant-<id>-llm` in `soctalk-system` namespace also exists as a legacy / audit copy from earlier design iterations, but is **not** mounted by any V1 pod. There is no cross-namespace Secret mount in V1.
 
 The alternative (per-tenant ns for each tenant's LLM key) is re-evaluated in a future release with External Secrets Operator, where ESO can sync external-vault-stored secrets into whichever namespace needs them.
 
@@ -82,25 +92,22 @@ cassandra_pw = secrets.token_urlsafe(32)
 
 SocTalk stores references and version labels; it does not keep the material in memory beyond the provisioning call.
 
-## Rotation (runbook; a future release automation)
+## Rotation (V1 reality)
 
-For, rotation is a runbook operation:
+1. **Per-tenant LLM key rotation** (MSSP initiates via `PATCH /api/mssp/tenants/{id}/llm`):
+   - Authoritative store updated in Postgres (`IntegrationConfig.llm_api_key_plain`).
+   - Controller rewrites `Secret/tenant-llm-key` in `tenant-<slug>` (not the system namespace).
+   - Controller restarts `Deployment/soctalk-runs-worker` in the tenant namespace so the new key takes effect on the next claim. **Pod restart is required** — V1 does not reload secrets at runtime.
 
-1. **Per-tenant LLM key rotation** (MSSP initiates via tenant config UI):
-   - MSSP admin updates tenant's LLM config with new key.
-   - SocTalk controller `kubectl patch secret tenant-<id>-llm ...` in `soctalk-system`.
-   - Orchestrator pod picks up change on next worker context build (reads Secret freshly per job).
-   - No pod restart.
+2. **Wazuh / TheHive / Cortex admin credential rotation** (manual, runbook):
+   - `kubectl patch secret <name> -n tenant-<slug> ...` to rewrite the credential.
+   - `kubectl rollout restart` the affected workload so it re-reads.
+   - A wrapper CLI for this (`soctalk-cli rotate-admin`) was documented in earlier drafts but is **not implemented** in V1.
 
-2. **Wazuh / TheHive / Cortex admin credential rotation** (runbook):
-   - Operator runs SocTalk CLI (deliverable): `soctalk-cli rotate-admin --tenant=acme --service=wazuh`.
-   - CLI generates new credential, `kubectl patch secret wazuh-bootstrap ...`, restarts Wazuh pods.
-   - Brief service interruption per tenant.
-
-3. **Postgres credentials rotation** (runbook, a future release automation):
-   - Generate new pw; `ALTER ROLE soctalk_app WITH PASSWORD ...` in Postgres.
-   - `kubectl patch secret soctalk-postgres-app-creds ...`.
-   - Rolling restart of SocTalk API + orchestrator pods.
+3. **Postgres credentials rotation** (manual, runbook):
+   - `ALTER ROLE soctalk_app WITH PASSWORD ...` in Postgres.
+   - `kubectl patch secret soctalk-system-postgres-app-creds ...` (mind the chart-rendered name).
+   - `kubectl rollout restart deploy soctalk-system-api` — there is no separate orchestrator pod in V1 (the orchestrator is co-located in the API pod).
 
 4. **JWT signing key rotation** (a future release): zero-downtime rotation requires supporting two valid keys during transition. This release defers this; manual rotation forces a window where all users re-auth.
 
@@ -108,10 +115,9 @@ For, rotation is a runbook operation:
 
 Kubernetes RBAC restricts which ServiceAccounts can read which Secrets:
 
-- `soctalk-api-sa` in `soctalk-system`: can read all Secrets in `soctalk-system` (Postgres creds, JWT keys, all per-tenant LLM and integration secrets, license when a future release).
-- `soctalk-controller-sa` in `soctalk-system`: can read/write Secrets in `soctalk-system` and in `tenant-*` namespaces (needed to create/rotate tenant bootstrap secrets).
-- `soctalk-orchestrator-sa` in `soctalk-system`: can read per-tenant LLM and integration Secrets in `soctalk-system` only.
-- Per-tenant `ServiceAccount` in `tenant-<slug>`: can read only secrets in its own namespace. It can read its own `adapter-token` but never the system signing key.
+- `soctalk-system-api` SA in `soctalk-system`: can read Secrets in `soctalk-system` (Postgres creds, JWT/adapter signing keys). Also bound to write Secrets in `tenant-*` namespaces (needed to create/rotate tenant bootstrap secrets) — the V1 chart consolidates the API + controller roles into this SA.
+- Per-tenant `ServiceAccount` in `tenant-<slug>`: can read only secrets in its own namespace. It can read its own `adapter-token` / `runs-worker-token` / `tenant-llm-key`, but never the system signing key.
+- The `soctalk-orchestrator-sa` from earlier drafts does not exist in V1 — the orchestrator runs inside the API pod under the API SA.
 
 `Role`/`RoleBinding` templates are part of `soctalk-system` chart (for SocTalk SAs) and `soctalk-tenant` chart (for per-tenant SAs).
 
