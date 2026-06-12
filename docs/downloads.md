@@ -30,10 +30,10 @@ All artifacts are compressed with `xz -9`. Decompress with `xz -d <file>.xz`.
 | **VMware Workstation / Fusion** | vmdk |
 | **VirtualBox** | vmdk — attach as existing disk |
 | **Microsoft Hyper-V** | vhdx — Generation 2 VM |
-| **Microsoft Azure** | vhd — upload to Storage Account, then Managed Disk → Image → VM |
+| **Microsoft Azure** | vhd — direct upload to a Managed Disk → Image → VM. See [Run on Azure](/azure) |
 | **Google Cloud** | raw — `tar czf disk.tar.gz disk.raw && gcloud compute images create` |
 | **OpenStack** | raw — `openstack image create --disk-format raw` |
-| **AWS** | — *(AMI publishing not yet wired up in CI; build locally with `packer build -only=amazon-ebs.soctalk_demo` from the repo)* |
+| **AWS** | vmdk — import as an AMI with VM Import, or build a native AMI with Packer. See [Run on AWS](/aws) |
 | **Bare metal** | raw — `dd if=disk.raw of=/dev/sdX bs=4M` |
 
 ## Verify the download

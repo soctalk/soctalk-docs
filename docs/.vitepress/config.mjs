@@ -39,6 +39,8 @@ export default withMermaid(
             { text: 'Quickstart: demo VM', link: '/quickstart-vm' },
             { text: 'Downloads', link: '/downloads' },
             { text: 'Setup wizard', link: '/setup-wizard' },
+            { text: 'Run on AWS', link: '/aws' },
+            { text: 'Run on Azure', link: '/azure' },
             { text: 'Production install', link: '/install' },
             { text: 'MSSP UI Tour', link: '/mssp-ui' },
           ],

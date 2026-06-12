@@ -56,9 +56,13 @@ Import `soctalk-demo.vmdk` as an existing disk on a new VM (Linux, Ubuntu 64-bit
 
 Use `soctalk-demo.vhdx` as the OS disk on a Generation 2 VM.
 
+### AWS
+
+Build a native AMI with Packer, or import `soctalk-demo.vmdk` as an AMI with VM Import. Full walkthrough: [Run on AWS](/aws).
+
 ### Azure
 
-Upload `soctalk-demo.vhd` (fixed-size) to a Storage Account, then create a Managed Disk → Image → VM. See [Microsoft's guide for generalized VHDs](https://learn.microsoft.com/azure/virtual-machines/linux/upload-vhd).
+Upload `soctalk-demo.vhd` (fixed-size) directly to a Managed Disk, then create a Generation 1 image and VM from it. Full walkthrough: [Run on Azure](/azure).
 
 ### Raw / dd
 
