@@ -54,7 +54,7 @@ Import `soctalk-demo.vmdk` as an existing disk on a new VM (Linux, Ubuntu 64-bit
 
 ### Hyper-V
 
-Use `soctalk-demo.vhdx` as the OS disk on a Generation 2 VM.
+Use `soctalk-demo.vhdx` as the OS disk on a **Generation 1** VM (the image boots via BIOS firmware; Generation 2 / UEFI is untested). To inject an SSH key, attach a NoCloud `seed.iso` as a DVD drive — see [Optional: cloud-init seed](#optional-cloud-init-seed).
 
 ### AWS
 

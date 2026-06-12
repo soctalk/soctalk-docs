@@ -12,7 +12,7 @@ Each release lists:
 
 - `soctalk-demo-<ver>.qcow2.xz` — KVM, QEMU, libvirt, Proxmox
 - `soctalk-demo-<ver>.vmdk.xz` — VMware ESXi, Workstation, Fusion, VirtualBox
-- `soctalk-demo-<ver>.vhdx.xz` — Microsoft Hyper-V (Gen 2)
+- `soctalk-demo-<ver>.vhdx.xz` — Microsoft Hyper-V (Generation 1)
 - `soctalk-demo-<ver>.vhd.xz` — Microsoft Azure (fixed-size, 1 MiB aligned)
 - `soctalk-demo-<ver>.raw.xz` — generic cloud import (GCP, OpenStack), `dd` to physical disk
 - `SHA256SUMS.txt` — checksums for all of the above
@@ -29,7 +29,7 @@ All artifacts are compressed with `xz -9`. Decompress with `xz -d <file>.xz`.
 | **VMware ESXi** | vmdk — or convert with `ovftool` |
 | **VMware Workstation / Fusion** | vmdk |
 | **VirtualBox** | vmdk — attach as existing disk |
-| **Microsoft Hyper-V** | vhdx — Generation 2 VM |
+| **Microsoft Hyper-V** | vhdx — Generation 1 VM (validated; the image boots via BIOS firmware, Gen 2 / UEFI is untested) |
 | **Microsoft Azure** | vhd — direct upload to a Managed Disk → Image → VM. See [Run on Azure](/azure) |
 | **Google Cloud** | raw — `tar czf disk.tar.gz disk.raw && gcloud compute images create` |
 | **OpenStack** | raw — `openstack image create --disk-format raw` |
