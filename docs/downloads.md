@@ -23,7 +23,7 @@ All artifacts are compressed with `xz -9`. Decompress with `xz -d <file>.xz`.
 
 | Your platform | Download |
 |---|---|
-| **Proxmox VE** | qcow2 — `qm importdisk` |
+| **Proxmox VE** | qcow2 — `qm disk import`. See [Run on Proxmox](/proxmox) |
 | **libvirt / virt-manager / QEMU CLI** | qcow2 |
 | **KVM (RHEL/CentOS/Alma)** | qcow2 |
 | **VMware ESXi** | vmdk — or convert with `ovftool` |

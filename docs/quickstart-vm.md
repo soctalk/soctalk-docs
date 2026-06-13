@@ -46,7 +46,7 @@ qemu-system-x86_64 \
 
 ### Proxmox VE
 
-`qm importdisk <vmid> soctalk-demo.qcow2 <storage>`, then attach as virtio-scsi.
+`qm disk import <vmid> soctalk-demo.qcow2 <storage>`, then attach as SCSI and boot. Full walkthrough with web-UI screenshots: [Run on Proxmox](/proxmox).
 
 ### VMware
 
