@@ -10,12 +10,12 @@ Current version: **v0.1.2** — [release page](https://github.com/soctalk/soctal
 
 The release includes:
 
-- `soctalk-demo-0.1.2.qcow2.xz` — KVM, QEMU, libvirt, Proxmox
-- `soctalk-demo-0.1.2.vmdk.xz` — VMware ESXi, Workstation, Fusion, VirtualBox
-- `soctalk-demo-0.1.2.vhdx.xz` — Microsoft Hyper-V (Generation 1)
-- `soctalk-demo-0.1.2.vhd.xz` — Microsoft Azure (fixed-size, 1 MiB aligned)
-- `soctalk-demo-0.1.2.raw.xz` — generic cloud import (GCP, OpenStack), `dd` to physical disk
-- `SHA256SUMS.txt` — checksums for all of the above
+- [`soctalk-demo-0.1.2.qcow2.xz`](https://github.com/soctalk/soctalk/releases/download/v0.1.2/soctalk-demo-0.1.2.qcow2.xz) — KVM, QEMU, libvirt, Proxmox
+- [`soctalk-demo-0.1.2.vmdk.xz`](https://github.com/soctalk/soctalk/releases/download/v0.1.2/soctalk-demo-0.1.2.vmdk.xz) — VMware ESXi, Workstation, Fusion, VirtualBox
+- [`soctalk-demo-0.1.2.vhdx.xz`](https://github.com/soctalk/soctalk/releases/download/v0.1.2/soctalk-demo-0.1.2.vhdx.xz) — Microsoft Hyper-V (Generation 1)
+- [`soctalk-demo-0.1.2.vhd.xz`](https://github.com/soctalk/soctalk/releases/download/v0.1.2/soctalk-demo-0.1.2.vhd.xz) — Microsoft Azure (fixed-size, 1 MiB aligned)
+- [`soctalk-demo-0.1.2.raw.xz`](https://github.com/soctalk/soctalk/releases/download/v0.1.2/soctalk-demo-0.1.2.raw.xz) — generic cloud import (GCP, OpenStack), `dd` to physical disk
+- [`SHA256SUMS.txt`](https://github.com/soctalk/soctalk/releases/download/v0.1.2/SHA256SUMS.txt) — checksums for all of the above
 
 All artifacts are compressed with `xz -9`. Decompress with `xz -d <file>.xz`.
 
