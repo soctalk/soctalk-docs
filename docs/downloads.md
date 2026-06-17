@@ -28,7 +28,7 @@ All artifacts are compressed with `xz -9`. Decompress with `xz -d <file>.xz`.
 | **KVM (RHEL/CentOS/Alma)** | qcow2 |
 | **VMware ESXi** | vmdk — or convert with `ovftool` |
 | **VMware Workstation / Fusion** | vmdk |
-| **VirtualBox** | vmdk — attach as existing disk |
+| **VirtualBox** | vmdk — convert to VDI, then attach. See [Run on VirtualBox](/virtualbox) |
 | **Microsoft Hyper-V** | vhdx — Generation 1 VM (validated; the image boots via BIOS firmware, Gen 2 / UEFI is untested) |
 | **Microsoft Azure** | vhd — direct upload to a Managed Disk → Image → VM. See [Run on Azure](/azure) |
 | **Google Cloud** | raw — `tar czf disk.tar.gz disk.raw && gcloud compute images create` |
