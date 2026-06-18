@@ -40,6 +40,7 @@ export default withMermaid(
             { text: 'Downloads', link: '/downloads' },
             { text: 'Setup wizard', link: '/setup-wizard' },
             { text: 'Run on VirtualBox', link: '/virtualbox' },
+            { text: 'Run on Windows (WSL2)', link: '/windows' },
             { text: 'Run on Proxmox', link: '/proxmox' },
             { text: 'Run on AWS', link: '/aws' },
             { text: 'Run on Azure', link: '/azure' },
@@ -70,6 +71,7 @@ export default withMermaid(
           text: 'Integrate',
           items: [
             { text: 'LLM providers', link: '/integrate/llm-providers' },
+            { text: 'Ollama (local LLM)', link: '/integrate/ollama' },
             { text: 'TheHive', link: '/integrate/thehive' },
             { text: 'Cortex', link: '/integrate/cortex' },
             { text: 'Slack', link: '/integrate/slack' },
