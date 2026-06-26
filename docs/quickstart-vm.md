@@ -83,7 +83,7 @@ ssh ops@<vm-ip>
 sudo cat /var/log/soctalk-setup-token
 ```
 
-The recommended login is the **`ops` user with your SSH key**, created by the cloud-init seed in [§ Optional: cloud-init seed](#optional-cloud-init-seed) below. If you boot without a seed, see [§ SSH access + credentials](#ssh-access--credentials) for the build-time fallback — and read the security note there before exposing the VM to a network you don't trust.
+The recommended login is the **`ops` user with your SSH key**, created by the cloud-init seed in [§ Optional: cloud-init seed](#optional-cloud-init-seed) below. If you boot without a seed, see [§ SSH access + credentials](#ssh-access-credentials) for the build-time fallback — and read the security note there before exposing the VM to a network you don't trust.
 
 ## 4. Open the wizard
 
@@ -173,8 +173,9 @@ sshpass -p packer ssh -o StrictHostKeyChecking=accept-new ubuntu@<vm-ip>
 sudo -i
 ```
 
-!!! danger "The `packer` password is in the public source repo"
-    Any internet-reachable VM booted from this image without a cloud-init seed that locks `ubuntu` is a one-line takeover. Either provide a seed or apply the hardening steps below before exposing the VM.
+::: danger The `packer` password is in the public source repo
+Any internet-reachable VM booted from this image without a cloud-init seed that locks `ubuntu` is a one-line takeover. Either provide a seed or apply the hardening steps below before exposing the VM.
+:::
 
 ### Hardening checklist
 
