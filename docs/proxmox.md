@@ -24,7 +24,7 @@ xz -d soctalk-demo-$VER.qcow2.xz
 
 ## 2. Build the cloud-init seed ISO
 
-The image ships with no baked-in credentials — a NoCloud seed ISO injects your SSH key (and a hostname). On the node, or any Linux box:
+A NoCloud seed ISO creates an `ops` user with your SSH key. Without it you can still log in as the build-time `ubuntu:packer` user (see [SSH access](/quickstart-vm#ssh-access--credentials)), but that credential is in the public source tree — provide the seed before exposing the VM to a network you don't trust. On the node, or any Linux box:
 
 ```bash
 cat > user-data <<'EOF'

@@ -38,7 +38,7 @@ This produces a writable, dynamically-sized `soctalk-demo-0.1.2.vdi` (a few GB o
 
 ## 3. Build a cloud-init seed ISO
 
-The image has no baked-in credentials — a small NoCloud seed ISO injects your SSH key so you can read the per-boot setup token. On Linux/macOS:
+A small NoCloud seed ISO creates an `ops` user with your SSH key so you can read the per-boot setup token. If you skip it you can still log in as the build-time `ubuntu:packer` user (see [SSH access](/quickstart-vm#ssh-access--credentials)) — but that credential is in the public source tree, so harden the VM before exposing it. On Linux/macOS:
 
 ```bash
 cat > user-data <<EOF

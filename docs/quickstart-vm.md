@@ -83,7 +83,7 @@ ssh ops@<vm-ip>
 sudo cat /var/log/soctalk-setup-token
 ```
 
-Default SSH user is `ops`. **SSH access requires a cloud-init seed with your public key** (see [Optional: cloud-init seed](#optional-cloud-init-seed) below) — the image ships with no baked-in credentials. If you boot without a seed, use the hypervisor's console to read the token instead.
+The recommended login is the **`ops` user with your SSH key**, created by the cloud-init seed in [§ Optional: cloud-init seed](#optional-cloud-init-seed) below. If you boot without a seed, see [§ SSH access + credentials](#ssh-access--credentials) for the build-time fallback — and read the security note there before exposing the VM to a network you don't trust.
 
 ## 4. Open the wizard
 
@@ -135,6 +135,63 @@ cloud-localds seed.iso user-data meta-data
 ```
 
 To skip the wizard, drop `/etc/soctalk/values.yaml` + `/etc/soctalk/llm.key` via cloud-init `write_files`; the wizard's systemd condition (`ConditionPathExists=!/etc/soctalk/values.yaml`) will short-circuit and the installer goes straight to `helm install`.
+
+## SSH access + credentials
+
+The downloadable disk images (qcow2 / vmdk / vhdx / vhd / raw) all ship with **two** possible login identities. Which one you use depends on whether you provided cloud-init user-data.
+
+### Production: `ops` user (recommended)
+
+The cloud-init seed in [§ Optional: cloud-init seed](#optional-cloud-init-seed) creates an `ops` user with your SSH key. SSH-key auth only — no password is set.
+
+```bash
+ssh -i ~/.ssh/<your-private-key> ops@<vm-ip>
+
+# Root shell, no further password
+sudo -i
+```
+
+### Build-time `ubuntu` user (present in every shipped image)
+
+The Packer build uses a build-time `ubuntu` user with a known password. The cleanup step that should lock this account hasn't been wired up yet, so it ships in the image. If you boot without a cloud-init seed it's the only way to get console access via SSH:
+
+| User | Password | Sudo |
+|---|---|---|
+| `ubuntu` | `packer` | `ALL=(ALL) NOPASSWD:ALL` |
+
+Password SSH auth is enabled by the same seed, so the image accepts:
+
+```bash
+# Interactive
+ssh ubuntu@<vm-ip>
+# password: packer
+
+# Non-interactive (requires sshpass)
+sshpass -p packer ssh -o StrictHostKeyChecking=accept-new ubuntu@<vm-ip>
+
+# Root shell, no further password
+sudo -i
+```
+
+!!! danger "The `packer` password is in the public source repo"
+    Any internet-reachable VM booted from this image without a cloud-init seed that locks `ubuntu` is a one-line takeover. Either provide a seed or apply the hardening steps below before exposing the VM.
+
+### Hardening checklist
+
+Run as `ops` after first boot, or fold into your cloud-init `runcmd:` so it fires automatically:
+
+```bash
+# Disable the build user
+sudo passwd -l ubuntu
+sudo usermod -s /usr/sbin/nologin ubuntu
+
+# Turn off password SSH auth
+sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' \
+  /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null
+sudo systemctl reload ssh
+```
+
+The AWS AMI is built from a separate Packer source (`amazon-ebs`) that doesn't include the seed and uses EC2's keypair injection instead — it doesn't carry the `ubuntu:packer` credential. The hardening checklist still applies to it for the standard AMI `ubuntu` cloud-image user.
 
 ## Troubleshooting
 
