@@ -135,7 +135,7 @@ sudo systemctl reload ssh
 
 ### 2.3 Install Tailscale, join the tailnet
 
-SSH in as `ops` (your hardened account from §2.2):
+SSH in as `ops` (the user the cloud-init seed created during your [Quickstart VM](/quickstart-vm) install — **not** the build-time `ubuntu` user that §2.2 just locked):
 
 ```bash
 curl -fsSL https://tailscale.com/install.sh | sh
@@ -188,12 +188,19 @@ For each tenant in your pilot, you'll do this in the MSSP dashboard, then hand t
 In the MSSP dashboard, go to **Tenants** → **Add Tenant**. Fill in:
 
 - **Display name** — e.g. `Acme Corp`
-- **Slug** — short, lowercase, dash-separated, **must match the tailnet tag** you defined in §1.1 (so `tag:tenant-acme` → slug `acme`)
+- **Slug** — short, lowercase, dash-separated. **Strongly recommended** to match your tailnet tag from §1.1 (so `tag:tenant-acme` → slug `acme`); nothing technically enforces this but keeping them in sync makes the ACL + troubleshooting much easier.
 - **Contact email**
+- **Wazuh profile** — pick at creation time:
+  - **`poc`** — chart installs Wazuh + a linux-ep simulator on the tenant cluster. Choose this if the tenant has no Wazuh yet.
+  - **`provided`** — chart installs only the SocTalk adapter; you'll wire it to the tenant's existing Wazuh in §3.4 once they send you credentials. Choose this if the tenant already runs Wazuh.
+
+::: warning Profile choice is sticky
+Changing the profile after the tenant has provisioned requires decommissioning and re-onboarding. Confirm with your tenant contact before submitting.
+:::
 
 Submit.
 
-<!-- screenshot: mssp-add-tenant-form.png — Add Tenant form filled in -->
+<!-- screenshot: mssp-add-tenant-form.png — Add Tenant form filled in, profile field visible -->
 
 ### 3.2 Issue the agent registration command
 
@@ -210,7 +217,9 @@ helm install soctalk-agent-acme \
   --set-string bootstrapToken=<one-time-token>
 ```
 
-Copy it as one block.
+::: warning Copy the command FROM the modal, not from here
+The `0.1.x` above is illustrative — the actual chart version (and bootstrap token) come from your specific `:issue-agent` API response. Use the **Copy** button on the modal; don't retype.
+:::
 
 ::: warning Bootstrap token TTL
 The bootstrap token expires (default: 24h). If the tenant doesn't run the command before then, re-issue from the same screen.
@@ -230,6 +239,32 @@ Send these through a shared password manager (1Password, Bitwarden, Vaultwarden 
 ::: info Coming soon
 The [SocTalk Launchpad](https://github.com/soctalk/soctalk) (in design) will generate a single signed bundle the tenant pastes into their setup wizard, automating this handoff. For now it's a manual copy-paste.
 :::
+
+### 3.4 If the tenant chose `provided` — wire up External Wazuh
+
+::: tip Skip this section if you picked `poc` in §3.1
+The `poc` profile is self-contained — the chart installs its own Wazuh; nothing else to do on the MSSP side. Jump to §4.
+:::
+
+For `provided`-profile tenants, you'll do this **after** the tenant has run their helm install (§4.6) and come back to you with their Wazuh endpoints. Sequence:
+
+1. Tenant runs §4.6 — cloud-agent registers, tenant appears in your dashboard.
+2. Tenant follows §4.7a — gathers Indexer + Manager URLs + creds + chosen reachability option (host on tailnet, or `--advertise-routes`).
+3. Tenant sends both endpoint + credential pairs to you (same secure channel as §3.3).
+4. **On the MSSP dashboard**: tenant detail page → **External Wazuh** → fill in:
+   - Wazuh Indexer URL + user + password (Basic auth)
+   - Wazuh Manager API URL + user + password (JWT-mintable)
+   - **Save**. The controller upgrades the tenant chart with `--set wazuh.profile=provided` and the credentials; the adapter reconnects within ~30s.
+5. Sanity check from the MSSP VM:
+
+   ```bash
+   curl -k -u <user>:<pw> "https://<wazuh-mgr>:55000/security/user/authenticate?raw=true"
+   # expected: a JWT (long base64 string)
+   ```
+
+   If this 200s, the chat tools will resolve when you hit §5.
+
+<!-- screenshot: mssp-tenant-external-wazuh.png — tenant detail page with the External Wazuh form -->
 
 ## 4. Tenant side: stand up the data plane
 
@@ -347,9 +382,10 @@ your Wazuh Manager, and chat tool calls against your tenant will
 fail.
 
 Hand both endpoint + credential pairs (plus the chosen reachability
-option) back to your MSSP. They paste them into the tenant's
-"External Wazuh" form in the MSSP dashboard, which configures the
-SocTalk tenant chart to use your Wazuh in "provided" mode.
+option) back to your MSSP. They follow §3.4 — pasting the credentials
+into the tenant's "External Wazuh" form in the MSSP dashboard, which
+configures the SocTalk tenant chart to use your Wazuh in "provided"
+mode.
 ```
 
 ```text [4.7b — No existing Wazuh]
@@ -362,13 +398,34 @@ Watch progress:
 ```
 :::
 
-### 4.8 Checkpoint — tenant appears Online in the MSSP dashboard
+### 4.8 Checkpoints — two states to watch
 
-Sign back into the MSSP dashboard. Your tenant should now show **Online** within 1-2 minutes of §4.6 succeeding.
+The tenant goes through two distinct readiness states. Don't confuse them:
+
+#### 4.8a Cloud agent registered (~1 minute after §4.6)
+
+Sign back into the MSSP dashboard. Your tenant flips to **Online** within 1-2 minutes of §4.6 succeeding. This means **the cloud-agent has reached the MSSP and registered** — the trust handshake is done.
+
+It does **not** yet mean the tenant Wazuh stack is up or the chat tools will resolve queries against this tenant.
 
 <!-- screenshot: mssp-dashboard-tenant-online.png — MSSP dashboard with new tenant flipped to Online -->
 
-If it doesn't, see [Pilot troubleshooting](#pilot-troubleshooting) below.
+#### 4.8b Tenant data plane fully ready (~5-7 more minutes)
+
+After agent registration, the MSSP controller drives the tenant chart install on the tenant's cluster:
+
+- **`poc` profile**: Wazuh + linux-ep simulator come up. Wall clock ~5-7 minutes.
+- **`provided` profile**: SocTalk adapter comes up immediately, but Wazuh chat tool calls only resolve **after** the MSSP completes §3.4 (External Wazuh wiring).
+
+Watch from the tenant VM:
+
+```bash
+kubectl -n tenant-<slug> get pods -w
+# poc profile: wait until wazuh-manager-0, wazuh-indexer-0, linux-ep-N all Ready
+# provided profile: wait until soctalk-adapter is Ready
+```
+
+Only after §4.8b is the tenant ready for the demo in §5. If §4.8a fires but §4.8b never completes, see [Pilot troubleshooting](#_7-pilot-troubleshooting).
 
 ## 5. The demo moment
 
@@ -400,11 +457,13 @@ The `@ <tenant-slug>` chip on the tool badge is the proof: SocTalk's AI SOC anal
 
 <!-- screenshot: chat-wazuh-alerts.png — chat showing get_wazuh_alert_summary @ slug + assistant reply with rule IDs -->
 
-If the alerts list is empty (the tenant Wazuh hasn't seen any traffic yet), generate test alerts. The chart-installed Wazuh path (§4.7b) ships a `linux-ep` pod with the attack simulator; trigger it via `kubectl exec`:
+If the alerts list is empty (the tenant Wazuh hasn't seen any traffic yet), generate test alerts. The chart-installed Wazuh path (§4.7b) ships one or more `linux-ep-N` pods with the attack simulator; trigger it on the first ready replica via a label selector:
 
 ```bash
-# On the tenant VM, against the chart-installed linux-ep pod
-kubectl -n tenant-<slug> exec -it pod/linux-ep-0 -- /opt/scripts/run-attack.sh
+# On the tenant VM, against any linux-ep pod
+kubectl -n tenant-<slug> exec -it \
+  "$(kubectl -n tenant-<slug> get pod -l app=linux-ep -o jsonpath='{.items[0].metadata.name}')" \
+  -- /opt/scripts/run-attack.sh
 ```
 
 Wait 30-60 seconds and re-run the chat query. For the existing-Wazuh path (§4.7a), trigger alerts however you normally would on your own Wazuh — e.g., SSH a few bad passwords on a monitored host.
@@ -427,7 +486,7 @@ Wait 30-60 seconds and re-run the chat query. For the existing-Wazuh path (§4.7
 
 When you migrate to production, your MSSP product configuration — tenants list, chat history, LLM key — can carry forward with planning. Talk to the team before you decommission this pilot.
 
-## Pilot troubleshooting
+## 7. Pilot troubleshooting
 
 Symptom-driven table for failures specific to the pilot topology. Generic SocTalk issues are covered in [Troubleshooting](/troubleshooting).
 
@@ -443,7 +502,7 @@ Symptom-driven table for failures specific to the pilot topology. Generic SocTal
 | Adapter heartbeat works but agent never reaches "Online" | NetworkPolicies left enabled in §4.5 | `kubectl -n soctalk-agent get networkpolicies` — should be empty |
 | `helm install` rejected with values-schema error | Chart version skew between control plane and agent chart | Use the chart version printed by the issue-agent endpoint, not "latest" |
 
-## Decommissioning the pilot
+## 8. Decommissioning the pilot
 
 When the pilot ends:
 
