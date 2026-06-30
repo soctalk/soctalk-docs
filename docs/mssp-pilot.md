@@ -177,36 +177,102 @@ curl -k https://soctalk-mssp.<your-tailnet>.ts.net/health/ready
 # expected: 200 OK
 ```
 
-Sign in to the dashboard at `https://soctalk-mssp.<your-tailnet>.ts.net/` with the admin credentials from §2.1.
+Sign in to the dashboard at `https://soctalk-mssp.<your-tailnet>.ts.net/` with the admin credentials from §2.1. You should land on the MSSP cross-tenant fleet view — the KPI strip across the top (Pending Reviews / Stuck Cases / Degraded Tenants / Repeated IOCs), the per-tenant investigation queue, and the tenant health table:
+
+![MSSP dashboard — cross-tenant fleet view](/screenshots/mssp-dashboard.png)
 
 ## 3. Onboard each tenant — issue the agent registration
 
 For each tenant in your pilot, you'll do this in the MSSP dashboard, then hand the result to the tenant operator.
 
-### 3.1 Add the tenant
+### 3.1 Run the Create Customer wizard
 
-In the MSSP dashboard, go to **Tenants** → **Add Tenant**. Fill in:
+In the MSSP dashboard, click **Tenants** in the left rail, then **New tenant** at the top of the list page. This opens the **Create Customer** wizard. For `poc` and `persistent` profiles it's 4 steps (Identity → Profile → Branding → Review); for `provided` it's 5 (an **External SIEM** step appears between Profile and Branding).
+
+::: tip Collect tenant info up front
+For `provided`-profile tenants, the wizard requires the tenant's **existing Wazuh credentials** at step 3. Get them from your tenant contact (out-of-band, same secure channel as §3.3) **before** starting the wizard so you don't park a half-filled form. For `poc` / `persistent` you only need the basics.
+:::
+
+#### Step 1 — Identity
 
 - **Display name** — e.g. `Acme Corp`
-- **Slug** — short, lowercase, dash-separated. **Strongly recommended** to match your tailnet tag from §1.1 (so `tag:tenant-acme` → slug `acme`); nothing technically enforces this but keeping them in sync makes the ACL + troubleshooting much easier.
+- **Slug** — short, lowercase, dash-separated (3–32 chars, validated `[a-z0-9-]+`). **Must match** your tailnet tag from §1.1 (so `tag:tenant-acme` → slug `acme`). Later steps substitute the slug directly into `tag:tenant-<slug>` for the auth key (§3.3) and the tenant `tailscale up` command (§4.2 / §4.7a); a mismatch means the tenant node advertises a tag your §1.2 ACLs don't grant.
 - **Contact email**
-- **Wazuh profile** — pick at creation time:
-  - **`poc`** — chart installs Wazuh + a linux-ep simulator on the tenant cluster. Choose this if the tenant has no Wazuh yet.
-  - **`provided`** — chart installs only the SocTalk adapter; you'll wire it to the tenant's existing Wazuh in §3.4 once they send you credentials. Choose this if the tenant already runs Wazuh.
+
+![Create Customer — Identity step](/screenshots/mssp-add-tenant-step1-identity.png)
+
+#### Step 2 — Profile
+
+Pick one of three radio options. The API validates against `poc | persistent | provided`:
+
+- **PoC** — chart installs Wazuh + a linux-ep simulator on the tenant cluster, with `local-path` storage and tight resource budgets. Choose this for short-lived pilots where the tenant has no existing Wazuh. See [tenant lifecycle / poc](/tenant-lifecycle#poc).
+- **Persistent** — same Wazuh-included shape as `poc`, but sized for sustained production load with the cluster's default StorageClass and full chart resource ranges. See [tenant lifecycle / persistent](/tenant-lifecycle#persistent).
+- **Provided (bring your own Wazuh)** — chart installs only the SocTalk adapter; you point it at the tenant's existing Wazuh via the **External SIEM** step (below). See [tenant lifecycle / provided](/tenant-lifecycle#provided).
+
+There's an **LLM (advanced)** disclosure on the same step for overriding the install-shared LLM provider, base URL, key, and (optionally) Fast / Thinking model IDs. For `poc` / `persistent` this is optional — leave it collapsed to inherit the install defaults. For `provided` the LLM credentials are **required** (there's no install-shared fallback) and gate the step.
+
+![Create Customer — Profile step](/screenshots/mssp-add-tenant-step2-profile.png)
 
 ::: warning Profile choice is sticky
 Changing the profile after the tenant has provisioned requires decommissioning and re-onboarding. Confirm with your tenant contact before submitting.
 :::
 
-Submit.
+#### Step 3 — External SIEM (provided only)
 
-<!-- screenshot: mssp-add-tenant-form.png — Add Tenant form filled in, profile field visible -->
+This step is hidden unless you picked Provided on step 2. Fill in two endpoint + credential pairs:
+
+- **Wazuh Indexer URL** (e.g. `https://wazuh.acme.example:9200`) + indexer user + indexer password (Basic auth)
+- **Wazuh Manager API URL** (e.g. `https://wazuh.acme.example:55000`) + API user + API password (used to mint JWTs)
+
+These need to be reachable from the tenant VM you'll stand up in §4. The MSSP-side controller turns the URLs into a Cilium FQDN egress allow-list on the tenant namespace; the adapter never reaches Wazuh directly from your MSSP cluster.
+
+Sanity-check the manager creds from the MSSP VM before you submit:
+
+```bash
+curl -k -u <user>:<pw> "https://<wazuh-mgr>:55000/security/user/authenticate?raw=true"
+# expected: a JWT (long base64 string)
+```
+
+If this 200s, the tenant chat tools will resolve once §4 completes.
+
+#### Step 4 (or 3 for poc/persistent) — Branding
+
+Optional. Display name + small logo upload that surfaces in the tenant header. You can skip this entirely.
+
+![Create Customer — Branding step](/screenshots/mssp-add-tenant-step3-branding.png)
+
+#### Final step — Review
+
+Confirm everything, then click **Create**. The API responds 202 and you're returned to the tenants list; the new tenant starts in `pending` and runs through `provisioning → active`. Refresh the detail page to watch lifecycle events accumulate.
+
+![Create Customer — Review step](/screenshots/mssp-add-tenant-step4-review.png)
 
 ### 3.2 Issue the agent registration command
 
-On the new tenant's detail page, click **Issue Agent**. The dashboard hits `POST /api/mssp/tenants/<id>:issue-agent` and returns a one-time bootstrap token + a ready-to-run Helm command.
+::: warning No UI button (yet)
+At the time of writing, the tenant detail page exposes only the lifecycle actions (Suspend / Resume / Retry Provisioning / Decommission). The `:issue-agent` flow is API-only — drive it from a shell on the MSSP VM. A dedicated **Issue Agent** button is on the roadmap.
+:::
 
-The result modal contains a single shell command of the form:
+![Tenant detail — lifecycle actions only, no Issue Agent button](/screenshots/mssp-tenant-detail.png)
+
+From the MSSP VM, sign in once to obtain a session cookie, then POST against the tenant's `:issue-agent` endpoint:
+
+```bash
+# Replace <mssp-host> with your MSSP UI hostname (e.g. soctalk-mssp.<tailnet>.ts.net)
+# Replace <tenant-id> with the UUID from the tenant detail URL or from GET /api/mssp/tenants
+MSSP=https://<mssp-host>
+TENANT=<tenant-id>
+
+curl -sk -c jar -X POST "$MSSP/api/auth/login" \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"<mssp-admin-email>","password":"<password>"}'
+
+curl -sk -b jar -X POST "$MSSP/api/mssp/tenants/$TENANT:issue-agent" \
+  -H "Origin: $MSSP" \
+  -H 'Content-Type: application/json' | jq .
+```
+
+The 201 response body contains a `helm_install_hint` you paste directly into the tenant's shell. It looks like:
 
 ```bash
 helm install soctalk-agent-acme \
@@ -217,15 +283,13 @@ helm install soctalk-agent-acme \
   --set-string bootstrapToken=<one-time-token>
 ```
 
-::: warning Copy the command FROM the modal, not from here
-The `0.1.x` above is illustrative — the actual chart version (and bootstrap token) come from your specific `:issue-agent` API response. Use the **Copy** button on the modal; don't retype.
+::: warning Use the API output verbatim
+The `0.1.x` chart version and bootstrap token above are illustrative — the real values come from your `:issue-agent` response. Don't retype the helm command; copy the `helm_install_hint` field.
 :::
 
 ::: warning Bootstrap token TTL
-The bootstrap token expires (default: 24h). If the tenant doesn't run the command before then, re-issue from the same screen.
+The bootstrap token expires (default: 24h). If the tenant doesn't run the command before then, re-issue against the same `:issue-agent` endpoint — re-issuing revokes any un-consumed prior token.
 :::
-
-<!-- screenshot: mssp-issue-agent-result.png — the result modal showing helm command with a Copy button -->
 
 ### 3.3 Hand off to the tenant contact
 
@@ -240,31 +304,25 @@ Send these through a shared password manager (1Password, Bitwarden, Vaultwarden 
 The [SocTalk Launchpad](https://github.com/soctalk/soctalk) (in design) will generate a single signed bundle the tenant pastes into their setup wizard, automating this handoff. For now it's a manual copy-paste.
 :::
 
-### 3.4 If the tenant chose `provided` — wire up External Wazuh
+### 3.4 Coordinating External Wazuh creds for `provided` tenants
 
-::: tip Skip this section if you picked `poc` in §3.1
-The `poc` profile is self-contained — the chart installs its own Wazuh; nothing else to do on the MSSP side. Jump to §4.
+::: tip Skip this section if you picked `poc` or `persistent` in §3.1
+Those profiles are self-contained — the chart installs its own Wazuh; nothing else to do on the MSSP side. Jump to §4.
 :::
 
-For `provided`-profile tenants, you'll do this **after** the tenant has run their helm install (§4.6) and come back to you with their Wazuh endpoints. Sequence:
+For `provided`-profile tenants the wizard **already collected** the External SIEM credentials at §3.1 step 3 — by the time the tenant reaches `active`, the adapter is configured. The only out-of-band work is upstream of §3.1: getting the credentials from the tenant in the first place.
 
-1. Tenant runs §4.6 — cloud-agent registers, tenant appears in your dashboard.
-2. Tenant follows §4.7a — gathers Indexer + Manager URLs + creds + chosen reachability option (host on tailnet, or `--advertise-routes`).
-3. Tenant sends both endpoint + credential pairs to you (same secure channel as §3.3).
-4. **On the MSSP dashboard**: tenant detail page → **External Wazuh** → fill in:
-   - Wazuh Indexer URL + user + password (Basic auth)
-   - Wazuh Manager API URL + user + password (JWT-mintable)
-   - **Save**. The controller upgrades the tenant chart with `--set wazuh.profile=provided` and the credentials; the adapter reconnects within ~30s.
-5. Sanity check from the MSSP VM:
+Sequence:
 
-   ```bash
-   curl -k -u <user>:<pw> "https://<wazuh-mgr>:55000/security/user/authenticate?raw=true"
-   # expected: a JWT (long base64 string)
-   ```
+1. **Before §3.1**, ask your tenant contact for:
+   - Wazuh Indexer URL + user + password (Basic auth used by the adapter for `_search`)
+   - Wazuh Manager API URL + user + password (used to mint JWTs)
+   - A reachability decision — is their Wazuh on the same tailnet as the tenant VM you'll stand up in §4? If not, they'll need to `--advertise-routes` from §4.2 (see §4.7a for the menu).
+2. They follow §4.7a on their side to confirm reachability.
+3. They send both endpoint + credential pairs to you (shared password manager).
+4. You run §3.1 with **Provided** at step 2 and paste the creds at step 3.
 
-   If this 200s, the chat tools will resolve when you hit §5.
-
-<!-- screenshot: mssp-tenant-external-wazuh.png — tenant detail page with the External Wazuh form -->
+If the tenant's reachability story changes after §3.1 (e.g., they shift Wazuh to a different host), update the External SIEM panel on the tenant detail page — the controller picks up the change in the next reconcile (~30 s).
 
 ## 4. Tenant side: stand up the data plane
 
@@ -382,10 +440,12 @@ your Wazuh Manager, and chat tool calls against your tenant will
 fail.
 
 Hand both endpoint + credential pairs (plus the chosen reachability
-option) back to your MSSP. They follow §3.4 — pasting the credentials
-into the tenant's "External Wazuh" form in the MSSP dashboard, which
-configures the SocTalk tenant chart to use your Wazuh in "provided"
-mode.
+option) back to your MSSP. They paste the credentials at step 3 of
+the Create Customer wizard (§3.1) — which configures the SocTalk
+tenant chart to use your Wazuh in "provided" mode. If the MSSP has
+already onboarded you as `provided` and your reachability story
+changes later, they update the External SIEM panel on the tenant
+detail page instead (§3.4).
 ```
 
 ```text [4.7b — No existing Wazuh]
@@ -415,7 +475,7 @@ It does **not** yet mean the tenant Wazuh stack is up or the chat tools will res
 After agent registration, the MSSP controller drives the tenant chart install on the tenant's cluster:
 
 - **`poc` profile**: Wazuh + linux-ep simulator come up. Wall clock ~5-7 minutes.
-- **`provided` profile**: SocTalk adapter comes up immediately, but Wazuh chat tool calls only resolve **after** the MSSP completes §3.4 (External Wazuh wiring).
+- **`provided` profile**: SocTalk adapter comes up immediately. Wazuh chat tool calls resolve as soon as the adapter reaches the External SIEM endpoints the MSSP supplied at §3.1 step 3 — if they don't, check reachability per §3.4.
 
 Watch from the tenant VM:
 

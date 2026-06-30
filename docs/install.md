@@ -225,7 +225,7 @@ For a tour of every screen you'll see from here on, read the [MSSP UI Tour](/mss
 
 ## Onboard the first customer
 
-In the MSSP UI go to **Tenants → New tenant**. The onboarding form collects: slug, display name, profile (`poc` | `persistent`), contact email, branding, and optional LLM base URL + model overrides. Customer-viewer invites are **not** in the form — that's configured after the tenant reaches `active`. Provisioning runs asynchronously; refresh the detail page to see new lifecycle events appear in the events table. (A live event stream is on the roadmap; `/api/events/stream` exists but emits pings only in this release.)
+In the MSSP UI go to **Tenants → New tenant**. The onboarding form collects: slug, display name, profile (`poc` | `persistent` | `provided`), contact email, branding, and optional LLM base URL + model overrides. Customer-viewer invites are **not** in the form — that's configured after the tenant reaches `active`. Provisioning runs asynchronously; refresh the detail page to see new lifecycle events appear in the events table. (A live event stream is on the roadmap; `/api/events/stream` exists but emits pings only in this release.) If you pick `provided` (BYO Wazuh), the form additionally requires the external indexer + Manager API URLs and credentials plus a per-tenant LLM key — see [tenant lifecycle / provided](/tenant-lifecycle#provided).
 
 ![Tenants list](/screenshots/tenants-list.png)
 

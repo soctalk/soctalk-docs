@@ -82,6 +82,18 @@ For production customer SOCs.
 
 Pick `persistent` for anything customer-facing. The default is `poc` if not specified, which is the wrong default for a real customer.
 
+### `provided`
+
+For tenants who bring their own externally-deployed Wazuh stack ("BYO-SIEM"). The tenant chart installs only the SocTalk adapter + runs-worker; no Wazuh/TheHive/Cortex run inside the tenant namespace.
+
+- StorageClass: irrelevant — only the adapter's checkpoint PVC is provisioned
+- Wazuh: tenant's own deployment, reached over the network via the indexer (:9200) and Manager API (:55000) URLs supplied at onboard time
+- External-SIEM connection material (`wazuh_indexer_url`, `wazuh_api_url`, basic-auth creds) is **required** at onboard and validated server-side (422 if incomplete)
+- Per-tenant LLM credentials are also **required** at onboard (no install-shared fallback for `provided`)
+- A Cilium FQDN egress allow-list is auto-derived from the supplied indexer/API hostnames
+
+Pick `provided` when the customer already runs Wazuh and wants SocTalk to query it in place. See the [MSSP pilot tutorial → §3.1](/mssp-pilot#_3-1-run-the-create-customer-wizard) for the wizard walk-through (the External SIEM step) and [§3.4](/mssp-pilot#_3-4-coordinating-external-wazuh-creds-for-provided-tenants) for the upstream coordination work.
+
 ## Resource quotas
 
 Each `tenant-<slug>` namespace gets a `ResourceQuota` and `LimitRange` at create time, scoped to the profile's expected footprint. See [Sizing](/reference/sizing).
@@ -90,6 +102,7 @@ Each `tenant-<slug>` namespace gets a `ResourceQuota` and `LimitRange` at create
 |---|---|---|---|---|---|---|
 | `poc` | 2 | 4 | 4 Gi | 8 Gi | 4 | 20 |
 | `persistent` | 2 | 5 | 6 Gi | 12 Gi | 6 | 30 |
+| `provided` | 1 | 2 | 2 Gi | 4 Gi | 2 | 10 |
 
 (Exact numbers live in `_profile_tenant_overrides` in [`render.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/core/provisioning/render.py).)
 

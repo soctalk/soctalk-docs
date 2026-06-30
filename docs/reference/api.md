@@ -68,6 +68,8 @@ curl -b jar -X POST https://mssp.../api/mssp/tenants/onboard \
   }'
 ```
 
+`profile` is validated server-side against `^(poc|persistent|provided)$`. See [tenant lifecycle / profiles](/tenant-lifecycle#profiles) for the semantics of each value. For `provided` (BYO-Wazuh), the payload additionally requires an `external_siem` object (indexer URL, Manager API URL, basic-auth creds) plus a per-tenant `llm_api_key`; the server returns 422 with field-level errors if any are missing.
+
 Returns 202 with the new tenant ID. Watch `GET /api/mssp/tenants/{id}` for state transitions, or poll `GET /api/mssp/tenants/{id}/events` for the lifecycle event list. (`/api/events/stream` exists but emits keep-alive pings only in this release.)
 
 ### Get the audit log
