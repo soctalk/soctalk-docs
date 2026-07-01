@@ -42,6 +42,7 @@ export default withMermaid(
             { text: 'Downloads', link: '/downloads' },
             { text: 'Setup wizard', link: '/setup-wizard' },
             { text: 'Run on VirtualBox', link: '/virtualbox' },
+            { text: 'Run on VMware ESXi', link: '/vmware' },
             { text: 'Run on Windows (WSL2)', link: '/windows' },
             { text: 'Run on Proxmox', link: '/proxmox' },
             { text: 'Run on AWS', link: '/aws' },

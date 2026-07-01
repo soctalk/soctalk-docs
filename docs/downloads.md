@@ -26,7 +26,7 @@ All artifacts are compressed with `xz -9`. Decompress with `xz -d <file>.xz`.
 | **Proxmox VE** | qcow2 — `qm disk import`. See [Run on Proxmox](/proxmox) |
 | **libvirt / virt-manager / QEMU CLI** | qcow2 |
 | **KVM (RHEL/CentOS/Alma)** | qcow2 |
-| **VMware ESXi** | vmdk — or convert with `ovftool` |
+| **VMware ESXi** | vmdk — see [Run on VMware ESXi](/vmware) |
 | **VMware Workstation / Fusion** | vmdk |
 | **VirtualBox** | vmdk — convert to VDI, then attach. See [Run on VirtualBox](/virtualbox) |
 | **Microsoft Hyper-V** | vhdx — Generation 1 VM (validated; the image boots via BIOS firmware, Gen 2 / UEFI is untested) |
