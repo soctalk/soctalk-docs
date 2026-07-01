@@ -188,14 +188,14 @@ sudo -i        # → root shell (NOPASSWD sudo, no password prompt)
 ```
 
 ```text [Browser console (no SSH available)]
-Same credentials as above. In the Host Client → SocTalk-Demo →
-Console → Open browser console:
+# Host Client → SocTalk-Demo → Console → Open browser console
+# Same credentials as the SSH tabs above.
 
-  packer-build login: ubuntu
-  Password: packer            # not echoed
+packer-build login: ubuntu
+Password: packer                    # not echoed on screen
 
-  ubuntu@packer-build:~$ sudo -i
-  root@packer-build:~#
+ubuntu@packer-build:~$ sudo -i
+root@packer-build:~#
 ```
 
 :::
