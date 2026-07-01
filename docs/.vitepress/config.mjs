@@ -36,9 +36,9 @@ export default withMermaid(
         {
           text: 'Get Started',
           items: [
-            { text: '1. Quickstart: demo VM', link: '/quickstart-vm' },
-            { text: '2. MSSP pilot rollout', link: '/mssp-pilot' },
-            { text: '3. Production install', link: '/install' },
+            { text: 'Quickstart: demo VM', link: '/quickstart-vm' },
+            { text: 'MSSP pilot rollout', link: '/mssp-pilot' },
+            { text: 'Production install', link: '/install' },
             { text: 'Downloads', link: '/downloads' },
             { text: 'Setup wizard', link: '/setup-wizard' },
             { text: 'Run on VirtualBox', link: '/virtualbox' },

@@ -7,10 +7,10 @@ hero:
   tagline: Run a dedicated Wazuh stack per customer on your own Kubernetes, behind one control plane.
   actions:
     - theme: brand
-      text: 1. Try the demo VM
+      text: Try the demo VM
       link: /quickstart-vm
     - theme: brand
-      text: 2. MSSP pilot rollout
+      text: MSSP pilot rollout
       link: /mssp-pilot
     - theme: alt
       text: Production install
