@@ -49,7 +49,7 @@ The PowerShell installer bootstraps WSL2, then runs the **same `install.sh`** th
 # inside the WSL2 Ubuntu distro, as root:
 curl -sfL https://get.k3s.io | sh -          # k3s as a systemd service
 helm upgrade --install soctalk-system \
-  oci://ghcr.io/soctalk/charts/soctalk-system --version 0.1.2 \
+  oci://ghcr.io/soctalk/charts/soctalk-system --version 0.1.3 \
   --namespace soctalk-system --create-namespace -f values.yaml
 ```
 
