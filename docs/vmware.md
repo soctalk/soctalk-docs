@@ -136,9 +136,9 @@ If your ESXi build hides that option or you prefer to configure everything from 
   - **CPU** 4
   - **Memory** 8 GB
   - **Hard disk 1** — click the disk row → **Existing hard disk**, browse to `[datastore1] SocTalk-Demo/SocTalk-Demo.vmdk`
-  - **Network adapter 1** — Network `VM Network`, Adapter type `E1000` (see the [Troubleshooting](#troubleshooting) note about e1000e/vmxnet3 on some hardware)
+  - **Network adapter 1** — Network `VM Network`, Adapter type `VMXNET3` (VMware's recommended paravirtualized NIC; use it on bare-metal ESXi for best performance)
   - **CD/DVD drive 1** — Datastore ISO file, browse to `soctalk-seed.iso` — check **Connect at power on**
-  - **USB controller / Floppy** — remove both (they're not needed and can trip early boot on some ESXi builds)
+  - Leave USB controller and Floppy at their defaults.
 - **Ready to complete** — Finish.
 
 The VM appears in the Virtual Machines list with `Register VM` marked completed successfully.
@@ -221,9 +221,9 @@ Once install completes you're at the MSSP Dashboard:
 
 ## Troubleshooting
 
-**`msg.vmx.poweron.failed: not on NAS or VMFS version 3 datastore`** — the VM files live under `/vmfs/volumes/OSDATA-*` instead of a real user datastore. Move them: `vmkfstools -i` the vmdk into a real VMFS datastore (§3 + §4), copy the `.vmx` alongside, unregister the old VM (`vim-cmd vmsvc/unregister <id>`), and register the new one (`vim-cmd solo/registervm /vmfs/volumes/datastore1/SocTalk-Demo/SocTalk-Demo.vmx SocTalk-Demo`).
+Entries below apply to real bare-metal ESXi hosts unless they carry a **(nested lab only)** tag. The tagged ones showed up while validating this guide on nested ESXi (ESXi 8.0.3 as a KVM guest under Ubuntu 24.04) and don't affect production hardware.
 
-**Power on fails with `E1000PCI: failed to register e1000e device` or `Vmxnet3 PCI: failed to reserve slot`** — the emulated NIC didn't find a free PCI slot. Common on older hardware or when the VM has a lot of virtual devices. Set the NIC type to classic `E1000` (edit `SocTalk-Demo.vmx`: `ethernet0.virtualDev = "e1000"`) and disable USB / floppy (`usb.present = "FALSE"`, `floppy0.present = "FALSE"`). Then `vim-cmd vmsvc/reload <id>` and power on again.
+**`msg.vmx.poweron.failed: not on NAS or VMFS version 3 datastore`** — the VM files live under `/vmfs/volumes/OSDATA-*` instead of a real user datastore. Move them: `vmkfstools -i` the vmdk into a real VMFS datastore (§3 + §4), copy the `.vmx` alongside, unregister the old VM (`vim-cmd vmsvc/unregister <id>`), and register the new one (`vim-cmd solo/registervm /vmfs/volumes/datastore1/SocTalk-Demo/SocTalk-Demo.vmx SocTalk-Demo`).
 
 **VM boots but the network interface is DOWN and never picks up an IP** — the packer image ships a netplan config that matches by MAC. When ESXi assigns a new MAC to the vNIC, the match fails and DHCP never runs. Fix by editing `/etc/netplan/50-cloud-init.yaml` to match by interface name instead:
 
@@ -242,3 +242,11 @@ Then `netplan apply`.
 **`ovftool: error while loading shared libraries: libssl.so.1.1`** — install a compatible OpenSSL 1.1 runtime, or use the SSH + `vmkfstools` path instead.
 
 **Host Client shows a red banner about the ESXi Shell / SSH being enabled** — expected in evaluation setups. It's a hardening reminder, not an error. Disable SSH after you're done if the host is exposed.
+
+### Nested-lab only
+
+These show up when ESXi itself is running as a guest inside another hypervisor (KVM, VirtualBox, Fusion, Workstation, or a cloud "bare-metal-lite" instance). On real bare-metal ESXi you won't see any of them; the defaults from §5 (VMXNET3 NIC, hardware version 20, USB + Floppy enabled) work as-is.
+
+**Power on fails with `E1000PCI: failed to register e1000e device` or `Vmxnet3 PCI: failed to reserve slot` (nested lab only)** — the outer hypervisor doesn't emulate enough PCIe topology for ESXi to allocate a slot for the paravirtualized NIC. Edit `SocTalk-Demo.vmx` and set `ethernet0.virtualDev = "e1000"` (the classic emulated NIC, which needs less), then `vim-cmd vmsvc/reload <id>` and power on again. On real hardware, keep VMXNET3.
+
+**vmx segfaults with signal 11 / `msg.vmx.poweron.failed` on hardware version 20 (nested lab only)** — some outer hypervisors don't advertise the newer PCIe/EPT features that vmx-20 assumes. Edit `SocTalk-Demo.vmx` and drop to `virtualHW.version = "15"`, remove `usb.present = "TRUE"` and `floppy0.present = "TRUE"` (or set both to `"FALSE"`), then `vim-cmd vmsvc/reload <id>` and try again. Real bare-metal ESXi runs vmx-20 fine.
