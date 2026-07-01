@@ -472,7 +472,7 @@ Sign back into the MSSP dashboard. Your tenant flips to **Online** within 1-2 mi
 
 It does **not** yet mean the tenant Wazuh stack is up or the chat tools will resolve queries against this tenant.
 
-<!-- screenshot: mssp-dashboard-tenant-online.png — MSSP dashboard with new tenant flipped to Online -->
+![MSSP dashboard — tenant flipped to Online](/screenshots/mssp-dashboard-tenant-online.png)
 
 #### 4.8b Tenant data plane fully ready (~5-7 more minutes)
 
@@ -505,7 +505,7 @@ list all tenants
 
 Expected: a `list_tenants` tool badge, then a reply listing your pilot tenants by slug + display name.
 
-<!-- screenshot: chat-list-tenants.png — chat showing list_tenants tool badge + reply -->
+![Chat — list_tenants tool badge + reply](/screenshots/chat-list-tenants.png)
 
 **Query 2 — show alerts from one specific tenant:**
 
@@ -519,7 +519,7 @@ Expected: a `recent_alerts` tool badge with an `@ <tenant-slug>` chip, then a na
 The `@ <tenant-slug>` chip on the tool badge is the proof: SocTalk's AI SOC analyst is reaching into the tenant's forwarded Wazuh alerts and answering a question about real data. Capture this screen.
 :::
 
-<!-- screenshot: chat-wazuh-alerts.png — chat showing recent_alerts @ slug + assistant reply with rule IDs -->
+![Chat — recent_alerts @ acme with rule IDs + LLM analysis](/screenshots/chat-wazuh-alerts.png)
 
 ::: info Why `recent_alerts` and not `get_wazuh_alert_summary`?
 The pilot's `poc` profile ships Wazuh into the tenant cluster and the SocTalk adapter forwards alerts (subject to a minimum severity, configurable via `SOCTALK_ADAPTER_MIN_SEVERITY`) to the MSSP database. `recent_alerts` reads from that forwarded stream, so it works regardless of whether the MSSP can reach the tenant's Wazuh API directly. `get_wazuh_alert_summary` is the live-integration counterpart — useful for the `provided` profile when the MSSP holds the tenant's Wazuh URL + credentials in **Integrations**.
