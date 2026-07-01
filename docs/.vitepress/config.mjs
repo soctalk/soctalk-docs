@@ -36,7 +36,9 @@ export default withMermaid(
         {
           text: 'Get Started',
           items: [
-            { text: 'Quickstart: demo VM', link: '/quickstart-vm' },
+            { text: '1. Quickstart: demo VM', link: '/quickstart-vm' },
+            { text: '2. MSSP pilot rollout', link: '/mssp-pilot' },
+            { text: '3. Production install', link: '/install' },
             { text: 'Downloads', link: '/downloads' },
             { text: 'Setup wizard', link: '/setup-wizard' },
             { text: 'Run on VirtualBox', link: '/virtualbox' },
@@ -44,7 +46,6 @@ export default withMermaid(
             { text: 'Run on Proxmox', link: '/proxmox' },
             { text: 'Run on AWS', link: '/aws' },
             { text: 'Run on Azure', link: '/azure' },
-            { text: 'Production install', link: '/install' },
             { text: 'MSSP UI Tour', link: '/mssp-ui' },
           ],
         },
