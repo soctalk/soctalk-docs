@@ -159,7 +159,52 @@ The console shows Ubuntu 24.04 booting through cloud-init and dropping to a logi
 
 ![VM console — Ubuntu boot to login](/screenshots/esxi-vm-console-boot.png)
 
-## 7. Read the setup token
+## 7. Log in to the VM
+
+You have two ways in, both of which give you a shell you can `sudo -i` from to become root.
+
+::: code-group
+
+```bash [SSH as ops (seed ISO required)]
+# From the host whose SSH public key is in the seed ISO you built in §2.
+# The VM's IP shows in the Host Client under SocTalk-Demo →
+# General information → Networking.
+ssh ops@<vm-ip>
+
+# From the ops shell:
+sudo -i        # → root shell (NOPASSWD sudo, no password prompt)
+whoami         # → root
+```
+
+```bash [SSH as ubuntu:packer (fallback — no seed ISO)]
+# Every published image ships a build-time ``ubuntu`` account with password
+# ``packer``. This credential is in the public source tree, so treat it as
+# public information; harden or delete the account before exposing the VM.
+ssh ubuntu@<vm-ip>
+# Password: packer
+
+# From the ubuntu shell:
+sudo -i        # → root shell (NOPASSWD sudo, no password prompt)
+```
+
+```text [Browser console (no SSH available)]
+Same credentials as above. In the Host Client → SocTalk-Demo →
+Console → Open browser console:
+
+  packer-build login: ubuntu
+  Password: packer            # not echoed
+
+  ubuntu@packer-build:~$ sudo -i
+  root@packer-build:~#
+```
+
+:::
+
+::: warning Harden or delete the packer credential before you expose the VM
+The `ubuntu:packer` login is baked into every published image and lives in the public source tree. On any VM that leaves an isolated lab: `sudo passwd -l ubuntu` (lock the account) plus `sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null && sudo systemctl reload ssh`. See [SSH access + credentials](/quickstart-vm#ssh-access-credentials) for the full hardening story.
+:::
+
+## 8. Read the setup token
 
 From the host that owns the SSH private key in the seed ISO:
 
