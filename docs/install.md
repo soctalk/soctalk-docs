@@ -4,6 +4,29 @@ For MSSP cluster admins. Covers cluster prerequisites, the `soctalk-system` char
 
 **Trying it for the first time? Use the [demo VM](/quickstart-vm) instead.** It's a single-image install with a browser-based wizard — much faster path to a running system. This page is the production path: K3s + Cilium + cert-manager + your own ingress controller.
 
+## Quick install on a cloud Ubuntu VM (one-command)
+
+For a single-node MSSP control plane on a bare Ubuntu 24.04 VM (cloud or on-prem), the same `install.sh` the [demo VM](/quickstart-vm) bakes in is reachable as a one-command installer. It bootstraps k3s + Helm, pulls the soctalk-system OCI chart from GHCR, and seeds the admin / LLM secrets in one step.
+
+Set the install config via env (any subset; the rest is prompted) — when **all three** of `SOCTALK_MSSP_NAME`, `SOCTALK_ADMIN_EMAIL`, `SOCTALK_ADMIN_PASSWORD` are present the installer skips its consent prompt so unattended `curl | bash` flows work without `-y`:
+
+```bash
+export SOCTALK_MSSP_NAME="Acme MSSP"
+export SOCTALK_ADMIN_EMAIL="admin@acme.example"
+export SOCTALK_ADMIN_PASSWORD="$(openssl rand -base64 24)"
+export SOCTALK_HOSTNAME="soctalk.acme.example"      # what the dashboard URL will be
+export SOCTALK_LLM_PROVIDER="anthropic"             # or openai-compatible
+export SOCTALK_LLM_API_KEY="sk-..."                 # OR --llm-key-file <path>
+
+curl -sfL https://raw.githubusercontent.com/soctalk/soctalk/main/install.sh | bash
+```
+
+Flags worth knowing about: `--yes` / `-y` (assume-yes when env is partial), `--demo` (random admin password + auto-onboards a demo tenant — fastest "just show me" path; no env required), `--chart-version <v>` (pin a specific chart release), `--chart-dir <path>` / `--values-file <path>` (offline / air-gapped). Full reference: `install.sh --help`.
+
+The script propagates `SOCTALK_HOSTNAME` into the chart's `ingress.hostnames.mssp` and the chart in turn derives `SOCTALK_PUBLIC_ORIGIN` (CSRF) and `SOCTALK_L1_PUBLIC_URL` (the URL the tenant cloud-agent uses for `/register`). No manual env-var fiddling on the api Deployment required.
+
+If you need finer control — non-default ingress controller, separate customer hostname, cert-manager `ClusterIssuer`, etc. — use the Helm path below instead.
+
 ## Cluster prerequisites
 
 Install these once per K3s cluster before `soctalk-system`. SocTalk expects Kubernetes 1.30+ because the system chart installs a native `ValidatingAdmissionPolicy` guard for tenant namespace operations.

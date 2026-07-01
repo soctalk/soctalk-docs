@@ -393,6 +393,10 @@ helm install soctalk-agent-<slug> \
   --set networkPolicies.enabled=false
 ```
 
+::: tip Self-signed MSSP cert? Set insecureTLS
+If your MSSP install hasn't provisioned a real TLS cert for the tailnet hostname yet (chart-side cert-manager not wired, or you're behind Tailscale and treating it as the trust boundary), append `--set insecureTLS=true` to the helm command. The agent will skip cert verification on `controlPlaneUrl` — Tailscale handles transport encryption anyway. Off by default; only set this when you trust the underlying network.
+:::
+
 The cloud-agent installs in `soctalk-agent` namespace, dials the control plane via the tailnet, registers, and from there the MSSP controller drives the tenant chart install on this same cluster.
 
 Watch the agent come up:
@@ -506,16 +510,20 @@ Expected: a `list_tenants` tool badge, then a reply listing your pilot tenants b
 **Query 2 — show alerts from one specific tenant:**
 
 ```text
-show me the 5 most recent Wazuh alerts at <tenant-slug>
+show me the 5 most recent alerts at <tenant-slug> with rule ids
 ```
 
-Expected: a `get_wazuh_alert_summary` tool badge with an `@ <tenant-slug>` chip, then a natural-language summary listing rule IDs + descriptions.
+Expected: a `recent_alerts` tool badge with an `@ <tenant-slug>` chip, then a natural-language summary listing rule IDs, severities, and timestamps.
 
 ::: tip This is the stakeholder screenshot
-The `@ <tenant-slug>` chip on the tool badge is the proof: SocTalk's AI SOC analyst is reaching into the tenant's Wazuh and answering a question about real data. Capture this screen.
+The `@ <tenant-slug>` chip on the tool badge is the proof: SocTalk's AI SOC analyst is reaching into the tenant's forwarded Wazuh alerts and answering a question about real data. Capture this screen.
 :::
 
-<!-- screenshot: chat-wazuh-alerts.png — chat showing get_wazuh_alert_summary @ slug + assistant reply with rule IDs -->
+<!-- screenshot: chat-wazuh-alerts.png — chat showing recent_alerts @ slug + assistant reply with rule IDs -->
+
+::: info Why `recent_alerts` and not `get_wazuh_alert_summary`?
+The pilot's `poc` profile ships Wazuh into the tenant cluster and the SocTalk adapter forwards alerts (subject to a minimum severity, configurable via `SOCTALK_ADAPTER_MIN_SEVERITY`) to the MSSP database. `recent_alerts` reads from that forwarded stream, so it works regardless of whether the MSSP can reach the tenant's Wazuh API directly. `get_wazuh_alert_summary` is the live-integration counterpart — useful for the `provided` profile when the MSSP holds the tenant's Wazuh URL + credentials in **Integrations**.
+:::
 
 If the alerts list is empty (the tenant Wazuh hasn't seen any traffic yet), generate test alerts. The chart-installed Wazuh path (§4.7b) ships one or more `linux-ep-N` pods with the attack simulator; trigger it on the first ready replica via a label selector:
 
