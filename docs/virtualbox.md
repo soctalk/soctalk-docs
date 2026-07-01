@@ -19,7 +19,7 @@ The demo image is **x86-64**, which VirtualBox can't run on Apple Silicon. On an
 Grab the **vmdk** from the [Downloads](/downloads) page (VirtualBox's VMware-compatible format):
 
 ```bash
-VER=0.1.3
+VER=0.1.4
 curl -L -O https://github.com/soctalk/soctalk/releases/download/v$VER/soctalk-demo-$VER.vmdk.xz
 curl -L -O https://github.com/soctalk/soctalk/releases/download/v$VER/SHA256SUMS.txt
 sha256sum -c SHA256SUMS.txt --ignore-missing   # macOS: shasum -a 256 -c
@@ -31,10 +31,10 @@ xz -d soctalk-demo-$VER.vmdk.xz
 The released vmdk is **streamOptimized** (a read-only VMware/OVA layout), which VirtualBox won't boot as a writable disk. Convert it once to a VDI:
 
 ```bash
-VBoxManage clonemedium disk soctalk-demo-0.1.3.vmdk soctalk-demo-0.1.3.vdi --format VDI
+VBoxManage clonemedium disk soctalk-demo-0.1.4.vmdk soctalk-demo-0.1.4.vdi --format VDI
 ```
 
-This produces a writable, dynamically-sized `soctalk-demo-0.1.3.vdi` (a few GB on disk). `VBoxManage` ships with VirtualBox — on Windows it's in `C:\Program Files\Oracle\VirtualBox\`.
+This produces a writable, dynamically-sized `soctalk-demo-0.1.4.vdi` (a few GB on disk). `VBoxManage` ships with VirtualBox — on Windows it's in `C:\Program Files\Oracle\VirtualBox\`.
 
 ## 3. Build a cloud-init seed ISO
 
@@ -69,7 +69,7 @@ Open **VirtualBox** and click **New**.
 
 ![Hardware](/screenshots/virtualbox-create-hardware.png)
 
-**Virtual Hard disk** — choose **Use an Existing Virtual Hard Disk File** and select the `soctalk-demo-0.1.3.vdi` you converted:
+**Virtual Hard disk** — choose **Use an Existing Virtual Hard Disk File** and select the `soctalk-demo-0.1.4.vdi` you converted:
 
 ![Use existing disk](/screenshots/virtualbox-create-disk.png)
 
@@ -135,7 +135,7 @@ Then browse to `https://<vm-ip>/` (port 443, not 8443), sign in with the wizard'
 ```bash
 VBoxManage controlvm soctalk-demo poweroff
 VBoxManage unregistervm soctalk-demo --delete
-VBoxManage closemedium disk soctalk-demo-0.1.3.vdi --delete
+VBoxManage closemedium disk soctalk-demo-0.1.4.vdi --delete
 ```
 
 ## Troubleshooting
