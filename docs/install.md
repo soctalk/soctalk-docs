@@ -4,6 +4,8 @@ For MSSP cluster admins. Covers cluster prerequisites, the `soctalk-system` char
 
 **Trying it for the first time? Use the [demo VM](/quickstart-vm) instead.** It's a single-image install with a browser-based wizard — much faster path to a running system. This page is the production path: K3s + Cilium + cert-manager + your own ingress controller.
 
+**Evaluating with 1-3 tenants?** [Launchpad](/launchpad) automates the multi-tenant pilot end-to-end (VMs + Tailscale + this installer + tenant onboard). Come back here when you're building the real thing.
+
 ## Quick install on a cloud Ubuntu VM (one-command)
 
 For a single-node MSSP control plane on a bare Ubuntu 24.04 VM (cloud or on-prem), the same `install.sh` the [demo VM](/quickstart-vm) bakes in is reachable as a one-command installer. It bootstraps k3s + Helm, pulls the soctalk-system OCI chart from GHCR, and seeds the admin / LLM secrets in one step.
@@ -145,7 +147,7 @@ install:
 
 image:
   registry: ghcr.io/soctalk
-  tag: "0.1.0"
+  tag: "0.1.4"
 
 ingress:
   enabled: true
@@ -195,7 +197,7 @@ install:
 
 ```bash
 helm install soctalk-system oci://ghcr.io/soctalk/charts/soctalk-system \
-  --version 0.1.0 \
+  --version 0.1.4 \
   --namespace soctalk-system --create-namespace \
   -f soctalk-system-values.yaml
 ```
