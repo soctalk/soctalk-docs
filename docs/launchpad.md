@@ -93,7 +93,9 @@ On first run the CLI downloads and verifies the plugin set into `~/.launchpad/pl
 2. **Hosts** — add the place you'll provision on. For this guide that's your KVM box: the SSH target and a writable work dir. New hosts pre-fill the fields their platform expects, and **Test** validates the connection and credentials. Credentials are stored with the host and never leave the machine running Launchpad.
 3. **Runs** — create a run: assign the **control node** (your MSSP) and each **tenant** to a host, pick the network, fill in the MSSP admin creds and LLM key, and press **Launch**.
 
-![The Launchpad web console — register your infrastructure once as Hosts across substrates](/screenshots/launchpad-ui-hosts.png)
+![Networks — the overlay every machine in a run joins, registered once](/screenshots/launchpad-ui-networks.png)
+
+![Hosts — the substrates you provision on, registered once](/screenshots/launchpad-ui-hosts.png)
 
 The console streams progress live — each VM provisioning, joining the tailnet, and installing SocTalk — and gives you the MSSP URL at the end. Runs are idempotent (re-launch reconciles against machines that already exist rather than duplicating them), and the **Down** action tears a run's machines back down.
 
