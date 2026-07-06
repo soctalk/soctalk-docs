@@ -2,7 +2,7 @@
 
 Once you've seen SocTalk end-to-end on a single co-located box ([Quickstart](/quickstart-vm)), **Launchpad is the next step**: it takes you from that local demo to a real pilot — an MSSP control plane plus one or more tenant environments on your own infrastructure — with a single command. It boots the VMs, joins them to your tailnet, installs SocTalk from public sources, and hands you a URL, all while you watch a JSON event stream.
 
-Prefer to understand every step before you let a tool do it? The [manual MSSP pilot](/mssp-pilot) walks through the same install by hand — same charts, same Tailscale flow. Launchpad just does the copy-paste for you.
+Prefer to understand every step before you let a tool do it? The [do-it-yourself MSSP pilot](/mssp-pilot) walks through the same install by hand — same charts, same Tailscale flow. Launchpad just does the copy-paste for you.
 
 ::: tip Hands-on time
 | Path | Hands-on | Wall clock |
@@ -30,7 +30,7 @@ At the end you have a working MSSP dashboard, tenants registered and `active`, a
 
 ## What it is not
 
-- **Not a production installer.** It's an evaluator tool. Same non-production caveats as the manual pilot: no HA, self-signed certs, tailnet as ingress.
+- **Not a production installer.** It's an evaluator tool. Same non-production caveats as the do-it-yourself pilot: no HA, self-signed certs, tailnet as ingress.
 - **Not a cluster manager.** It fires once and exits. It doesn't watch the cluster, doesn't do upgrades, doesn't drift-reconcile. Use `helm upgrade` after that.
 - **Not a Kubernetes operator.** The launchpad runs on your desk, not in the cluster.
 

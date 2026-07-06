@@ -192,7 +192,7 @@ The AWS AMI is built from a separate Packer source (`amazon-ebs`) that doesn't i
 
 ## Next step: onboard customers with Launchpad
 
-You've just run SocTalk end-to-end on a single co-located box. The natural next step is a real pilot — an MSSP control plane plus one or more tenant environments on your own infrastructure. [**Launchpad**](/launchpad) does exactly that with one command: it boots the VMs, joins them to your tailnet, installs SocTalk from public sources, and hands you a URL. (Prefer to run every step by hand? See the [manual MSSP pilot](/mssp-pilot).)
+You've just run SocTalk end-to-end on a single co-located box. The natural next step is a real pilot — an MSSP control plane plus one or more tenant environments on your own infrastructure. [**Launchpad**](/launchpad) does exactly that with one command: it boots the VMs, joins them to your tailnet, installs SocTalk from public sources, and hands you a URL. (Prefer to run every step by hand? See the [do-it-yourself MSSP pilot](/mssp-pilot).)
 
 ## Troubleshooting
 
