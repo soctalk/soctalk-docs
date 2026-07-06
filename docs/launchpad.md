@@ -1,19 +1,19 @@
 # Launchpad: one-command MSSP pilot
 
-Once you've seen SocTalk end-to-end on a single co-located box ([Quickstart](/quickstart-vm)), **Launchpad is the next step**: it takes you from that local demo to a real pilot — an MSSP control plane plus one or more tenant environments on your own infrastructure — with a single command. It boots the VMs, joins them to your tailnet, installs SocTalk from public sources, and hands you a URL, all while you watch a JSON event stream.
+Once you've seen SocTalk end-to-end on a single co-located box ([Quickstart](/quickstart-vm)), **Launchpad is the next step**: it takes you from that local demo to a real pilot — an MSSP control plane plus one or more tenant environments on your own infrastructure. Drive it from a **web console** (recommended) or, later, a single headless command: it boots the VMs, joins them to your tailnet, installs SocTalk from public sources, and hands you a URL.
 
 Prefer to understand every step before you let a tool do it? The [do-it-yourself MSSP pilot](/mssp-pilot) walks through the same install by hand — same charts, same Tailscale flow. Launchpad just does the copy-paste for you.
 
 ::: tip Hands-on time
 | Path | Hands-on | Wall clock |
 |---|---|---|
-| Manual [MSSP pilot](/mssp-pilot) | ~90 min | ~2 hours |
-| Launchpad | ~5 min editing YAML | ~15-25 min (mostly waiting on downloads) |
+| [Do it yourself](/mssp-pilot) | ~90 min | ~2 hours |
+| Launchpad console | ~5 min filling a form | ~15-25 min (mostly waiting on downloads) |
 :::
 
 ## What it does
 
-Given a YAML config with your MSSP admin creds and a list of tenants, `launchpad up`:
+Given your MSSP admin creds and a list of tenants, Launchpad:
 
 1. Downloads the Ubuntu Noble cloud image on your VM host (cached on subsequent runs)
 2. Provisions QEMU VMs — one for the MSSP, one per tenant — with cloud-init + Tailscale
@@ -25,8 +25,6 @@ Given a YAML config with your MSSP admin creds and a list of tenants, `launchpad
 8. The MSSP dispatches the `install_helm_release` job → cloud-agent pulls and applies the `soctalk-tenant` chart (Wazuh manager + indexer + dashboard, adapter, runs-worker)
 
 At the end you have a working MSSP dashboard, tenants registered and `active`, and Wazuh running per tenant. Everything downloaded from public sources — no pre-staged images, no bundled charts.
-
-<!-- screenshot: launchpad-flow.svg — sequence diagram of the 8 steps above -->
 
 ## What it is not
 
@@ -57,7 +55,7 @@ Gather these first:
 - [ ] **An LLM API key** for the MSSP. Pick a provider you have (Anthropic, OpenAI, or point at a local Ollama). A placeholder key works for a smoke test where the AI isn't exercised.
 
 ::: warning Tailscale MagicDNS
-The launchpad expects MagicDNS to be enabled on your tailnet so tenant clusters can reach the MSSP by hostname. It's on by default. If you turned it off, you'll need to add `hostAliases` yourself (see [MSSP pilot](/mssp-pilot#4-6-install-the-cloud-agent-on-the-tenant) for the pattern).
+The launchpad expects MagicDNS to be enabled on your tailnet so tenant clusters can reach the MSSP by hostname. It's on by default. If you turned it off, you'll need to add `hostAliases` yourself (see [do-it-yourself pilot](/mssp-pilot#4-6-install-the-cloud-agent-on-the-tenant) for the pattern).
 :::
 
 ## 1. Install the CLI
@@ -78,32 +76,90 @@ launchpad init   # downloads + signature-verifies every plugin into ~/.launchpad
 
 `init` pulls the plugin set for your platform from the same signed release and
 verifies each binary against the release's ed25519-signed index before it is
-installed. Nothing is run unverified.
+installed. Nothing is run unverified. (`launchpad plugin list` shows the
+installed set; `launchpad plugin sync` re-fetches or repairs the store.)
 
-Installed plugins:
+## 2. Run the pilot in the web console
+
+`launchpad ui` starts a local web console and opens it in your browser — the primary way to drive a pilot. You register your infrastructure once as reusable, testable **Hosts** and **Networks**, then launch and watch.
 
 ```bash
-launchpad plugin list
-# qemu         0.1.0   ~/.launchpad/plugins/qemu/plugin
-# aws          0.1.0   ~/.launchpad/plugins/aws/plugin
-# ...          (10 platform plugins)
+launchpad ui
 ```
 
-The `qemu` plugin is what this guide uses. `launchpad plugin list --available`
-shows everything the release offers; `launchpad plugin sync` re-fetches or
-repairs the store.
+On first run the CLI downloads and verifies the plugin set into `~/.launchpad/plugins`, then serves the console from the same binary — nothing else to install. In the browser, work through three screens:
+
+1. **Networks** — add your tailnet: the overlay name (e.g. `taila1b2c3.ts.net`) and your Tailscale API key. Press **Test** to confirm the key works before you rely on it. A run binds to one network, and every machine joins it.
+2. **Hosts** — add the place you'll provision on. For this guide that's your KVM box: the SSH target and a writable work dir. New hosts pre-fill the fields their platform expects, and **Test** validates the connection and credentials. Credentials are stored with the host and never leave the machine running Launchpad.
+3. **Runs** — create a run: assign the **control node** (your MSSP) and each **tenant** to a host, pick the network, fill in the MSSP admin creds and LLM key, and press **Launch**.
+
+The console streams progress live — each VM provisioning, joining the tailnet, and installing SocTalk — and gives you the MSSP URL at the end. Runs are idempotent (re-launch reconciles against machines that already exist rather than duplicating them), and the **Down** action tears a run's machines back down.
+
+<!-- screenshot: launchpad-ui-runs.png — the Runs screen mid-provision with per-machine progress -->
 
 ::: tip Compliance check
-Before pointing a plugin at real infrastructure, sanity-check it:
+Before pointing a plugin at real infrastructure you can sanity-check it from the CLI:
 ```bash
 launchpad plugin verify qemu
 ```
 This runs the protocol compliance suite (checksum, handshake, `plan`, idempotent `destroy`) without needing real credentials.
 :::
 
-## 2. Write your pilot config
+## 3. Verify it worked
 
-Save this as `pilot.yaml`. Replace the four bracketed values:
+When the run completes (the console marks it done, or `launchpad up` exits `0`), sanity-check the two systems:
+
+**MSSP dashboard** — open the URL the run printed at the end (or `https://lp-mssp.<your-tailnet>.ts.net/`). Sign in with the admin creds you set for the run. Your tenant should be listed and flip to **Online** within 1-2 minutes.
+
+![Launchpad-provisioned MSSP dashboard](/screenshots/launchpad-mssp-dashboard.png)
+
+**Wazuh on the tenant** — SSH into the tenant VM (`ssh ops@lp-tenant-acme.<your-tailnet>.ts.net`) and check the pods:
+
+```bash
+sudo k3s kubectl -n tenant-acme get pods
+```
+
+You want to see:
+
+```
+NAME                                          READY   STATUS
+tenant-acme-wazuh-manager-0                   1/1     Running
+tenant-acme-wazuh-indexer-0                   1/1     Running
+tenant-acme-wazuh-dashboard-<hash>            1/1     Running
+tenant-acme-linuxep-0                         1/1     Running
+soctalk-adapter-<hash>                        1/1     Running
+soctalk-runs-worker-<hash>                    1/1     Running
+```
+
+The `linuxep-0` StatefulSet is a demo Linux endpoint with the Wazuh agent installed — a place to simulate alerts. See [Attack simulator](/mssp-pilot#5-3-generate-alerts) for details.
+
+### SSH into the VMs
+
+Every launchpad-provisioned VM has a preconfigured `ops` user with the SSH keys from your host config authorized and **passwordless sudo**. That's how the launchpad's install phase reaches in; you use the same account for troubleshooting.
+
+```bash
+# Interactive shell as ops
+ssh ops@lp-mssp.<your-tailnet>.ts.net
+ssh ops@lp-tenant-acme.<your-tailnet>.ts.net
+
+# One-off command as root
+ssh ops@lp-tenant-acme.<your-tailnet>.ts.net "sudo journalctl -u k3s -n 100"
+```
+
+::: tip Fallback: connect by IPv4 if MagicDNS is off
+If MagicDNS is disabled on your tailnet, `lp-<key>.<tailnet>.ts.net` won't resolve on your workstation. Use `tailscale status | grep lp-` to find the tailnet IPv4 and `ssh ops@100.x.y.z` directly.
+:::
+
+## 4. Fine-tune with a config file
+
+Once a pilot works from the console, you can capture the same setup as a YAML config and drive it headless with `launchpad up` — no console. Reach for this when you want:
+
+- **Repeatable, scripted runs** — check the config into git, run it in CI, and assert on the JSON event stream.
+- **Fine control the form doesn't surface** — pin a base image or its SHA, point at a specific `install.sh` release tag, script many tenants at once, or tune CPU / memory / disk per VM.
+
+The console and the config share the same Hosts and Networks under `~/.launchpad`, so a config run reuses exactly what you already tested.
+
+Save this as `pilot.yaml` and replace the bracketed values:
 
 ```yaml
 run_id: my-pilot
@@ -156,9 +212,7 @@ Save it in a password manager before you run. The launchpad won't print it back 
 
 To add tenants, extend the `tenants:` list. Each needs a unique `key`, a `tenant_slug` that matches your Tailscale ACL, and a matching entry under `tagOwners`.
 
-## 3. Run it
-
-Two required env vars:
+### Run it
 
 ```bash
 export TAILSCALE_API_KEY=tskey-api-...
@@ -166,11 +220,7 @@ export TAILSCALE_API_KEY=tskey-api-...
 launchpad up --config pilot.yaml --state ~/.launchpad/state.json
 ```
 
-Plugins are managed automatically by `init`/`up`, so there's nothing else to
-set. (`LAUNCHPAD_PLUGIN_DIR` still exists for local plugin development, but
-requires `LAUNCHPAD_DEV=1` to trust unsigned builds.)
-
-The default renders a Bubble Tea TUI with per-VM progress bars, a live event log, and a gate prompt for manual steps. For unattended runs (CI, scripts, this guide's smoke tests) use `--headless` to stream JSON events to stdout:
+The default renders a Bubble Tea TUI with per-VM progress bars, a live event log, and a gate prompt for interactive steps. For unattended runs (CI, scripts, this guide's smoke tests) use `--headless` to stream JSON events to stdout:
 
 ```bash
 launchpad up --config pilot.yaml \
@@ -178,9 +228,7 @@ launchpad up --config pilot.yaml \
   --headless --auto-resolve-gates | tee run.log
 ```
 
-`--auto-resolve-gates` accepts every manual gate (currently just the Tailscale ACL confirmation) without prompting. Skip it if you want to review your ACL before tenants get provisioned.
-
-### What you'll see
+`--auto-resolve-gates` accepts every gate (currently just the Tailscale ACL confirmation) without prompting. Skip it if you want to review your ACL before tenants get provisioned.
 
 Rough phase timing on a first run (fresh cache, decent home internet):
 
@@ -193,80 +241,22 @@ Rough phase timing on a first run (fresh cache, decent home internet):
 
 Subsequent runs are much faster because the base image is cached on the VM host.
 
-<!-- screenshot: launchpad-tui.png — TUI showing MSSP + tenant progress bars, live vm_log tail on the right -->
-
-## 4. Verify it worked
-
-The launchpad exits `0` when the flow completes. Sanity-check the two systems:
-
-**MSSP dashboard** — open the URL the run printed at the end (or `https://lp-mssp.<your-tailnet>.ts.net/`). Sign in with the admin creds from `pilot.yaml`. Your tenant should be listed and flip to **Online** within 1-2 minutes.
-
-![Launchpad-provisioned MSSP dashboard](/screenshots/launchpad-mssp-dashboard.png)
-
-**Wazuh on the tenant** — SSH into the tenant VM (`ssh ops@lp-tenant-acme.<your-tailnet>.ts.net`) and check the pods:
-
-```bash
-sudo k3s kubectl -n tenant-acme get pods
-```
-
-You want to see:
-
-```
-NAME                                          READY   STATUS
-tenant-acme-wazuh-manager-0                   1/1     Running
-tenant-acme-wazuh-indexer-0                   1/1     Running
-tenant-acme-wazuh-dashboard-<hash>            1/1     Running
-tenant-acme-linuxep-0                         1/1     Running
-soctalk-adapter-<hash>                        1/1     Running
-soctalk-runs-worker-<hash>                    1/1     Running
-```
-
-The `linuxep-0` StatefulSet is a demo Linux endpoint with the Wazuh agent installed — a place to simulate alerts. See [Attack simulator](/mssp-pilot#5-3-generate-alerts) for details.
-
-### SSH into the VMs
-
-Every launchpad-provisioned VM has a preconfigured `ops` user with your `ssh_keys` from `pilot.yaml` authorized and **passwordless sudo**. That's how the launchpad's install phase reaches in; you use the same account for troubleshooting.
-
-```bash
-# Interactive shell as ops
-ssh ops@lp-mssp.<your-tailnet>.ts.net
-ssh ops@lp-tenant-acme.<your-tailnet>.ts.net
-
-# Direct root shell
-ssh ops@lp-mssp.<your-tailnet>.ts.net "sudo -i"
-
-# One-off command as root
-ssh ops@lp-tenant-acme.<your-tailnet>.ts.net "sudo journalctl -u k3s -n 100"
-```
-
-Confirm the sudo works:
-
-```
-$ ssh ops@lp-mssp.<your-tailnet>.ts.net "id; sudo -n whoami"
-uid=1000(ops) gid=1000(ops) groups=1000(ops)
-root
-```
-
-::: tip Fallback: connect by IPv4 if MagicDNS is off
-If MagicDNS is disabled on your tailnet, `lp-<key>.<tailnet>.ts.net` won't resolve on your workstation. Use `tailscale status | grep lp-` to find the tailnet IPv4 and `ssh ops@100.x.y.z` directly.
-:::
-
 ## 5. Iterate — resume, tear down, restart
 
-The launchpad is idempotent. Re-running `launchpad up` picks up where it left off:
+The launchpad is idempotent. Re-launching a run — the console **Launch** again, or `launchpad up` — picks up where it left off:
 
 - VMs that already exist are reused (no double-provisioning)
 - The MSSP install step is skipped if the API is already answering
 - Tenant onboarding is skipped if the tenant already exists
 - The `soctalk-cloud-agent` chart is `helm upgrade --install`ed, not reinstalled
 
-To tear everything down cleanly (VMs, Tailscale devices, work dir):
+To tear everything down cleanly (VMs, Tailscale devices, work dir), use the console **Down** action or:
 
 ```bash
 launchpad down --config pilot.yaml --state ~/.launchpad/state.json
 ```
 
-To add a tenant to a running pilot, edit `tenants:` in `pilot.yaml` and re-run `launchpad up`. Existing VMs are left alone; the new tenant is provisioned and installed.
+To add a tenant to a running pilot, add it in the console (or edit `tenants:` in `pilot.yaml`) and re-launch. Existing VMs are left alone; the new tenant is provisioned and installed.
 
 ## 6. Troubleshooting
 
@@ -283,13 +273,13 @@ The VM booted but never joined the tailnet. Cloud-init on the VM couldn't reach 
 The chart install ran but pods didn't converge in 15 minutes. Usually image pulls on slow connections.
 
 - SSH into the MSSP VM: `sudo k3s kubectl -n soctalk-system get pods` and check for `ImagePullBackOff` or `CrashLoopBackOff`
-- If pods are still pulling, wait and re-run `launchpad up` — the second attempt skips the install step once the API is answering
+- If pods are still pulling, wait and re-launch — the second attempt skips the install step once the API is answering
 
 ### Tenant agent logs `no such host` on `/api/agent/register`
 
-The pod's cluster DNS can't resolve the MSSP's tailnet hostname. This is exactly what `hostAliases` is for. The launchpad splices this into the helm command by default; if you're doing it by hand, see the [pilot guide](/mssp-pilot#4-6-install-the-cloud-agent-on-the-tenant).
+The pod's cluster DNS can't resolve the MSSP's tailnet hostname. This is exactly what `hostAliases` is for. The launchpad splices this into the helm command by default; if you're doing it by hand, see the [do-it-yourself pilot](/mssp-pilot#4-6-install-the-cloud-agent-on-the-tenant).
 
-### Playwright-style automation
+### Automation
 
 The `--headless` mode is the launchpad's automation surface. Every phase, VM state change, install log line, and gate prompt is one JSON event on stdout:
 
@@ -302,7 +292,7 @@ Assert on those events from your CI. See [Launchpad event schema](/reference/lau
 
 ## Where to next
 
-- **Add a real tenant.** Onboard from the MSSP dashboard — see [MSSP pilot §3](/mssp-pilot#3-onboard-tenants) for the wizard walkthrough.
+- **Add a real tenant.** Onboard from the MSSP dashboard — see [do-it-yourself pilot §3](/mssp-pilot#3-onboard-tenants) for the wizard walkthrough.
 - **Generate some alerts.** [Attack simulator](/mssp-pilot#5-3-generate-alerts) has the runbook.
 - **Point the AI at real data.** Configure your [LLM provider](/integrate/llm-providers) properly (the smoke-test placeholder key won't answer questions).
 - **Move to production.** [Install](/install) is the non-launchpad, HA-capable path.
