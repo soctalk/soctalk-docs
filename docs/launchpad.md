@@ -154,7 +154,37 @@ ssh ops@lp-tenant-acme.<your-tailnet>.ts.net "sudo journalctl -u k3s -n 100"
 If MagicDNS is disabled on your tailnet, `lp-<key>.<tailnet>.ts.net` won't resolve on your workstation. Use `tailscale status | grep lp-` to find the tailnet IPv4 and `ssh ops@100.x.y.z` directly.
 :::
 
-## 4. Fine-tune with a config file
+## 4. Use your pilot: onboard customers and ask the AI
+
+Launchpad hands you a working MSSP with your first tenant already onboarded — from here you drive it exactly like an MSSP would. The **Dashboard** is a cross-tenant fleet view: pending reviews, stuck cases, degraded tenants, and per-tenant health.
+
+![The MSSP dashboard — cross-tenant fleet view](/screenshots/pilot-final-dashboard.png)
+
+**Onboard another customer.** **Tenants → Create customer** runs a short four-step wizard:
+
+![Create customer — 1. Identity](/screenshots/pilot-add-tenant-step1.png)
+![Create customer — 2. Profile](/screenshots/pilot-add-tenant-step2.png)
+![Create customer — 3. Branding](/screenshots/pilot-add-tenant-step3.png)
+![Create customer — 4. Review](/screenshots/pilot-add-tenant-step4.png)
+
+The new customer joins the fleet, and the cloud-agent provisions its Wazuh + adapter stack the same way Launchpad did for the first tenant:
+
+![The tenants list with the onboarded customer](/screenshots/pilot-final-tenants-list.png)
+
+Drill into a tenant for its open investigations, reviews, and Wazuh health:
+
+![Tenant detail](/screenshots/pilot-final-acme-detail.png)
+
+**Ask the AI SOC analyst.** The **Chat** view answers questions across the whole fleet or scoped to one tenant, calling tools against live data and summarizing what it finds:
+
+![Ask AI — a fleet-wide summary, with the tool call it ran](/screenshots/pilot-chat-mssp-reply.png)
+![Ask AI — scoped to a single tenant](/screenshots/pilot-chat-tenant-reply.png)
+
+::: tip
+The AI needs a real [LLM provider](/integrate/llm-providers) configured — the smoke-test placeholder key won't answer questions.
+:::
+
+## 5. Fine-tune with a config file
 
 Once a pilot works from the console, you can capture the same setup as a YAML config and drive it headless with `launchpad up` — no console. Reach for this when you want:
 
@@ -245,7 +275,7 @@ Rough phase timing on a first run (fresh cache, decent home internet):
 
 Subsequent runs are much faster because the base image is cached on the VM host.
 
-## 5. Iterate — resume, tear down, restart
+## 6. Iterate — resume, tear down, restart
 
 The launchpad is idempotent. Re-launching a run — the console **Launch** again, or `launchpad up` — picks up where it left off:
 
@@ -262,7 +292,7 @@ launchpad down --config pilot.yaml --state ~/.launchpad/state.json
 
 To add a tenant to a running pilot, add it in the console (or edit `tenants:` in `pilot.yaml`) and re-launch. Existing VMs are left alone; the new tenant is provisioned and installed.
 
-## 6. Troubleshooting
+## 7. Troubleshooting
 
 ### `vm.wait_ready` times out
 
