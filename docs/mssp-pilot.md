@@ -1,10 +1,14 @@
-# MSSP Pilot Quickstart
+# MSSP Pilot: Manual Rollout
+
+::: tip Most pilots should use Launchpad
+[**Launchpad**](/launchpad) automates this entire rollout — same install, same charts, same Tailscale flow — in a single command (~15-25 min, mostly waiting on downloads, vs ~2 hours by hand). **Start there.** Reach for this manual guide when you want to understand every step, are troubleshooting a Launchpad run, or your environment can't run Launchpad — air-gapped, on-prem split-horizon DNS, an unsupported substrate, or an existing cluster.
+:::
 
 A practical path for MSSPs evaluating SocTalk with 1-3 of their customers. Two on-premise environments (one MSSP control plane, one per tenant), connected by a firewall-friendly mesh VPN. End state: a working multi-tenant SocTalk install, the AI SOC analyst answering questions about each tenant's real Wazuh data, and a screenshot you can show your stakeholders.
 
 **Not a production install.** No HA, no real TLS, your tailnet hostname stands in for ingress. When you're ready for production, see [Install](/install).
 
-**Trying SocTalk solo first?** Start with [Quickstart VM](/quickstart-vm): single box, single tenant, ~10 minutes. Come back here to onboard customers.
+**Trying SocTalk solo first?** Start with [Quickstart VM](/quickstart-vm): single box, single tenant, ~10 minutes.
 
 ::: tip Hands-on time
 | Side | Hands-on | Wall clock |

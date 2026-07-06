@@ -38,8 +38,8 @@ export default withMermaid(
           text: 'Get Started',
           items: [
             { text: 'Quickstart: demo VM', link: '/quickstart-vm' },
-            { text: 'Launchpad: MSSP pilot', link: '/launchpad' },
-            { text: 'MSSP pilot (manual)', link: '/mssp-pilot' },
+            { text: 'MSSP pilot rollout', link: '/launchpad' },
+            { text: 'MSSP pilot: manual steps', link: '/mssp-pilot' },
             { text: 'Production install', link: '/install' },
             { text: 'Downloads', link: '/downloads' },
             { text: 'Setup wizard', link: '/setup-wizard' },
