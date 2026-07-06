@@ -190,6 +190,10 @@ sudo systemctl reload ssh
 
 The AWS AMI is built from a separate Packer source (`amazon-ebs`) that doesn't include the seed and uses EC2's keypair injection instead — it doesn't carry the `ubuntu:packer` credential. The hardening checklist still applies to it for the standard AMI `ubuntu` cloud-image user.
 
+## Next step: onboard customers with Launchpad
+
+You've just run SocTalk end-to-end on a single co-located box. The natural next step is a real pilot — an MSSP control plane plus one or more tenant environments on your own infrastructure. [**Launchpad**](/launchpad) does exactly that with one command: it boots the VMs, joins them to your tailnet, installs SocTalk from public sources, and hands you a URL. (Prefer to run every step by hand? See the [manual MSSP pilot](/mssp-pilot).)
+
 ## Troubleshooting
 
 | Symptom | Check |

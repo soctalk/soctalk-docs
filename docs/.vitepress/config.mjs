@@ -26,6 +26,7 @@ export default withMermaid(
 
       nav: [
         { text: 'Get Started', link: '/quickstart-vm' },
+        { text: 'Launchpad', link: '/launchpad' },
         { text: 'Operate', link: '/operations' },
         { text: 'Integrate', link: '/integrate/llm-providers' },
         { text: 'Reference', link: '/reference/architecture' },
@@ -37,8 +38,8 @@ export default withMermaid(
           text: 'Get Started',
           items: [
             { text: 'Quickstart: demo VM', link: '/quickstart-vm' },
-            { text: 'MSSP pilot rollout', link: '/mssp-pilot' },
-            { text: 'Launchpad (automate pilot)', link: '/launchpad' },
+            { text: 'Launchpad: MSSP pilot', link: '/launchpad' },
+            { text: 'MSSP pilot (manual)', link: '/mssp-pilot' },
             { text: 'Production install', link: '/install' },
             { text: 'Downloads', link: '/downloads' },
             { text: 'Setup wizard', link: '/setup-wizard' },

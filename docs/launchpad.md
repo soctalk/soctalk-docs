@@ -1,8 +1,8 @@
 # Launchpad: one-command MSSP pilot
 
-Provision MSSP + tenants on your own infrastructure with a single command. The launchpad boots the VMs, joins them to your tailnet, installs SocTalk from public sources, and hands you a URL. What [MSSP pilot rollout](/mssp-pilot) walks you through manually, this does end-to-end while you watch a JSON event stream.
+Once you've seen SocTalk end-to-end on a single co-located box ([Quickstart](/quickstart-vm)), **Launchpad is the next step**: it takes you from that local demo to a real pilot — an MSSP control plane plus one or more tenant environments on your own infrastructure — with a single command. It boots the VMs, joins them to your tailnet, installs SocTalk from public sources, and hands you a URL, all while you watch a JSON event stream.
 
-**Preview.** The launchpad is the automation layer behind the pilot guide. Same install, same charts, same Tailscale flow — it just does the copy-paste for you. See [MSSP pilot rollout](/mssp-pilot) if you want to understand every step before you let a tool do it.
+Prefer to understand every step before you let a tool do it? The [manual MSSP pilot](/mssp-pilot) walks through the same install by hand — same charts, same Tailscale flow. Launchpad just does the copy-paste for you.
 
 ::: tip Hands-on time
 | Path | Hands-on | Wall clock |
