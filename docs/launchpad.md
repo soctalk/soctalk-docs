@@ -95,7 +95,7 @@ On first run the CLI downloads and verifies the plugin set into `~/.launchpad/pl
 
 The console streams progress live — each VM provisioning, joining the tailnet, and installing SocTalk — and gives you the MSSP URL at the end. Runs are idempotent (re-launch reconciles against machines that already exist rather than duplicating them), and the **Down** action tears a run's machines back down.
 
-<!-- screenshot: launchpad-ui-runs.png — the Runs screen mid-provision with per-machine progress -->
+![The Launchpad web console — Hosts registered across substrates](/screenshots/launchpad-ui-hosts.png)
 
 ::: tip Compliance check
 Before pointing a plugin at real infrastructure you can sanity-check it from the CLI:
