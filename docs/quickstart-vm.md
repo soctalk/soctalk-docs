@@ -173,10 +173,6 @@ sshpass -p packer ssh -o StrictHostKeyChecking=accept-new ubuntu@<vm-ip>
 sudo -i
 ```
 
-::: danger The `packer` password is in the public source repo
-Any internet-reachable VM booted from this image without a cloud-init seed that locks `ubuntu` is a one-line takeover. Either provide a seed or apply the hardening steps below before exposing the VM.
-:::
-
 ### Hardening checklist
 
 Run as `ops` after first boot, or fold into your cloud-init `runcmd:` so it fires automatically:

@@ -38,6 +38,7 @@ export default withMermaid(
           items: [
             { text: 'Quickstart: demo VM', link: '/quickstart-vm' },
             { text: 'MSSP pilot rollout', link: '/mssp-pilot' },
+            { text: 'Launchpad (automate pilot)', link: '/launchpad' },
             { text: 'Production install', link: '/install' },
             { text: 'Downloads', link: '/downloads' },
             { text: 'Setup wizard', link: '/setup-wizard' },
@@ -93,6 +94,7 @@ export default withMermaid(
             { text: 'Wazuh Ingress', link: '/reference/wazuh-ingress' },
             { text: 'Sizing', link: '/reference/sizing' },
             { text: 'REST API', link: '/reference/api' },
+            { text: 'Launchpad events', link: '/reference/launchpad-events' },
             { text: 'CLI and scripts', link: '/reference/cli' },
             { text: 'Attack simulator', link: '/reference/attack-simulator' },
           ],
