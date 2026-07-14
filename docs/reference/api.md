@@ -2,11 +2,13 @@
 
 The SocTalk API is a FastAPI app. Its full surface is documented via OpenAPI at runtime:
 
-- **OpenAPI JSON**: `https://mssp.your-mssp.example/openapi.json`
-- **Swagger UI**: `https://mssp.your-mssp.example/docs`
-- **ReDoc**: `https://mssp.your-mssp.example/redoc`
+- **OpenAPI JSON**: `https://mssp.your-mssp.example/api/openapi.json`
+- **Swagger UI**: `https://mssp.your-mssp.example/api/docs`
+- **ReDoc**: `https://mssp.your-mssp.example/api/redoc`
 
-(FastAPI defaults — at the API root, not under `/api/`.)
+(Served under `/api/` — the ingress routes `/api/*` to the API and everything
+else to the web console, so the schema and docs live alongside the other
+`/api/*` routes rather than at the bare host root.)
 
 The OpenAPI surface is the source of truth. This page is the catalog you read first to know where to look.
 
