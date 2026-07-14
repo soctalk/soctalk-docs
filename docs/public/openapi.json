@@ -224,6 +224,42 @@
         "title": "AdapterEvent",
         "type": "object"
       },
+      "AdapterHeartbeatPayload": {
+        "properties": {
+          "health": {
+            "title": "Health",
+            "type": "string"
+          },
+          "metrics": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metrics"
+          },
+          "tenant_id": {
+            "format": "uuid",
+            "title": "Tenant Id",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "version",
+          "health"
+        ],
+        "title": "AdapterHeartbeatPayload",
+        "type": "object"
+      },
       "AdminResetResponse": {
         "properties": {
           "must_change": {
@@ -4434,6 +4470,38 @@
         "title": "WireMitre",
         "type": "object"
       },
+      "WorkerHeartbeatPayload": {
+        "properties": {
+          "dollars_used": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dollars Used"
+          },
+          "lease_id": {
+            "format": "uuid",
+            "title": "Lease Id",
+            "type": "string"
+          },
+          "tokens_used": {
+            "minimum": 0.0,
+            "title": "Tokens Used",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "lease_id",
+          "tokens_used"
+        ],
+        "title": "WorkerHeartbeatPayload",
+        "type": "object"
+      },
       "_ApproveBody": {
         "properties": {
           "feedback": {
@@ -4953,74 +5021,6 @@
           "investigation_id"
         ],
         "title": "_ReviewActionResponse",
-        "type": "object"
-      },
-      "soctalk__core__api__adapter__HeartbeatPayload": {
-        "properties": {
-          "health": {
-            "title": "Health",
-            "type": "string"
-          },
-          "metrics": {
-            "anyOf": [
-              {
-                "additionalProperties": true,
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Metrics"
-          },
-          "tenant_id": {
-            "format": "uuid",
-            "title": "Tenant Id",
-            "type": "string"
-          },
-          "version": {
-            "title": "Version",
-            "type": "string"
-          }
-        },
-        "required": [
-          "tenant_id",
-          "version",
-          "health"
-        ],
-        "title": "HeartbeatPayload",
-        "type": "object"
-      },
-      "soctalk__core__api__worker_runs__HeartbeatPayload": {
-        "properties": {
-          "dollars_used": {
-            "anyOf": [
-              {
-                "minimum": 0.0,
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Dollars Used"
-          },
-          "lease_id": {
-            "format": "uuid",
-            "title": "Lease Id",
-            "type": "string"
-          },
-          "tokens_used": {
-            "minimum": 0.0,
-            "title": "Tokens Used",
-            "type": "integer"
-          }
-        },
-        "required": [
-          "lease_id",
-          "tokens_used"
-        ],
-        "title": "HeartbeatPayload",
         "type": "object"
       }
     }
@@ -6581,7 +6581,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/soctalk__core__api__adapter__HeartbeatPayload"
+                "$ref": "#/components/schemas/AdapterHeartbeatPayload"
               }
             }
           },
@@ -6726,7 +6726,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/soctalk__core__api__worker_runs__HeartbeatPayload"
+                "$ref": "#/components/schemas/WorkerHeartbeatPayload"
               }
             }
           },

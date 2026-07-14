@@ -369,6 +369,63 @@ Server-Sent Events. **In this release the stream emits keep-alive pings only**
 updates, tenant lifecycle, etc.) is on the roadmap. Treat the endpoint as a
 wire-level connectivity test today.
 
+## Generate a Python client
+
+The schema generates cleanly, so the fastest way to call the API from Python is
+to generate a typed client with
+[openapi-python-client](https://github.com/openapi-generators/openapi-python-client)
+rather than hand-rolling requests. Here it is end-to-end, reading investigations.
+
+### 1. Generate + install the client
+
+```bash
+pip install openapi-python-client
+openapi-python-client generate \
+  --url https://mssp.your-mssp.example/api/openapi.json --meta setup
+pip install ./soc-talk-v1-client   # package name derives from the schema title
+```
+
+### 2. Consume investigations
+
+```python
+import httpx
+from soc_talk_v1_client import Client
+from soc_talk_v1_client.api.investigations_bridge import (
+    list_investigations_api_investigations_get as list_investigations,
+    get_investigation_api_investigations_investigation_id_get as get_investigation,
+)
+
+BASE = "https://mssp.your-mssp.example"
+
+# 1. Log in for a session cookie (the investigations routes take a session).
+with httpx.Client(base_url=BASE) as h:
+    h.post("/api/auth/login",
+           json={"email": "admin@example", "password": "..."}).raise_for_status()
+    session = h.cookies["soctalk_session"]
+
+# 2. Drive the generated, typed client with that cookie.
+client = Client(base_url=BASE, cookies={"soctalk_session": session})
+
+page = list_investigations.sync(client=client, page=1, page_size=5)  # -> InvestigationList
+print(f"{page.total} investigations")
+for inv in page.items:                                               # -> Investigation
+    print(inv.id, inv.status, inv.max_severity, inv.title)
+
+detail = get_investigation.sync(client=client, investigation_id=str(page.items[0].id))
+print(detail.phase, detail.alert_count, detail.verdict_decision)
+```
+
+The endpoint functions are named after the operationId FastAPI derives from the
+route (`list_investigations_api_investigations_get`) — alias them on import, as
+above, for readability. `sync()` returns the deserialized model
+(`InvestigationList`, whose `.items` are `Investigation`); `sync_detailed()`
+returns the raw `Response` with the status code if you need it.
+
+A runnable version — generate, log in, list + read — ships as the codegen smoke
+test [`tests/e2e/smoke_openapi_client.py`](https://github.com/soctalk/soctalk/blob/main/tests/e2e/smoke_openapi_client.py),
+which the deploy pipeline runs against the live API so a schema that stops
+generating a working client fails the build.
+
 ## Internal endpoints (`/api/internal/*`)
 
 Used by the per-tenant adapter and runs-worker (see the `internal-adapter` and
