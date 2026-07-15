@@ -56,6 +56,7 @@ export default withMermaid(
           text: 'Concepts',
           items: [
             { text: 'AI pipeline', link: '/ai-pipeline' },
+            { text: 'Playbooks', link: '/playbooks' },
             { text: 'Tenant lifecycle', link: '/tenant-lifecycle' },
           ],
         },
