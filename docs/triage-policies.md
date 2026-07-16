@@ -2,7 +2,7 @@
 
 An LLM triaging a `sudo` alert is a brilliant analyst and a poor guarantee. Ask it the same question twice and you can get two answers. Tell it to always pull the change record before deciding and it will — usually, mostly. But some of triage isn't a judgment call. An evidence step *has* to run before a verdict counts. A close on a PCI asset *must* pause for a human. A flood of agent-health noise *shouldn't* cost a model call at all. For those, you don't want reasoning. You want a rule.
 
-A **triage policy** is that rule, written as data. It doesn't replace the agent — it wraps a few deterministic gates around the agentic loop. Every one of them obeys the same law:
+A **triage policy** is that rule, written as data. It doesn't replace the agent — it wraps a few deterministic gates around the **agentic loop** (the supervisor-and-tools cycle that enriches, investigates, and reasons its way to a verdict). Every one of them obeys the same law:
 
 > **The LLM proposes. A deterministic gate disposes.**
 
@@ -10,17 +10,10 @@ The model stays free to reason. A pure function decides whether its output takes
 
 ![How a triage policy is evaluated inside the agentic loop](/diagrams/triage-policy-loop.svg)
 
-Read it top to bottom: an alert resolves against the registry, runs the agentic loop under the policy's gates, and lands on a disposition — with a non-overridable safety floor underneath every automatic close. The numbered gates are the whole surface, and the next section walks them one at a time. ([Edit this diagram](https://raw.githubusercontent.com/soctalk/soctalk-docs/main/docs/public/diagrams/triage-policy-loop.excalidraw) — download and open in [excalidraw.com](https://excalidraw.com).)
+Read it top to bottom: an alert resolves against the registry, runs the agentic loop under the policy's gates, and lands on a **disposition** — the final call on the case (auto-close, escalate to a human, or ask for more evidence). Underneath every automatic close sits a **safety floor**: a set of non-overridable, code-level vetoes that no policy can weaken, defined in full [below](#the-safety-floor). The numbered gates are the whole surface, and the next section walks them one at a time.
 
 The one property that makes all of this safe: a **tenant-authored** triage policy can make triage **stricter**, never looser — its guardrails only raise, and the hard floor beneath every close can't be weakened. (Vetted built-in and operator-managed *file* policies are trusted code and aren't bound by that constraint.) The code lives in [`src/soctalk/triage_policy/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/triage_policy).
 
-## Why "triage policy", not "playbook"
-
-A triage policy is **declarative governance over an autonomous triage loop** — it states which alerts it owns, what evidence must be gathered, which actions the agent may take, and which raise-only guardrails apply. It shapes *how* an alert is triaged; it never spells out an imperative sequence of response steps, and it can never lower a disposition.
-
-In the SOC domain "playbook" means the opposite of that: an imperative SOAR workflow or a human IR checklist — a list of actions to run. Calling this artifact a playbook re-teaches that wrong mental model. So the word **"playbook" is reserved** for a future, separate document kind — **Response Playbooks**, the post-disposition workflows (notify / ticket / isolate / block) that fire *after* triage commits, outside the agentic loop.
-
-Keep the judgment reasoned and any future response procedural. A tenant-authored triage policy never decides a *security* disposition from surface features — that would reintroduce the keyword-matcher failure the whole authorization layer exists to avoid. (The one exception is vetted code: a built-in may deterministically close a pure-*operational* class, and only after every security-indicator veto has cleared.) It wraps around the engine; it does not replace it.
 
 ## Where a triage policy acts
 
@@ -115,7 +108,7 @@ The fields a condition may read:
 | Field | What it is |
 |---|---|
 | `authz.class` | `covered`, `contradicted`, or `absent`, derived from the engine. |
-| `authz.in_scope`, `authz.sanctioned_or_routine`, `authz.actor_genuine`, `authz.policy_allowed` | The four expectedness components. |
+| `authz.in_scope`, `authz.sanctioned_or_routine`, `authz.actor_genuine`, `authz.policy_allowed` | The four *expectedness components* — the authorization engine's booleans for whether the activity fell in an approved scope, was sanctioned or routine, was performed by a genuine actor, and was permitted by policy. |
 | `verdict` | The model's draft decision. |
 | `verdict_confidence` | Its confidence, `0.0` to `1.0`. |
 | `asset.data_classification`, `asset.environment`, `asset.criticality` | Trust-resolved attributes of the activity's asset. |
@@ -182,15 +175,7 @@ In **shadow**, the policy is matched and its guardrails evaluated exactly as an 
 
 **Activating** it (the **Activate** action on the Triage Policies page) makes it govern. Because the worker is a separate process whose registry loads once at startup, activation cannot just flip a database flag — it materializes the definition into the tenant's worker ConfigMap on the next `tenant.reconcile`, and the **worker rollout is the activation gate**: the policy starts governing only when a fresh worker reads it. Editing an active policy keeps it active and re-rolls with the new definition; deactivating returns it to shadow.
 
-```mermaid
-flowchart LR
-  author[author in UI] --> shadow[shadow: matched, audited, non-binding]
-  shadow --> review[review the would-fire audit records]
-  review --> activate[Activate]
-  activate --> reconcile[tenant.reconcile renders it into the worker ConfigMap]
-  reconcile --> rollout[worker rolls, registry reloads]
-  rollout --> active[status: active, governing]
-```
+![The authored-policy lifecycle: shadow, then activate to govern](/diagrams/triage-policy-lifecycle.svg)
 
 Operators who prefer to manage policies as code can still take the git path: write a YAML file into the mounted directory and roll the workers. The same registry loads both authored-and-activated policies and hand-written file policies.
 
@@ -204,10 +189,6 @@ Two environment variables carry it:
 On the chart-provisioned path, policies are tenant chart values (`runsWorker.triagePolicies`, rendered as the `soctalk-triage-policies` ConfigMap), and a content change stamps a checksum on the pod template so an edit rolls the worker automatically. The rollout is the activation gate: because the registry loads once per process, a policy only starts governing when a fresh worker reads it.
 
 Every load, skip, and rejection is logged. A file that fails validation for any reason (bad schema, an unknown field, a malformed condition, a priority that would outrank a built-in) is rejected whole and never governs anything, so a bad rollout degrades to "that policy is not active," never to wrong enforcement.
-
-::: tip Renaming in flight
-The old `playbook` names still work for one release: the `/playbooks` API routes, the `playbook_id` response field, `SOCTALK_PLAYBOOK_DIR` / `SOCTALK_TENANT_PLAYBOOKS_DIR`, and `runsWorker.playbooks` are all accepted as deprecated aliases. Prefer the `triage_policy` names above.
-:::
 
 ## Where it shows up
 
