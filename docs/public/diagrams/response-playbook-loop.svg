@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 900" font-family="Virgil, Excalifont, 'Segoe Print', 'Comic Sans MS', cursive">
+  <rect x="0" y="0" width="940" height="900" rx="14" fill="#ffffff"/>
+
+  <!-- markers -->
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,1 L9,5 L0,9 z" fill="#495057"/>
+    </marker>
+  </defs>
+
+  <!-- 1. Upstream triage -->
+  <rect x="300" y="30" width="340" height="70" rx="12" fill="#f3f0ff" stroke="#6741d9" stroke-width="2"/>
+  <text x="470" y="60" text-anchor="middle" font-size="18" fill="#5f3dc4">Agentic triage loop</text>
+  <text x="470" y="82" text-anchor="middle" font-size="13" fill="#6c757d">enrich · investigate · reason to a verdict</text>
+
+  <!-- arrow 1 -> 2 -->
+  <line x1="470" y1="100" x2="470" y2="146" stroke="#495057" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <text x="486" y="128" font-size="13" fill="#868e96">produces</text>
+
+  <!-- 2. Handoff: disposition + envelope -->
+  <rect x="230" y="148" width="480" height="128" rx="12" fill="#fff0f6" stroke="#e64980" stroke-width="2.4"/>
+  <text x="470" y="176" text-anchor="middle" font-size="18" fill="#c2255c">Effective disposition + envelope</text>
+  <text x="470" y="200" text-anchor="middle" font-size="13" fill="#495057">the final call after the safety floor, plus everything about it</text>
+  <text x="470" y="226" text-anchor="middle" font-size="13" fill="#495057">escalate / close · verdict + confidence · severity</text>
+  <text x="470" y="248" text-anchor="middle" font-size="13" fill="#495057">rule groups &amp; ids · ATT&amp;CK techniques + tactics</text>
+  <text x="470" y="268" text-anchor="middle" font-size="13" fill="#495057">entities · IOCs · which floor vetoes fired</text>
+
+  <!-- arrow 2 -> 3 -->
+  <line x1="470" y1="276" x2="470" y2="322" stroke="#495057" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <text x="486" y="304" font-size="13" fill="#868e96">the playbook reads this</text>
+
+  <!-- 3. Response playbook -->
+  <rect x="300" y="324" width="340" height="70" rx="12" fill="#f8f9fa" stroke="#495057" stroke-width="2"/>
+  <text x="470" y="354" text-anchor="middle" font-size="18" fill="#343a40">Response playbook</text>
+  <text x="470" y="376" text-anchor="middle" font-size="13" fill="#6c757d">match the envelope, select the actions</text>
+
+  <!-- split arrows -->
+  <path d="M420,394 C360,420 300,430 250,452" stroke="#495057" stroke-width="1.8" fill="none" marker-end="url(#arrow)"/>
+  <path d="M520,394 C600,420 660,430 700,452" stroke="#495057" stroke-width="1.8" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- LEFT: tier-0 -->
+  <rect x="120" y="454" width="260" height="66" rx="12" fill="#e7f5ff" stroke="#1971c2" stroke-width="2"/>
+  <text x="250" y="483" text-anchor="middle" font-size="16" fill="#1864ab">Tier-0 action</text>
+  <text x="250" y="504" text-anchor="middle" font-size="12.5" fill="#495057">annotate · notify a webhook</text>
+  <line x1="250" y1="520" x2="250" y2="566" stroke="#495057" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <rect x="120" y="568" width="260" height="60" rx="12" fill="#ebfbee" stroke="#2f9e44" stroke-width="2"/>
+  <text x="250" y="595" text-anchor="middle" font-size="16" fill="#2b8a3e">Runs immediately</text>
+  <text x="250" y="615" text-anchor="middle" font-size="12.5" fill="#495057">no human in the loop</text>
+
+  <!-- RIGHT: gated -->
+  <rect x="580" y="454" width="270" height="66" rx="12" fill="#fff9db" stroke="#f08c00" stroke-width="2" stroke-dasharray="7 5"/>
+  <text x="715" y="483" text-anchor="middle" font-size="16" fill="#e67700">Gated action</text>
+  <text x="715" y="504" text-anchor="middle" font-size="12.5" fill="#495057">isolate an endpoint · disable an account</text>
+  <line x1="715" y1="520" x2="715" y2="566" stroke="#495057" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <rect x="580" y="568" width="270" height="60" rx="12" fill="#f8f0fc" stroke="#9c36b5" stroke-width="2"/>
+  <text x="715" y="595" text-anchor="middle" font-size="16" fill="#862e9c">Waits for a human</text>
+  <text x="715" y="615" text-anchor="middle" font-size="12.5" fill="#495057">an analyst approves the proposal</text>
+  <line x1="715" y1="628" x2="715" y2="674" stroke="#495057" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <rect x="580" y="676" width="270" height="60" rx="12" fill="#ebfbee" stroke="#2f9e44" stroke-width="2"/>
+  <text x="715" y="703" text-anchor="middle" font-size="16" fill="#2b8a3e">Then runs</text>
+  <text x="715" y="723" text-anchor="middle" font-size="12.5" fill="#495057">once, recorded in the ledger</text>
+
+  <!-- converge to external -->
+  <path d="M250,628 C300,700 360,730 430,770" stroke="#495057" stroke-width="1.8" fill="none" marker-end="url(#arrow)"/>
+  <path d="M715,736 C640,780 580,790 520,796" stroke="#495057" stroke-width="1.8" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- external -->
+  <rect x="330" y="784" width="280" height="66" rx="12" fill="#f8f9fa" stroke="#495057" stroke-width="2"/>
+  <text x="470" y="813" text-anchor="middle" font-size="16" fill="#343a40">External systems</text>
+  <text x="470" y="834" text-anchor="middle" font-size="12.5" fill="#495057">SOAR · EDR · case tools</text>
+
+  <!-- floor annotation -->
+  <rect x="26" y="150" width="176" height="124" rx="12" fill="#f1f3f5" stroke="#868e96" stroke-width="1.8" stroke-dasharray="6 5"/>
+  <text x="114" y="178" text-anchor="middle" font-size="14" fill="#495057">Safety floor</text>
+  <text x="114" y="198" text-anchor="middle" font-size="14" fill="#495057">+ kill switch</text>
+  <text x="114" y="226" text-anchor="middle" font-size="11.5" fill="#868e96">enforced in code,</text>
+  <text x="114" y="243" text-anchor="middle" font-size="11.5" fill="#868e96">outside the schema;</text>
+  <text x="114" y="260" text-anchor="middle" font-size="11.5" fill="#868e96">no playbook weakens it</text>
+</svg>
