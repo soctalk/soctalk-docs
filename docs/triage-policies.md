@@ -189,9 +189,3 @@ Two environment variables carry it:
 On the chart-provisioned path, policies are tenant chart values (`runsWorker.triagePolicies`, rendered as the `soctalk-triage-policies` ConfigMap), and a content change stamps a checksum on the pod template so an edit rolls the worker automatically. The rollout is the activation gate: because the registry loads once per process, a policy only starts governing when a fresh worker reads it.
 
 Every load, skip, and rejection is logged. A file that fails validation for any reason (bad schema, an unknown field, a malformed condition, a priority that would outrank a built-in) is rejected whole and never governs anything, so a bad rollout degrades to "that policy is not active," never to wrong enforcement.
-
-## Where it shows up
-
-- **Triage Policies page** in the MSSP dashboard: the built-ins that govern triage, and the authored drafts for a pinned tenant, each expandable to its full definition.
-- **Audit trail**: every guard override, every floor veto, and every shadow would-fire is an audit event, so you can reconstruct exactly why a case went where it did.
-- **Golden evals**: the deterministic triage-policy cases in the triage golden set pin this behavior, so a regression in the guardrail logic fails the suite rather than reaching production.
