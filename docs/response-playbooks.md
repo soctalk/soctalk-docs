@@ -12,9 +12,9 @@ What it reads is a single typed object called the disposition envelope. SocTalk 
 
 Everything below is the right-hand side of that picture: how a playbook matches the envelope, which actions it can take, and how the dangerous ones stay behind a human. The code lives in [`src/soctalk/response/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/response).
 
-## Tier-0 runs, anything with blast radius waits
+## What runs on its own, and what needs approval
 
-Every action a playbook can take carries a blast-radius tier, and the tier decides how it fires. Annotating a case or notifying an operator-chosen webhook is safe to do on its own, because the worst outcome is noise, so those run immediately with nobody in the loop. Isolating an endpoint or disabling an account is not safe to do on a hunch, so those never fire automatically. The playbook proposes the action, it becomes a proposal on the case, and an analyst has to approve it before it executes. The model never pulls a dangerous trigger during triage, and a playbook cannot pull one during response either. This is the same discipline the triage layer runs on: a proposal, then a gate, with a person as the gate for anything that reaches into the world.
+Actions fall into two groups by how much they can affect your environment. Writing a note on the case or sending a notification to a webhook is safe to do on its own, because the worst it can do is add noise, so those run right away without anyone approving them. Isolating an endpoint or disabling an account is a different matter, so those never fire on their own. When a playbook calls for one, it does not run it. It raises a proposal on the case, and an analyst reviews and approves it before anything happens. The model never takes a containment action on its own during triage, and a playbook cannot take one on its own during response. In both cases a person signs off on anything that reaches into a live system.
 
 Three rules live in code rather than in playbook data, and no playbook can weaken them. A close is the direction an attacker would most want to trigger, so on the close path a playbook may only annotate or audit, never take an external action. The dispatch kill switch, set with `SOCTALK_RESPONSE_DISPATCH_KILL` on the API process or the `response_dispatch_kill` flag on a tenant, stops every response with no rollout, which is the control to reach for when a connector starts misbehaving mid-incident. And a response fires only if the disposition actually took effect on the case. If an analyst closed or merged the investigation while the run was still going, nothing dispatches against a state that never happened.
 
@@ -22,11 +22,11 @@ Three rules live in code rather than in playbook data, and no playbook can weake
 
 A playbook refers to a capability by name and can name nothing else. An unknown name is rejected when the playbook is validated. Three capabilities ship today.
 
-`annotate_investigation` writes a system note on the case. It is local, it is tier-0, and it is the only capability allowed on the close path.
+`annotate_investigation` writes a system note on the case. It only touches SocTalk, it runs on its own, and it is the only action allowed on a close.
 
-`notify_webhook` posts the signed envelope to the tenant's configured webhook. This is the generic handoff to an external SOAR. SocTalk signs the envelope and sends it, and the receiver owns everything that happens after.
+`notify_webhook` posts the signed envelope to the tenant's configured webhook. This is the handoff to an external SOAR. SocTalk signs the envelope and sends it, and the receiver owns everything that happens after. It also runs on its own.
 
-`external_action` is the gated one. It posts a named action together with the signed envelope to an operator-configured endpoint, and this is the seam where concrete stack behavior, isolating an endpoint or disabling an account, lives outside SocTalk behind a stable contract. It is never autonomous.
+`external_action` is the one that needs approval. It sends a named action together with the signed envelope to an endpoint the operator configured, and this is where the real work, isolating an endpoint or disabling an account, lives outside SocTalk behind a stable contract. It never runs without an analyst approving it first.
 
 One detail keeps `external_action` safe. A playbook author names an endpoint and an action, never a URL. The operator maps that endpoint name to a real URL and a signing secret in the `response_action_endpoints` tenant policy, so an author can ask to isolate on the `edr` endpoint but cannot choose where the request actually goes. Every request is HMAC-signed, and it refuses to reach a private or link-local address.
 
@@ -71,7 +71,7 @@ The fields a condition may read all come from the envelope. There is the effecti
 
 Admins author response playbooks from the **Response Playbooks** page while a tenant is pinned, with no YAML required. This walks through building the `isolate-lateral-movement-endpoint` playbook from the schema above, end to end. It proposes isolating an endpoint on a high-severity lateral-movement escalation, notifies the SOC, and annotates the case.
 
-Open **"+ New response playbook"** (or navigate to `/response-playbooks/editor`). The editor is two columns. The document form is on the left, and a live flow diagram is on the right that re-renders on every edit, showing the disposition fanning out to the actions and the gated ones routing through human approval.
+Open **"+ New response playbook"** (or navigate to `/response-playbooks/editor`). The editor is two columns. The document form is on the left, and a live flow diagram is on the right that re-renders on every edit, showing the disposition fanning out to the actions, with the ones that need approval routing through an approval step first.
 
 ![The blank no-code editor](/screenshots/response-playbook-editor-01-blank.png)
 
@@ -83,17 +83,17 @@ Next, decide which alerts it owns. The four matchers are OR'd. This playbook own
 
 ![Matchers, including ATT&CK](/screenshots/response-playbook-editor-03-matchers.png)
 
-Now the gated isolate action. On escalate, add `external_action`, the capability marked "needs approval." Name the operator-configured `endpoint` and the `action`, which is `isolate_endpoint`, in its params, and you never enter a URL. Add a condition so it only fires on a high-severity escalation.
+Now the isolation action. On escalate, add `external_action`, the one marked "needs approval." Name the endpoint the operator configured and the action, which is `isolate_endpoint`, in its params, and you never enter a URL. Add a condition so it only fires on a high-severity escalation.
 
-![The gated isolation action with a condition](/screenshots/response-playbook-editor-04-isolate.png)
+![The isolation action with a condition](/screenshots/response-playbook-editor-04-isolate.png)
 
-Add the two tier-0 actions that round out the response. A `notify_webhook` hands the case to the SOC's SOAR, and an `annotate_investigation` leaves an audit trail. Both fire on their own.
+Add the two actions that round out the response and run on their own. A `notify_webhook` hands the case to the SOC's SOAR, and an `annotate_investigation` leaves an audit trail.
 
-![The tier-0 notify and annotate actions](/screenshots/response-playbook-editor-05-tier0.png)
+![The notify and annotate actions, which run on their own](/screenshots/response-playbook-editor-05-tier0.png)
 
-Read the flow while you build. The right column projects the whole document. The disposition envelope fans out to each action, the gated isolate action routes through a human-approval step before it can execute, and the tier-0 actions are marked autonomous.
+Read the flow while you build. The right column projects the whole document. The disposition envelope fans out to each action, the isolation action routes through an approval step before it can run, and the other two are shown running on their own.
 
-![The flow diagram, with the gated action routing through approval](/screenshots/response-playbook-editor-06-flow.png)
+![The flow diagram, with the isolation action routing through approval](/screenshots/response-playbook-editor-06-flow.png)
 
 Saving with **Create (shadow)** persists it. The form and the stored document are the same artifact, and "Preview JSON" shows exactly what gets saved. Validation on save is fail-closed. The id must be a slug, every capability must be one of the vetted names, `on_close` may only annotate, and conditions must reference the declared contract. An unknown reference is rejected while you are authoring, never silently dropped at runtime.
 
@@ -105,12 +105,12 @@ An authored playbook moves through four statuses: draft, shadow, active, and ret
 
 In shadow, the playbook is matched and its actions are selected exactly as an active one would be, and its would-fire actions are written to the audit trail, but nothing is enqueued. This gives you real evidence of what it would do against live traffic before it does anything.
 
-Activating it, with the **Activate** action on the Response Playbooks page, makes it govern, and unlike a triage policy that activation is live. The response dispatcher runs on the control plane with database access, so an active playbook governs the very next disposition with no worker rollout to wait for. Deactivating returns it to shadow at once.
+Activating it, with the **Activate** action on the Response Playbooks page, turns it on, and unlike a triage policy it takes effect live. SocTalk evaluates response playbooks as each case is decided, so an active playbook applies to the very next disposition with no rollout to wait for. Deactivating returns it to shadow at once.
 
-When a gated action does fire on a real escalation, it lands as a proposal on the case. The analyst sees exactly what would run and against which host, and approving it is what triggers the isolation. The action executes once, its remote reference is recorded, and a replayed delivery never fires it twice.
+When an action that needs approval comes up on a real escalation, it lands as a proposal on the case. The analyst sees exactly what would run and against which host, and approving it is what triggers the isolation. The action runs once, the response it got back is recorded, and a repeated delivery never runs it twice.
 
 ## The wiring
 
-A few pieces carry all of this. `SOCTALK_RESPONSE_PLAYBOOK_DIR` on the API process is a directory of YAML playbooks the registry loads at startup, which is the git-managed path for operators who prefer playbooks as code. Authored playbooks live in the database instead, append-only and tenant-scoped with row-level security, and the dispatcher merges them with the file registry so that a tenant-authored playbook overrides a file playbook of the same id. `response_webhook_url`, with an optional `response_webhook_secret`, configures the `notify_webhook` target on a tenant. And `response_action_endpoints` on a tenant maps endpoint names to their url and secret for `external_action`, which is how the operator keeps ownership of the targets while a playbook only ever names one.
+A few pieces carry all of this. `SOCTALK_RESPONSE_PLAYBOOK_DIR` on the API process is a directory of YAML playbooks loaded at startup, which is the git-managed path for operators who prefer playbooks as code. Playbooks authored in the UI live in the database instead, kept as an append-only history and scoped so a tenant only ever sees its own, and SocTalk merges them with the file playbooks so that a tenant's own playbook overrides a file one of the same id. `response_webhook_url`, with an optional `response_webhook_secret`, sets the `notify_webhook` target on a tenant. And `response_action_endpoints` on a tenant maps endpoint names to their url and secret for `external_action`, which is how the operator keeps control of the targets while a playbook only ever names one.
 
-Every dispatch, route, execution, and rejection is logged, and every executed action carries the playbook id and version along with the connector's reference into the ledger. A playbook that fails validation is rejected whole and never governs anything, so a bad edit degrades to "that playbook is not active" rather than to a wrong action.
+Every match, approval, action, and rejection is logged, and every action that runs records the playbook id and version along with the response it got back. A playbook that fails validation is rejected whole and never takes effect, so a bad edit ends up as "that playbook is not active" rather than a wrong action.
