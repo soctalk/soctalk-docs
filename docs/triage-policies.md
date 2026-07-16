@@ -1,16 +1,18 @@
 # Triage Policies
 
-The [AI pipeline](/ai-pipeline) reasons its way to a verdict. That flexibility is the point for investigation, and it is the wrong tool for the parts of triage that have to be guaranteed: mandatory steps, safety overrides, and decisions you can make without a model. Triage policies are the layer that handles those. They are deterministic guardrails wrapped around the agentic loop, expressed as data.
+An LLM triaging a `sudo` alert is a brilliant analyst and a poor guarantee. Ask it the same question twice and you can get two answers. Tell it to always pull the change record before deciding and it will — usually, mostly. But some of triage isn't a judgment call. An evidence step *has* to run before a verdict counts. A close on a PCI asset *must* pause for a human. A flood of agent-health noise *shouldn't* cost a model call at all. For those, you don't want reasoning. You want a rule.
 
-The rule they follow is always the same. The LLM proposes, a deterministic gate disposes.
+A **triage policy** is that rule, written as data. It doesn't replace the agent — it wraps a few deterministic gates around the agentic loop. Every one of them obeys the same law:
 
-```
-LLM node  ->  deterministic guard  ->  { commit | override | interrupt | reroute }
-```
+> **The LLM proposes. A deterministic gate disposes.**
 
-The model stays free to reason. A pure function decides whether its output takes effect. Guards fire only on edges you can prove (an authorization record that contradicts the activity, an IOC on the alert, an active incident on the same host). The ambiguous middle passes straight through to the model, which is where it belongs.
+The model stays free to reason. A pure function decides whether its output takes effect, and it only ever steps in on edges you can *prove* — an authorization record that contradicts the activity, an IOC on the alert, an active incident that shares an entity with this one. The ambiguous middle passes straight through to the model, where it belongs.
 
-The code lives in [`src/soctalk/triage_policy/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/triage_policy).
+![How a triage policy is evaluated inside the agentic loop](/diagrams/triage-policy-loop.svg)
+
+Read it top to bottom: an alert resolves against the registry, runs the agentic loop under the policy's gates, and lands on a disposition — with a non-overridable safety floor underneath every automatic close. The numbered gates are the whole surface, and the next section walks them one at a time. ([Edit this diagram](https://raw.githubusercontent.com/soctalk/soctalk-docs/main/docs/public/diagrams/triage-policy-loop.excalidraw) — download and open in [excalidraw.com](https://excalidraw.com).)
+
+The one property that makes all of this safe: a **tenant-authored** triage policy can make triage **stricter**, never looser — its guardrails only raise, and the hard floor beneath every close can't be weakened. (Vetted built-in and operator-managed *file* policies are trusted code and aren't bound by that constraint.) The code lives in [`src/soctalk/triage_policy/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/triage_policy).
 
 ## Why "triage policy", not "playbook"
 
@@ -18,30 +20,16 @@ A triage policy is **declarative governance over an autonomous triage loop** —
 
 In the SOC domain "playbook" means the opposite of that: an imperative SOAR workflow or a human IR checklist — a list of actions to run. Calling this artifact a playbook re-teaches that wrong mental model. So the word **"playbook" is reserved** for a future, separate document kind — **Response Playbooks**, the post-disposition workflows (notify / ticket / isolate / block) that fire *after* triage commits, outside the agentic loop.
 
-Keep the judgment reasoned and any future response procedural. A triage policy never decides a disposition from surface features — that would reintroduce the keyword-matcher failure the whole authorization layer exists to avoid. It wraps around the engine; it does not replace it.
+Keep the judgment reasoned and any future response procedural. A tenant-authored triage policy never decides a *security* disposition from surface features — that would reintroduce the keyword-matcher failure the whole authorization layer exists to avoid. (The one exception is vetted code: a built-in may deterministically close a pure-*operational* class, and only after every security-indicator veto has cleared.) It wraps around the engine; it does not replace it.
 
 ## Where a triage policy acts
 
-A triage policy governs one run at four points.
-
-```mermaid
-flowchart TD
-  start([alert]) --> resolve[resolve triage policy]
-  resolve -->|operational class, no security signal| opclose[deterministic close]
-  resolve -->|everything else| supervisor
-  supervisor -->|VERDICT before required steps ran| gather[gather authorization context]
-  gather --> supervisor
-  supervisor --> verdict
-  verdict --> guard[post-verdict guard]
-  guard -->|commit| dispo([disposition])
-  guard -->|override / interrupt| review([escalate / human review])
-  opclose --> dispo
-```
+A triage policy governs one run at four points — the numbered gates in the diagram above.
 
 1. **Resolver.** An entry node matches the alert against the registry and writes the active triage policy into the run state. If the alert belongs to a known operational class with no security indicators, the run can close deterministically here without ever calling the model.
 2. **Pre-decision gate.** A policy can require deterministic steps (for example, gathering authorization context) before a verdict is legal. If the supervisor proposes a verdict too early, the gate reroutes it to the required step first. A policy can also restrict which supervisor actions are legal in each phase, and that restriction is applied to the model's structured output before the call, so an illegal action cannot even be sampled.
 3. **Post-verdict guard.** After the model drafts a verdict, a pure function decides whether it commits. It can override the draft (raise a close to an escalate), interrupt it (keep the draft but route to human sign-off), or let it stand. Every override is recorded.
-4. **Safety floor.** A non-overridable set of checks sits on every automatic-close path. Nothing in a triage policy can weaken it.
+4. **Safety floor.** A non-overridable set of checks guards every automatic-close path. It is *not* a single step — the IOC/authorization vetoes run inside the post-verdict guard, and the kill-switch, volume-cap, and active-incident vetoes run again when a close commits on the worker, server, and ingest planes. The diagram draws it as one node for clarity; nothing in a triage policy can weaken it wherever it runs.
 
 ## The safety floor
 
@@ -49,7 +37,7 @@ The floor is enforced in code, not in policy data, and it applies on every plane
 
 | Veto | When it fires |
 |---|---|
-| IOC present | The alert carries a malicious enrichment verdict or a MISP match. |
+| IOC present | On the verdict path, a malicious enrichment verdict or a MISP match; on the ingest fast-paths, any raw IOC on the alert. |
 | Contradicted authorization | Records exist but do not cover the activity (expired, out of window, wrong scope, forbidden by policy). |
 | Unverified IOC | A router-tier close with observables that no enrichment ever checked. |
 | Active incident | Another active investigation shares an attach-eligible entity with this one. |
@@ -66,7 +54,7 @@ Two ship with the product. Both are vetted code and read-only.
 
 **`dual-use-privileged-exec`** handles host-auth activity like `sudo` and `su`, where the same event is routine administration under a covering change record and an incident without one. It requires the `gather_authorization_context` step before any verdict, removes `CLOSE` from the supervisor's legal actions (so the cheap router tier cannot short-circuit a case whose whole point is that benign and hostile look identical), and requires human sign-off on any close touching a PCI-classified asset.
 
-**`agent-health-operational`** handles Wazuh agent self-monitoring noise, such as rule 202 "Agent event queue is flooded." This is an infrastructure condition, not a security event, so the policy closes it deterministically with no model call at all, which also makes the outcome consistent instead of varying run to run. Any security indicator on the alert (a MITRE technique, an IOC, high severity, a malicious signal) vetoes the deterministic close and sends the alert to full triage.
+**`agent-health-operational`** handles Wazuh agent self-monitoring noise, such as rule 202 "Agent event queue is flooded." This is an infrastructure condition, not a security event, so the policy closes it deterministically with no model call at all, which also makes the outcome consistent instead of varying run to run. Any security indicator on the alert (a MITRE technique, an IOC, a malicious signal, an unattested class, or a critical Wazuh level — 12+) vetoes the deterministic close and sends the alert to full triage.
 
 You can see both, with every gate and guardrail expanded, on the **Triage Policies** page in the MSSP dashboard.
 
@@ -105,7 +93,7 @@ Read that condition as: if the authorization class came out `contradicted` and t
 |---|---|
 | `applies_to` | Which alerts the policy governs. Matched on rule groups, rule ids, or the authorization track of the alert's activity — the three are OR'd. |
 | `required_steps` | Deterministic nodes that must run before a verdict is legal. |
-| `decision_modules` | Vetted engines the graph consults while triaging (today: `authorization_engine`). |
+| `decision_modules` | Declares the vetted engines the policy relies on (today: `authorization_engine`), validated against known modules. The runtime consultation is currently driven by `required_steps` (e.g. `gather_authorization_context`), not by this field. |
 | `legal_actions` | The supervisor actions allowed per phase (`triage` until the required steps have run, then `decide`). An unlisted phase is unconstrained. |
 | `close_signoff_data_classes` | A committing close on an asset in one of these classes is interrupted for human sign-off. |
 | `guardrails` | Declarative override or interrupt rules. See below. |
@@ -120,7 +108,7 @@ Some capabilities are constrained by where a policy comes from:
 
 Conditions are the only logic an author writes, and they run in a small sandboxed language over a documented state contract. There is no attribute access, no function calls, no way to name anything outside the contract. A condition is a tree of single-operator nodes.
 
-Operators: `var`, the comparisons (`==`, `!=`, `<`, `<=`, `>`, `>=`), the logical `and` / `or` / `!`, and `in`.
+Operators: `var`, the comparisons (`==`, `!=`, `<`, `<=`, `>`, `>=`), the logical `and` / `or` / `!` / `!!`, and `in`.
 
 The fields a condition may read:
 
@@ -134,7 +122,7 @@ The fields a condition may read:
 | `enrichment.ioc` | Whether a malicious signal is present. |
 | `correlation.active_incident` | Whether an active incident overlaps. |
 
-An `effect` is either `override` or `interrupt`. Suppression is not expressible: `close` is not a valid target, and an override may only raise a decision up the ladder `close < needs_more_info < escalate`, never down it. A condition that references an undeclared field or an unknown operator is rejected when the policy is validated, before it can ever run.
+An `effect` is either `override` or `interrupt`. Suppression is not expressible: `close` is not a valid target, and an override may only raise a decision up the ladder `close < needs_more_info < escalate`, never down it. A condition that references an undeclared field or an unknown operator is rejected when the policy is validated, before it can ever run. Note that `enrichment.ioc` and `correlation.active_incident` are also enforced by the hard floor independently of any guardrail — in a shipped worker run `correlation.active_incident` is usually only populated at the commit-time floor, so lean on the floor for those rather than re-deriving them in a guardrail.
 
 ## Author one in the no-code editor
 
@@ -152,7 +140,7 @@ Open **“+ New triage policy”** (or `/triage-policies/editor`). The editor is
 
 ![Matchers](/screenshots/triage-policy-editor-03-matchers.png)
 
-**3 — Investigation requirements.** Require the `gather_authorization_context` step, consult the `authorization_engine` module, and narrow the `decide` phase to `VERDICT` only. Note `CLOSE` is not offered — authored policies cannot grant it.
+**3 — Investigation requirements.** Require the `gather_authorization_context` step, declare reliance on the `authorization_engine` module, and narrow the `decide` phase to `VERDICT` only. Note `CLOSE` is not offered — authored policies cannot grant it.
 
 ![Investigation requirements](/screenshots/triage-policy-editor-04-requirements.png)
 
@@ -176,7 +164,7 @@ Two more complete the policy: a low-confidence override to `needs_more_info`, an
 
 ![Decision-flow projection](/screenshots/triage-policy-editor-09-decision-flow.png)
 
-The **“Try it”** panel runs a sample context through the same guard the worker uses. Feed it a contradicted-authorization, critical-asset case and the outcome is `escalate` — but it comes from the **safety floor**, not this policy. That is the core invariant made visible: contradicted authorization is a non-overridable floor veto, and the policy's guardrails only *raise* on top of it.
+The **“Try it”** panel previews the guardrail + floor logic the editor can model — a subset of the full worker/server/ingest enforcement path, for authoring feedback. Feed it a contradicted-authorization, critical-asset case and the outcome is `escalate` — but it comes from the **safety floor**, not this policy. That is the core invariant made visible: contradicted authorization is a non-overridable floor veto, and the policy's guardrails only *raise* on top of it.
 
 ![The Try-it simulator showing the floor escalate](/screenshots/triage-policy-editor-10-try-it.png)
 
@@ -188,7 +176,7 @@ Validation on save is fail-closed and applies the same rules as file policies pl
 
 ## Shadow, then activate
 
-An authored policy moves through a lifecycle: **draft → shadow → active → retired**.
+An authored policy has four statuses — **draft**, **shadow**, **active**, **retired**. Shadow evaluation is strongly recommended but not mandatory: a policy can be activated straight from draft.
 
 In **shadow**, the policy is matched and its guardrails evaluated exactly as an active one would be, and its would-fire decisions are written to the audit trail — but it changes no disposition. This gives you real evidence of what it would do against live traffic before it decides anything.
 
