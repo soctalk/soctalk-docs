@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 940" font-family="Virgil, Excalifont, 'Segoe Print', 'Comic Sans MS', cursive">
+  <rect x="0" y="0" width="1060" height="940" rx="14" fill="#ffffff"/>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,1 L9,5 L0,9 z" fill="#495057"/>
+    </marker>
+  </defs>
+
+  <!-- ============ BAND 1: INGEST PLANE ============ -->
+  <rect x="26" y="56" width="1008" height="196" rx="14" fill="#f8f9fa" stroke="#adb5bd" stroke-width="1.6" stroke-dasharray="7 6"/>
+  <text x="46" y="82" font-size="15" fill="#495057">Ingest plane</text>
+  <text x="46" y="101" font-size="12" fill="#868e96">deterministic, server-side, no model</text>
+
+  <!-- ingest boxes -->
+  <rect x="52" y="120" width="214" height="104" rx="12" fill="#e7f5ff" stroke="#1971c2" stroke-width="2"/>
+  <text x="159" y="150" text-anchor="middle" font-size="16" fill="#1864ab">Alerts arrive</text>
+  <text x="159" y="172" text-anchor="middle" font-size="12" fill="#495057">adapter posts events</text>
+  <text x="159" y="204" text-anchor="middle" font-size="12" fill="#868e96">Wazuh, scanners, tools</text>
+
+  <rect x="300" y="120" width="214" height="104" rx="12" fill="#e7f5ff" stroke="#1971c2" stroke-width="2"/>
+  <text x="407" y="150" text-anchor="middle" font-size="16" fill="#1864ab">Coalesce + dedup</text>
+  <text x="407" y="172" text-anchor="middle" font-size="12" fill="#495057">collapse the storm</text>
+  <text x="407" y="204" text-anchor="middle" font-size="12" fill="#868e96">a scan of thousands</text>
+  <text x="407" y="219" text-anchor="middle" font-size="12" fill="#868e96">becomes a few cases</text>
+
+  <rect x="548" y="120" width="214" height="104" rx="12" fill="#e7f5ff" stroke="#1971c2" stroke-width="2"/>
+  <text x="655" y="150" text-anchor="middle" font-size="16" fill="#1864ab">Correlate</text>
+  <text x="655" y="172" text-anchor="middle" font-size="12" fill="#495057">one case per incident</text>
+  <text x="655" y="204" text-anchor="middle" font-size="12" fill="#868e96">attach evidence to the</text>
+  <text x="655" y="219" text-anchor="middle" font-size="12" fill="#868e96">live investigation</text>
+
+  <rect x="796" y="120" width="214" height="104" rx="12" fill="#ebfbee" stroke="#2f9e44" stroke-width="2"/>
+  <text x="903" y="150" text-anchor="middle" font-size="16" fill="#2b8a3e">Deterministic close</text>
+  <text x="903" y="172" text-anchor="middle" font-size="12" fill="#495057">obvious FPs, no model</text>
+  <text x="903" y="204" text-anchor="middle" font-size="12" fill="#868e96">the model is spent only</text>
+  <text x="903" y="219" text-anchor="middle" font-size="12" fill="#868e96">on the ambiguous rest</text>
+
+  <!-- inter-box arrows band 1 -->
+  <line x1="266" y1="172" x2="298" y2="172" stroke="#495057" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <line x1="514" y1="172" x2="546" y2="172" stroke="#495057" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <line x1="762" y1="172" x2="794" y2="172" stroke="#495057" stroke-width="1.8" marker-end="url(#arrow)"/>
+
+  <!-- promote arrow to band 2 -->
+  <line x1="530" y1="252" x2="530" y2="292" stroke="#495057" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <text x="546" y="277" font-size="12.5" fill="#868e96">promote a case to a triage run</text>
+
+  <!-- ============ BAND 2: GRAPH PLANE ============ -->
+  <rect x="26" y="294" width="1008" height="300" rx="14" fill="#faf9ff" stroke="#b197fc" stroke-width="1.6" stroke-dasharray="7 6"/>
+  <text x="46" y="320" font-size="15" fill="#5f3dc4">Graph plane</text>
+  <text x="46" y="339" font-size="12" fill="#9775fa">agentic loop, per tenant · the model is consulted in only two roles</text>
+
+  <!-- enrich -->
+  <rect x="52" y="360" width="214" height="96" rx="12" fill="#e6fcf5" stroke="#0ca678" stroke-width="2"/>
+  <text x="159" y="389" text-anchor="middle" font-size="15" fill="#087f5b">Enrich</text>
+  <text x="159" y="410" text-anchor="middle" font-size="12" fill="#495057">Wazuh · Cortex · MISP</text>
+  <text x="159" y="434" text-anchor="middle" font-size="11.5" fill="#868e96">deterministic tool calls,</text>
+  <text x="159" y="449" text-anchor="middle" font-size="11.5" fill="#868e96">not the model</text>
+
+  <!-- authorization -->
+  <rect x="300" y="360" width="214" height="96" rx="12" fill="#f8f9fa" stroke="#343a40" stroke-width="2"/>
+  <text x="407" y="389" text-anchor="middle" font-size="15" fill="#343a40">Authorization</text>
+  <text x="407" y="410" text-anchor="middle" font-size="12" fill="#495057">was it authorized?</text>
+  <text x="407" y="434" text-anchor="middle" font-size="11.5" fill="#868e96">org-state context:</text>
+  <text x="407" y="449" text-anchor="middle" font-size="11.5" fill="#868e96">covered / contradicted / absent</text>
+
+  <!-- supervisor + verdict (LLM) -->
+  <rect x="548" y="360" width="214" height="96" rx="12" fill="#f3f0ff" stroke="#6741d9" stroke-width="2.4"/>
+  <text x="655" y="386" text-anchor="middle" font-size="15" fill="#5f3dc4">Supervisor + verdict</text>
+  <text x="655" y="407" text-anchor="middle" font-size="12" fill="#495057">reason to a disposition</text>
+  <text x="655" y="431" text-anchor="middle" font-size="11.5" fill="#7048e8">the only two model roles:</text>
+  <text x="655" y="446" text-anchor="middle" font-size="11.5" fill="#7048e8">route, then decide</text>
+
+  <!-- guardrails -->
+  <rect x="796" y="360" width="214" height="96" rx="12" fill="#fff9db" stroke="#f08c00" stroke-width="2" stroke-dasharray="7 5"/>
+  <text x="903" y="386" text-anchor="middle" font-size="15" fill="#e67700">Guardrails</text>
+  <text x="903" y="407" text-anchor="middle" font-size="12" fill="#495057">triage policies + safety floor</text>
+  <text x="903" y="431" text-anchor="middle" font-size="11.5" fill="#868e96">deterministic edges the</text>
+  <text x="903" y="446" text-anchor="middle" font-size="11.5" fill="#868e96">model can never weaken</text>
+
+  <!-- arrows band 2 -->
+  <line x1="266" y1="408" x2="298" y2="408" stroke="#495057" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <line x1="514" y1="408" x2="546" y2="408" stroke="#495057" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <line x1="762" y1="408" x2="794" y2="408" stroke="#495057" stroke-width="1.8" marker-end="url(#arrow)"/>
+
+  <!-- supervisor self-loop hint -->
+  <path d="M620,456 C610,492 700,492 690,458" stroke="#7048e8" stroke-width="1.6" fill="none" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+  <text x="655" y="486" text-anchor="middle" font-size="11" fill="#7048e8">investigate, enrich, loop</text>
+
+  <!-- verdict outcome + safety floor note -->
+  <rect x="300" y="512" width="462" height="60" rx="12" fill="#fff0f6" stroke="#e64980" stroke-width="2"/>
+  <text x="531" y="538" text-anchor="middle" font-size="15" fill="#c2255c">Disposition</text>
+  <text x="531" y="559" text-anchor="middle" font-size="12" fill="#495057">close · escalate · needs more info   (an IOC or active incident always vetoes a close)</text>
+
+  <!-- arrows into disposition -->
+  <line x1="655" y1="502" x2="655" y2="510" stroke="#495057" stroke-width="1.8" marker-end="url(#arrow)"/>
+
+  <!-- disposition to act -->
+  <line x1="531" y1="572" x2="531" y2="634" stroke="#495057" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <text x="547" y="611" font-size="12.5" fill="#868e96">disposition + signed envelope</text>
+
+  <!-- ============ BAND 3: ACT ============ -->
+  <rect x="26" y="636" width="1008" height="238" rx="14" fill="#fff5f5" stroke="#ffa8a8" stroke-width="1.6" stroke-dasharray="7 6"/>
+  <text x="46" y="662" font-size="15" fill="#c92a2a">Act on the verdict</text>
+  <text x="46" y="681" font-size="12" fill="#e8590c">a human gates anything that reaches into a live system</text>
+
+  <!-- response playbooks -->
+  <rect x="120" y="700" width="380" height="150" rx="12" fill="#fff0f6" stroke="#e64980" stroke-width="2"/>
+  <text x="310" y="730" text-anchor="middle" font-size="16" fill="#c2255c">Response playbooks</text>
+  <text x="310" y="754" text-anchor="middle" font-size="12.5" fill="#495057">match the verdict, take the action</text>
+  <text x="310" y="782" text-anchor="middle" font-size="12" fill="#2b8a3e">annotate · notify a webhook  →  run on their own</text>
+  <text x="310" y="806" text-anchor="middle" font-size="12" fill="#e67700">isolate · disable  →  wait for an analyst</text>
+  <text x="310" y="832" text-anchor="middle" font-size="11.5" fill="#868e96">a close may only annotate; a kill switch stops all dispatch</text>
+
+  <!-- human review -->
+  <rect x="560" y="700" width="380" height="150" rx="12" fill="#fff9db" stroke="#f08c00" stroke-width="2"/>
+  <text x="750" y="730" text-anchor="middle" font-size="16" fill="#e67700">Human review</text>
+  <text x="750" y="754" text-anchor="middle" font-size="12.5" fill="#495057">escalations land in the review queue</text>
+  <text x="750" y="782" text-anchor="middle" font-size="12" fill="#495057">an analyst decides, and their answer</text>
+  <text x="750" y="804" text-anchor="middle" font-size="12" fill="#495057">to an authorization question is saved</text>
+  <text x="750" y="826" text-anchor="middle" font-size="12" fill="#495057">as reusable memory</text>
+  <text x="750" y="844" text-anchor="middle" font-size="11.5" fill="#868e96">asked once, remembered while it holds</text>
+
+  <!-- split into act boxes -->
+  <path d="M470,634 C420,668 360,680 320,698" stroke="#495057" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+  <path d="M600,634 C660,668 720,680 748,698" stroke="#495057" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+</svg>

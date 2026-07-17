@@ -55,6 +55,7 @@ export default withMermaid(
         {
           text: 'Concepts',
           items: [
+            { text: 'How it works', link: '/how-it-works' },
             { text: 'AI pipeline', link: '/ai-pipeline' },
             { text: 'Triage Policies', link: '/triage-policies' },
             { text: 'Response Playbooks', link: '/response-playbooks' },
