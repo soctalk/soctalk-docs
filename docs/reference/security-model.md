@@ -2,7 +2,7 @@
 
 Principal catalog, actor×resource matrix, RLS policy matrix, Postgres role model, endpoint classification, token claim schemas, audit requirements, secret placement.
 
-> **V1 deployment note.** The endpoint examples below (e.g. `/api/mssp/impersonate/:tenant_id`, `/api/mssp/users` POST/list, `/api/mssp/fleet/summary`) and several principal entries (Cloud license issuer; the impersonation actor) describe the **target security surface**. In V1 the mounted MSSP endpoints are: tenant CRUD (`/onboard`, `/{id}:retry|suspend|resume|decommission|retry-install|issue-agent`), audit (`/api/audit`), admin password reset (`/api/mssp/users/{id}/password/reset`), and `/api/auth/assume-tenant` for session-tenant scoping (not user impersonation). Use the matrices below as the design intent; consult [REST API](/reference/api) for what's actually live.
+> **V1 deployment note.** The endpoint examples below (e.g. `/api/mssp/impersonate/:tenant_id`, `/api/mssp/users` POST/list, `/api/mssp/fleet/summary`) and several principal entries (Cloud license issuer; the impersonation actor) describe the **target security surface**. The mounted MSSP endpoints include: tenant CRUD, audit (`/api/audit`), staff user management (`/api/mssp/users` create/list/patch/deactivate and `/{id}/password/reset`), and `/api/auth/assume-tenant` for session-tenant scoping (not user impersonation). Tenant self-service user management lives under `/api/tenant/users`. Use the matrices below as the design intent; consult [REST API](/reference/api) for what's actually live.
 
 ## Principal catalog
 
@@ -10,7 +10,7 @@ Eight principals.
 
 | # | Principal | Category | Scope | Authenticates via |
 |---|---|---|---|---|
-| 1 | **User** (role ∈ {platform_admin, mssp_admin, analyst, tenant_admin, customer_viewer}) | Human | Role-derived | Ingress OIDC → SocTalk JWT |
+| 1 | **User** (role ∈ {platform_admin, mssp_admin, mssp_manager, analyst, tenant_admin, tenant_manager, tenant_analyst, customer_viewer}) | Human | Role-derived | Ingress OIDC → SocTalk JWT |
 | 2 | **Worker** | SocTalk service (background) | One tenant per job | Service JWT, short-lived, issued by SocTalk API at dispatch |
 | 3 | **System** | SocTalk service (cross-tenant ops) | Install-wide, RLS-bypass | Code-path gated; no JWT |
 | 4 | **SocTalk K8s ServiceAccount** | SocTalk service (K8s identity) | Cluster, name-convention-scoped to `tenant-*` | K8s projected token |
@@ -21,14 +21,27 @@ Eight principals.
 
 ### User roles
 
-| Role | Scope | Typical function |
-|---|---|---|
-| `platform_admin` | Install-wide | SocTalk upgrades, install settings, audit export, license rotation (future release) |
-| `mssp_admin` | Cross-tenant | Customer CRUD, user management, cross-tenant reporting, branding |
-| `analyst` | Cross-tenant | Triage, approvals, investigation work; auditable impersonation into any tenant |
-| `customer_viewer` | Single tenant | Read-only dashboards, incidents, reports, audit trail |
+Roles are capability bundles organised into three tiers per audience (operate ⊆ authorize-risk ⊆ configure); the tenant side adds a read-only stakeholder below operate. See [Users and roles](/users-and-roles) for the capability model.
 
-Scope derivation: `role ∈ {platform_admin, mssp_admin, analyst}` ⇒ `tenant_id` NULL in DB, cross-tenant access via elevated Postgres role or session-tenant scoping (`/api/auth/assume-tenant`). `role ∈ {tenant_admin, customer_viewer}` ⇒ `tenant_id` required in user row and JWT.
+MSSP-side (`tenant_id` NULL):
+
+| Role | Tier | Typical function |
+|---|---|---|
+| `platform_admin` | configure (super) | Every MSSP capability, install-wide. |
+| `mssp_admin` | configure | Configure the system, manage staff users, plus everything below. |
+| `mssp_manager` | authorize-risk | Declare engagements, curate authorization facts, sign off high-blast actions, plus operate. |
+| `analyst` | operate | Triage, review verdicts, decide, chat; works a tenant via an Open-SOC pin. |
+
+Tenant-side (`tenant_id` set):
+
+| Role | Tier | Typical function |
+|---|---|---|
+| `tenant_admin` | configure | Manage own-org users and LLM settings, plus everything below. |
+| `tenant_manager` | authorize-risk | Declare own engagements, assert authorization facts (MSSP-reviewed), plus operate. |
+| `tenant_analyst` | operate | Work its own tenant's SOC: triage, review verdicts, decide, chat. |
+| `customer_viewer` | view only | Read-only dashboards and investigations; cannot act or open the review queue. |
+
+Scope derivation: `role ∈ {platform_admin, mssp_admin, mssp_manager, analyst}` ⇒ `tenant_id` NULL in DB, cross-tenant access via elevated Postgres role or session-tenant scoping (`/api/auth/assume-tenant`). `role ∈ {tenant_admin, tenant_manager, tenant_analyst, customer_viewer}` ⇒ `tenant_id` required in user row and JWT. MSSP capabilities and tenant capabilities never overlap; the guard on each route checks capability and audience together.
 
 ### Worker principal discipline
 
@@ -80,8 +93,8 @@ No `tenant_id`; Organization-scoped or global:
 |---|---|---|---|---|---|---|---|---|
 | Tenant-scoped DB (own tenant) | RW (any) | RW (any) | RW (any) | R (own) | RW (job's tenant) | RW (any via bypass) | - | - |
 | Install-scoped DB | RW | R (minus license) | R | - | R | RW | - | - |
-| User management (MSSP-side) | RW | R (+ invite) | R | - | - | RW | - | - |
-| User management (tenant-side, own tenant) | RW | RW | - | R self | - | - | - | - |
+| User management (MSSP-side) | RW | RW | - | - | - | RW | - | - |
+| User management (tenant-side, own tenant) | - | - | - | - | - | - | - | - |
 | Audit log (own tenant) | R all | R all | R all | R own | W | W | - | W (via bootstrap) |
 | K8s namespaces `tenant-*` | (via API only) | (via API only) | (via API only) | - | - | - | CRUD | - |
 | K8s resources within `tenant-*` | (via API only) | (via API only) | (via API only) | - | - | - | CRUD | R self |
@@ -89,6 +102,8 @@ No `tenant_id`; Organization-scoped or global:
 | Per-tenant integration Secrets | - | - | - | - | R (own tenant) | - | mount | - |
 
 Notes:
+- The columns show a representative subset of roles. `mssp_manager` sits between `mssp_admin` and `analyst` (authorize-risk tier); `tenant_manager` and `tenant_analyst` sit above `customer_viewer` on the tenant side. Each holds every capability of the tier below it.
+- User management is capability-walled by audience. MSSP staff users are managed only by `mssp_admin`/`platform_admin` via `/api/mssp/users`; tenant users are managed only by that tenant's own `tenant_admin` via `/api/tenant/users`. An MSSP admin does not manage tenant users, and vice versa. Assigning `platform_admin`, and mutating an existing `platform_admin`, require a `platform_admin`.
 - "via API only" means the human principal triggers K8s operations by calling SocTalk API endpoints, not directly. API handlers use the SocTalk K8s ServiceAccount.
 - `analyst` acting on a tenant writes audit rows with both `user_id` and the tenant's `tenant_id`; the customer-side audit view shows these as impersonation entries.
 
@@ -109,15 +124,15 @@ All tenant-scoped tables have `FORCE ROW LEVEL SECURITY` so the table owner (`so
 
 Three categories. Never one endpoint that serves two categories.
 
-### `/api/mssp/*` — MSSP-side (requires `platform_admin` | `mssp_admin` | `analyst`)
+### `/api/mssp/*`: MSSP-side (requires an MSSP role; the specific capability varies by route)
 
 Cross-tenant capable. When a handler needs cross-tenant visibility (rollups, fleet views), it uses the `System` principal through `system_context()`. When a handler acts on a specific tenant (impersonation), it sets `app.current_tenant_id` and stays RLS-subject.
 
-Examples (this release): `POST /api/mssp/tenants/onboard`, `GET /api/mssp/tenants`, `POST /api/mssp/tenants/{id}:retry`, `POST /api/mssp/tenants/{id}:suspend|:resume|:decommission`, `GET /api/audit`, `POST /api/mssp/users/{id}/password/reset`. (Impersonation, user create, and fleet rollups are roadmap.)
+Examples (this release): `POST /api/mssp/tenants/onboard`, `GET /api/mssp/tenants`, `POST /api/mssp/tenants/{id}:retry`, `POST /api/mssp/tenants/{id}:suspend|:resume|:decommission`, `GET /api/audit`, MSSP staff user management under `/api/mssp/users`. (Impersonation and fleet rollups are roadmap.)
 
-### `/api/tenant/*` — Tenant-side (requires `tenant_admin` | `customer_viewer`)
+### `/api/tenant/*`: Tenant-side (requires a tenant role; the specific capability varies by route)
 
-Hard-scoped. Tenant context from JWT; no impersonation entry. All queries RLS-enforced via `soctalk_app`. Read-only in this release (except user self-service).
+Hard-scoped. Tenant context from JWT; no impersonation entry. All queries RLS-enforced via `soctalk_app`. Includes operate surfaces for `tenant_analyst`+ (triage, review, chat) and self-service for engagements, authorization facts, and users.
 
 Examples: `GET /api/tenant/overview`, `GET /api/tenant/incidents`, `GET /api/tenant/reports`, `GET /api/tenant/audit`, `GET /api/tenant/branding`.
 
@@ -139,7 +154,7 @@ No endpoint accepts both `/api/mssp/*` and `/api/tenant/*` semantics. If a capab
   "exp": 1713478800,
   "jti": "<uuid>",
   "user_type": "mssp",
-  "role": "platform_admin | mssp_admin | analyst",
+  "role": "platform_admin | mssp_admin | mssp_manager | analyst",
   "current_tenant": null
 }
 ```
@@ -153,7 +168,7 @@ When an `mssp_admin` or `analyst` enters tenant context, a new short-lived token
   "iss": "soctalk",
   "sub": "user_<uuid>",
   "user_type": "tenant",
-  "role": "customer_viewer",
+  "role": "tenant_admin | tenant_manager | tenant_analyst | customer_viewer",
   "tenant_id": "<tenant_uuid>"
 }
 ```
