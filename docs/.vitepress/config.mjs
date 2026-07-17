@@ -58,6 +58,7 @@ export default withMermaid(
             { text: 'AI pipeline', link: '/ai-pipeline' },
             { text: 'Triage Policies', link: '/triage-policies' },
             { text: 'Response Playbooks', link: '/response-playbooks' },
+            { text: 'Authorization', link: '/authorization' },
             { text: 'Tenant lifecycle', link: '/tenant-lifecycle' },
           ],
         },
