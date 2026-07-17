@@ -1,6 +1,6 @@
 # Users and roles
 
-How roles work, who can do what, and how admins create users, hand out the customer portal, and rotate passwords. See [Internal Auth](/reference/internal-auth) for the protocol-level reference and [Security Model](/reference/security-model) for the role by resource matrix.
+How roles work, who can do what, and how admins create users, hand out the customer portal, and rotate passwords. For a click-through of provisioning and the user lifecycle with screenshots, see [Managing users: a walkthrough](/manage-users). See [Internal Auth](/reference/internal-auth) for the protocol-level reference and [Security Model](/reference/security-model) for the role by resource matrix.
 
 ## How access is decided
 

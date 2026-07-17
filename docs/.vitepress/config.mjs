@@ -66,6 +66,7 @@ export default withMermaid(
           items: [
             { text: 'Daily Operations', link: '/operations' },
             { text: 'Users and roles', link: '/users-and-roles' },
+            { text: 'Managing users: a walkthrough', link: '/manage-users' },
             { text: 'Human review (HIL)', link: '/human-review' },
             { text: 'Observability', link: '/observability' },
             { text: 'Backup and restore', link: '/backup-restore' },
