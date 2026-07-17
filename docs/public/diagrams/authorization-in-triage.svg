@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 820" font-family="Virgil, Excalifont, 'Segoe Print', 'Comic Sans MS', cursive">
+  <rect x="0" y="0" width="980" height="820" rx="14" fill="#ffffff"/>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,1 L9,5 L0,9 z" fill="#495057"/>
+    </marker>
+  </defs>
+
+  <!-- 1. Alert -->
+  <rect x="330" y="26" width="300" height="64" rx="12" fill="#e7f5ff" stroke="#1971c2" stroke-width="2"/>
+  <text x="480" y="54" text-anchor="middle" font-size="18" fill="#1864ab">Alert</text>
+  <text x="480" y="76" text-anchor="middle" font-size="13" fill="#495057">activity: account · action · asset · time</text>
+
+  <!-- arrow 1 -> 2 -->
+  <line x1="480" y1="90" x2="480" y2="122" stroke="#495057" stroke-width="1.8" marker-end="url(#arrow)"/>
+
+  <!-- 2. Triage loop -->
+  <rect x="310" y="124" width="340" height="64" rx="12" fill="#f3f0ff" stroke="#6741d9" stroke-width="2"/>
+  <text x="480" y="152" text-anchor="middle" font-size="18" fill="#5f3dc4">Agentic triage loop</text>
+  <text x="480" y="174" text-anchor="middle" font-size="13" fill="#6c757d">enrich · investigate · reason to a verdict</text>
+
+  <!-- arrow 2 -> 3 -->
+  <line x1="480" y1="188" x2="480" y2="230" stroke="#495057" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <text x="496" y="214" font-size="13" fill="#868e96">gathers authorization context</text>
+
+  <!-- 3. Authorization band (the focus) -->
+  <rect x="150" y="232" width="680" height="222" rx="14" fill="#f8f9fa" stroke="#343a40" stroke-width="2.4"/>
+  <text x="490" y="262" text-anchor="middle" font-size="19" fill="#343a40">Authorization</text>
+  <text x="490" y="285" text-anchor="middle" font-size="13" fill="#495057">bind org-state facts (change tickets · baselines · freezes · policies · entity context)</text>
+  <text x="490" y="305" text-anchor="middle" font-size="13" fill="#495057">to the activity, and look for one record that fully covers it</text>
+
+  <!-- covered chip -->
+  <rect x="172" y="330" width="200" height="104" rx="12" fill="#ebfbee" stroke="#2f9e44" stroke-width="2"/>
+  <text x="272" y="360" text-anchor="middle" font-size="16" fill="#2b8a3e">Covered</text>
+  <text x="272" y="382" text-anchor="middle" font-size="12.5" fill="#495057">a single record</text>
+  <text x="272" y="399" text-anchor="middle" font-size="12.5" fill="#495057">fully covers it</text>
+  <text x="272" y="422" text-anchor="middle" font-size="13" fill="#2b8a3e">lowers suspicion</text>
+
+  <!-- contradicted chip -->
+  <rect x="388" y="330" width="200" height="104" rx="12" fill="#ffe3e3" stroke="#e03131" stroke-width="2"/>
+  <text x="488" y="360" text-anchor="middle" font-size="16" fill="#c92a2a">Contradicted</text>
+  <text x="488" y="382" text-anchor="middle" font-size="12.5" fill="#495057">records present,</text>
+  <text x="488" y="399" text-anchor="middle" font-size="12.5" fill="#495057">none covers</text>
+  <text x="488" y="422" text-anchor="middle" font-size="13" fill="#c92a2a">escalate</text>
+
+  <!-- absent chip -->
+  <rect x="604" y="330" width="200" height="104" rx="12" fill="#fff9db" stroke="#f08c00" stroke-width="2" stroke-dasharray="7 5"/>
+  <text x="704" y="360" text-anchor="middle" font-size="16" fill="#e67700">Absent</text>
+  <text x="704" y="382" text-anchor="middle" font-size="12.5" fill="#495057">no record</text>
+  <text x="704" y="399" text-anchor="middle" font-size="12.5" fill="#495057">on file</text>
+  <text x="704" y="422" text-anchor="middle" font-size="13" fill="#e67700">ask the analyst</text>
+
+  <!-- ask-once loop: absent -> reusable fact -> back into authorization -->
+  <path d="M804,382 C892,382 912,352 912,318 C912,280 872,268 832,266" stroke="#f08c00" stroke-width="1.8" fill="none" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+  <text x="905" y="410" text-anchor="middle" font-size="12" fill="#e67700">analyst answers</text>
+  <text x="905" y="427" text-anchor="middle" font-size="12" fill="#e67700">once, saved as a</text>
+  <text x="905" y="444" text-anchor="middle" font-size="12" fill="#e67700">reusable fact</text>
+
+  <!-- arrow 3 -> 4 -->
+  <line x1="480" y1="454" x2="480" y2="496" stroke="#495057" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <text x="496" y="480" font-size="13" fill="#868e96">informs the verdict</text>
+
+  <!-- 4. Verdict -->
+  <rect x="330" y="498" width="300" height="64" rx="12" fill="#fff0f6" stroke="#e64980" stroke-width="2"/>
+  <text x="480" y="526" text-anchor="middle" font-size="18" fill="#c2255c">Verdict + disposition</text>
+  <text x="480" y="548" text-anchor="middle" font-size="13" fill="#495057">close · escalate · needs more info</text>
+
+  <!-- arrow 4 -> 5 -->
+  <line x1="480" y1="562" x2="480" y2="600" stroke="#495057" stroke-width="1.8" marker-end="url(#arrow)"/>
+
+  <!-- 5. Safety floor gate -->
+  <rect x="310" y="602" width="340" height="66" rx="12" fill="#f1f3f5" stroke="#868e96" stroke-width="2" stroke-dasharray="6 5"/>
+  <text x="480" y="629" text-anchor="middle" font-size="16" fill="#495057">Safety floor</text>
+  <text x="480" y="650" text-anchor="middle" font-size="12.5" fill="#868e96">an IOC or active incident still vetoes a close</text>
+
+  <!-- floor note -->
+  <text x="672" y="628" font-size="12.5" fill="#c92a2a">authorization never</text>
+  <text x="672" y="645" font-size="12.5" fill="#c92a2a">overrides a malicious signal</text>
+
+  <!-- arrow 5 -> 6 -->
+  <line x1="480" y1="668" x2="480" y2="706" stroke="#495057" stroke-width="1.8" marker-end="url(#arrow)"/>
+
+  <!-- 6. Disposition -->
+  <rect x="350" y="708" width="260" height="58" rx="12" fill="#f8f9fa" stroke="#495057" stroke-width="2"/>
+  <text x="480" y="734" text-anchor="middle" font-size="16" fill="#343a40">Disposition acted on</text>
+  <text x="480" y="754" text-anchor="middle" font-size="12" fill="#6c757d">close · escalate · human review</text>
+</svg>

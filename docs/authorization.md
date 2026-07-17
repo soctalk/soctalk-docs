@@ -6,6 +6,10 @@ Most of what a SOC escalates is not malicious. It is a real person or system doi
 
 Authorization is the layer that gives SocTalk that org-state context. It binds typed records (change tickets, standing baselines, change freezes, prohibitions, and entity facts about assets and accounts) to the activity in an alert, and reasons about whether a single record fully covers it. It only ever lowers suspicion by finding covering evidence. It never raises it, and it never overrides a malicious signal.
 
+It is not a separate step bolted onto triage. It is context the agentic loop gathers while it investigates, and it resolves to one of three states that shape the verdict. Everything downstream still passes through the safety floor, which authorization can never weaken.
+
+![Where authorization fits in the triage workflow](/diagrams/authorization-in-triage.svg)
+
 ## Covered, contradicted, absent
 
 Every alert's authorization resolves to one of three states, and the difference between the last two is the whole game:
