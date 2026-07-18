@@ -28,9 +28,9 @@ Put another way, the model is one component, not the whole system. Noise is coll
 
 ## Two planes and a settle window
 
-The pipeline runs across two planes, and knowing which is which explains most of the design.
+The pipeline runs across two planes, or stages, and knowing which is which explains most of the design.
 
-The **ingest plane** is server-side and fully deterministic. When an adapter posts a batch of events, they are deduplicated, coalesced, correlated, deconflicted, and in many cases resolved without a model ever running. No LLM touches this plane.
+The **ingest plane** is server-side and fully deterministic. When an adapter (the tenant-side collector that forwards Wazuh and similar alerts) posts a batch of events, they are deduplicated, coalesced, correlated, deconflicted, and in many cases resolved without a model ever running. No model touches this plane.
 
 The **graph plane** is the agentic loop, one per tenant, running as its own process. It is where the model reasons, and it consults the model in only two roles: routing and the final verdict. Many cases need even less, closing on a deterministic policy without a model call at all. The loop keeps no database of its own: the case is handed to it when the run starts and its result is handed back when the run finishes, and its enrichment happens through tool calls out to the SIEM and threat-intel services.
 
@@ -40,31 +40,31 @@ Acting on the verdict happens back on the server, deterministically, after the r
 
 ## On the way in: the deterministic funnel
 
-Many alerts are resolved before a model is ever consulted, which is a big part of why the pipeline stays affordable and fast, and it is all deterministic code.
+Many alerts are resolved before a model is ever consulted, which helps keep the pipeline affordable and fast, and it is all deterministic code.
 
-**Coalescing and deduplication collapse the storm.** A replayed event is a no-op. Beyond that, alerts are coalesced on a signature of rule, assets, and a five-minute bucket, so a burst of the same detection on the same asset becomes one case instead of thousands. The value is that the model, and the analyst, see one case per incident rather than the raw firehose. ([correlation and coalescing in the IR core](https://github.com/soctalk/soctalk/blob/main/src/soctalk/core/ir/triage.py))
+**Coalescing and deduplication collapse the storm.** Deduplication drops a replayed event that carries an ID already seen. Coalescing then groups repeated alerts from the same rule on the same asset within a five-minute window into a single case, so a burst of the same detection becomes one case instead of thousands. The model, and the analyst, see one case per incident rather than the raw firehose. ([correlation and coalescing in the IR core](https://github.com/soctalk/soctalk/blob/main/src/soctalk/core/ir/triage.py))
 
-**Correlation keeps one incident to one case.** With entity correlation enabled, a new alert that shares a strong entity with an active investigation attaches to it as evidence rather than starting a fresh, context-free run. A source that starts to dominate the correlation, such as a scanner IP that touches everything, is demoted so it cannot pull unrelated alerts into one case. Correlation runs ahead of the close paths, so a benign-looking alert that belongs to a live incident is not quietly suppressed.
+**Correlation keeps one incident to one case.** With entity correlation enabled, a new alert that shares a strong entity (a reliable identifier like a host or file hash) with an active investigation attaches to it as evidence rather than starting a fresh, context-free run. A source that starts to dominate the correlation, such as a scanner IP that touches everything, is demoted so it cannot pull unrelated alerts into one case. Correlation runs ahead of the close paths, so a benign-looking alert that belongs to a live incident is not quietly suppressed.
 
-**Engagement deconfliction keeps sanctioned testing out of the queue.** A declared pentest or red-team window is matched by source, host, technique, and time. Activity inside it is flagged and audited but never auto-closed, and tester activity that strays out of scope is forced to a human look rather than closed. See [Users and roles](/users-and-roles) for how engagements are declared and reviewed.
+**Engagement deconfliction keeps sanctioned testing out of the queue.** When it is enabled, a declared pentest or red-team window is matched by source, host, technique, and time. Activity inside it is flagged and audited but never auto-closed, and tester activity that strays out of scope is forced to a human look rather than closed. See [Users and roles](/users-and-roles) for how engagements are declared and reviewed.
 
-**Deterministic close handles the obvious cases.** Low-severity, high-confidence false positives close by rule, and a recurring benign shape can close by reference to a prior decision, both without a model. The false-positive close bands and the operational close path deliberately hold out anything mapped to an ATT&CK technique, so a technique-mapped alert is not closed as routine noise.
+**Deterministic close handles the obvious cases.** Low-severity, high-confidence false positives close by rule, and a recurring benign shape can close by reference to a prior decision, both without a model. The false-positive close bands and the operational close path deliberately hold out anything mapped to an ATT&CK technique (a standard attack-technique ID), so a technique-mapped alert is not closed as routine noise.
 
-**The ingest safety floor guards all of it.** No deterministic close is allowed to fire over a known indicator, an active incident, or a kill switch, and a volume cap acts as a circuit breaker so a runaway rule degrades to "humans look" rather than mass suppression.
+**The ingest safety floor guards all of it.** No deterministic close is allowed to fire over a known indicator (a suspicious observable such as a malicious IP or file hash), an active incident, or a kill switch (an operator setting that halts automatic action), and a volume cap acts as a circuit breaker so a runaway rule degrades to "humans look" rather than mass suppression.
 
-Whatever survives the funnel is promoted to a triage run.
+Whatever survives the funnel is promoted: it becomes an investigation, scheduled for a triage run.
 
 ## The triage run: two model roles, and a lot of determinism
 
 The run is an agentic loop, but the model's footprint inside it is small and deliberate.
 
-The loop opens with a deterministic gate. If the alert matches a [triage policy](/triage-policies) whose disposition is guaranteed and unopposed, it is disposed there, and the model is never consulted at all.
+The loop opens with a deterministic gate. If the alert matches a [triage policy](/triage-policies) whose disposition (the outcome to apply: close, escalate, or ask for more information) is guaranteed and unopposed, it is settled there, and the model is never consulted at all.
 
 For everything else, a **supervisor** decides what to do next. This is the first of the two model roles, and its whole job is routing: investigate, enrich, contextualize, decide, or close. It does no domain work itself, and it may take several routing turns before it decides.
 
 The work it routes to is deterministic. The **enrichment steps** pull host and process context from the SIEM, check observable reputation through Cortex analyzers, and look up threat-intel context in MISP. These are tool calls and heuristics, not model calls. A common misconception about AI triage is that the model does the enriching. Here it does not: enrichment is deterministic tool orchestration, and the model only reads the results.
 
-Along the way the run gathers its [authorization context](/authorization): the org-state facts that say whether this activity was sanctioned. Authorization is what lets the pipeline separate an authorized change from an attack that produces a byte-identical alert, a distinction no amount of reputation lookup can make.
+Along the way the run gathers its [authorization context](/authorization): the org-state facts (change tickets, approved maintenance, account and asset context) that say whether this activity was sanctioned. Authorization is what lets the pipeline separate an authorized change from an attack that produces a byte-identical alert, a distinction no amount of reputation lookup can make.
 
 When the supervisor has enough, it hands off to the **verdict**, the second model role. This is the one place a reasoning model weighs everything the run gathered and proposes a disposition: close, escalate, or ask for more information.
 
@@ -72,13 +72,13 @@ Then determinism takes over again. The verdict is a proposal, not a commit. A [t
 
 ## The guarantees: a safety floor in three places
 
-The rule that authorization, and the model, can never override a real threat is not left to prompt wording. It is enforced in code, at three independent points on the close path:
+The rule that authorization, and the model, can never close over a known malicious signal, an unverified indicator, or an active related case is not left to prompt wording. It is enforced in code, at three independent points on the close path:
 
 - **On ingest**, before any deterministic close, keyed on a known indicator, an active incident, a kill switch, and the volume cap.
-- **During the run**, when the model proposes a close, keyed on indicators, unverified indicators, a contradicted authorization record, and active incidents. This is the only floor that consults authorization at all.
-- **On the server**, when the close is committed, keyed on the kill switch, a sibling investigation sharing entities, and the volume cap.
+- **During the run**, when the model proposes a close, keyed on a known indicator, an unverified indicator, and a contradicted authorization record. This is the only floor that consults authorization at all.
+- **On the server**, when the close is committed, keyed on the kill switch, another active case that shares the same entities, and the volume cap.
 
-Each close path is floored at its own point: a deterministic ingest close clears the first, and a model-proposed close clears the second and then the third. Authorization can lower suspicion at that middle floor, but it can never talk any of them out of a real indicator. See [Authorization](/authorization) for how covering evidence lowers suspicion without ever overriding a malicious signal.
+Each close path is floored at its own point: a deterministic ingest close clears the first, and a model-proposed close clears the second and then the third. Authorization can lower suspicion at that middle floor, but it can never talk any of them out of a known indicator or an active related case. See [Authorization](/authorization) for how covering evidence lowers suspicion without ever overriding a malicious signal.
 
 ## Acting on the verdict
 
@@ -94,10 +94,10 @@ One last deterministic touch handles timing. If new correlated evidence arrived 
 
 Pulled together, a few properties set this apart from pointing a model at each alert:
 
-- **Many alerts never reach a model.** Dedup, coalescing, deconfliction, and deterministic close resolve a large share on ingest, so the model is spent on the ambiguous cases.
+- **Many alerts never reach a model.** Dedup, coalescing, deconfliction, and deterministic close resolve many of them on ingest, so the model is spent on the ambiguous cases.
 - **A run consults the model in only two roles**, routing and the final verdict, and many cases close deterministically with no model call at all. Enrichment is deterministic tool orchestration, not per-alert model classification.
 - **One incident is one case.** Coalescing and correlation give the model the whole correlated picture, not a lone alert stripped of its context.
-- **The model proposes, code disposes.** A guard and a three-site safety floor make it structurally impossible for the model to suppress a real threat.
+- **The model proposes, code disposes.** A guard and a three-site safety floor make it structurally impossible for the model to close over a known indicator, a contradicted authorization record, or an active related case.
 - **The pipeline reasons about authorization.** It can tell a sanctioned change from an identical-looking attack, a judgment reputation and signatures cannot make on their own.
 - **It remembers.** An analyst's authorization decision becomes reusable memory, so the queue stops asking a question already answered for as long as that authorization holds.
 
