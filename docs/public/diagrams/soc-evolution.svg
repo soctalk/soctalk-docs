@@ -76,8 +76,8 @@
   <!-- ============ SOCTALK BAND ============ -->
   <rect x="35" y="514" width="1050" height="256" rx="14" fill="#fff0f6" stroke="#e64980" stroke-width="2.4"/>
   <text x="560" y="550" text-anchor="middle" font-size="19" fill="#c2255c">SocTalk: reasoning where it helps, determinism everywhere else</text>
-  <text x="560" y="580" text-anchor="middle" font-size="13" fill="#495057">Keep the guarantees of rules. Keep the prioritization of machine learning. Keep the reasoning of a</text>
-  <text x="560" y="600" text-anchor="middle" font-size="13" fill="#495057">language model, and spend it only on the ambiguous middle. Then add what none of them had.</text>
+  <text x="560" y="580" text-anchor="middle" font-size="13" fill="#495057">Keep the guarantees of the rules era, and the reasoning of a language model spent only on the ambiguous middle.</text>
+  <text x="560" y="600" text-anchor="middle" font-size="13" fill="#495057">Reach machine learning's goal, collapsing the noise, with deterministic filtering rather than a black box.</text>
 
   <!-- three keep/add chips -->
   <rect x="70" y="620" width="300" height="52" rx="10" fill="#e7f5ff" stroke="#1971c2" stroke-width="1.6"/>
