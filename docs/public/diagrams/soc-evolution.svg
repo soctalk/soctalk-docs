@@ -76,7 +76,7 @@
   <!-- ============ SOCTALK BAND ============ -->
   <rect x="35" y="514" width="1050" height="256" rx="14" fill="#fff0f6" stroke="#e64980" stroke-width="2.4"/>
   <text x="560" y="549" text-anchor="middle" font-size="20" fill="#c2255c">The agentic generation — SocTalk</text>
-  <text x="560" y="577" text-anchor="middle" font-size="13" fill="#495057">The model becomes an agent: it investigates with tools, reasons over the whole case, and acts, all inside deterministic guardrails.</text>
+  <text x="560" y="577" text-anchor="middle" font-size="13" fill="#495057">An agentic loop runs around the model: it directs a deterministic investigation, reasons over the whole case, and returns a verdict that drives governed action.</text>
   <text x="560" y="599" text-anchor="middle" font-size="13" fill="#495057">It keeps the guarantees of the rules era and collapses the noise with filtering, not a machine-learning black box.</text>
 
   <!-- three keep/add chips -->
