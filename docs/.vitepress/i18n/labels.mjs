@@ -10,18 +10,17 @@
 // VitePress 404s on a declared locale's missing pages, so we flip a locale on
 // only after its pages land. See ./glossary.md for the term policy.
 
-// Switcher labels are bilingual, led by the English name with the native
-// endonym in parentheses — so the menu scans cleanly for the English-default
-// audience while native speakers still recognize their language. English is
-// the default locale (root, served unprefixed).
+// Switcher labels are native endonyms (industry standard) — each language
+// listed in its own name/script. English is the default locale (root, served
+// unprefixed).
 export const LOCALES = {
   root: { label: 'English', lang: 'en-US' },
-  'pt-br': { label: 'Portuguese (Português)', lang: 'pt-BR' },
-  'es-419': { label: 'Spanish (Español)', lang: 'es-419' },
-  'zh-cn': { label: 'Chinese (简体中文)', lang: 'zh-CN' },
-  'fr-fr': { label: 'French (Français)', lang: 'fr-FR' },
-  'de-de': { label: 'German (Deutsch)', lang: 'de-DE' },
-  'it-it': { label: 'Italian (Italiano)', lang: 'it-IT' },
+  'pt-br': { label: 'Português', lang: 'pt-BR' },
+  'es-419': { label: 'Español', lang: 'es-419' },
+  'zh-cn': { label: '简体中文', lang: 'zh-CN' },
+  'fr-fr': { label: 'Français', lang: 'fr-FR' },
+  'de-de': { label: 'Deutsch', lang: 'de-DE' },
+  'it-it': { label: 'Italiano', lang: 'it-IT' },
 }
 
 // Flip locales on here as their docs/<seg>/ trees are completed & verified.
