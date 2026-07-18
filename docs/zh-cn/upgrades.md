@@ -1,6 +1,6 @@
 # 升级
 
-两类 chart 均通过 `helm upgrade` 升级。目前这是一份操作手册；面向整个集群的升级 API 已列入路线图。
+两类 chart 均通过 `helm upgrade` 升级。目前这是一份操作手册；面向整个租户机群的升级 API 已列入路线图。
 
 ## 预检清单
 
@@ -72,7 +72,7 @@ helm rollback tenant-<slug> <revision> -n tenant-<slug> --wait
 
 租户数据平面的回滚比系统级回滚更安全：OSS 技术栈（Wazuh、TheHive、Cortex）将各自的数据存储在 PVC 中，而 `helm rollback` 不会触及这些 PVC。
 
-## 集群升级（手动循环）
+## 机群升级（手动循环）
 
 ```bash
 # 列出各租户。
@@ -89,7 +89,7 @@ for ns in tenant-acme tenant-beta tenant-gamma; do
 done
 ```
 
-未来的某个版本将用一个具备金丝雀感知能力的集群升级 API 取代这个循环。
+未来的某个版本将用一个具备金丝雀感知能力的机群升级 API 取代这个循环。
 
 ## 升级顺序
 

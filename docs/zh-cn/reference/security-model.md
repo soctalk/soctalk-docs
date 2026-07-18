@@ -2,7 +2,7 @@
 
 主体目录、参与者×资源矩阵、RLS 策略矩阵、Postgres 角色模型、端点分类、令牌声明架构、审计要求、密钥放置。
 
-> **V1 部署说明。** 下文中的端点示例（例如 `/api/mssp/impersonate/:tenant_id`、`/api/mssp/users` POST/列表、`/api/mssp/fleet/summary`）以及若干主体条目（Cloud license issuer；模拟身份参与者）描述的是**目标安全界面**。已挂载的 MSSP 端点包括：租户 CRUD、审计（`/api/audit`）、员工用户管理（`/api/mssp/users` 的创建/列表/patch/停用以及 `/{id}/password/reset`），以及用于会话租户作用域限定的 `/api/auth/assume-tenant`（并非用户模拟身份）。租户自助的用户管理位于 `/api/tenant/users`。请将下方矩阵作为设计意图使用；关于当前实际上线的内容，请查阅 [REST API](/zh-cn/reference/api)。
+> **V1 部署说明。** 下文中的端点示例（例如 `/api/mssp/impersonate/:tenant_id`、`/api/mssp/users` POST/列表、`/api/mssp/fleet/summary`）以及若干主体条目（Cloud license issuer；模拟身份参与者）描述的是**目标安全面（security surface）**。已挂载的 MSSP 端点包括：租户 CRUD、审计（`/api/audit`）、员工用户管理（`/api/mssp/users` 的创建/列表/patch/停用以及 `/{id}/password/reset`），以及用于会话租户作用域限定的 `/api/auth/assume-tenant`（并非用户模拟身份）。租户自助的用户管理位于 `/api/tenant/users`。请将下方矩阵作为设计意图使用；关于当前实际上线的内容，请查阅 [REST API](/zh-cn/reference/api)。
 
 ## 主体目录
 
