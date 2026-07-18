@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 800" font-family="Virgil, Excalifont, 'Segoe Print', 'Comic Sans MS', cursive">
+  <rect x="0" y="0" width="1120" height="800" rx="14" fill="#ffffff"/>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,1 L9,5 L0,9 z" fill="#495057"/>
+    </marker>
+  </defs>
+
+  <text x="560" y="42" text-anchor="middle" font-size="15" fill="#868e96">Each generation added context and reasoning, and left a new blind spot</text>
+
+  <!-- ============ CARD 1: RULES ============ -->
+  <rect x="35" y="70" width="320" height="404" rx="14" fill="#e7f5ff" stroke="#1971c2" stroke-width="2"/>
+  <text x="195" y="104" text-anchor="middle" font-size="18" fill="#1864ab">Rules</text>
+  <text x="195" y="128" text-anchor="middle" font-size="12.5" fill="#495057">signatures, correlation,</text>
+  <text x="195" y="145" text-anchor="middle" font-size="12.5" fill="#495057">SOAR playbooks</text>
+  <line x1="60" y1="162" x2="330" y2="162" stroke="#a5d8ff" stroke-width="1.4"/>
+  <text x="60" y="192" font-size="12.5" fill="#2b8a3e">Strong</text>
+  <text x="60" y="212" font-size="12" fill="#495057">fast, auditable, deterministic</text>
+  <text x="60" y="248" font-size="12.5" fill="#c92a2a">Weak</text>
+  <text x="60" y="268" font-size="12" fill="#495057">blunt: fires on everything,</text>
+  <text x="60" y="285" font-size="12" fill="#495057">buries analysts in false positives</text>
+  <rect x="55" y="306" width="280" height="150" rx="10" fill="#ffffff" stroke="#74c0fc" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text x="195" y="334" text-anchor="middle" font-size="12.5" fill="#1864ab">A smoke alarm.</text>
+  <text x="195" y="360" text-anchor="middle" font-size="12" fill="#495057">It always goes off, but it</text>
+  <text x="195" y="378" text-anchor="middle" font-size="12" fill="#495057">cannot tell a real fire from</text>
+  <text x="195" y="396" text-anchor="middle" font-size="12" fill="#495057">burnt toast.</text>
+
+  <!-- ============ CARD 2: ML ============ -->
+  <rect x="400" y="70" width="320" height="404" rx="14" fill="#e6fcf5" stroke="#0ca678" stroke-width="2"/>
+  <text x="560" y="104" text-anchor="middle" font-size="18" fill="#087f5b">Machine learning</text>
+  <text x="560" y="128" text-anchor="middle" font-size="12.5" fill="#495057">classifiers, anomaly</text>
+  <text x="560" y="145" text-anchor="middle" font-size="12.5" fill="#495057">detection, UEBA</text>
+  <line x1="425" y1="162" x2="695" y2="162" stroke="#96f2d7" stroke-width="1.4"/>
+  <text x="425" y="192" font-size="12.5" fill="#2b8a3e">Strong</text>
+  <text x="425" y="212" font-size="12" fill="#495057">learns patterns, scores</text>
+  <text x="425" y="229" font-size="12" fill="#495057">and prioritizes the queue</text>
+  <text x="425" y="265" font-size="12.5" fill="#c92a2a">Weak</text>
+  <text x="425" y="285" font-size="12" fill="#495057">needs labels, drifts, gives</text>
+  <text x="425" y="302" font-size="12" fill="#495057">a score and not a reason</text>
+  <rect x="420" y="322" width="280" height="134" rx="10" fill="#ffffff" stroke="#63e6be" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text x="560" y="350" text-anchor="middle" font-size="12.5" fill="#087f5b">A spam filter.</text>
+  <text x="560" y="376" text-anchor="middle" font-size="12" fill="#495057">It sorts the pile, but hands</text>
+  <text x="560" y="394" text-anchor="middle" font-size="12" fill="#495057">you a number, not an</text>
+  <text x="560" y="412" text-anchor="middle" font-size="12" fill="#495057">explanation.</text>
+
+  <!-- ============ CARD 3: LLM ============ -->
+  <rect x="765" y="70" width="320" height="404" rx="14" fill="#f3f0ff" stroke="#6741d9" stroke-width="2"/>
+  <text x="925" y="104" text-anchor="middle" font-size="18" fill="#5f3dc4">Language models</text>
+  <text x="925" y="128" text-anchor="middle" font-size="12.5" fill="#495057">reasoning, agentic</text>
+  <text x="925" y="145" text-anchor="middle" font-size="12.5" fill="#495057">investigation, plain verdicts</text>
+  <line x1="790" y1="162" x2="1060" y2="162" stroke="#d0bfff" stroke-width="1.4"/>
+  <text x="790" y="192" font-size="12.5" fill="#2b8a3e">Strong</text>
+  <text x="790" y="212" font-size="12" fill="#495057">reasons about context,</text>
+  <text x="790" y="229" font-size="12" fill="#495057">explains itself in words</text>
+  <text x="790" y="265" font-size="12.5" fill="#c92a2a">Weak</text>
+  <text x="790" y="285" font-size="12" fill="#495057">no memory, no org-state,</text>
+  <text x="790" y="302" font-size="12" fill="#495057">confidently wrong, costly</text>
+  <rect x="785" y="322" width="280" height="134" rx="10" fill="#ffffff" stroke="#b197fc" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text x="925" y="350" text-anchor="middle" font-size="12.5" fill="#5f3dc4">A sharp analyst on day one.</text>
+  <text x="925" y="376" text-anchor="middle" font-size="12" fill="#495057">Reasons about any one alert,</text>
+  <text x="925" y="394" text-anchor="middle" font-size="12" fill="#495057">but remembers nothing and</text>
+  <text x="925" y="412" text-anchor="middle" font-size="12" fill="#495057">has not seen the records.</text>
+
+  <!-- progression arrows between cards -->
+  <line x1="357" y1="240" x2="398" y2="240" stroke="#495057" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text x="377" y="228" text-anchor="middle" font-size="11" fill="#868e96">+ learning</text>
+  <line x1="722" y1="240" x2="763" y2="240" stroke="#495057" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text x="742" y="228" text-anchor="middle" font-size="11" fill="#868e96">+ reasoning</text>
+
+  <!-- arrows down into the SocTalk band -->
+  <line x1="195" y1="474" x2="195" y2="512" stroke="#495057" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <line x1="560" y1="474" x2="560" y2="512" stroke="#495057" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <line x1="925" y1="474" x2="925" y2="512" stroke="#495057" stroke-width="1.8" marker-end="url(#arrow)"/>
+
+  <!-- ============ SOCTALK BAND ============ -->
+  <rect x="35" y="514" width="1050" height="256" rx="14" fill="#fff0f6" stroke="#e64980" stroke-width="2.4"/>
+  <text x="560" y="550" text-anchor="middle" font-size="19" fill="#c2255c">SocTalk: reasoning where it helps, determinism everywhere else</text>
+  <text x="560" y="580" text-anchor="middle" font-size="13" fill="#495057">Keep the guarantees of rules. Keep the prioritization of machine learning. Keep the reasoning of a</text>
+  <text x="560" y="600" text-anchor="middle" font-size="13" fill="#495057">language model, and spend it only on the ambiguous middle. Then add what none of them had.</text>
+
+  <!-- three keep/add chips -->
+  <rect x="70" y="620" width="300" height="52" rx="10" fill="#e7f5ff" stroke="#1971c2" stroke-width="1.6"/>
+  <text x="220" y="644" text-anchor="middle" font-size="13" fill="#1864ab">Guarantees in code</text>
+  <text x="220" y="662" text-anchor="middle" font-size="11.5" fill="#868e96">a safety floor no model can weaken</text>
+
+  <rect x="410" y="620" width="300" height="52" rx="10" fill="#f3f0ff" stroke="#6741d9" stroke-width="1.6"/>
+  <text x="560" y="644" text-anchor="middle" font-size="13" fill="#5f3dc4">Reason on the ambiguous middle</text>
+  <text x="560" y="662" text-anchor="middle" font-size="11.5" fill="#868e96">the model only where judgment is needed</text>
+
+  <rect x="750" y="620" width="300" height="52" rx="10" fill="#ebfbee" stroke="#2f9e44" stroke-width="1.6"/>
+  <text x="900" y="644" text-anchor="middle" font-size="13" fill="#2b8a3e">Memory + a human on the risk</text>
+  <text x="900" y="662" text-anchor="middle" font-size="11.5" fill="#868e96">remember decisions, gate dangerous actions</text>
+
+  <text x="560" y="702" text-anchor="middle" font-size="12.5" fill="#c2255c">A seasoned analyst with the runbook, the case file, and a supervisor who signs off the risky moves.</text>
+</svg>
