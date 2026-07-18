@@ -110,7 +110,7 @@
   <text x="310" y="754" text-anchor="middle" font-size="12.5" fill="#495057">match the verdict, take the action</text>
   <text x="310" y="782" text-anchor="middle" font-size="12" fill="#2b8a3e">annotate · notify a webhook  →  run on their own</text>
   <text x="310" y="806" text-anchor="middle" font-size="12" fill="#e67700">isolate · disable  →  wait for an analyst</text>
-  <text x="310" y="832" text-anchor="middle" font-size="11.5" fill="#868e96">a close may only annotate; a kill switch stops all dispatch</text>
+  <text x="310" y="832" text-anchor="middle" font-size="11.5" fill="#868e96">a close may only annotate; a kill switch halts live actions</text>
 
   <!-- human review -->
   <rect x="560" y="700" width="380" height="150" rx="12" fill="#fff9db" stroke="#f08c00" stroke-width="2"/>

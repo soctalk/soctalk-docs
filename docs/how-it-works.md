@@ -20,7 +20,7 @@ Each generation is genuinely good at something, and none of them is wrong. The p
 
 ## What SocTalk does differently
 
-SocTalk keeps all three and puts each where it belongs. The rulebook's guarantees stay in code. Machine-style prioritization and deterministic filtering collapse the noise before anything expensive runs. The language model is kept for the one thing it is uniquely good at, reasoning about the ambiguous cases, and it is spent only there. Then two things none of the earlier generations had are added on top: the pipeline remembers what analysts decide, and a human gates anything that reaches into a live system.
+SocTalk keeps the useful controls from all three and puts each where it belongs. The rulebook's guarantees stay in code. Deterministic filtering, helped by a review-only learned scorer that groups and prioritizes rather than closes, collapses the noise before anything expensive runs. The language model is kept for the one thing it is uniquely good at, reasoning about the ambiguous cases, and it is spent only there. Then two things none of the earlier generations had are added on top: the pipeline remembers what analysts decide, and a human gates anything that reaches into a live system.
 
 Put another way, the model is one component, not the whole system. Noise is collapsed before any model runs. The model is given real organizational context. The safety-critical decisions sit behind a **safety floor**, a small set of hard vetoes written in code that neither a rule nor the model can switch off, the way a circuit breaker cuts power no matter what the wiring is asking for. Analyst decisions are remembered. And the verdict drives governed action, the system's SOAR layer, with a human approving anything dangerous. The result is that the model reasons about the ambiguous middle, and the parts that must be guaranteed stay guaranteed.
 
@@ -40,7 +40,7 @@ Acting on the verdict happens back on the server, deterministically, after the r
 
 ## On the way in: the deterministic funnel
 
-Most alerts are resolved before a model is ever consulted. This is the single biggest reason the pipeline is affordable and fast, and it is all deterministic code.
+Many alerts are resolved before a model is ever consulted, which is a big part of why the pipeline stays affordable and fast, and it is all deterministic code.
 
 **Coalescing and deduplication collapse the storm.** A replayed event is a no-op. Beyond that, alerts are coalesced on a signature of rule, assets, and a five-minute bucket, so a burst of the same detection on the same asset becomes one case instead of thousands. The value is that the model, and the analyst, see one case per incident rather than the raw firehose. ([correlation and coalescing in the IR core](https://github.com/soctalk/soctalk/blob/main/src/soctalk/core/ir/triage.py))
 
@@ -86,7 +86,7 @@ Once the run completes, the server commits the disposition and acts on it, deter
 
 An escalation lands in the [human review](/human-review) queue with the real evidence attached. When the run stalled specifically because authorization was absent, the review carries a typed authorization question, and the analyst's answer is saved as a reusable fact, so the same activity is not asked again for as long as that authorization holds. That ask-once memory is described on the [Authorization](/authorization) page.
 
-A verdict also drives [response playbooks](/response-playbooks). This is the system's SOAR layer, the same kind of deterministic, governed automation a SOAR analyst would recognize, except it is driven by a reasoned verdict rather than a brittle rule, and it is where the "governed action" stance shows. Safe actions, writing a note or notifying a webhook, run on their own. Actions that reach into a live system, isolating an endpoint or disabling an account, never run on their own: they are raised as a proposal and an analyst approves them first. A close may only ever annotate, a dispatch kill switch stops everything at once, and the whole dispatch happens server-side, never from the model's loop.
+A verdict also drives [response playbooks](/response-playbooks). This is the system's SOAR layer, the same kind of deterministic, governed automation a SOAR analyst would recognize, except it is driven by a reasoned verdict rather than a brittle rule, and it is where the "governed action" stance shows. Safe actions, writing a note or notifying a webhook, run on their own. Actions that reach into a live system, isolating an endpoint or disabling an account, never run on their own: they are raised as a proposal and an analyst approves them first. A close may only ever annotate, a dispatch kill switch stops active response actions at once (shadow audits can still record what would have fired), and the whole dispatch happens server-side, never from the model's loop.
 
 One last deterministic touch handles timing. If new correlated evidence arrived while the run was in flight and the case is still open, a follow-up run is started over the now-complete picture, so a late-arriving alert is not stranded outside the case it belongs to.
 
@@ -94,7 +94,7 @@ One last deterministic touch handles timing. If new correlated evidence arrived 
 
 Pulled together, a few properties set this apart from pointing a model at each alert:
 
-- **Most alerts never reach a model.** Dedup, coalescing, deconfliction, and deterministic close resolve the bulk on ingest, so the model is spent on the ambiguous minority.
+- **Many alerts never reach a model.** Dedup, coalescing, deconfliction, and deterministic close resolve a large share on ingest, so the model is spent on the ambiguous cases.
 - **A run consults the model in only two roles**, routing and the final verdict, and many cases close deterministically with no model call at all. Enrichment is deterministic tool orchestration, not per-alert model classification.
 - **One incident is one case.** Coalescing and correlation give the model the whole correlated picture, not a lone alert stripped of its context.
 - **The model proposes, code disposes.** A guard and a three-site safety floor make it structurally impossible for the model to suppress a real threat.
