@@ -7,7 +7,7 @@
     </marker>
   </defs>
 
-  <text x="560" y="42" text-anchor="middle" font-size="15" fill="#868e96">Each generation added context and reasoning, and left a new blind spot</text>
+  <text x="560" y="42" text-anchor="middle" font-size="15" fill="#868e96">Each generation added something and left a blind spot. The agentic generation closes them.</text>
 
   <!-- ============ CARD 1: RULES ============ -->
   <rect x="35" y="70" width="320" height="404" rx="14" fill="#e7f5ff" stroke="#1971c2" stroke-width="2"/>
@@ -47,8 +47,8 @@
   <!-- ============ CARD 3: LLM ============ -->
   <rect x="765" y="70" width="320" height="404" rx="14" fill="#f3f0ff" stroke="#6741d9" stroke-width="2"/>
   <text x="925" y="104" text-anchor="middle" font-size="18" fill="#5f3dc4">Language models</text>
-  <text x="925" y="128" text-anchor="middle" font-size="12.5" fill="#495057">reasoning, agentic</text>
-  <text x="925" y="145" text-anchor="middle" font-size="12.5" fill="#495057">investigation, plain verdicts</text>
+  <text x="925" y="128" text-anchor="middle" font-size="12.5" fill="#495057">read one alert, reason,</text>
+  <text x="925" y="145" text-anchor="middle" font-size="12.5" fill="#495057">explain it in words</text>
   <line x1="790" y1="162" x2="1060" y2="162" stroke="#d0bfff" stroke-width="1.4"/>
   <text x="790" y="192" font-size="12.5" fill="#2b8a3e">Strong</text>
   <text x="790" y="212" font-size="12" fill="#495057">reasons about context,</text>
@@ -75,9 +75,9 @@
 
   <!-- ============ SOCTALK BAND ============ -->
   <rect x="35" y="514" width="1050" height="256" rx="14" fill="#fff0f6" stroke="#e64980" stroke-width="2.4"/>
-  <text x="560" y="550" text-anchor="middle" font-size="19" fill="#c2255c">SocTalk: reasoning where it helps, determinism everywhere else</text>
-  <text x="560" y="580" text-anchor="middle" font-size="13" fill="#495057">Keep the guarantees of the rules era, and the reasoning of a language model spent only on the ambiguous middle.</text>
-  <text x="560" y="600" text-anchor="middle" font-size="13" fill="#495057">Reach machine learning's goal, collapsing the noise, with deterministic filtering rather than a black box.</text>
+  <text x="560" y="549" text-anchor="middle" font-size="20" fill="#c2255c">The agentic generation — SocTalk</text>
+  <text x="560" y="577" text-anchor="middle" font-size="13" fill="#495057">The model becomes an agent: it investigates with tools, reasons over the whole case, and acts, all inside deterministic guardrails.</text>
+  <text x="560" y="599" text-anchor="middle" font-size="13" fill="#495057">It keeps the guarantees of the rules era and collapses the noise with filtering, not a machine-learning black box.</text>
 
   <!-- three keep/add chips -->
   <rect x="70" y="620" width="300" height="52" rx="10" fill="#e7f5ff" stroke="#1971c2" stroke-width="1.6"/>
