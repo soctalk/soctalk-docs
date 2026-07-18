@@ -1,5 +1,76 @@
 import { defineConfig } from 'vitepress'
 import { withMermaid } from 'vitepress-plugin-mermaid'
+import { NAV, SIDEBAR } from './i18n/structure.mjs'
+import { LOCALES, ACTIVE_LOCALES, labels } from './i18n/labels.mjs'
+
+// Build a locale's nav from shared structure + that locale's label table.
+// External links (GitHub) are never localized or prefixed.
+function buildNav(seg) {
+  const L = labels(seg)
+  return NAV.map((n) => ({
+    text: L.nav[n.id] ?? n.en,
+    link: n.external ? n.link : prefix(seg, n.link),
+  }))
+}
+
+// Build a locale's sidebar the same way; links get the locale segment prefix.
+function buildSidebar(seg) {
+  const L = labels(seg)
+  return SIDEBAR.map((s) => ({
+    text: L.sec[s.id] ?? s.en,
+    items: s.items.map((i) => ({
+      text: L.item[i.id] ?? i.en,
+      link: prefix(seg, i.link),
+    })),
+  }))
+}
+
+// Root (en-US) keeps bare links; every other locale is served under /<seg>/.
+function prefix(seg, link) {
+  return seg === 'root' ? link : `/${seg}${link}`
+}
+
+function themeConfigFor(seg) {
+  const L = labels(seg)
+  return {
+    logo: '/logo.png',
+    nav: buildNav(seg),
+    sidebar: buildSidebar(seg),
+    socialLinks: [{ icon: 'github', link: 'https://github.com/soctalk/soctalk' }],
+    outline: { label: L.ui.outline },
+    docFooter: { prev: L.ui.prev, next: L.ui.next },
+    langMenuLabel: L.ui.langMenu,
+    returnToTopLabel: L.ui.returnToTop,
+    sidebarMenuLabel: L.ui.sidebarMenu,
+    darkModeSwitchLabel: L.ui.appearance,
+    lightModeSwitchTitle: L.ui.switchToLight,
+    darkModeSwitchTitle: L.ui.switchToDark,
+    editLink: {
+      pattern: 'https://github.com/soctalk/soctalk-docs/edit/main/docs/:path',
+      text: L.ui.editLink,
+    },
+    footer: { message: L.ui.footerMessage, copyright: L.ui.footerCopyright },
+    search: { provider: 'local' },
+  }
+}
+
+// Assemble the VitePress `locales` map from the locales that are content-ready.
+// Adding a locale to ACTIVE_LOCALES (in labels.mjs) flips it on everywhere.
+function buildLocales() {
+  const out = {}
+  for (const seg of ACTIVE_LOCALES) {
+    const meta = LOCALES[seg]
+    out[seg] = {
+      label: meta.label,
+      lang: meta.lang,
+      ...(seg === 'root' ? {} : { link: `/${seg}/` }),
+      title: 'SocTalk',
+      description: labels(seg).ui.siteDescription,
+      themeConfig: themeConfigFor(seg),
+    }
+  }
+  return out
+}
 
 export default withMermaid(
   defineConfig({
@@ -21,118 +92,7 @@ export default withMermaid(
       ],
     ],
 
-    themeConfig: {
-      logo: '/logo.png',
-
-      nav: [
-        { text: 'Get Started', link: '/quickstart-vm' },
-        { text: 'Launchpad', link: '/launchpad' },
-        { text: 'Operate', link: '/operations' },
-        { text: 'Integrate', link: '/integrate/llm-providers' },
-        { text: 'Reference', link: '/reference/architecture' },
-        { text: 'GitHub', link: 'https://github.com/soctalk/soctalk' },
-      ],
-
-      sidebar: [
-        {
-          text: 'Get Started',
-          items: [
-            { text: 'Quickstart: demo VM', link: '/quickstart-vm' },
-            { text: 'MSSP pilot rollout', link: '/launchpad' },
-            { text: 'MSSP pilot: do it yourself', link: '/mssp-pilot' },
-            { text: 'Production install', link: '/install' },
-            { text: 'Downloads', link: '/downloads' },
-            { text: 'Setup wizard', link: '/setup-wizard' },
-            { text: 'Run on VirtualBox', link: '/virtualbox' },
-            { text: 'Run on VMware ESXi', link: '/vmware' },
-            { text: 'Run on Windows (WSL2)', link: '/windows' },
-            { text: 'Run on Proxmox', link: '/proxmox' },
-            { text: 'Run on AWS', link: '/aws' },
-            { text: 'Run on Azure', link: '/azure' },
-            { text: 'MSSP UI Tour', link: '/mssp-ui' },
-          ],
-        },
-        {
-          text: 'Concepts',
-          items: [
-            { text: 'How it works', link: '/how-it-works' },
-            { text: 'AI pipeline', link: '/ai-pipeline' },
-            { text: 'Triage Policies', link: '/triage-policies' },
-            { text: 'Response Playbooks', link: '/response-playbooks' },
-            { text: 'Authorization', link: '/authorization' },
-            { text: 'Tenant lifecycle', link: '/tenant-lifecycle' },
-          ],
-        },
-        {
-          text: 'Operate',
-          items: [
-            { text: 'Daily Operations', link: '/operations' },
-            { text: 'Users and roles', link: '/users-and-roles' },
-            { text: 'Managing users: a walkthrough', link: '/manage-users' },
-            { text: 'Human review (HIL)', link: '/human-review' },
-            { text: 'Observability', link: '/observability' },
-            { text: 'Backup and restore', link: '/backup-restore' },
-            { text: 'Upgrades', link: '/upgrades' },
-            { text: 'Troubleshooting', link: '/troubleshooting' },
-          ],
-        },
-        {
-          text: 'Integrate',
-          items: [
-            { text: 'LLM providers', link: '/integrate/llm-providers' },
-            { text: 'Ollama (local LLM)', link: '/integrate/ollama' },
-            { text: 'TheHive', link: '/integrate/thehive' },
-            { text: 'Cortex', link: '/integrate/cortex' },
-            { text: 'Slack', link: '/integrate/slack' },
-          ],
-        },
-        {
-          text: 'Reference',
-          items: [
-            { text: 'Architecture', link: '/reference/architecture' },
-            { text: 'Security Model', link: '/reference/security-model' },
-            { text: 'Internal Auth', link: '/reference/internal-auth' },
-            { text: 'Postgres RLS', link: '/reference/postgres-rls' },
-            { text: 'Network Policy', link: '/reference/network-policy' },
-            { text: 'Secrets', link: '/reference/secrets' },
-            { text: 'Chart Contract', link: '/reference/chart-contract' },
-            { text: 'Chart Audit', link: '/reference/chart-audit' },
-            { text: 'Wazuh Ingress', link: '/reference/wazuh-ingress' },
-            { text: 'Sizing', link: '/reference/sizing' },
-            { text: 'REST API', link: '/reference/api' },
-            { text: 'Launchpad events', link: '/reference/launchpad-events' },
-            { text: 'CLI and scripts', link: '/reference/cli' },
-            { text: 'Attack simulator', link: '/reference/attack-simulator' },
-          ],
-        },
-        {
-          text: 'Project',
-          items: [
-            { text: 'FAQ', link: '/faq' },
-            { text: 'Contribute', link: '/contribute' },
-          ],
-        },
-      ],
-
-      socialLinks: [
-        { icon: 'github', link: 'https://github.com/soctalk/soctalk' },
-      ],
-
-      footer: {
-        message: 'Released under the Apache 2.0 License.',
-        copyright: 'Copyright © 2025-2026 Gianluca Brigandi',
-      },
-
-      search: {
-        provider: 'local',
-      },
-
-      editLink: {
-        pattern:
-          'https://github.com/soctalk/soctalk-docs/edit/main/docs/:path',
-        text: 'Edit this page on GitHub',
-      },
-    },
+    locales: buildLocales(),
 
     markdown: {
       theme: {
