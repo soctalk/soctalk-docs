@@ -32,7 +32,8 @@ flowchart LR
 | **misp_worker** | Looks up observables against MISP threat-intel feeds for known campaign / actor context. | fast model |
 | **verdict** | Reasons over everything the workers gathered. Outputs `escalate | close | needs_more_info` + confidence + a short rationale. | **reasoning model** |
 | **human_review** | Pauses the run; emits a review request to the dashboard queue and/or Slack. Waits on a `HumanDecision` (`approve | reject | more_info`). | — (humans) |
-| **close** | Generates the closure report and writes the disposition (`close_fp | escalate | leave_open`). **In V1 the close node does not post to outbound integrations.** No graph node currently posts to TheHive in V1 (the `thehive_worker` node referenced in earlier drafts is not wired into the V1 graph builder). Slack webhook posting from close is also not wired. Outbound integration from the close node is on the roadmap. | fast model |
+| **thehive_worker** | Optional, on the human-review path: exports the case to TheHive (case + observables) synchronously via MCP before close. See [TheHive](/integrate/thehive) for exactly what's exported and the V1 caveats (no outbox/retry). | — (deterministic) |
+| **close** | Generates the closure report and writes the disposition (`close_fp | escalate | leave_open`). **In V1 the close node itself does not post to outbound integrations** — TheHive export happens in the dedicated `thehive_worker` node above, and Slack webhook posting from close is not wired. Further outbound integration from the close node is on the roadmap. | fast model |
 
 ## Supervisor routing
 

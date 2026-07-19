@@ -3,6 +3,49 @@ import { withMermaid } from 'vitepress-plugin-mermaid'
 import { NAV, SIDEBAR } from './i18n/structure.mjs'
 import { LOCALES, ACTIVE_LOCALES, labels } from './i18n/labels.mjs'
 
+const HOST = 'https://soctalk.github.io/soctalk-docs/'
+
+// hreflang values must be valid BCP-47 language[-REGION]; "es-419" (UN M.49)
+// is rejected by Google, so the Spanish variant is annotated language-only.
+const HREFLANG = {
+  root: 'en-US',
+  'pt-br': 'pt-BR',
+  'es-419': 'es',
+  'zh-cn': 'zh-CN',
+  'fr-fr': 'fr-FR',
+  'de-de': 'de-DE',
+  'it-it': 'it-IT',
+}
+
+// Map a source page path (e.g. "pt-br/guides/foo.md") to { seg, rel } where
+// rel is the locale-independent route ("guides/foo.html", "" for the home page).
+function splitPage(page) {
+  let rel = page.replace(/\.md$/, '.html')
+  if (rel === 'index.html' || rel.endsWith('/index.html')) rel = rel.slice(0, -'index.html'.length)
+  for (const seg of ACTIVE_LOCALES) {
+    if (seg === 'root') continue
+    if (rel === `${seg}/` || rel === seg || rel.startsWith(`${seg}/`)) {
+      const stripped = rel === seg ? '' : rel.slice(seg.length + 1)
+      return { seg, rel: stripped }
+    }
+  }
+  return { seg: 'root', rel }
+}
+
+function alternateLinks(page) {
+  const { rel } = splitPage(page)
+  const links = ACTIVE_LOCALES.map((seg) => [
+    'link',
+    {
+      rel: 'alternate',
+      hreflang: HREFLANG[seg],
+      href: `${HOST}${seg === 'root' ? '' : `${seg}/`}${rel}`,
+    },
+  ])
+  links.push(['link', { rel: 'alternate', hreflang: 'x-default', href: `${HOST}${rel}` }])
+  return links
+}
+
 // Build a locale's nav from shared structure + that locale's label table.
 // External links (GitHub) are never localized or prefixed.
 function buildNav(seg) {
@@ -93,6 +136,15 @@ export default withMermaid(
     ],
 
     locales: buildLocales(),
+
+    sitemap: {
+      hostname: HOST,
+    },
+
+    // Per-page hreflang alternates across all active locales (+ x-default).
+    transformHead({ page }) {
+      return alternateLinks(page)
+    },
 
     markdown: {
       theme: {

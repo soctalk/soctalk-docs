@@ -45,6 +45,15 @@ export const SIDEBAR = [
     ],
   },
   {
+    id: 'sec_guides', en: 'Guides',
+    items: [
+      { id: 'guides/multi-tenant-wazuh-mssp', link: '/guides/multi-tenant-wazuh-mssp', en: 'Multi-tenant Wazuh for MSSPs' },
+      { id: 'guides/ai-triage-wazuh-alerts', link: '/guides/ai-triage-wazuh-alerts', en: 'AI triage for Wazuh alerts' },
+      { id: 'guides/wazuh-tenant-onboarding', link: '/guides/wazuh-tenant-onboarding', en: 'Onboarding a customer tenant' },
+      { id: 'guides/open-source-soc-stack', link: '/guides/open-source-soc-stack', en: 'Open-source SOC stack' },
+    ],
+  },
+  {
     id: 'sec_operate', en: 'Operate',
     items: [
       { id: 'operations', link: '/operations', en: 'Daily Operations' },
