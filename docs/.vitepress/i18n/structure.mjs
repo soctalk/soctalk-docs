@@ -51,7 +51,7 @@ export const SIDEBAR = [
       { id: 'guides/ai-triage-wazuh-alerts', link: '/guides/ai-triage-wazuh-alerts', en: 'AI triage for Wazuh alerts' },
       { id: 'guides/wazuh-tenant-onboarding', link: '/guides/wazuh-tenant-onboarding', en: 'Onboarding a customer tenant' },
       { id: 'guides/open-source-soc-stack', link: '/guides/open-source-soc-stack', en: 'Open-source SOC stack' },
-      { id: 'guides/inference-cost-optimization', link: '/guides/inference-cost-optimization', en: 'Cost and performance of AI triage inference' },
+      { id: 'guides/inference-cost-optimization', link: '/guides/inference-cost-optimization', en: 'Keeping the AI triage bill low' },
     ],
   },
   {

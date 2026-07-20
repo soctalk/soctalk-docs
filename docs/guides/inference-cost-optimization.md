@@ -1,11 +1,13 @@
 ---
-title: Cost and performance of AI triage inference
-description: "Where to run the model behind AI triage and how to make it affordable: batching and caching, model tiering, cheaper hosted models, and self-hosting on rented or local GPUs, with measured cost and latency."
+title: Keeping the AI triage bill as low as it goes
+description: "The moment AI triage works, the next question is the bill. Batching and caching, model tiering, cheaper hosted models, and self-hosting on rented or local GPUs, with measured cost and latency for driving the model bill as low as possible."
 ---
 
-# Cost and performance of AI triage inference
+# Keeping the AI triage bill as low as it goes
 
-The model calls are the running cost of AI triage. SocTalk keeps most alerts away from a model in the first place, through deduplication, coalescing, correlation, and deterministic close (see [How it works](/how-it-works)), so the spend that remains is concentrated on the alerts that actually need judgment. This guide is about serving those calls affordably, without giving up more quality than you have measured, and without moving sensitive alert content out of your perimeter.
+The moment AI triage works, the next question is the bill. Every alert that reaches a model costs money, and at real alert volume that number climbs quickly. Most of that bill is optional.
+
+SocTalk keeps most alerts away from a model in the first place, through deduplication, coalescing, correlation, and deterministic close (see [How it works](/how-it-works)), so the spend that remains is concentrated on the alerts that actually need judgment. This guide is about driving that remaining spend as low as it goes, without giving up more quality than you have measured, and without moving sensitive alert content out of your perimeter.
 
 The options below are ordered cheapest and safest first, and most deployments never reach the last one.
 
