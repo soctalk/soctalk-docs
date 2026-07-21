@@ -51,7 +51,7 @@ Questi numeri vengono dai nostri benchmark di un modello aperto 7B su un insieme
 
 Per triage completo, il self-hosting su una GPU consumer noleggiata è risultato circa due-tre ordini di grandezza più economico di una chiamata API di frontiera non ottimizzata, e diverse volte più economico dello stesso modello su una piattaforma serverless gestita, perché la scheda noleggiata testata era sia più economica all'ora sia, in questi run, più veloce. La tariffa più alta della piattaforma gestita compra lo scalare a zero e nessuna operatività. Il prezzo più alto dell'API di frontiera compra un tier di modello gestito che può andar bene per i casi più difficili, senza infrastruttura da gestire.
 
-La latenza è rimasta pratica. L'insieme di 12 casi si è concluso in circa un minuto su una Modal A10G e in 11-14 secondi su una RunPod 4090, entrambe a otto vie di concorrenza, invece dei diversi minuti che una stima a flusso singolo suggerisce, perché la concorrenza sovrappone le chiamate e i verdict reali stanno dentro il budget di token.
+La latenza è rimasta pratica. L'insieme di 12 casi si è concluso in circa un minuto su una Modal A10G e in circa 11 secondi su una RunPod 4090, entrambe a otto vie di concorrenza, invece dei diversi minuti che una stima a flusso singolo suggerisce, perché la concorrenza sovrappone le chiamate e i verdict reali stanno dentro il budget di token.
 
 ## Se un modello piccolo è abbastanza buono
 

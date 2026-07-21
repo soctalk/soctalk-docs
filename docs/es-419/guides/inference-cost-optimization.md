@@ -51,7 +51,7 @@ Estos números vienen de nuestras propias pruebas de un modelo abierto de 7B sob
 
 Por triage completo, autoalojar en una GPU de consumo alquilada salió entre dos y tres órdenes de magnitud más barato que una llamada a una API de frontera sin optimizar, y varias veces más barato que el mismo modelo en una plataforma serverless gestionada, porque la tarjeta alquilada probada era más barata por hora y, en estas ejecuciones, más rápida. La tarifa mayor de la plataforma gestionada compra el bajar a cero y no operar nada. El precio mayor de la API de frontera compra un tier de modelo gestionado que puede convenir a los casos difíciles, sin infraestructura que operar.
 
-La latencia se mantuvo práctica. El conjunto de 12 casos terminó en cerca de un minuto en una Modal A10G y en 11 a 14 segundos en una RunPod 4090, ambas a ocho vías de concurrencia, en vez de los varios minutos que sugiere una estimación de flujo único, porque la concurrencia solapa las llamadas y los verdicts reales caben en el presupuesto de tokens.
+La latencia se mantuvo práctica. El conjunto de 12 casos terminó en cerca de un minuto en una Modal A10G y en unos 11 segundos en una RunPod 4090, ambas a ocho vías de concurrencia, en vez de los varios minutos que sugiere una estimación de flujo único, porque la concurrencia solapa las llamadas y los verdicts reales caben en el presupuesto de tokens.
 
 ## Si un modelo pequeño es suficiente
 

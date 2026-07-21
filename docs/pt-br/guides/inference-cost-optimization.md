@@ -51,7 +51,7 @@ Estes números vêm dos nossos próprios benchmarks de um modelo aberto de 7B so
 
 Por triage completo, auto-hospedar numa GPU de consumo alugada saiu cerca de duas a três ordens de grandeza mais barato que uma chamada de API de fronteira não otimizada, e várias vezes mais barato que o mesmo modelo numa plataforma serverless gerenciada, porque a placa alugada testada era tanto mais barata por hora quanto, nessas execuções, mais rápida. A tarifa maior da plataforma gerenciada compra o escalar a zero e nenhuma operação. O preço maior da API de fronteira compra um tier de modelo gerenciado que pode servir aos casos mais difíceis, sem infraestrutura para operar.
 
-A latência se manteve prática. O conjunto de 12 casos terminou em cerca de um minuto numa Modal A10G e em 11 a 14 segundos numa RunPod 4090, ambas a oito vias de concorrência, em vez dos vários minutos que uma estimativa de fluxo único sugere, porque a concorrência sobrepõe as chamadas e os verdicts reais cabem no orçamento de tokens.
+A latência se manteve prática. O conjunto de 12 casos terminou em cerca de um minuto numa Modal A10G e em cerca de 11 segundos numa RunPod 4090, ambas a oito vias de concorrência, em vez dos vários minutos que uma estimativa de fluxo único sugere, porque a concorrência sobrepõe as chamadas e os verdicts reais cabem no orçamento de tokens.
 
 ## Se um modelo pequeno é bom o bastante
 

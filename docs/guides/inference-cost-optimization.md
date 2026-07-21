@@ -51,7 +51,7 @@ These numbers are from our own benchmark runs of one 7B open model over a fixed 
 
 Per full triage, self-hosting on a rented consumer GPU came out around two to three orders of magnitude cheaper than an unoptimized frontier API call, and several times cheaper than the same model on a managed serverless platform, because the tested rental card was both cheaper per hour and, in these runs, faster. The managed platform's higher rate buys scale-to-zero and no operations. The frontier API's higher price buys a managed model tier that may suit the harder cases, with no infrastructure to run.
 
-Latency stayed practical. The 12-case set finished in around a minute on a Modal A10G and in 11 to 14 seconds on a RunPod 4090, both at eight-way concurrency, rather than the several minutes a single-stream estimate implies, because concurrency overlaps the calls and real verdicts fit inside the token budget.
+Latency stayed practical. The 12-case set finished in around a minute on a Modal A10G and in about 11 seconds on a RunPod 4090, both at eight-way concurrency, rather than the several minutes a single-stream estimate implies, because concurrency overlaps the calls and real verdicts fit inside the token budget.
 
 For the full tables behind these numbers, the throughput sweeps, the real-RTX pricing, and the per-run triage times, see [what triage inference actually costs, measured](/guides/inference-cost-benchmark).
 

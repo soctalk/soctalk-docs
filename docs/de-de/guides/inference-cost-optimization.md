@@ -51,7 +51,7 @@ Diese Zahlen stammen aus unseren eigenen Benchmark-Läufen eines offenen 7B-Mode
 
 Pro vollständiger Triage kam Self-Hosting auf einer gemieteten Consumer-GPU etwa zwei bis drei Größenordnungen günstiger heraus als ein unoptimierter Frontier-API-Aufruf und mehrfach günstiger als dasselbe Modell auf einer verwalteten serverless Plattform, weil die getestete Mietkarte sowohl pro Stunde günstiger als auch, in diesen Läufen, schneller war. Der höhere Satz der verwalteten Plattform kauft das Herunterskalieren auf null und keinen Betrieb. Der höhere Preis der Frontier-API kauft ein verwaltetes Modell-Tier, das für die schwereren Fälle passen kann, ohne Infrastruktur zu betreiben.
 
-Die Latenz blieb praxistauglich. Der Satz von 12 Fällen war auf einer Modal A10G in etwa einer Minute und auf einer RunPod 4090 in 11 bis 14 Sekunden fertig, beide bei achtfacher Nebenläufigkeit, statt der mehreren Minuten, die eine Einzelstrom-Schätzung nahelegt, weil die Nebenläufigkeit die Aufrufe überlappt und echte Verdicts in das Token-Budget passen.
+Die Latenz blieb praxistauglich. Der Satz von 12 Fällen war auf einer Modal A10G in etwa einer Minute und auf einer RunPod 4090 in etwa 11 Sekunden fertig, beide bei achtfacher Nebenläufigkeit, statt der mehreren Minuten, die eine Einzelstrom-Schätzung nahelegt, weil die Nebenläufigkeit die Aufrufe überlappt und echte Verdicts in das Token-Budget passen.
 
 ## Ob ein kleines Modell gut genug ist
 

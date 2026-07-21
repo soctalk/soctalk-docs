@@ -5,7 +5,7 @@ description: "The measured runs behind the cost guide: continuous batching on se
 
 # What triage inference actually costs, measured
 
-The [cost guide](/guides/inference-cost-optimization) makes claims about what triage inference costs. This page is the measurement behind them: our own benchmark runs, the tables in full, and the method and limits so you can judge how far they carry to your own setup. Every number here is a single measured run on a fixed golden set, not a statistical result and not a vendor figure. Your model, hardware, and alert mix will move all of it.
+The [cost guide](/guides/inference-cost-optimization) makes claims about what triage inference costs. This page is the measurement behind them: our own benchmark runs, the tables in full, and the method and limits so you can judge how far they carry to your own setup. Every result here is a single measured run, not a statistical result and not a vendor figure. The throughput sweeps use synthetic triage-shaped requests, the prices are snapshots read at the time of the run, and the triage-time and accuracy figures use a fixed 12-alert golden set. Your model, hardware, and alert mix will move all of it.
 
 Three things were measured, from synthetic throughput up to realistic triage: how much a full continuous batch saves on a serverless GPU, how real consumer silicon compares to the datacenter parts that stand in for it, and how long a real triage actually takes on a small self-hostable model. Each run tore its GPU down afterward, so nothing was left billing.
 

@@ -51,7 +51,7 @@ Ces chiffres viennent de nos propres benchmarks d'un modèle ouvert 7B sur un en
 
 Par triage complet, l'auto-hébergement sur une GPU grand public louée est ressorti environ deux à trois ordres de grandeur moins cher qu'un appel d'API de frontière non optimisé, et plusieurs fois moins cher que le même modèle sur une plateforme serverless gérée, parce que la carte louée testée était à la fois moins chère à l'heure et, dans ces exécutions, plus rapide. Le tarif plus élevé de la plateforme gérée achète la descente à zéro et l'absence d'exploitation. Le prix plus élevé de l'API de frontière achète un tier de modèle géré qui peut convenir aux cas plus durs, sans infrastructure à exploiter.
 
-La latence est restée pratique. L'ensemble de 12 cas s'est terminé en environ une minute sur une Modal A10G et en 11 à 14 secondes sur une RunPod 4090, toutes deux à huit voies de concurrence, au lieu des plusieurs minutes qu'une estimation en flux unique laisse supposer, parce que la concurrence chevauche les appels et que les verdicts réels tiennent dans le budget de tokens.
+La latence est restée pratique. L'ensemble de 12 cas s'est terminé en environ une minute sur une Modal A10G et en environ 11 secondes sur une RunPod 4090, toutes deux à huit voies de concurrence, au lieu des plusieurs minutes qu'une estimation en flux unique laisse supposer, parce que la concurrence chevauche les appels et que les verdicts réels tiennent dans le budget de tokens.
 
 ## Si un petit modèle suffit
 
