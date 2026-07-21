@@ -81,4 +81,19 @@ Underneath sits the cost-accounting spine: per-tier provider selection ([#4](htt
 - **Prices are a snapshot.** GPU rental and serverless rates move, and were read at the time of the run. Treat them as a ratio between options, not a current quote.
 - **Operations vary by tier.** RTX 3090 pods on both community and secure cloud repeatedly failed to serve within a 22-minute window, while an RTX 4090 on secure cloud came up reliably, so the higher-tier card on secure cloud was the steadier path in these runs. Rented pods have no scale-to-zero, so teardown is manual, and every pod was terminated after each run.
 
+## Bottom line: best cost-to-value setups
+
+If you want the short answer, here is what these runs point to, by situation. Every figure is from the measurements above, so read it with the same caveats: single measured runs, prices as snapshots, accuracy directional.
+
+| Situation | The setup that measured best here | Cost seen | The tradeoff you accept |
+|---|---|---|---|
+| Steady volume, and you can operate a GPU | A rented consumer card (an RTX 4090 on secure cloud came up reliably where 3090s did not), a 7B open model on vLLM or SGLang, worker concurrency at 8 to fill the batch | about $0.09 to $0.18 per 1,000 alerts, the 12-alert set in about 11 seconds | You run the lifecycle: cold starts, no scale-to-zero, manual teardown |
+| Bursty or low-ops volume | A managed scale-to-zero serverless GPU, the same 7B on SGLang, concurrency at 8 | about $1.10 per 1,000 alerts | A higher hourly rate, but zero idle cost and nothing to operate; keep a warm fallback for urgent bursts that arrive during a cold start |
+| The hardest cases, with minimal ops | A capable frontier model for the verdict with the Batch API and prompt caching on, and the cheap self-hosted tier for the routine middle | The frontier rate, but on only a fraction of alerts | The most expensive per call, in exchange for no infrastructure and a more capable managed model tier for the hardest cases |
+| Alert content cannot leave your perimeter | Self-host the 7B in-cluster once in-cluster serving ships, with a capable fallback and the safety floor in place | Not measured here; the rented and serverless self-host figures above are directional proxies until in-cluster serving lands | You own the serving; in-cluster deployment is still being built ([#13](https://github.com/soctalk/soctalk/issues/13)) |
+
+The single configuration choice that did the most work in every self-hosted row was **worker concurrency at 8**, which fills the continuous batch and is where the 13 to 17 percent cost and the six to eight times throughput came from. Pair it with a small model that holds the structured contract at zero schema errors, and a card that is cheaper per hour, and tear the GPU down after each run. Everything else on this page is a variation on that.
+
+For most teams the sequence is the one the [cost guide](/guides/inference-cost-optimization) lays out: batching and caching first, the router on a cheaper model next, and a self-hosted tier only once the volume and the data-residency need justify operating it.
+
 **Disclaimer.** SocTalk is not affiliated with, endorsed by, or sponsored by any LLM or GPU service provider, and the platforms behind these runs are named in the [cost guide](/guides/inference-cost-optimization) only as examples of where a model can run. The figures here are our own benchmark observations on a fixed golden set, not vendor-published numbers, and all product names and trademarks belong to their respective owners.
