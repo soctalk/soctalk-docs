@@ -53,6 +53,8 @@ Per full triage, self-hosting on a rented consumer GPU came out around two to th
 
 Latency stayed practical. The 12-case set finished in around a minute on a Modal A10G and in 11 to 14 seconds on a RunPod 4090, both at eight-way concurrency, rather than the several minutes a single-stream estimate implies, because concurrency overlaps the calls and real verdicts fit inside the token budget.
 
+For the full tables behind these numbers, the throughput sweeps, the real-RTX pricing, and the per-run triage times, see [what triage inference actually costs, measured](/guides/inference-cost-benchmark).
+
 ## Whether a small model is good enough
 
 Cost only matters if the cheap model holds up. In our runs a 7B open model kept SocTalk's structured triage contract: valid router and verdict output, no schema errors, and verdicts that matched a larger reasoning model on roughly 58 to 75 percent of a small benchmark sample. It was weaker on routing, and on the authorization-sensitive cases it sometimes closed activity that had no authorization on file and should have escalated.
