@@ -23,7 +23,7 @@ Attivate entrambe e misurate il nuovo costo per run prima di considerare qualsia
 
 ## Mettete un modello più economico sul lavoro più economico
 
-Un run di triage usa un modello in due ruoli: un supervisor che instrada l'investigazione, decidendo cosa arricchire dopo e quando decidere, e un verdict che pesa le prove. L'instradamento è il compito più leggero. SocTalk risolve ciascun ruolo al proprio tier, e ogni tier punta al proprio provider, modello ed endpoint, così il router può girare su un modello più piccolo mentre il verdict mantiene quello capace. Questa è configurazione, non nuova infrastruttura.
+Un run di triage usa un modello in due ruoli: un supervisor che instrada l'investigazione, decidendo cosa arricchire dopo e quando decidere, e un verdict che pesa le prove. L'instradamento è il compito più leggero. SocTalk risolve ciascun ruolo al proprio tier, e ogni tier punta al proprio provider, modello ed endpoint, così il router può girare su un modello più piccolo mentre il verdict mantiene il modello capace. Questa è configurazione, non nuova infrastruttura.
 
 ## Modelli ospitati più economici, con un'avvertenza
 
@@ -55,7 +55,7 @@ La latenza è rimasta pratica. L'insieme di 12 casi si è concluso in circa un m
 
 ## Se un modello piccolo è abbastanza buono
 
-Il costo conta solo se il modello economico regge. Nei nostri run un modello aperto 7B ha mantenuto il contratto di triage strutturato di SocTalk: output router e verdict valido, nessun errore di schema, e verdict che hanno coinciso con un modello di ragionamento più grande su circa il 58-75 per cento di un piccolo campione di benchmark. Era più debole sull'instradamento, e sui casi sensibili all'autorizzazione a volte ha chiuso attività che non aveva alcuna autorizzazione agli atti e che avrebbe dovuto essere escalata.
+Il costo conta solo se il modello economico regge. Nei nostri run un modello aperto 7B ha mantenuto il contratto di triage strutturato di SocTalk: output router e verdict valido, nessun errore di schema, e verdict che hanno coinciso con un modello di ragionamento più grande su circa il 58-75 per cento di un piccolo campione di benchmark. Era più debole sull'instradamento, e sui casi sensibili all'autorizzazione a volte ha chiuso attività che non aveva alcuna autorizzazione agli atti e che sarebbe dovuta andare in escalation.
 
 Un piccolo modello self-hosted è quindi un tier economico praticabile per la fascia ordinaria, con un modello capace dietro per i casi difficili. Se sia abbastanza buono per il vostro ambiente è una misurazione, non un'assunzione, e va fatta contro un benchmark rappresentativo prima di affidare a un modello piccolo qualsiasi decisione di chiusura. Il safety floor regge comunque. Nessun modello può chiudere su un segnale malevolo noto né su un caso correlato attivo, comunque sia stato servito.
 
@@ -64,7 +64,7 @@ Un piccolo modello self-hosted è quindi un tier economico praticabile per la fa
 - **Avvii a freddo.** Un backend scalato a zero o appena noleggiato non è pronto all'istante. Il download e il caricamento del modello richiedono minuti, quindi una raffica che arriva a freddo aspetta. Bene per il triage ordinario, un problema per qualsiasi cosa urgente, ed è per questo che un tier di fallback a caldo si guadagna il suo posto.
 - **Carico operativo sui noleggi.** Una GPU noleggiata fattura finché non la fermate e non ha scalare a zero, quindi il tempo di inattività è denaro sprecato e lo smontaggio tocca a voi ricordarlo. La disponibilità sui livelli più economici varia.
 - **Contabilità dei costi.** Un budget per token è l'unità giusta per un'API di frontiera e quella sbagliata per un backend a GPU-secondo. Contabilizzate secondo l'unità di fatturazione propria del backend quando fate self-hosting.
-- **La governance dei dati è uno spettro.** La redazione toglie i segreti prima che qualcosa parta, ma il contesto operativo, host, account, contenuto dei log, viaggia comunque verso un'API esterna. Solo il self-hosting dentro il confine tiene quel contesto nel vostro perimetro.
+- **La governance dei dati è uno spettro.** Il mascheramento toglie i segreti prima che qualcosa parta, ma il contesto operativo, host, account, contenuto dei log, viaggia comunque verso un'API esterna. Solo il self-hosting dentro il confine tiene quel contesto nel vostro perimetro.
 
 ## Scegliere dove far girare il modello
 

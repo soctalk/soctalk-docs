@@ -1,11 +1,11 @@
 ---
-title: Die Rechnung für das KI-Triage so niedrig wie möglich halten
-description: "Sobald das KI-Triage funktioniert, ist die nächste Frage die Rechnung. Batching und Caching, Modell-Staffelung, günstigere gehostete Modelle und Self-Hosting auf gemieteten oder lokalen GPUs, mit gemessenen Kosten und Latenzen, um die Modellrechnung so weit wie möglich zu drücken."
+title: Die Rechnung für die KI-Triage so niedrig wie möglich halten
+description: "Sobald die KI-Triage funktioniert, ist die nächste Frage die Rechnung. Batching und Caching, Modell-Staffelung, günstigere gehostete Modelle und Self-Hosting auf gemieteten oder lokalen GPUs, mit gemessenen Kosten und Latenzen, um die Modellrechnung so weit wie möglich zu drücken."
 ---
 
-# Die Rechnung für das KI-Triage so niedrig wie möglich halten
+# Die Rechnung für die KI-Triage so niedrig wie möglich halten
 
-Sobald das KI-Triage funktioniert, ist die nächste Frage die Rechnung. Jede Warnung, die ein Modell erreicht, kostet Geld, und bei realem Warnungsvolumen steigt diese Zahl schnell. Der größte Teil dieser Rechnung ist optional.
+Sobald die KI-Triage funktioniert, ist die nächste Frage die Rechnung. Jede Warnung, die ein Modell erreicht, kostet Geld, und bei realem Warnungsvolumen steigt diese Zahl schnell. Der größte Teil dieser Rechnung ist optional.
 
 SocTalk hält die meisten Warnungen von vornherein von einem Modell fern, durch Deduplizierung, Coalescing, Korrelation und deterministisches Schließen (siehe [Wie es funktioniert](/de-de/how-it-works)), sodass sich die verbleibenden Ausgaben auf die Warnungen konzentrieren, die tatsächlich ein Urteil brauchen. In diesem Leitfaden geht es darum, diese verbleibenden Ausgaben so weit wie möglich zu senken, ohne mehr Qualität aufzugeben, als Sie gemessen haben, und ohne sensible Warnungsinhalte aus Ihrem Perimeter herauszubewegen.
 
@@ -15,15 +15,15 @@ Die Optionen unten sind von der günstigsten und sichersten zur teuersten geordn
 
 Zwei verwaltete Funktionen der Frontier-APIs senken die Kosten, ohne die Modellqualität zu ändern.
 
-**Die Batch API** verarbeitet Anfragen asynchron gegen einen festen Rabatt, und die Ausgabe ist identisch. SocTalk passt hier mühelos hinein. Das Settle-Fenster hält einen Run ohnehin zurück, damit korrelierte Warnungen sich sammeln, und ein Run ist von Haus aus asynchron, also ist Triage kein latenzsensibler Pfad.
+**Die Batch API** verarbeitet Anfragen asynchron gegen einen festen Rabatt, und die Ausgabe ist identisch. SocTalk passt hier mühelos hinein. Das Settle-Fenster hält einen Run ohnehin zurück, damit korrelierte Warnungen sich sammeln, und ein Run ist von Haus aus asynchron, also ist die Triage kein latenzsensibler Pfad.
 
-**Prompt-Caching** berechnet den wiederholten Teil eines Prompts zu einem Bruchteil des Eingaberatensatzes. Die Supervisor- und Verdict-Prompts von SocTalk tragen ein großes stabiles Präfix, den Systemprompt und die Tool-Definitionen, mit dem volatilen fallbezogenen Inhalt am Ende, also ist der cachebare Anteil real und wird auf dem Anthropic-Pfad bereits genutzt.
+**Prompt-Caching** berechnet den wiederholten Teil eines Prompts zu einem Bruchteil des Eingabetarifs. Die Supervisor- und Verdict-Prompts von SocTalk tragen ein großes stabiles Präfix, den Systemprompt und die Tool-Definitionen, mit dem volatilen fallbezogenen Inhalt am Ende, also ist der cachebare Anteil real und wird auf dem Anthropic-Pfad bereits genutzt.
 
 Schalten Sie beide ein und messen Sie die neuen Kosten pro Run, bevor Sie irgendetwas darunter erwägen. Keine der beiden berührt die Qualität, es gibt also keinen Grund, sie zu überspringen.
 
 ## Setzen Sie ein günstigeres Modell auf die günstigere Arbeit
 
-Ein Triage-Run nutzt ein Modell in zwei Rollen: einen Supervisor, der die Untersuchung routet und entscheidet, was als Nächstes anzureichern ist und wann zu entscheiden ist, und ein Verdict, das die Beweislage abwägt. Das Routing ist die leichtere Aufgabe. SocTalk löst jede Rolle zu ihrem eigenen Tier auf, und jedes Tier zeigt auf seinen eigenen Provider, sein eigenes Modell und seinen eigenen Endpoint, also kann der Router auf einem kleineren Modell laufen, während das Verdict das leistungsfähige behält. Das ist Konfiguration, keine neue Infrastruktur.
+Ein Triage-Run nutzt ein Modell in zwei Rollen: einen Supervisor, der die Untersuchung routet und entscheidet, was als Nächstes anzureichern ist und wann zu entscheiden ist, und ein Verdict, das die Beweislage abwägt. Das Routing ist die leichtere Aufgabe. SocTalk löst jede Rolle zu ihrem eigenen Tier auf, und jedes Tier zeigt auf seinen eigenen Provider, sein eigenes Modell und seinen eigenen Endpoint, also kann der Router auf einem kleineren Modell laufen, während das Verdict das leistungsfähigere Modell behält. Das ist Konfiguration, keine neue Infrastruktur.
 
 ## Günstigere gehostete Modelle, mit einem Vorbehalt
 
@@ -36,7 +36,7 @@ Self-Hosting ist die größte Einsparung und die einzige Option, die Warnungsinh
 Wo Sie es laufen lassen, ist ein echter Kompromiss.
 
 - **Eine verwaltete serverless GPU-Plattform** (zum Beispiel Modal) deployt das Modell hinter einem OpenAI-kompatiblen Endpoint, skaliert im Leerlauf auf null herunter und rechnet pro GPU-Sekunde ab. Sie zahlen nur, während es läuft, und es gibt keinen Server zu betreiben, zu einem höheren Stundensatz als eine reine Miete.
-- **Ein GPU-Mietmarktplatz** (zum Beispiel RunPod) mietet Consumer-GPUs nahe dem, was ein kleines selbst gehostetes Deployment kaufen würde, zu einem niedrigeren Stundensatz. Im Gegenzug betreiben Sie den Lebenszyklus. Ein Pod rechnet ab, bis Sie ihn stoppen, Kaltstarts dauern Minuten, und die Verfügbarkeit auf den günstigsten Stufen schwankt.
+- **Ein GPU-Mietmarktplatz** (zum Beispiel RunPod) vermietet Consumer-GPUs nahe dem, was ein kleines selbst gehostetes Deployment kaufen würde, zu einem niedrigeren Stundensatz. Im Gegenzug betreiben Sie den Lebenszyklus. Ein Pod rechnet ab, bis Sie ihn stoppen, Kaltstarts dauern Minuten, und die Verfügbarkeit auf den günstigsten Stufen schwankt.
 - **Eine lokale Instanz** (zum Beispiel [Ollama](/de-de/integrate/ollama)) läuft auf Hardware, die Sie bereits besitzen, ohne gemessene Gebühr pro Anfrage und ohne dass etwas die Maschine verlässt, begrenzt durch den Durchsatz dieser einen Maschine.
 
 ## Die Auslastung, nicht die Karte, treibt die Einsparung
@@ -49,7 +49,7 @@ In unseren Benchmarks hob das Füllen des Batches auf acht nebenläufige Anfrage
 
 Diese Zahlen stammen aus unseren eigenen Benchmark-Läufen eines offenen 7B-Modells über einen festen Satz von Triage-Fällen bei achtfacher Nebenläufigkeit. Sie sind Richtwerte, keine Garantie. Ihr Modell, Ihre Hardware und Ihr Warnungsmix werden sie verschieben.
 
-Pro vollständigem Triage kam Self-Hosting auf einer gemieteten Consumer-GPU etwa zwei bis drei Größenordnungen günstiger heraus als ein unoptimierter Frontier-API-Aufruf und mehrfach günstiger als dasselbe Modell auf einer verwalteten serverless Plattform, weil die getestete Mietkarte sowohl pro Stunde günstiger als auch, in diesen Läufen, schneller war. Der höhere Satz der verwalteten Plattform kauft das Herunterskalieren auf null und keinen Betrieb. Der höhere Preis der Frontier-API kauft ein verwaltetes Modell-Tier, das für die schwereren Fälle passen kann, ohne Infrastruktur zu betreiben.
+Pro vollständiger Triage kam Self-Hosting auf einer gemieteten Consumer-GPU etwa zwei bis drei Größenordnungen günstiger heraus als ein unoptimierter Frontier-API-Aufruf und mehrfach günstiger als dasselbe Modell auf einer verwalteten serverless Plattform, weil die getestete Mietkarte sowohl pro Stunde günstiger als auch, in diesen Läufen, schneller war. Der höhere Satz der verwalteten Plattform kauft das Herunterskalieren auf null und keinen Betrieb. Der höhere Preis der Frontier-API kauft ein verwaltetes Modell-Tier, das für die schwereren Fälle passen kann, ohne Infrastruktur zu betreiben.
 
 Die Latenz blieb praxistauglich. Der Satz von 12 Fällen war auf einer Modal A10G in etwa einer Minute und auf einer RunPod 4090 in 11 bis 14 Sekunden fertig, beide bei achtfacher Nebenläufigkeit, statt der mehreren Minuten, die eine Einzelstrom-Schätzung nahelegt, weil die Nebenläufigkeit die Aufrufe überlappt und echte Verdicts in das Token-Budget passen.
 
@@ -57,14 +57,14 @@ Die Latenz blieb praxistauglich. Der Satz von 12 Fällen war auf einer Modal A10
 
 Kosten zählen nur, wenn das günstige Modell standhält. In unseren Läufen hielt ein offenes 7B-Modell den strukturierten Triage-Vertrag von SocTalk: gültige Router- und Verdict-Ausgabe, keine Schema-Fehler, und Verdicts, die mit einem größeren Reasoning-Modell auf etwa 58 bis 75 Prozent einer kleinen Benchmark-Stichprobe übereinstimmten. Es war schwächer beim Routing, und bei den autorisierungssensiblen Fällen schloss es manchmal Aktivität, für die keine Autorisierung dokumentiert war und die hätte eskaliert werden müssen.
 
-Ein kleines selbst gehostetes Modell ist daher ein brauchbares günstiges Tier für die routinemäßige Mitte, mit einem leistungsfähigen Modell dahinter für die schweren Fälle. Ob es für Ihre Umgebung gut genug ist, ist eine Messung, keine Annahme, und sie gehört gegen einen repräsentativen Benchmark, bevor einem kleinen Modell irgendeine Schließungsentscheidung anvertraut wird. Der Safety Floor gilt ohnehin. Kein Modell darf über ein bekanntes bösartiges Signal oder einen aktiven verwandten Fall schließen, egal wie es serviert wurde.
+Ein kleines selbst gehostetes Modell ist daher ein brauchbares günstiges Tier für die routinemäßige Mitte, mit einem leistungsfähigen Modell dahinter für die schweren Fälle. Ob es für Ihre Umgebung gut genug ist, ist eine Messung, keine Annahme, und sie gehört gegen einen repräsentativen Benchmark, bevor einem kleinen Modell irgendeine Schließungsentscheidung anvertraut wird. Der Safety Floor gilt ohnehin. Kein Modell kann über ein bekanntes bösartiges Signal oder einen aktiven verwandten Fall schließen, egal wie es serviert wurde.
 
 ## Einzuplanende Grenzen
 
-- **Kaltstarts.** Ein auf null herunterskaliertes oder frisch gemietetes Backend ist nicht sofort bereit. Modell-Download und -Laden dauern Minuten, also wartet ein Schub, der kalt ankommt. Gut für routinemäßiges Triage, ein Problem für alles Dringende, weshalb sich ein warmes Fallback-Tier verdient macht.
+- **Kaltstarts.** Ein auf null herunterskaliertes oder frisch gemietetes Backend ist nicht sofort bereit. Modell-Download und -Laden dauern Minuten, also wartet ein Schub, der kalt ankommt. Gut für die routinemäßige Triage, ein Problem für alles Dringende, weshalb sich ein warmes Fallback-Tier verdient macht.
 - **Betriebslast bei Mieten.** Eine gemietete GPU rechnet ab, bis Sie sie stoppen, und hat kein Herunterskalieren auf null, also ist Leerlaufzeit verschwendetes Geld und das Abbauen ist Ihre Sache, daran zu denken. Die Verfügbarkeit auf den günstigsten Stufen schwankt.
 - **Kostenrechnung.** Ein Budget pro Token ist die richtige Einheit für eine Frontier-API und die falsche für ein Backend pro GPU-Sekunde. Rechnen Sie beim Self-Hosting nach der eigenen Abrechnungseinheit des Backends.
-- **Datengovernance ist ein Spektrum.** Die Redaktion entfernt Geheimnisse, bevor etwas geht, aber der operative Kontext, Hosts, Konten, Log-Inhalte, reist trotzdem zu einer externen API. Nur Self-Hosting innerhalb der Grenze hält diesen Kontext in Ihrem Perimeter.
+- **Datengovernance ist ein Spektrum.** Die Maskierung entfernt Geheimnisse, bevor etwas geht, aber der operative Kontext, Hosts, Konten, Log-Inhalte, reist trotzdem zu einer externen API. Nur Self-Hosting innerhalb der Grenze hält diesen Kontext in Ihrem Perimeter.
 
 ## Wählen, wo das Modell läuft
 

@@ -23,7 +23,7 @@ Ligue os dois e meça o novo custo por execução antes de considerar qualquer c
 
 ## Coloque um modelo mais barato no trabalho mais barato
 
-Uma execução de triage usa um modelo em dois papéis: um supervisor que roteia a investigação, decidindo o que enriquecer em seguida e quando decidir, e um verdict que pesa as evidências. O roteamento é a tarefa mais leve. A SocTalk resolve cada papel ao seu próprio tier, e cada tier aponta para o seu próprio provider, modelo e endpoint, então o roteador pode rodar em um modelo menor enquanto o verdict mantém o capaz. Isso é configuração, não infraestrutura nova.
+Uma execução de triage usa um modelo em dois papéis: um supervisor que roteia a investigação, decidindo o que enriquecer em seguida e quando decidir, e um verdict que pesa as evidências. O roteamento é a tarefa mais leve. A SocTalk resolve cada papel ao seu próprio tier, e cada tier aponta para o seu próprio provider, modelo e endpoint, então o router pode rodar em um modelo menor enquanto o verdict mantém o modelo capaz. Isso é configuração, não infraestrutura nova.
 
 ## Modelos hospedados mais baratos, com uma ressalva
 
@@ -64,7 +64,7 @@ Um modelo pequeno auto-hospedado é, portanto, um tier barato viável para o mio
 - **Arranques a frio.** Um backend escalado a zero ou recém-alugado não fica pronto na hora. O download e o carregamento do modelo levam minutos, então uma rajada que chega a frio espera. Bom para triage rotineiro, um problema para qualquer coisa urgente, e é por isso que um tier de reserva quente ganha o seu lugar.
 - **Carga operacional em aluguéis.** Uma GPU alugada cobra até você pará-la e não tem escalar a zero, então o tempo ocioso é dinheiro desperdiçado e desmontar cabe a você lembrar. A disponibilidade nas faixas mais baratas varia.
 - **Contabilidade de custos.** Um orçamento por token é a unidade certa para uma API de fronteira e a errada para um backend por GPU-segundo. Contabilize pela unidade de cobrança do próprio backend quando auto-hospedar.
-- **A governança de dados é um espectro.** A redação tira os segredos antes de qualquer coisa sair, mas o contexto operacional, hosts, contas, conteúdo de logs, ainda viaja para uma API externa. Só a auto-hospedagem dentro da fronteira mantém esse contexto no seu perímetro.
+- **A governança de dados é um espectro.** O mascaramento tira os segredos antes de qualquer coisa sair, mas o contexto operacional, hosts, contas, conteúdo de logs, ainda viaja para uma API externa. Só a auto-hospedagem dentro da fronteira mantém esse contexto no seu perímetro.
 
 ## Escolher onde rodar o modelo
 

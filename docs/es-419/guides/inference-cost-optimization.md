@@ -23,7 +23,7 @@ Activa ambas y mide el nuevo coste por ejecución antes de considerar cualquier 
 
 ## Pon un modelo más barato en el trabajo más barato
 
-Una ejecución de triage usa un modelo en dos roles: un supervisor que enruta la investigación, decidiendo qué enriquecer a continuación y cuándo decidir, y un verdict que sopesa la evidencia. El enrutamiento es la tarea más liviana. SocTalk resuelve cada rol a su propio tier, y cada tier apunta a su propio provider, modelo y endpoint, así que el enrutador puede correr en un modelo más pequeño mientras el verdict conserva el capaz. Esto es configuración, no infraestructura nueva.
+Una ejecución de triage usa un modelo en dos roles: un supervisor que enruta la investigación, decidiendo qué enriquecer a continuación y cuándo decidir, y un verdict que sopesa la evidencia. El enrutamiento es la tarea más liviana. SocTalk resuelve cada rol a su propio tier, y cada tier apunta a su propio provider, modelo y endpoint, así que el router puede correr en un modelo más pequeño mientras el verdict conserva el modelo capaz. Esto es configuración, no infraestructura nueva.
 
 ## Modelos alojados más baratos, con una salvedad
 
@@ -64,7 +64,7 @@ Así que un modelo pequeño autoalojado es un tier barato viable para el grueso 
 - **Arranques en frío.** Un backend que baja a cero o recién alquilado no está listo al instante. La descarga y la carga del modelo tardan minutos, así que una ráfaga que llega en frío espera. Bien para triage rutinario, un problema para cualquier cosa urgente, por lo que un tier de respaldo en caliente gana su lugar.
 - **Carga operativa en alquileres.** Una GPU alquilada factura hasta que la detienes y no baja a cero, así que el tiempo ocioso es dinero perdido y desmontar te toca recordarlo a ti. La disponibilidad en los niveles más baratos varía.
 - **Contabilidad de costes.** Un presupuesto por token es la unidad correcta para una API de frontera y la equivocada para un backend por GPU-segundo. Contabiliza por la unidad de facturación del propio backend cuando autoalojas.
-- **La gobernanza de datos es un espectro.** La redacción quita los secretos antes de que algo salga, pero el contexto operativo, hosts, cuentas, contenido de logs, igual viaja a una API externa. Solo el autoalojamiento dentro del perímetro mantiene ese contexto dentro de tu perímetro.
+- **La gobernanza de datos es un espectro.** El enmascaramiento quita los secretos antes de que algo salga, pero el contexto operativo, hosts, cuentas, contenido de logs, igual viaja a una API externa. Solo el autoalojamiento dentro del perímetro mantiene ese contexto dentro de tu perímetro.
 
 ## Elegir dónde correrlo
 

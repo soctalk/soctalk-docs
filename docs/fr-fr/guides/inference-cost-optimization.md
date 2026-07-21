@@ -23,7 +23,7 @@ Activez les deux et mesurez le nouveau coût par exécution avant d'envisager qu
 
 ## Mettez un modèle moins cher sur le travail moins cher
 
-Une exécution de triage utilise un modèle dans deux rôles : un supervisor qui route l'investigation, décidant quoi enrichir ensuite et quand décider, et un verdict qui pèse les preuves. Le routage est la tâche la plus légère. SocTalk résout chaque rôle vers son propre tier, et chaque tier pointe vers son propre provider, modèle et endpoint, donc le routeur peut tourner sur un modèle plus petit pendant que le verdict garde le plus capable. C'est de la configuration, pas de l'infrastructure nouvelle.
+Une exécution de triage utilise un modèle dans deux rôles : un supervisor qui route l'investigation, décidant quoi enrichir ensuite et quand décider, et un verdict qui pèse les preuves. Le routage est la tâche la plus légère. SocTalk résout chaque rôle vers son propre tier, et chaque tier pointe vers son propre provider, modèle et endpoint, donc le router peut tourner sur un modèle plus petit pendant que le verdict garde le modèle capable. C'est de la configuration, pas de l'infrastructure nouvelle.
 
 ## Modèles hébergés moins chers, avec une réserve
 
@@ -64,7 +64,7 @@ Un petit modèle auto-hébergé est donc un tier bon marché viable pour le gros
 - **Démarrages à froid.** Un backend descendu à zéro ou fraîchement loué n'est pas prêt instantanément. Le téléchargement et le chargement du modèle prennent des minutes, donc une rafale qui arrive à froid attend. Bien pour le triage courant, un problème pour tout ce qui est urgent, d'où l'intérêt d'un tier de repli à chaud.
 - **Charge opérationnelle sur les locations.** Une GPU louée facture jusqu'à ce que vous l'arrêtiez et n'a pas de descente à zéro, donc le temps mort est de l'argent perdu et le démontage est à vous d'y penser. La disponibilité sur les paliers les moins chers varie.
 - **Comptabilité des coûts.** Un budget par token est la bonne unité pour une API de frontière et la mauvaise pour un backend à la GPU-seconde. Comptez selon l'unité de facturation propre au backend quand vous auto-hébergez.
-- **La gouvernance des données est un spectre.** La rédaction retire les secrets avant que quoi que ce soit ne parte, mais le contexte opérationnel, hôtes, comptes, contenu des logs, voyage quand même vers une API externe. Seul l'auto-hébergement dans la frontière garde ce contexte dans votre périmètre.
+- **La gouvernance des données est un spectre.** Le masquage retire les secrets avant que quoi que ce soit ne parte, mais le contexte opérationnel, hôtes, comptes, contenu des logs, voyage quand même vers une API externe. Seul l'auto-hébergement dans la frontière garde ce contexte dans votre périmètre.
 
 ## Choisir où faire tourner le modèle
 
