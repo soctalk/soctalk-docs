@@ -61,6 +61,19 @@ Realistic golden triage at N=8 finished the 12-alert set in 11 to 43 seconds acr
 
 Cost per realistic triage, measured per node (a full agentic run is a few calls, so multiply by roughly 2 to 3): the serverless A10G at $1.10/hr is about $1.10 per 1,000 alerts; the rented RTX 4090 secure at $0.69/hr is about $0.18 per 1,000, and community at $0.34/hr about $0.09 per 1,000.
 
+## The capabilities behind these numbers
+
+The savings above are not incidental. They come from a small stack of inference capabilities, each tracked in the open, that together let one triage run target any model on any backend and pay the lowest defensible rate for it. Some are in place today and some are still being built; the issue links show where each stands.
+
+- **A uniform request substrate** ([#32](https://github.com/soctalk/soctalk/issues/32)). Every triage run is expressed as one `InferenceRequest`, resolved to a tier, with per-token budgeting, whether it lands on a frontier API or a self-hosted GPU. Nothing downstream has to know which backend it hit.
+- **A delivery abstraction** ([#63](https://github.com/soctalk/soctalk/issues/63)). Each backend is classified by how it is delivered and billed, a warm frontier API, a scale-to-zero serverless GPU, an always-on rented GPU, or a local instance, so cost, readiness, and scheduling behave correctly for each, and spend on a per-GPU-second backend is accounted in the backend's own unit rather than mis-priced as tokens.
+- **Worker concurrency that fills the batch** ([#61](https://github.com/soctalk/soctalk/issues/61)). Several investigations run at once, so multiple requests are in flight against the backend and the continuous batch fills. This is the single change that moves self-hosting from inefficient to cheaper than serial, and it is where the throughput and cost tables on this page come from.
+- **Serverless alignment** ([#64](https://github.com/soctalk/soctalk/issues/64), in progress). Cold-start tolerance, burst-release scheduling, and an async-job driver are designed to let a scale-to-zero GPU be consumed without losing runs to a cold worker, so the scale-to-zero economics become usable in production, not just in a benchmark. The benchmarking hit exactly this gap, cold RunPod workers returning a proxy 404 during spin-up.
+- **First-class self-hosted serving** ([#13](https://github.com/soctalk/soctalk/issues/13), in progress). Running the model inside your own cluster is the deployment that keeps alert content in your perimeter, and it is the target the delivery abstraction above resolves to.
+- **A benchmarking and qualification suite** ([#33](https://github.com/soctalk/soctalk/issues/33)). The evidence on this page is produced by a two-axis suite that separates model quality from serving viability, so a small open model is checked against the structured triage contract before it is trusted with any decision.
+
+Underneath sits the cost-accounting spine: per-tier provider selection ([#4](https://github.com/soctalk/soctalk/issues/4)) runs the lighter router on a cheaper model than the verdict; a price overlay ([#5](https://github.com/soctalk/soctalk/issues/5)) stops a self-hosted or unknown model being billed at frontier rates; and enforced structured output ([#3](https://github.com/soctalk/soctalk/issues/3)) is the contract a small model must hold to be usable at all, which is exactly what the schema-error column above measures.
+
 ## How to read these numbers
 
 - **Directional, not statistical.** The golden set is 12 cases (3 routing, 6 verdict, 3 deterministic policy), so the accuracy figures point a direction, they do not qualify a model. A representative benchmark is the real quality gate before trusting a small model with any close decision.
