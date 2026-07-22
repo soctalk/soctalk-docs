@@ -57,7 +57,8 @@ Manager→Manager; the app already fixed Alerts→Warnungen etc.).
 | False Positive | Falso positivo | Falso positivo | 误报 | Faux positif | Falsch-Positiv | Falso positivo |
 | True Positive  | Verdadeiro positivo | Verdadero positivo | 真实威胁 | Vrai positif | Richtig-Positiv | Vero positivo |
 | Human review | Revisão humana | Revisión humana | 人工审查 | Revue humaine | Menschliche Prüfung | Revisione umana |
-| Playbook     | Playbook    | Playbook   | Playbook | Playbook | Playbook     | Playbook   |
+| Triage Policy | Política de triagem | Política de triaje | 分诊策略 | Politique de triage | Triage-Richtlinie | Politica di triage |
+| Response Playbook | Playbook de resposta | Playbook de respuesta | 响应 Playbook | Playbook de réponse | Response-Playbook | Playbook di risposta |
 | Guardrail    | Guardrail   | Guardrail  | 护栏  | Garde-fou  | Guardrail    | Guardrail  |
 | Control plane| Control plane | Plano de control | 控制平面 | Plan de contrôle | Control Plane | Control plane |
 | Data plane   | Data plane  | Plano de datos | 数据平面 | Plan de données | Data Plane | Data plane |

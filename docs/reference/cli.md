@@ -45,7 +45,7 @@ The earlier draft of this page listed tenant management commands under a `soctal
 | `just build-mock-endpoint` | Build the mock endpoint sim image |
 | `just run` | Run the dev stack via docker-compose |
 | `just push-all` | Push all images to the configured registry |
-| `just release` | Tag + push images + chart + create a GitHub Release |
+| `just release` | Build and push all images (`build-all` + `push-all`). The versioned chart publish, git tag, and GitHub Release are cut separately by the **Cut k8s Release** GitHub Action, not by this recipe. |
 
 ## Repo-side: `scripts/`
 
@@ -56,7 +56,7 @@ The earlier draft of this page listed tenant management commands under a `soctal
 | `scripts/local-down.sh` | Tear down a `local-up.sh` cluster |
 | `scripts/e2e-l1-l2-k3d.sh` | Two-cluster k3d setup (MSSP L1 + tenant L2) for full e2e validation |
 | `scripts/seed-mssp-demo-data.py` | Populate Postgres with fixture tenants (`acme-corp`, `wayne-industries`, `stark-defense`) and replay Wazuh alerts via the indexer for screenshot prep |
-| `scripts/inject_test_data.py` | Inject specific test payloads — useful when reproducing a customer-reported bug |
+| `scripts/dump_openapi.py` | Dump the FastAPI OpenAPI schema to JSON; the source of truth the docs REST API reference is generated from |
 | `scripts/verify-pages-visual.py` | Playwright visual regression check against the dev SocTalk UI |
 
 These all expect to run from the repo root. Read the script header for the exact arguments.

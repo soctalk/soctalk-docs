@@ -77,9 +77,11 @@ All under `/api/auth/*`. JSON. State-changing routes protected per §6.
 | ---    | ---                                           | ---                                    |
 | POST   | `/api/auth/login`                             | email + password, sets session cookie  |
 | POST   | `/api/auth/logout`                            | revokes current session                |
-| GET    | `/api/auth/me`                                | returns current identity payload       |
+| GET    | `/api/auth/me`                                | current identity payload + role `permissions[]` |
 | POST   | `/api/auth/password/change`                   | old + new, authenticated               |
 | POST   | `/api/mssp/users/{id}/password/reset`         | admin forced reset, sets `must_change` |
+
+`/api/auth/me` returns the identity plus a computed `permissions[]` list, the capabilities the signed-in role holds, derived from the single-source-of-truth role-to-permission map. The frontend gates navigation and actions on these permissions rather than inferring them from the role string.
 
 The admin-reset endpoint generates a strong random password server-side
 and returns it once in the response body; the admin hands it to the
