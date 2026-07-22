@@ -30,18 +30,18 @@ features:
 
 ## Three steps in
 
-**1. Evaluate — [demo VM](/quickstart-vm).** Single image, browser wizard, 5 minutes to a running install with a demo tenant. Available as QCOW2, VMDK, VHDX, VHD, and raw on the [downloads page](/downloads). Best way to see the AI SOC analyst answering real Wazuh queries end-to-end on a laptop.
+**1. Evaluate, [demo VM](/quickstart-vm).** Single image, browser wizard, 5 minutes to a running install with a demo tenant. Available as QCOW2, VMDK, VHDX, VHD, and raw on the [downloads page](/downloads). Best way to see the AI SOC analyst answering real Wazuh queries end-to-end on a laptop.
 
-**2. Pilot — [MSSP pilot rollout](/mssp-pilot).** The recommended next step: two on-premise environments (MSSP control plane + 1-3 tenants), connected by a firewall-friendly mesh VPN, running the full multi-tenant flow with real customer data. End state: an AI SOC analyst answering questions across your first pilot customers, and a stakeholder-ready screenshot.
+**2. Pilot, [MSSP pilot rollout](/mssp-pilot).** The recommended next step: two on-premise environments (MSSP control plane + 1-3 tenants), connected by a firewall-friendly mesh VPN, running the full multi-tenant flow with real customer data. End state: an AI SOC analyst answering questions across your first pilot customers, and a stakeholder-ready screenshot.
 
-**3. Production — [install guide](/install).** K3s + Cilium + cert-manager + Helm. Take an hour, end with a hardened multi-tenant install ready for your customer base.
+**3. Production, [install guide](/install).** K3s + Cilium + cert-manager + Helm. Take an hour, end with a hardened multi-tenant install ready for your customer base.
 
 ## What's here
 
-- [Get Started](/install) — install paths (demo VM + production), MSSP UI tour.
-- [Operate](/operations) — daily ops, tenant lifecycle, upgrades, troubleshooting.
-- [Integrate](/integrate/llm-providers) — LLM providers, TheHive, Cortex, Slack.
-- [Reference](/reference/architecture) — architecture, security model, RLS, chart contract, REST API.
-- [Contribute](/contribute) — dev environment, PR expectations, release process.
+- [Get Started](/install), install paths (demo VM + production), MSSP UI tour.
+- [Operate](/operations), daily ops, tenant lifecycle, upgrades, troubleshooting.
+- [Integrate](/integrate/llm-providers), LLM providers, TheHive, Cortex, Slack.
+- [Reference](/reference/architecture), architecture, security model, RLS, chart contract, REST API.
+- [Contribute](/contribute), dev environment, PR expectations, release process.
 
 Source: [github.com/soctalk/soctalk](https://github.com/soctalk/soctalk). Apache 2.0.

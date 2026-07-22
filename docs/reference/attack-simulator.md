@@ -1,11 +1,11 @@
 # Attack simulator and linux-ep
 
-A pair of demo tools that generate realistic Wazuh alerts so an MSSP operator can see SocTalk's [AI pipeline](/ai-pipeline) actually do work. Strongly recommended for evaluations and live demos — without alerts there's nothing for the agent to triage.
+A pair of demo tools that generate realistic Wazuh alerts so an MSSP operator can see SocTalk's [AI pipeline](/ai-pipeline) actually do work. Strongly recommended for evaluations and live demos, without alerts there's nothing for the agent to triage.
 
 Both ship with the FOSS distribution. Source:
 
-- [`attack-simulator/`](https://github.com/soctalk/soctalk/tree/main/attack-simulator) — scripts and rule pack
-- [`charts/linux-ep/`](https://github.com/soctalk/soctalk/tree/main/charts/linux-ep) — Kubernetes chart that runs the simulator
+- [`attack-simulator/`](https://github.com/soctalk/soctalk/tree/main/attack-simulator), scripts and rule pack
+- [`charts/linux-ep/`](https://github.com/soctalk/soctalk/tree/main/charts/linux-ep), Kubernetes chart that runs the simulator
 
 ## linux-ep chart
 
@@ -40,7 +40,7 @@ For the [demo VM image](/quickstart-vm), the simulator is off by default to avoi
 | `wazuh.managerHost` | "" (required) | The tenant's Wazuh manager Service hostname (e.g. `wazuh-demo-wazuh-manager`) |
 | `wazuh.credsSecret.name` | "" (required) | Existing Secret with the `authd` enrollment password (typically `wazuh-<slug>-wazuh-creds`) |
 | `wazuh.credsSecret.authdPasswordKey` | `AUTHD_PASS` | Key inside the Secret for the `authd` password |
-| `simulator.enabled` | `false` | Master toggle. Off by default — leaving it off keeps the pods idle (no synthetic alerts) |
+| `simulator.enabled` | `false` | Master toggle. Off by default, leaving it off keeps the pods idle (no synthetic alerts) |
 | `simulator.attackDelay` | 10 | Seconds after pod start (agent enrolled) before the first TTP |
 | `simulator.attackInterval` | 120 | Seconds between subsequent TTPs |
 | `simulator.dailyAlertCap` | 30 | Per-pod cap on `SOCTALK_ATTACK` emissions per UTC day. 0 disables the cap |
@@ -75,9 +75,9 @@ Each script emits a syslog line tagged `SOCTALK_ATTACK <TTP>: <description>` so 
 
 [`charts/wazuh/templates/manager-local-rules.yaml`](https://github.com/soctalk/soctalk/blob/main/charts/wazuh/templates/manager-local-rules.yaml) ships custom rules in the 100200-100299 range:
 
-- **100200** — chain-root: matches any `SOCTALK_ATTACK` syslog line
-- **100210 – 100225** — per-TTP rules: assign severity (level 10–14) and tags by MITRE technique
-- **100299** — catch-all for unmapped TTPs (severity 8)
+- **100200**: chain-root: matches any `SOCTALK_ATTACK` syslog line
+- **100210 – 100225**: per-TTP rules: assign severity (level 10–14) and tags by MITRE technique
+- **100299**: catch-all for unmapped TTPs (severity 8)
 
 Alerts produced carry MITRE `attack.tactic`, `attack.technique`, and a human-readable description, so the SocTalk [`wazuh_worker`](/ai-pipeline) has structured context to reason about.
 
@@ -91,7 +91,7 @@ sudo /opt/scripts/run-attack.sh T1110
 sudo /opt/scripts/run-attack.sh T1027.001
 ```
 
-`run-attack.sh` is the entry point — it dispatches to the per-TTP scripts. Useful for live demos where you want to trigger a specific alert on command.
+`run-attack.sh` is the entry point, it dispatches to the per-TTP scripts. Useful for live demos where you want to trigger a specific alert on command.
 
 ## Removing the simulator
 
@@ -105,7 +105,7 @@ Removes the endpoint pods. The custom Wazuh rule pack stays in place but is harm
 
 ## What's not in here
 
-- **Windows endpoint sim** — Linux only in this release. Roadmap.
-- **macOS endpoint sim** — same.
-- **Adversary emulation campaigns** — single-TTP only; we don't chain TTPs into multi-stage scenarios.
-- **Atomic Red Team integration** — `attack-simulator` is hand-rolled; it does not consume Atomic's YAML directly. Compatibility is on the roadmap.
+- **Windows endpoint sim**: Linux only in this release. Roadmap.
+- **macOS endpoint sim**: same.
+- **Adversary emulation campaigns**: single-TTP only; we don't chain TTPs into multi-stage scenarios.
+- **Atomic Red Team integration**: `attack-simulator` is hand-rolled; it does not consume Atomic's YAML directly. Compatibility is on the roadmap.

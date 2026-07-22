@@ -1,8 +1,8 @@
 # Launchpad: one-command MSSP pilot
 
-Once you've seen SocTalk end-to-end on a single co-located box ([Quickstart](/quickstart-vm)), **Launchpad is the next step**: it takes you from that local demo to a real pilot — an MSSP control plane plus one or more tenant environments on your own infrastructure. Drive it from a **web console** (recommended) or, later, a single headless command: it boots the VMs, joins them to your tailnet, installs SocTalk from public sources, and hands you a URL.
+Once you've seen SocTalk end-to-end on a single co-located box ([Quickstart](/quickstart-vm)), **Launchpad is the next step**: it takes you from that local demo to a real pilot, an MSSP control plane plus one or more tenant environments on your own infrastructure. Drive it from a **web console** (recommended) or, later, a single headless command: it boots the VMs, joins them to your tailnet, installs SocTalk from public sources, and hands you a URL.
 
-Prefer to understand every step before you let a tool do it? The [do-it-yourself MSSP pilot](/mssp-pilot) walks through the same install by hand — same charts, same Tailscale flow. Launchpad just does the copy-paste for you.
+Prefer to understand every step before you let a tool do it? The [do-it-yourself MSSP pilot](/mssp-pilot) walks through the same install by hand, same charts, same Tailscale flow. Launchpad just does the copy-paste for you.
 
 ::: tip Hands-on time
 | Path | Hands-on | Wall clock |
@@ -16,7 +16,7 @@ Prefer to understand every step before you let a tool do it? The [do-it-yourself
 Given your MSSP admin creds and a list of tenants, Launchpad:
 
 1. Downloads the Ubuntu Noble cloud image on your VM host (cached on subsequent runs)
-2. Provisions QEMU VMs — one for the MSSP, one per tenant — with cloud-init + Tailscale
+2. Provisions QEMU VMs, one for the MSSP, one per tenant, with cloud-init + Tailscale
 3. Waits for each VM to join your tailnet with the tag it advertises
 4. Runs [`install.sh`](https://github.com/soctalk/soctalk/blob/main/install.sh) on the MSSP in `--demo` mode
 5. Onboards each tenant via the MSSP API
@@ -24,7 +24,7 @@ Given your MSSP admin creds and a list of tenants, Launchpad:
 7. Installs k3s + Helm + `soctalk-cloud-agent` on each tenant VM
 8. The MSSP dispatches the `install_helm_release` job → cloud-agent pulls and applies the `soctalk-tenant` chart (Wazuh manager + indexer + dashboard, adapter, runs-worker)
 
-At the end you have a working MSSP dashboard, tenants registered and `active`, and Wazuh running per tenant. Everything downloaded from public sources — no pre-staged images, no bundled charts.
+At the end you have a working MSSP dashboard, tenants registered and `active`, and Wazuh running per tenant. Everything downloaded from public sources, no pre-staged images, no bundled charts.
 
 ## What it is not
 
@@ -43,8 +43,8 @@ Gather these first:
       - Passwordless SSH from your workstation as a user in the `kvm` group
 - [ ] **A Tailscale tailnet.** Free tier is fine. You'll need:
       - The tailnet name (e.g. `taila1b2c3.ts.net`)
-      - A [Tailscale API access token](https://login.tailscale.com/admin/settings/keys) with `keys:write` scope — the launchpad uses it to mint per-VM ephemeral device auth keys
-      - Tag ownership for the tags you'll use — add these to your ACL:
+      - A [Tailscale API access token](https://login.tailscale.com/admin/settings/keys) with `keys:write` scope, the launchpad uses it to mint per-VM ephemeral device auth keys
+      - Tag ownership for the tags you'll use, add these to your ACL:
         ```json
         "tagOwners": {
           "tag:mssp":        ["autogroup:admin"],
@@ -81,25 +81,25 @@ installed set; `launchpad plugin sync` re-fetches or repairs the store.)
 
 ## 2. Run the pilot in the web console
 
-`launchpad ui` starts a local web console and opens it in your browser — the primary way to drive a pilot. You register your infrastructure once as reusable, testable **Hosts** and **Networks**, then launch and watch.
+`launchpad ui` starts a local web console and opens it in your browser, the primary way to drive a pilot. You register your infrastructure once as reusable, testable **Hosts** and **Networks**, then launch and watch.
 
 ```bash
 launchpad ui
 ```
 
-On first run the CLI downloads and verifies the plugin set into `~/.launchpad/plugins`, then serves the console from the same binary — nothing else to install. In the browser, work through three screens:
+On first run the CLI downloads and verifies the plugin set into `~/.launchpad/plugins`, then serves the console from the same binary, nothing else to install. In the browser, work through three screens:
 
-1. **Networks** — add your tailnet: the overlay name (e.g. `taila1b2c3.ts.net`) and your Tailscale API key. Press **Test** to confirm the key works before you rely on it. A run binds to one network, and every machine joins it.
-2. **Hosts** — add the place you'll provision on. For this guide that's your KVM box: the SSH target and a writable work dir. New hosts pre-fill the fields their platform expects, and **Test** validates the connection and credentials. Credentials are stored with the host and never leave the machine running Launchpad.
-3. **Runs** — create a run: assign the **control node** (your MSSP) and each **tenant** to a host, pick the network, fill in the MSSP admin creds and LLM key, and press **Launch**.
+1. **Networks**: add your tailnet: the overlay name (e.g. `taila1b2c3.ts.net`) and your Tailscale API key. Press **Test** to confirm the key works before you rely on it. A run binds to one network, and every machine joins it.
+2. **Hosts**: add the place you'll provision on. For this guide that's your KVM box: the SSH target and a writable work dir. New hosts pre-fill the fields their platform expects, and **Test** validates the connection and credentials. Credentials are stored with the host and never leave the machine running Launchpad.
+3. **Runs**: create a run: assign the **control node** (your MSSP) and each **tenant** to a host, pick the network, fill in the MSSP admin creds and LLM key, and press **Launch**.
 
-![Networks — the overlay every machine in a run joins, registered once](/screenshots/launchpad-ui-networks.png)
+![Networks, the overlay every machine in a run joins, registered once](/screenshots/launchpad-ui-networks.png)
 
-![Hosts — the substrates you provision on, registered once](/screenshots/launchpad-ui-hosts.png)
+![Hosts, the substrates you provision on, registered once](/screenshots/launchpad-ui-hosts.png)
 
-The console streams progress live — each VM provisioning, joining the tailnet, and installing SocTalk — and gives you the MSSP URL at the end. Runs are idempotent (re-launch reconciles against machines that already exist rather than duplicating them), and the **Down** action tears a run's machines back down.
+The console streams progress live, each VM provisioning, joining the tailnet, and installing SocTalk, and gives you the MSSP URL at the end. Runs are idempotent (re-launch reconciles against machines that already exist rather than duplicating them), and the **Down** action tears a run's machines back down.
 
-![A run in progress — the MSSP and tenant VMs provisioning, with the phase tracker and a live event stream](/screenshots/launchpad-ui-run.png)
+![A run in progress, the MSSP and tenant VMs provisioning, with the phase tracker and a live event stream](/screenshots/launchpad-ui-run.png)
 
 ::: tip Compliance check
 Before pointing a plugin at real infrastructure you can sanity-check it from the CLI:
@@ -113,11 +113,11 @@ This runs the protocol compliance suite (checksum, handshake, `plan`, idempotent
 
 When the run completes (the console marks it done, or `launchpad up` exits `0`), sanity-check the two systems:
 
-**MSSP dashboard** — open the URL the run printed at the end (or `https://lp-mssp.<your-tailnet>.ts.net/`). Sign in with the admin creds you set for the run. Your tenant should be listed and flip to **Online** within 1-2 minutes.
+**MSSP dashboard**: open the URL the run printed at the end (or `https://lp-mssp.<your-tailnet>.ts.net/`). Sign in with the admin creds you set for the run. Your tenant should be listed and flip to **Online** within 1-2 minutes.
 
 ![Launchpad-provisioned MSSP dashboard](/screenshots/launchpad-mssp-dashboard.png)
 
-**Wazuh on the tenant** — SSH into the tenant VM (`ssh ops@lp-tenant-acme.<your-tailnet>.ts.net`) and check the pods:
+**Wazuh on the tenant**: SSH into the tenant VM (`ssh ops@lp-tenant-acme.<your-tailnet>.ts.net`) and check the pods:
 
 ```bash
 sudo k3s kubectl -n tenant-acme get pods
@@ -135,7 +135,7 @@ soctalk-adapter-<hash>                        1/1     Running
 soctalk-runs-worker-<hash>                    1/1     Running
 ```
 
-The `linuxep-0` StatefulSet is a demo Linux endpoint with the Wazuh agent installed — a place to simulate alerts. See [Attack simulator](/mssp-pilot#5-3-generate-alerts) for details.
+The `linuxep-0` StatefulSet is a demo Linux endpoint with the Wazuh agent installed, a place to simulate alerts. See [Attack simulator](/mssp-pilot#5-3-generate-alerts) for details.
 
 ### SSH into the VMs
 
@@ -156,16 +156,16 @@ If MagicDNS is disabled on your tailnet, `lp-<key>.<tailnet>.ts.net` won't resol
 
 ## 4. Use your pilot: onboard customers and ask the AI
 
-Launchpad hands you a working MSSP with your first tenant already onboarded — from here you drive it exactly like an MSSP would. The **Dashboard** is a cross-tenant fleet view: pending reviews, stuck cases, degraded tenants, and per-tenant health.
+Launchpad hands you a working MSSP with your first tenant already onboarded, from here you drive it exactly like an MSSP would. The **Dashboard** is a cross-tenant fleet view: pending reviews, stuck cases, degraded tenants, and per-tenant health.
 
-![The MSSP dashboard — cross-tenant fleet view](/screenshots/pilot-final-dashboard.png)
+![The MSSP dashboard, cross-tenant fleet view](/screenshots/pilot-final-dashboard.png)
 
 **Onboard another customer.** **Tenants → Create customer** runs a short four-step wizard:
 
-![Create customer — 1. Identity](/screenshots/pilot-add-tenant-step1.png)
-![Create customer — 2. Profile](/screenshots/pilot-add-tenant-step2.png)
-![Create customer — 3. Branding](/screenshots/pilot-add-tenant-step3.png)
-![Create customer — 4. Review](/screenshots/pilot-add-tenant-step4.png)
+![Create customer, 1. Identity](/screenshots/pilot-add-tenant-step1.png)
+![Create customer, 2. Profile](/screenshots/pilot-add-tenant-step2.png)
+![Create customer, 3. Branding](/screenshots/pilot-add-tenant-step3.png)
+![Create customer, 4. Review](/screenshots/pilot-add-tenant-step4.png)
 
 The new customer joins the fleet, and the cloud-agent provisions its Wazuh + adapter stack the same way Launchpad did for the first tenant:
 
@@ -177,19 +177,19 @@ Drill into a tenant for its open investigations, reviews, and Wazuh health:
 
 **Ask the AI SOC analyst.** The **Chat** view answers questions across the whole fleet or scoped to one tenant, calling tools against live data and summarizing what it finds:
 
-![Ask AI — a fleet-wide summary, with the tool call it ran](/screenshots/pilot-chat-mssp-reply.png)
-![Ask AI — scoped to a single tenant](/screenshots/pilot-chat-tenant-reply.png)
+![Ask AI, a fleet-wide summary, with the tool call it ran](/screenshots/pilot-chat-mssp-reply.png)
+![Ask AI, scoped to a single tenant](/screenshots/pilot-chat-tenant-reply.png)
 
 ::: tip
-The AI needs a real [LLM provider](/integrate/llm-providers) configured — the smoke-test placeholder key won't answer questions.
+The AI needs a real [LLM provider](/integrate/llm-providers) configured, the smoke-test placeholder key won't answer questions.
 :::
 
 ## 5. Fine-tune with a config file
 
-Once a pilot works from the console, you can capture the same setup as a YAML config and drive it headless with `launchpad up` — no console. Reach for this when you want:
+Once a pilot works from the console, you can capture the same setup as a YAML config and drive it headless with `launchpad up`: no console. Reach for this when you want:
 
-- **Repeatable, scripted runs** — check the config into git, run it in CI, and assert on the JSON event stream.
-- **Fine control the form doesn't surface** — pin a base image or its SHA, point at a specific `install.sh` release tag, script many tenants at once, or tune CPU / memory / disk per VM.
+- **Repeatable, scripted runs**: check the config into git, run it in CI, and assert on the JSON event stream.
+- **Fine control the form doesn't surface**: pin a base image or its SHA, point at a specific `install.sh` release tag, script many tenants at once, or tune CPU / memory / disk per VM.
 
 The console and the config share the same Hosts and Networks under `~/.launchpad`, so a config run reuses exactly what you already tested.
 
@@ -275,9 +275,9 @@ Rough phase timing on a first run (fresh cache, decent home internet):
 
 Subsequent runs are much faster because the base image is cached on the VM host.
 
-## 6. Iterate — resume, tear down, restart
+## 6. Iterate, resume, tear down, restart
 
-The launchpad is idempotent. Re-launching a run — the console **Launch** again, or `launchpad up` — picks up where it left off:
+The launchpad is idempotent. Re-launching a run, the console **Launch** again, or `launchpad up`: picks up where it left off:
 
 - VMs that already exist are reused (no double-provisioning)
 - The MSSP install step is skipped if the API is already answering
@@ -299,7 +299,7 @@ To add a tenant to a running pilot, add it in the console (or edit `tenants:` in
 The VM booted but never joined the tailnet. Cloud-init on the VM couldn't reach the Tailscale coordination servers.
 
 - Confirm your VM host has internet
-- SSH into the VM host and inspect the QEMU serial log at `<work_dir>/<run_id>/<vm_key>/serial.log` — it captures the cloud-init output including tailscale-up
+- SSH into the VM host and inspect the QEMU serial log at `<work_dir>/<run_id>/<vm_key>/serial.log`: it captures the cloud-init output including tailscale-up
 - Common cause: the ephemeral auth key was revoked before the VM used it (check the Tailscale admin → Machines log)
 
 ### MSSP install times out on `helm upgrade`
@@ -307,7 +307,7 @@ The VM booted but never joined the tailnet. Cloud-init on the VM couldn't reach 
 The chart install ran but pods didn't converge in 15 minutes. Usually image pulls on slow connections.
 
 - SSH into the MSSP VM: `sudo k3s kubectl -n soctalk-system get pods` and check for `ImagePullBackOff` or `CrashLoopBackOff`
-- If pods are still pulling, wait and re-launch — the second attempt skips the install step once the API is answering
+- If pods are still pulling, wait and re-launch, the second attempt skips the install step once the API is answering
 
 ### Tenant agent logs `no such host` on `/api/agent/register`
 
@@ -326,7 +326,7 @@ Assert on those events from your CI. See [Launchpad event schema](/reference/lau
 
 ## Where to next
 
-- **Add a real tenant.** Onboard from the MSSP dashboard — see [do-it-yourself pilot §3](/mssp-pilot#3-onboard-tenants) for the wizard walkthrough.
+- **Add a real tenant.** Onboard from the MSSP dashboard, see [do-it-yourself pilot §3](/mssp-pilot#3-onboard-tenants) for the wizard walkthrough.
 - **Generate some alerts.** [Attack simulator](/mssp-pilot#5-3-generate-alerts) has the runbook.
 - **Point the AI at real data.** Configure your [LLM provider](/integrate/llm-providers) properly (the smoke-test placeholder key won't answer questions).
 - **Move to production.** [Install](/install) is the non-launchpad, HA-capable path.

@@ -19,7 +19,7 @@ cd soctalk
 - cert-manager installed
 - k3d local-path as the default StorageClass
 
-It **does not** build SocTalk images, install the SocTalk chart, onboard tenants, or seed data — earlier drafts of this page claimed it did. Run the next steps yourself. Typical sequence after `dev-up.sh`:
+It **does not** build SocTalk images, install the SocTalk chart, onboard tenants, or seed data, earlier drafts of this page claimed it did. Run the next steps yourself. Typical sequence after `dev-up.sh`:
 
 ```bash
 just build-api build-frontend  # api image embeds the orchestrator in V1
@@ -66,14 +66,14 @@ The docs site (this site) lives in a separate repo, [`soctalk/soctalk-docs`](htt
 
 ## Tests
 
-There are no `just test` / `just test-rls` / `just e2e-l1-l2` recipes in this release — that's the planned shape. Today, run tests directly with pytest:
+There are no `just test` / `just test-rls` / `just e2e-l1-l2` recipes in this release, that's the planned shape. Today, run tests directly with pytest:
 
 ```bash
 pytest tests/                          # full suite
 pytest tests/v1/test_rls_isolation.py  # Postgres Row-Level Security suite
 ```
 
-The RLS tests are non-negotiable — they verify the cross-tenant data isolation that the [Security Model](/reference/security-model) promises. CI runs the full pytest suite on every PR.
+The RLS tests are non-negotiable, they verify the cross-tenant data isolation that the [Security Model](/reference/security-model) promises. CI runs the full pytest suite on every PR.
 
 ## Style
 
@@ -105,7 +105,7 @@ Releases are tagged from `main`. Today the flow has more manual steps than the p
 
 1. Manually bump versions in `Chart.yaml` + `pyproject.toml`, commit, push.
 2. Tag the commit and push the tag (`git tag v0.1.x && git push --tags`).
-3. `just release` — runs `just build-all push-all`. This **only builds and pushes container images**; it does not tag, publish charts, or create a GitHub Release.
+3. `just release`: runs `just build-all push-all`. This **only builds and pushes container images**; it does not tag, publish charts, or create a GitHub Release.
 4. `publish-images.yml` GH workflow handles the image publish to ghcr.io when triggered.
 5. Chart publish to `ghcr.io/soctalk/charts/` is done manually with `helm push` today.
 6. `gh release create` to cut the GitHub Release.

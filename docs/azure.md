@@ -2,17 +2,17 @@
 
 Import the published `soctalk-demo-<ver>.vhd` image into Azure as a managed disk, turn it into a VM image, and boot it. Azure VMs run on Hyper-V, so this is also the quickest way to validate the image on a Hyper-V hypervisor without standing up a Windows Server host.
 
-This path is for **evaluators and demos** — for a production install on your own cluster see [Install](/install).
+This path is for **evaluators and demos**: for a production install on your own cluster see [Install](/install).
 
 ## Why the `.vhd` (and why Generation 1)
 
-- Azure only accepts **fixed-size, 1 MiB-aligned VHD** disks (not VHDX, not dynamic VHD). The published `soctalk-demo-<ver>.vhd` is emitted by the release pipeline exactly that way (`qemu-img convert -O vpc -o subformat=fixed,force_size`), so it imports as-is — no local conversion step.
+- Azure only accepts **fixed-size, 1 MiB-aligned VHD** disks (not VHDX, not dynamic VHD). The published `soctalk-demo-<ver>.vhd` is emitted by the release pipeline exactly that way (`qemu-img convert -O vpc -o subformat=fixed,force_size`), so it imports as-is, no local conversion step.
 - The image is built and boot-tested under BIOS firmware, which maps to Azure **Generation 1** VMs. Create the disk and image with `--hyper-v-generation V1`.
 - A fixed 60 GB VHD sounds heavy, but it is almost entirely zeros. `azcopy` uploads to a page blob and **skips zero pages**, so the actual transfer is roughly the ~3 GB of real data.
 
 ## Prerequisites
 
-- An Azure subscription (`az account list` must show one — tenant-level directory access is not enough).
+- An Azure subscription (`az account list` must show one, tenant-level directory access is not enough).
 - [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) (`az`) and [AzCopy](https://learn.microsoft.com/azure/storage/common/storage-use-azcopy-v10) (`azcopy`). On macOS: `brew install azure-cli azcopy`.
 - ~61 GB free local disk for the decompressed VHD.
 - An SSH key pair (`~/.ssh/id_ed25519.pub` in the examples below).
@@ -46,7 +46,7 @@ az group create -n $RG -l $LOC
 
 ## 3. Upload the VHD straight to a managed disk
 
-No storage account needed — Azure supports direct upload to a managed disk. Create an empty disk sized to the VHD file's exact byte count, grab a short-lived write SAS, upload with `azcopy`, then revoke the SAS:
+No storage account needed, Azure supports direct upload to a managed disk. Create an empty disk sized to the VHD file's exact byte count, grab a short-lived write SAS, upload with `azcopy`, then revoke the SAS:
 
 ```bash
 VHD=soctalk-demo-$VER.vhd
@@ -78,7 +78,7 @@ az image create -g $RG -n soctalk-demo-image \
 
 ## 5. Boot a VM
 
-Scope the network security group to your own IP — the box exposes SSH (22), the SocTalk UI (443), and the setup wizard (8443), none of which should be open to the internet:
+Scope the network security group to your own IP, the box exposes SSH (22), the SocTalk UI (443), and the setup wizard (8443), none of which should be open to the internet:
 
 ```bash
 MYIP=$(curl -s https://ifconfig.me)
@@ -119,9 +119,9 @@ Same flow as any other hypervisor from here. Give the VM ~2 minutes after boot f
 ssh ops@$IP sudo cat /var/log/soctalk-setup-token
 ```
 
-Browse to `https://<IP>:8443/`, accept the self-signed certificate, paste the token, and fill in the wizard — MSSP name, admin credentials, LLM provider + API key. See [Setup wizard](/setup-wizard) for the field reference.
+Browse to `https://<IP>:8443/`, accept the self-signed certificate, paste the token, and fill in the wizard, MSSP name, admin credentials, LLM provider + API key. See [Setup wizard](/setup-wizard) for the field reference.
 
-After submit, the first-boot installer runs `helm install` and onboards the `demo` tenant — about 2 minutes for the `soctalk-system` pods, then another few minutes for the demo tenant's Wazuh stack. You can watch from SSH:
+After submit, the first-boot installer runs `helm install` and onboards the `demo` tenant, about 2 minutes for the `soctalk-system` pods, then another few minutes for the demo tenant's Wazuh stack. You can watch from SSH:
 
 ```bash
 ssh ops@$IP
@@ -147,8 +147,8 @@ This removes the VM, NIC, public IP, NSG, managed disk, and image in one shot. N
 
 | Symptom | Check |
 |---|---|
-| `az disk create --for-upload` rejected | `--upload-size-bytes` must be the **exact** file size in bytes of the decompressed `.vhd`, footer included — re-run the `stat` command |
-| `azcopy` fails with 403 | The write SAS expired (24 h in the example) or was already revoked — re-run `az disk grant-access` |
+| `az disk create --for-upload` rejected | `--upload-size-bytes` must be the **exact** file size in bytes of the decompressed `.vhd`, footer included, re-run the `stat` command |
+| `azcopy` fails with 403 | The write SAS expired (24 h in the example) or was already revoked, re-run `az disk grant-access` |
 | VM never gets the SSH key | Confirm the image and disk were created with `--hyper-v-generation V1`; a V2 image from this VHD will not boot, and a failed boot never reaches cloud-init |
 | Wizard URL never loads | NSG rule for 8443 missing or your public IP changed (`curl ifconfig.me` and compare); then `systemctl status soctalk-setup-wizard` over SSH |
-| Anything past the wizard | Same as every platform — see the [Quickstart troubleshooting table](/quickstart-vm#troubleshooting) |
+| Anything past the wizard | Same as every platform, see the [Quickstart troubleshooting table](/quickstart-vm#troubleshooting) |

@@ -8,8 +8,8 @@ For the mental model see [AI pipeline → Closure](/ai-pipeline). For decommissi
 
 In V1 the `soctalk-tenant` chart has no TheHive subchart (`dependencies: []`). The choices are:
 
-- **Customer-managed TheHive** — the customer runs their own TheHive elsewhere; the MSSP supplies the URL and a per-tenant API key.
-- **No TheHive** — escalations stay in the SocTalk UI only. Default.
+- **Customer-managed TheHive**: the customer runs their own TheHive elsewhere; the MSSP supplies the URL and a per-tenant API key.
+- **No TheHive**: escalations stay in the SocTalk UI only. Default.
 
 A "bundled TheHive subchart" path was described in earlier drafts of this page as a planned option but is **not implemented in this release**. There is no SocTalk-managed Cassandra StatefulSet or TheHive Deployment for the tenant.
 
@@ -29,7 +29,7 @@ Tenant detail → Settings → TheHive. Fields:
 
 ## What gets exported
 
-In V1, TheHive export happens **synchronously at graph-node time** via the `thehive_worker` node calling TheHive's API through MCP. Today this creates the case (title + severity mirrored from the SocTalk verdict) and the observables. The richer surface — tasks derived from `next_actions`, timeline mirroring of worker rationales / human review decisions, **asynchronous outbox + retry** — is described in earlier drafts as the design target but is **not implemented in this release**. If TheHive is unreachable, the worker node logs the failure and the case proceeds in SocTalk without an exported counterpart. There is no retry loop, no outbox, no persisted "last error" field, and no dashboard surface for failed exports — failures are visible only in the orchestrator's structured logs.
+In V1, TheHive export happens **synchronously at graph-node time** via the `thehive_worker` node calling TheHive's API through MCP. Today this creates the case (title + severity mirrored from the SocTalk verdict) and the observables. The richer surface, tasks derived from `next_actions`, timeline mirroring of worker rationales / human review decisions, **asynchronous outbox + retry**: is described in earlier drafts as the design target but is **not implemented in this release**. If TheHive is unreachable, the worker node logs the failure and the case proceeds in SocTalk without an exported counterpart. There is no retry loop, no outbox, no persisted "last error" field, and no dashboard surface for failed exports, failures are visible only in the orchestrator's structured logs.
 
 Observable type mapping (per the V1 implementation):
 
@@ -47,7 +47,7 @@ Observable type mapping (per the V1 implementation):
 
 ## Bundled TheHive: not in this release
 
-The `soctalk-tenant` chart in V1 does not bundle TheHive as a subchart — `Chart.yaml` lists `dependencies: []`. Operators who want a per-tenant TheHive instance run it themselves (manual `helm install` in the tenant namespace, or customer-managed elsewhere). A bundled subchart with chart-managed admin secrets is described in earlier drafts as the design target but is on the roadmap.
+The `soctalk-tenant` chart in V1 does not bundle TheHive as a subchart, `Chart.yaml` lists `dependencies: []`. Operators who want a per-tenant TheHive instance run it themselves (manual `helm install` in the tenant namespace, or customer-managed elsewhere). A bundled subchart with chart-managed admin secrets is described in earlier drafts as the design target but is on the roadmap.
 
 ## Customer-managed TheHive: notes
 
@@ -57,9 +57,9 @@ The `soctalk-tenant` chart in V1 does not bundle TheHive as a subchart — `Char
 
 ## Status / health
 
-In this release there is **no background health-ping loop** for TheHive — SocTalk only touches TheHive when an investigation has something to export. Failures during that call are logged in the orchestrator's structured output only; there is no persisted error field and no outbox-based retry. The MSSP UI does not surface a separate "TheHive reachable" indicator.
+In this release there is **no background health-ping loop** for TheHive, SocTalk only touches TheHive when an investigation has something to export. Failures during that call are logged in the orchestrator's structured output only; there is no persisted error field and no outbox-based retry. The MSSP UI does not surface a separate "TheHive reachable" indicator.
 
-To monitor TheHive health, use your usual external probe (Prometheus blackbox exporter against TheHive's `/api/status`, etc.) — that's an MSSP-side responsibility, not part of SocTalk in this release.
+To monitor TheHive health, use your usual external probe (Prometheus blackbox exporter against TheHive's `/api/status`, etc.), that's an MSSP-side responsibility, not part of SocTalk in this release.
 
 ## Rotate the API key
 

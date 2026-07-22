@@ -61,8 +61,8 @@ Index: `(user_id, revoked_at)`.
 
 ### Reuse
 
-- `users` (`src/soctalk/core/tenancy/models.py:156`) — unchanged.
-- `audit_log` (`src/soctalk/core/tenancy/models.py:291`) — receives
+- `users` (`src/soctalk/core/tenancy/models.py:156`), unchanged.
+- `audit_log` (`src/soctalk/core/tenancy/models.py:291`), receives
   `auth.*` actions (see §9).
 
 No new audit table. No signing-key table (sessions are opaque DB rows,
@@ -158,7 +158,7 @@ Per request:
 1. Read the `soctalk_session` cookie.
 2. Look up the session row. Reject if missing, revoked, past
    `absolute_expiry`, or past `idle_expiry`.
-3. Update `last_seen_at` (throttled — write at most every 60s).
+3. Update `last_seen_at` (throttled, write at most every 60s).
 4. Load the user and construct the same `UserIdentity` shape produced
    by the path. Set `request.state.user_identity` exactly as today,
    so decorators and RLS context helpers are untouched.
@@ -196,7 +196,7 @@ Both apps gain `/login`:
 
 When login succeeds against a credential with `must_change=true`, the
 server response signals the change as the next step. The UI navigates
-straight to `/account/password` — no dashboard flash.
+straight to `/account/password`: no dashboard flash.
 
 While `must_change` is set, any route except `/account/password` and
 `POST /api/auth/logout` redirects back to `/account/password`. A small
@@ -220,7 +220,7 @@ In the header of both apps, visible when authenticated:
 - User email.
 - Role label ("MSSP admin", "Analyst", "Customer viewer", etc.).
 - Link to "Change password."
-- "Sign out" — `POST /api/auth/logout`, then navigate to `/login` with
+- "Sign out", `POST /api/auth/logout`, then navigate to `/login` with
   a flash message "You have been signed out."
 
 ### Admin reset (MSSP console)
@@ -234,7 +234,7 @@ On the user detail page in the MSSP console:
   next login."
 - On confirm, the server returns the generated password once. The UI
   renders it in a copy-to-clipboard field with "Copy and close." After
-  the modal closes, the password is no longer retrievable — the admin
+  the modal closes, the password is no longer retrievable, the admin
   shares it out of band.
 
 ### Session expiry
@@ -332,7 +332,7 @@ Playwright smoke suite for each UI:
 
 Not part of this spec. Ordered by likely add-back:
 
-1. `password_reset_tokens` — self-service email-based password reset.
+1. `password_reset_tokens`: self-service email-based password reset.
 2. MFA (TOTP + recovery codes), with corresponding UI steps in the
    login and account flows.
 3. Session inventory (`GET /api/auth/sessions`, revoke-specific,

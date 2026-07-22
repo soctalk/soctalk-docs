@@ -1,7 +1,7 @@
 # MSSP Pilot: Do It Yourself
 
 ::: tip Most pilots should use Launchpad
-[**Launchpad**](/launchpad) automates this entire rollout — same install, same charts, same Tailscale flow — in a single command (~15-25 min, mostly waiting on downloads, vs ~2 hours by hand). **Start there.** Reach for this do-it-yourself guide when you want to understand every step, are troubleshooting a Launchpad run, or your environment can't run Launchpad — air-gapped, on-prem split-horizon DNS, an unsupported substrate, or an existing cluster.
+[**Launchpad**](/launchpad) automates this entire rollout, same install, same charts, same Tailscale flow, in a single command (~15-25 min, mostly waiting on downloads, vs ~2 hours by hand). **Start there.** Reach for this do-it-yourself guide when you want to understand every step, are troubleshooting a Launchpad run, or your environment can't run Launchpad, air-gapped, on-prem split-horizon DNS, an unsupported substrate, or an existing cluster.
 :::
 
 A practical path for MSSPs evaluating SocTalk with 1-3 of their customers. Two on-premise environments (one MSSP control plane, one per tenant), connected by a firewall-friendly mesh VPN. End state: a working multi-tenant SocTalk install, the AI SOC analyst answering questions about each tenant's real Wazuh data, and a screenshot you can show your stakeholders.
@@ -26,7 +26,7 @@ A practical path for MSSPs evaluating SocTalk with 1-3 of their customers. Two o
 - The MSSP's L1 SocTalk control plane + the L2 SocTalk cloud-agent on each tenant
 - Wazuh **already-installed** OR **chart-installed** per tenant; both supported
 
-<!-- screenshot: arch-overview.svg — architecture diagram (MSSP VM left, tenant VMs right, tailnet wrapping both, cloud-agent shown on each tenant, optional dotted-line to existing Wazuh) -->
+<!-- screenshot: arch-overview.svg, architecture diagram (MSSP VM left, tenant VMs right, tailnet wrapping both, cloud-agent shown on each tenant, optional dotted-line to existing Wazuh) -->
 
 ## 0. Before you start
 
@@ -85,7 +85,7 @@ The first rule lets **your operator devices** (your laptop, any admin-owned unta
 
 Verify in the ACL Preview pane before saving. Confirm `tag:tenant-acme` cannot reach `tag:tenant-globex` on any port.
 
-<!-- screenshot: tailscale-acl-preview.png — ACL preview showing tenant-to-tenant denied, MSSP→tenant + tenant→MSSP allowed -->
+<!-- screenshot: tailscale-acl-preview.png, ACL preview showing tenant-to-tenant denied, MSSP→tenant + tenant→MSSP allowed -->
 
 ### 1.3 Auth keys
 
@@ -121,7 +121,7 @@ Tenants → demo → Decommission
 
 Either is fine; just be aware so you're not confused when `list all tenants` in §5 returns more than your pilot count.
 
-<!-- screenshot: mssp-dashboard-after-install.png — MSSP dashboard immediately after wizard install, showing the auto-onboarded demo tenant -->
+<!-- screenshot: mssp-dashboard-after-install.png, MSSP dashboard immediately after wizard install, showing the auto-onboarded demo tenant -->
 
 ### 2.2 Harden the box
 

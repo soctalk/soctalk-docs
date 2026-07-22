@@ -2,7 +2,7 @@
 
 The three-role Postgres model, RLS policy templates, `FORCE ROW LEVEL SECURITY` discipline, and the isolation tests SocTalk runs in CI.
 
-> **V1 deployment note.** The text below refers to "API pods" and "orchestrator pods" as separate workloads — the role model and access rules remain correct. In the V1 chart they are **co-located in a single `soctalk-system-api` Deployment**, so every "orchestrator pod" reference maps to that one pod set in this release.
+> **V1 deployment note.** The text below refers to "API pods" and "orchestrator pods" as separate workloads, the role model and access rules remain correct. In the V1 chart they are **co-located in a single `soctalk-system-api` Deployment**, so every "orchestrator pod" reference maps to that one pod set in this release.
 
 ## Roles
 
@@ -11,7 +11,7 @@ Three Postgres roles. No application ever connects as `postgres` superuser.
 | Role | Purpose | Used by | DDL? | BYPASSRLS? |
 |---|---|---|---|---|
 | `soctalk_admin` | Table owner; used only by Alembic at migration time | Alembic (run via a dedicated Kubernetes Job at deploy) | Yes | No |
-| `soctalk_app` | Runtime application role | SocTalk API pods, orchestrator pods, worker jobs — all "normal" traffic | No | No |
+| `soctalk_app` | Runtime application role | SocTalk API pods, orchestrator pods, worker jobs, all "normal" traffic | No | No |
 | `soctalk_mssp` | Cross-tenant elevated role | `System` principal via `system_context()` only | No | **Yes** |
 
 Rationale for three roles, not two: `soctalk_admin` can neither run at app time (too much privilege) nor bypass RLS unintentionally. `soctalk_app` is RLS-subject so application bugs can't leak cross-tenant. `soctalk_mssp` is intentionally cross-tenant but segregated to audited code paths only.
@@ -59,9 +59,9 @@ Append-only tables never appear in such grants. Tests in §9 assert that `soctal
 
 Credentials stored in K8s Secrets under `soctalk-system`:
 
-- `soctalk-postgres-admin-creds` — mounted only to the Alembic Job
-- `soctalk-postgres-app-creds` — mounted to SocTalk API + orchestrator pods
-- `soctalk-postgres-mssp-creds` — mounted to SocTalk API pod only (read by the `system_context()` factory)
+- `soctalk-postgres-admin-creds`: mounted only to the Alembic Job
+- `soctalk-postgres-app-creds`: mounted to SocTalk API + orchestrator pods
+- `soctalk-postgres-mssp-creds`: mounted to SocTalk API pod only (read by the `system_context()` factory)
 
 ## Why `FORCE ROW LEVEL SECURITY`
 
@@ -149,7 +149,7 @@ CREATE POLICY users_tenant_scoped ON users
   );
 ```
 
-MSSP-side user access (CRUD on rows where `tenant_id IS NULL`) is reached only under the `soctalk_mssp` role, which has `BYPASSRLS` and is entered exclusively through the `System` context manager in MSSP-API handlers. A tenant-scoped `soctalk_app` session — even one running a loosely-filtered users query — cannot see or modify MSSP user rows under this policy.
+MSSP-side user access (CRUD on rows where `tenant_id IS NULL`) is reached only under the `soctalk_mssp` role, which has `BYPASSRLS` and is entered exclusively through the `System` context manager in MSSP-API handlers. A tenant-scoped `soctalk_app` session, even one running a loosely-filtered users query, cannot see or modify MSSP user rows under this policy.
 
 Why this matters: an earlier draft of the policy admitted `tenant_id IS NULL` in `USING`/`WITH CHECK` "so MSSP joins would work". That was unsafe; `soctalk_mssp` doesn't need RLS to see MSSP rows (it bypasses RLS), and granting the same window to `soctalk_app` opens a path for tenant endpoints to leak MSSP user data via an under-filtered query.
 
@@ -178,7 +178,7 @@ Reason: absent this, an external alert ID collision between two tenants would ca
 
 ## Isolation tests
 
-### Test 1 — Application endpoint probe
+### Test 1, Application endpoint probe
 
 For every endpoint in `/api/tenant/*` and `/api/mssp/*`:
 
@@ -192,7 +192,7 @@ async def test_no_cross_tenant_access(client, seed_two_tenants):
     assert not any(item["tenant_id"] == str(tenant_b.id) for item in data["items"])
 ```
 
-### Test 2 — Raw SQL under `soctalk_app`
+### Test 2, Raw SQL under `soctalk_app`
 
 ```python
 async def test_raw_sql_respects_rls():
@@ -210,7 +210,7 @@ async def test_raw_sql_respects_rls():
         assert result.scalar() == 0
 ```
 
-### Test 3 — Worker context default
+### Test 3, Worker context default
 
 ```python
 async def test_worker_without_context_sees_nothing():
@@ -222,7 +222,7 @@ async def test_worker_without_context_sees_nothing():
         await hostile_worker({})
 ```
 
-### Test 4 — FORCE RLS catches owner
+### Test 4, FORCE RLS catches owner
 
 ```python
 async def test_admin_role_is_rls_subject():
@@ -231,7 +231,7 @@ async def test_admin_role_is_rls_subject():
         assert result.scalar() == 0  # admin is NOT bypassing
 ```
 
-### Test 5 — MSSP role can bypass intentionally
+### Test 5, MSSP role can bypass intentionally
 
 ```python
 async def test_mssp_role_bypasses_for_rollup():
@@ -240,7 +240,7 @@ async def test_mssp_role_bypasses_for_rollup():
         assert result.scalar() == total_events_across_tenants
 ```
 
-### Test 6 — SSE stream isolation
+### Test 6, SSE stream isolation
 
 ```python
 async def test_sse_no_cross_tenant_delivery(ws_client):
@@ -251,7 +251,7 @@ async def test_sse_no_cross_tenant_delivery(ws_client):
         await asyncio.wait_for(sub_a.receive(), timeout=2.0)
 ```
 
-### Test 7 — Idempotency isolation
+### Test 7, Idempotency isolation
 
 ```python
 async def test_idempotency_key_per_tenant():

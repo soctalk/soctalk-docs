@@ -6,8 +6,8 @@ What an MSSP operator sees after sign-in. Read this once before [Daily Operation
 
 Every MSSP user has two operating scopes:
 
-- **All tenants** — cross-tenant queues and aggregate views. This is the default for `mssp_admin`. The top-right corner shows an **All tenants** chip.
-- **Single tenant** — the MSSP admin has opened one customer's SOC (the chip reads `Tenant: <name>`). All views are scoped to that tenant; the **Clear** button next to the chip switches back to MSSP-wide.
+- **All tenants**: cross-tenant queues and aggregate views. This is the default for `mssp_admin`. The top-right corner shows an **All tenants** chip.
+- **Single tenant**: the MSSP admin has opened one customer's SOC (the chip reads `Tenant: <name>`). All views are scoped to that tenant; the **Clear** button next to the chip switches back to MSSP-wide.
 
 Scope drives the navigation rail too. In MSSP-wide scope you see Tenants in the rail; in tenant scope it is hidden because tenant-detail screens take its place.
 
@@ -40,9 +40,9 @@ KPI tiles on the top row (Open Investigations, Pending Reviews, Avg Time to Tria
 
 Below the tiles:
 
-- **Investigation Throughput (24h)** — bar+line chart of created / manually closed / auto-closed / escalated / backlog.
-- **Verdicts Today** — running tally of the day's AI verdicts.
-- **Active Investigations** — short list of in-progress cases with a deep link to each.
+- **Investigation Throughput (24h)**: bar+line chart of created / manually closed / auto-closed / escalated / backlog.
+- **Verdicts Today**: running tally of the day's AI verdicts.
+- **Active Investigations**: short list of in-progress cases with a deep link to each.
 
 The chart is the most-watched widget for capacity planning; if backlog (red line) trends up while throughput stays flat, the MSSP is under-provisioned or the model is failing too many cases through to human review.
 
@@ -62,9 +62,9 @@ The **+ New Tenant** button opens the onboarding form. Profile is fixed at creat
 
 Three sections:
 
-1. **Identity** — tenant ID, profile, created / state-changed timestamps. Slug appears under the display name in the header.
-2. **Actions** — Suspend / Resume / Retry Provisioning / Decommission. **Suspend in this release flips the tenant's state to `suspended`** so the orchestrator stops scheduling new investigations; it does **not** scale workloads. For a definitive cut-off, follow [Daily Operations → Emergency disable](/operations#emergency-disable-a-tenant-immediately). **Retry Provisioning** only works on tenants in `degraded` — the API rejects `:retry` on tenants in `pending` (`pending → provisioning` is automatic on first attempt).
-3. **Lifecycle Events** — chronological log of the provisioning state machine: `preflight_ok → secrets_minted → namespace_ready → secrets_applied → helm_applied (soctalk-tenant chart) → helm_applied (Wazuh chart) → workloads_ready → integration_config_written → active`. The two `helm_applied` rows are distinguishable via the event payload (chart identity). When a tenant gets stuck this table tells you which step failed.
+1. **Identity**: tenant ID, profile, created / state-changed timestamps. Slug appears under the display name in the header.
+2. **Actions**: Suspend / Resume / Retry Provisioning / Decommission. **Suspend in this release flips the tenant's state to `suspended`** so the orchestrator stops scheduling new investigations; it does **not** scale workloads. For a definitive cut-off, follow [Daily Operations → Emergency disable](/operations#emergency-disable-a-tenant-immediately). **Retry Provisioning** only works on tenants in `degraded`: the API rejects `:retry` on tenants in `pending` (`pending → provisioning` is automatic on first attempt).
+3. **Lifecycle Events**: chronological log of the provisioning state machine: `preflight_ok → secrets_minted → namespace_ready → secrets_applied → helm_applied (soctalk-tenant chart) → helm_applied (Wazuh chart) → workloads_ready → integration_config_written → active`. The two `helm_applied` rows are distinguishable via the event payload (chart identity). When a tenant gets stuck this table tells you which step failed.
 
 The page is read-only otherwise; the per-tenant SOC opens in its own window via the **Open SOC** action on the tenants list. Wazuh is the in-namespace data plane; TheHive and Cortex are external integrations, not bundled per-tenant components.
 
@@ -84,12 +84,12 @@ Click **View** (or the title) to open the detail page.
 
 Layout:
 
-- **Header** — title, status badges (Active/Closed, current Phase, Severity).
-- **KPI tiles** — Alerts, Observables (total/malicious/suspicious), Time to Triage, Time to Verdict.
-- **Details** — ID, Created, Updated.
-- **Event Timeline** — chronological event inbox for the case (immutable, append-only).
-- **Agent Run** — token spend vs the configured per-run budget (`case_runs.tokens_budget`, model default 200,000) and disposition (`pending | active | failed | completed`).
-- **Observable Summary** — totals broken down as Malicious / Suspicious / Clean.
+- **Header**: title, status badges (Active/Closed, current Phase, Severity).
+- **KPI tiles**: Alerts, Observables (total/malicious/suspicious), Time to Triage, Time to Verdict.
+- **Details**: ID, Created, Updated.
+- **Event Timeline**: chronological event inbox for the case (immutable, append-only).
+- **Agent Run**: token spend vs the configured per-run budget (`case_runs.tokens_budget`, model default 200,000) and disposition (`pending | active | failed | completed`).
+- **Observable Summary**: totals broken down as Malicious / Suspicious / Clean.
 
 The **Ask AI** floating button opens a side conversation that operates against this case's context.
 
@@ -117,8 +117,8 @@ Trend-shaped cross-tenant view, time-bucketed (default Window: 30 days). Reports
 - **p95 TTV** (time-to-verdict, AI)
 - **p95 TTR** (time-to-review, human-gate)
 - **Escalation Rate**
-- **Top worsening tenants** — sorted by p95 TTV delta vs the prior window
-- **Activity heatmap** — day-of-week × hour-of-day, alerts (toggleable to other dimensions)
+- **Top worsening tenants**: sorted by p95 TTV delta vs the prior window
+- **Activity heatmap**: day-of-week × hour-of-day, alerts (toggleable to other dimensions)
 
 Use this for capacity planning, model-version evaluation, and SLA review.
 
@@ -126,9 +126,9 @@ Use this for capacity planning, model-version evaluation, and SLA review.
 
 Pinning the Analytics page to a single tenant swaps the cross-tenant trends above for a set of decision-focused surfaces for that customer:
 
-- **Confidence Distribution** — how AI decision confidence is spread across triaged alerts, bucketed by confidence.
-- **Decision Trends** — how the mix of decisions (close, escalate, and so on) moves over time.
-- **Average Confidence by Decision** — mean confidence broken out per decision type.
+- **Confidence Distribution**: how AI decision confidence is spread across triaged alerts, bucketed by confidence.
+- **Decision Trends**: how the mix of decisions (close, escalate, and so on) moves over time.
+- **Average Confidence by Decision**: mean confidence broken out per decision type.
 
 ## Audit log
 
@@ -146,15 +146,15 @@ curl 'https://mssp.your-mssp.example/api/audit?since=2026-01-01&tenant=<id>' > a
 
 ![Settings](/screenshots/settings.png)
 
-MSSP-wide settings page. **In V1 this page shows hard-coded stub values** — `GET /api/settings` returns a static read-only payload that does not reflect the install's actual configuration. The page is informational only; it is **not** a window into the live install settings, and the **Save Changes** button is a no-op. A real settings surface that mirrors env-derived state is on the roadmap. Per-tenant LLM mutation is the one settings surface that actually works in V1 — see [LLM detail page](#llm-detail-page).
+MSSP-wide settings page. **In V1 this page shows hard-coded stub values**: `GET /api/settings` returns a static read-only payload that does not reflect the install's actual configuration. The page is informational only; it is **not** a window into the live install settings, and the **Save Changes** button is a no-op. A real settings surface that mirrors env-derived state is on the roadmap. Per-tenant LLM mutation is the one settings surface that actually works in V1, see [LLM detail page](#llm-detail-page).
 
 Sections:
 
-- **LLM** — Provider (`openai-compatible | anthropic`), Fast Model, Reasoning Model, Temperature, Max Tokens, optional Base URL + Organization. API keys live in environment / Kubernetes Secrets, never in this form.
-- **Wazuh SIEM** — enable toggle, URL, credentials.
-- **Cortex** — enable toggle, URL, credentials. External integration, not a bundled subchart; the URL points at the tenant's Cortex instance (see /integrate/cortex).
-- **TheHive** — enable toggle, URL, organisation, credentials. External integration, not a bundled subchart; the URL points at the tenant's TheHive instance (see /integrate/thehive).
-- **Slack** — webhook + interactive backend config.
+- **LLM**: Provider (`openai-compatible | anthropic`), Fast Model, Reasoning Model, Temperature, Max Tokens, optional Base URL + Organization. API keys live in environment / Kubernetes Secrets, never in this form.
+- **Wazuh SIEM**: enable toggle, URL, credentials.
+- **Cortex**: enable toggle, URL, credentials. External integration, not a bundled subchart; the URL points at the tenant's Cortex instance (see /integrate/cortex).
+- **TheHive**: enable toggle, URL, organisation, credentials. External integration, not a bundled subchart; the URL points at the tenant's TheHive instance (see /integrate/thehive).
+- **Slack**: webhook + interactive backend config.
 
 The **Bring your own LLM key →** link goes to per-tenant LLM key rotation (per-tenant LLM keys override the install-wide one).
 
@@ -162,10 +162,10 @@ The **Bring your own LLM key →** link goes to per-tenant LLM key rotation (per
 
 ![LLM settings detail](/screenshots/settings-llm.png)
 
-Standalone page reachable from Settings → **Bring your own LLM key →**. In V1 this is **per-tenant BYOK key entry only** — the form takes the API key for the **currently-scoped tenant** and submits it via `PUT /api/tenant/llm/api-key` (the tenant-side endpoint; MSSP admins can also use `PUT /api/mssp/tenants/{tenant_id}/llm/api-key`). The other LLM fields (provider, model, temperature) shown on the parent Settings page are stub values; they are not editable here either. See [Daily Operations → Rotate per-tenant LLM key](/operations#rotate-per-tenant-llm-key) for the rotation procedure.
+Standalone page reachable from Settings → **Bring your own LLM key →**. In V1 this is **per-tenant BYOK key entry only**: the form takes the API key for the **currently-scoped tenant** and submits it via `PUT /api/tenant/llm/api-key` (the tenant-side endpoint; MSSP admins can also use `PUT /api/mssp/tenants/{tenant_id}/llm/api-key`). The other LLM fields (provider, model, temperature) shown on the parent Settings page are stub values; they are not editable here either. See [Daily Operations → Rotate per-tenant LLM key](/operations#rotate-per-tenant-llm-key) for the rotation procedure.
 
 ## See also
 
-- [Daily Operations](/operations) — the runbook side of these pages (review, investigations, decommission, rotation).
-- [Wazuh Ingress](/reference/wazuh-ingress) — the agent onboarding flow from tenant detail.
-- [Security Model](/reference/security-model) — what each MSSP role (`platform_admin`, `mssp_admin`, `analyst`, `customer_viewer`) is allowed to do.
+- [Daily Operations](/operations), the runbook side of these pages (review, investigations, decommission, rotation).
+- [Wazuh Ingress](/reference/wazuh-ingress), the agent onboarding flow from tenant detail.
+- [Security Model](/reference/security-model), what each MSSP role (`platform_admin`, `mssp_admin`, `analyst`, `customer_viewer`) is allowed to do.

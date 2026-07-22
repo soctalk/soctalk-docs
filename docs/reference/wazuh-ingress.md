@@ -23,7 +23,7 @@ Each tenant gets a dedicated DNS name (`acme.soc.mssp.example.com`) that resolve
 
 Two implementations of per-tenant addressing are supported:
 
-1. **Per-tenant LoadBalancer Service (recommended pattern; not yet wired in the chart).** The current `wazuh` subchart creates the Wazuh manager `Service` as `ClusterIP` only — there is **no automatic LoadBalancer or DNS provisioning** in this release. To get a tenant routable from the public internet today, you must either: layer an external LoadBalancer Service yourself (manual `kubectl apply`), put each tenant behind an edge HAProxy / NGINX with per-tenant SNI or port mapping, or use the per-tenant-port topology described below. Cloud LB + per-tenant DNS is the documented destination; getting there requires MSSP-side manual wiring.
+1. **Per-tenant LoadBalancer Service (recommended pattern; not yet wired in the chart).** The current `wazuh` subchart creates the Wazuh manager `Service` as `ClusterIP` only, there is **no automatic LoadBalancer or DNS provisioning** in this release. To get a tenant routable from the public internet today, you must either: layer an external LoadBalancer Service yourself (manual `kubectl apply`), put each tenant behind an edge HAProxy / NGINX with per-tenant SNI or port mapping, or use the per-tenant-port topology described below. Cloud LB + per-tenant DNS is the documented destination; getting there requires MSSP-side manual wiring.
 2. **Per-tenant port at a single edge IP (fallback).** When unique IPs are scarce, allocate a port range at one edge IP and assign `(1514, 1515)` offsets per tenant (e.g., acme → 15140/15141, beta → 15142/15143). DNS uses `SRV` records or the agent's `manager_address:port` config to dispatch. Operationally awkward but works.
 
 ### Topology
@@ -56,7 +56,7 @@ DNS resolves to the LoadBalancer IP for tenant-acme
 
 ### DNS
 
-Per-tenant `A`/`AAAA` record: `<slug>.soc.mssp.example.com → <tenant LB IP>` is the target design. **In V1, SocTalk does NOT emit DNS records** — the operator manages DNS manually (external-dns / provider console) once the per-tenant LB has been provisioned out-of-band. A SocTalk-driven DNS-emission path (external-dns annotations or direct provider integration) is on the roadmap.
+Per-tenant `A`/`AAAA` record: `<slug>.soc.mssp.example.com → <tenant LB IP>` is the target design. **In V1, SocTalk does NOT emit DNS records**: the operator manages DNS manually (external-dns / provider console) once the per-tenant LB has been provisioned out-of-band. A SocTalk-driven DNS-emission path (external-dns annotations or direct provider integration) is on the roadmap.
 
 Wildcard DNS does not work for the LoadBalancer pattern because each tenant has its own IP. It only works under the fallback (per-tenant port) topology, where every name resolves to the same edge IP.
 
@@ -80,7 +80,7 @@ The MSSP runs one of:
 | Bare-metal or on-prem | MetalLB (L2 or BGP mode) with an address pool, or kube-vip. |
 | Single-IP edge with port mapping | Run an external L4 proxy (HAProxy, Envoy, nginx-stream) that forwards `(IP, port)` pairs to the tenant `Service`. Use this only under the fallback per-port topology. |
 
-The target design is that the `soctalk-tenant` chart's `Service` is annotated so cloud controllers and MetalLB can apply pool/IP-class selection (e.g., `metallb.universe.tf/address-pool: wazuh-agents`), and the SocTalk controller records the resulting LB IP and writes the per-tenant DNS record. **In V1 neither of these is wired** — the Wazuh manager Service is `ClusterIP` only and the controller does not poll for LB IP assignment.
+The target design is that the `soctalk-tenant` chart's `Service` is annotated so cloud controllers and MetalLB can apply pool/IP-class selection (e.g., `metallb.universe.tf/address-pool: wazuh-agents`), and the SocTalk controller records the resulting LB IP and writes the per-tenant DNS record. **In V1 neither of these is wired**: the Wazuh manager Service is `ClusterIP` only and the controller does not poll for LB IP assignment.
 
 If you must use a single edge IP (fallback), a reference HAProxy mapping looks like this:
 
@@ -110,7 +110,7 @@ backend tenant-beta-events
     server wazuh wazuh-manager.tenant-beta.svc.cluster.local:1514
 ```
 
-Do not branch on `req.ssl_sni` for Wazuh 1514. Wazuh's agent protocol is not standard TLS and never produces a ClientHello there. SNI is available only on 1515 (enrollment), which is insufficient — events would still need a working discriminator.
+Do not branch on `req.ssl_sni` for Wazuh 1514. Wazuh's agent protocol is not standard TLS and never produces a ClientHello there. SNI is available only on 1515 (enrollment), which is insufficient, events would still need a working discriminator.
 
 ## Agent enrollment flow
 
@@ -131,7 +131,7 @@ Wazuh's `authd` registration on 1515/TCP requires a shared secret. Each tenant h
 4. Agent registers with tenant's manager, receives its own per-agent certificate.
 5. Subsequent connections on 1514 are per-agent mTLS.
 
-Routing at 1515 uses the same per-tenant address as 1514 (LB IP or edge port). The `authd` shared secret is tenant-scoped: an agent using `acme`'s secret can only register with `acme`'s manager — the addressing enforces it, and the secret is verified by the manager.
+Routing at 1515 uses the same per-tenant address as 1514 (LB IP or edge port). The `authd` shared secret is tenant-scoped: an agent using `acme`'s secret can only register with `acme`'s manager, the addressing enforces it, and the secret is verified by the manager.
 
 ## Firewall / network requirements
 
@@ -225,7 +225,7 @@ Pre-release validation:
 
 Pilot validation (later release):
 - Real customer endpoint over the public internet enrolls cleanly.
-- Cross-tenant probe: enroll an `acme` agent with `beta`'s `authd` secret against `beta`'s address — expect rejection. Vice versa. Both fail.
+- Cross-tenant probe: enroll an `acme` agent with `beta`'s `authd` secret against `beta`'s address, expect rejection. Vice versa. Both fail.
 
 There is no SNI step in any of these checks: Wazuh's agent protocol on 1514 does not produce a ClientHello, so any test that "overrides SNI" is exercising a routing path the production ingress will not take. Validate the address/port discriminator instead.
 

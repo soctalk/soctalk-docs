@@ -8,13 +8,13 @@ A multi-tenant SOC platform built for MSPs and MSSPs. One control plane orchestr
 
 ## What's open source vs commercial?
 
-**Everything in the [`soctalk/soctalk`](https://github.com/soctalk/soctalk) repo is Apache 2.0** — the control plane, the AI pipeline, the Wazuh integration, the charts, the demo VM. There is no "community vs enterprise" feature split.
+**Everything in the [`soctalk/soctalk`](https://github.com/soctalk/soctalk) repo is Apache 2.0**: the control plane, the AI pipeline, the Wazuh integration, the charts, the demo VM. There is no "community vs enterprise" feature split.
 
 A managed hosting service (SocTalk Cloud) exists for MSPs who don't want to run the platform themselves. The hosted service uses the same code as the open distribution.
 
 ## Can I evaluate it without a Kubernetes cluster?
 
-Yes — the [demo VM image](/quickstart-vm) is a single-box install. Boot it on KVM, VMware, Hyper-V, Azure, or convert from raw. Five minutes to a running multi-tenant install with a `demo` tenant onboarded.
+Yes, the [demo VM image](/quickstart-vm) is a single-box install. Boot it on KVM, VMware, Hyper-V, Azure, or convert from raw. Five minutes to a running multi-tenant install with a `demo` tenant onboarded.
 
 ## Can I run it on a single node permanently?
 
@@ -47,25 +47,25 @@ Highly variable, depends on:
 - Model selection (`fast_model` + `reasoning_model`)
 - How often the verdict says `needs_more_info` (causes a re-run)
 
-Order of magnitude with the default 200,000-token-per-run budget and typical use: 30 alerts/day × ~60k tokens/investigation × $5/Mtok input ≈ $9/day per tenant on a budget OpenAI-compatible setup. Drops 5–10× with a cheaper fast model. See [Observability — Per-tenant cost](/observability#per-tenant-cost) for measuring it.
+Order of magnitude with the default 200,000-token-per-run budget and typical use: 30 alerts/day × ~60k tokens/investigation × $5/Mtok input ≈ $9/day per tenant on a budget OpenAI-compatible setup. Drops 5–10× with a cheaper fast model. See [Observability, Per-tenant cost](/observability#per-tenant-cost) for measuring it.
 
 ## Can different customers use different LLM models?
 
-Yes — per-tenant override at onboard time. The install-wide model is the default; tenants opt out by specifying their own. See [LLM providers — Per-tenant overrides](/integrate/llm-providers#per-tenant-overrides).
+Yes, per-tenant override at onboard time. The install-wide model is the default; tenants opt out by specifying their own. See [LLM providers, Per-tenant overrides](/integrate/llm-providers#per-tenant-overrides).
 
 ## Can a customer bring their own LLM key?
 
-Yes — the per-tenant override applies to the API key too. The authoritative store is `IntegrationConfig.llm_api_key_plain` in Postgres; the controller materializes it into `Secret/tenant-llm-key` in the **tenant's** namespace (not `soctalk-system`), which the runs-worker mounts. Useful for billing isolation.
+Yes, the per-tenant override applies to the API key too. The authoritative store is `IntegrationConfig.llm_api_key_plain` in Postgres; the controller materializes it into `Secret/tenant-llm-key` in the **tenant's** namespace (not `soctalk-system`), which the runs-worker mounts. Useful for billing isolation.
 
 ## Does SocTalk send customer data to Anthropic / OpenAI?
 
-Only what the AI pipeline reasons about: the alert body, extracted observables, and worker outputs. The runtime does not exfiltrate at-rest data — only what's in the current investigation state. If you need a stricter posture, use an on-prem LLM endpoint (vLLM, Ollama). See [LLM providers — Switch to Anthropic / runtime knobs](/integrate/llm-providers#runtime-only-knobs-env-not-chart).
+Only what the AI pipeline reasons about: the alert body, extracted observables, and worker outputs. The runtime does not exfiltrate at-rest data, only what's in the current investigation state. If you need a stricter posture, use an on-prem LLM endpoint (vLLM, Ollama). See [LLM providers, Switch to Anthropic / runtime knobs](/integrate/llm-providers#runtime-only-knobs-env-not-chart).
 
 ## Does it replace my analysts?
 
 No. SocTalk is positioned as a **copilot**, not a replacement. The verdict node decides `escalate | close | needs_more_info`; escalation always passes through a [human review](/human-review) gate. Without the human, a high-volume MSSP would still need analysts to handle the decisions SocTalk routes to them.
 
-The value is in compression — the same analyst team can handle 5–10× the alert volume because routine cases auto-close and only the unclear ones reach human review.
+The value is in compression, the same analyst team can handle 5–10× the alert volume because routine cases auto-close and only the unclear ones reach human review.
 
 ## Does it work without Wazuh?
 
@@ -83,15 +83,15 @@ See [Security Model](/reference/security-model) for the full posture.
 
 ## Can I run it on EKS / AKS / GKE?
 
-Yes — the chart targets stock Kubernetes 1.30+. Plug in your cloud's StorageClass, ingress controller, and cert-manager DNS-01 solver. The [install guide](/install) is K3s-focused because that's the default distribution; the chart itself doesn't care.
+Yes, the chart targets stock Kubernetes 1.30+. Plug in your cloud's StorageClass, ingress controller, and cert-manager DNS-01 solver. The [install guide](/install) is K3s-focused because that's the default distribution; the chart itself doesn't care.
 
 ## Does it scale to N customers?
 
-Tested up to ~50 tenants on a 3-node cluster (16 vCPU / 64 GB / node). Bottleneck is usually the Wazuh indexer per tenant (each indexer is a Java process with its own heap) rather than the SocTalk control plane. Plan ~6–8 GB RAM and ~1.5 vCPU per `persistent`-profile tenant — see [Sizing](/reference/sizing).
+Tested up to ~50 tenants on a 3-node cluster (16 vCPU / 64 GB / node). Bottleneck is usually the Wazuh indexer per tenant (each indexer is a Java process with its own heap) rather than the SocTalk control plane. Plan ~6–8 GB RAM and ~1.5 vCPU per `persistent`-profile tenant, see [Sizing](/reference/sizing).
 
 ## What about compliance (SOC 2, HIPAA, PCI)?
 
-The platform's posture supports SOC 2-style audits — append-only audit log, RBAC, encryption at rest (Postgres + Wazuh indexer), encryption in transit. It does **not** ship with a SOC 2 attestation; that's the MSSP's responsibility for their hosting.
+The platform's posture supports SOC 2-style audits, append-only audit log, RBAC, encryption at rest (Postgres + Wazuh indexer), encryption in transit. It does **not** ship with a SOC 2 attestation; that's the MSSP's responsibility for their hosting.
 
 For HIPAA / PCI, the data plane (Wazuh) often holds in-scope data. Treat that PVC as in-scope and back it up accordingly (see [Backup and restore](/backup-restore)).
 

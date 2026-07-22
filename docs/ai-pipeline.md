@@ -1,6 +1,6 @@
 # AI pipeline
 
-What happens between "an alert lands" and "a verdict gets written." SocTalk's triage layer is a LangGraph state machine — a supervisor that routes work to specialist worker nodes, then a verdict node that decides whether the case needs human review.
+What happens between "an alert lands" and "a verdict gets written." SocTalk's triage layer is a LangGraph state machine, a supervisor that routes work to specialist worker nodes, then a verdict node that decides whether the case needs human review.
 
 This page is the mental model. The code lives in [`src/soctalk/graph/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/graph), [`src/soctalk/supervisor/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/supervisor), and [`src/soctalk/workers/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/workers).
 
@@ -26,14 +26,14 @@ flowchart LR
 
 | Node | Purpose | Model used |
 |---|---|---|
-| **supervisor** | Decides what to do next. Pure routing — does no domain work itself. | fast model |
+| **supervisor** | Decides what to do next. Pure routing, does no domain work itself. | fast model |
 | **wazuh_worker** | Pulls the alert in context, extracts observables (IPs, hashes, users, processes), correlates with recent alerts in the same tenant. | fast model |
 | **cortex_worker** | Sends observables to Cortex analyzers (VirusTotal, AbuseIPDB, etc.) for reputation/enrichment. | fast model |
 | **misp_worker** | Looks up observables against MISP threat-intel feeds for known campaign / actor context. | fast model |
 | **verdict** | Reasons over everything the workers gathered. Outputs `escalate | close | needs_more_info` + confidence + a short rationale. | **reasoning model** |
-| **human_review** | Pauses the run; emits a review request to the dashboard queue and/or Slack. Waits on a `HumanDecision` (`approve | reject | more_info`). | — (humans) |
-| **thehive_worker** | Optional, on the human-review path: exports the case to TheHive (case + observables) synchronously via MCP before close. See [TheHive](/integrate/thehive) for exactly what's exported and the V1 caveats (no outbox/retry). | — (deterministic) |
-| **close** | Generates the closure report and writes the disposition (`close_fp | escalate | leave_open`). **In V1 the close node itself does not post to outbound integrations** — TheHive export happens in the dedicated `thehive_worker` node above, and Slack webhook posting from close is not wired. Further outbound integration from the close node is on the roadmap. | fast model |
+| **human_review** | Pauses the run; emits a review request to the dashboard queue and/or Slack. Waits on a `HumanDecision` (`approve | reject | more_info`). |, (humans) |
+| **thehive_worker** | Optional, on the human-review path: exports the case to TheHive (case + observables) synchronously via MCP before close. See [TheHive](/integrate/thehive) for exactly what's exported and the V1 caveats (no outbox/retry). |, (deterministic) |
+| **close** | Generates the closure report and writes the disposition (`close_fp | escalate | leave_open`). **In V1 the close node itself does not post to outbound integrations**: TheHive export happens in the dedicated `thehive_worker` node above, and Slack webhook posting from close is not wired. Further outbound integration from the close node is on the roadmap. | fast model |
 
 ## Supervisor routing
 
@@ -51,7 +51,7 @@ The supervisor never invokes external tools itself. It reads the accumulated `Se
 
 ## Verdict node
 
-The reasoning model gets the whole accumulated state — original alert, every worker's findings, all observables with their enrichment, prior verdict attempts (if `NEEDS_MORE_INFO` looped). It outputs:
+The reasoning model gets the whole accumulated state, original alert, every worker's findings, all observables with their enrichment, prior verdict attempts (if `NEEDS_MORE_INFO` looped). It outputs:
 
 | Field | Type |
 |---|---|
@@ -71,7 +71,7 @@ The reasoning model gets the whole accumulated state — original alert, every w
 | Decision | Effect on the case |
 |---|---|
 | `approve` | Pending review marked completed + feedback audited. **Not** auto-resumed; analyst follow-up. |
-| `reject` | Case closes as `auto_closed_fp`. Terminal — graph is not re-invoked. |
+| `reject` | Case closes as `auto_closed_fp`. Terminal, graph is not re-invoked. |
 | `more_info` | Review marked `info_requested` with the questions list. **Not** auto-resumed; analyst follow-up. |
 
 The human's identity, timestamp, and rationale are appended to the case's append-only `case_events` log.
@@ -100,7 +100,7 @@ Each tenant has its own `runs-worker` pod (in the `tenant-<slug>` namespace) tha
 3. `ainvoke()` against the graph, posting `POST /api/internal/worker/runs/{run_id}/heartbeat` every 20 s.
 4. On completion, posts the final state and disposition to `POST /api/internal/worker/runs/{run_id}/complete`.
 
-The runs-worker is the only per-tenant compute pod — keeping it in the tenant namespace means an over-budget tenant can't starve the rest of the install for compute. The supervisor + worker + verdict logic itself is stateless; the heavy lifting is the LLM calls (out of cluster, billed to the tenant's configured provider).
+The runs-worker is the only per-tenant compute pod, keeping it in the tenant namespace means an over-budget tenant can't starve the rest of the install for compute. The supervisor + worker + verdict logic itself is stateless; the heavy lifting is the LLM calls (out of cluster, billed to the tenant's configured provider).
 
 ## Source pointers
 

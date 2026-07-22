@@ -1,6 +1,6 @@
 # Setup wizard
 
-Browser-based first-boot configurator that ships with the [demo VM image](/quickstart-vm). It is **not** part of a production install — production users hand-write `values.yaml` and run `helm install` themselves.
+Browser-based first-boot configurator that ships with the [demo VM image](/quickstart-vm). It is **not** part of a production install, production users hand-write `values.yaml` and run `helm install` themselves.
 
 The wizard's job is to:
 
@@ -32,18 +32,18 @@ The token is rotated on every wizard restart. There is no API to recover a lost 
 
 ## Two-stage form
 
-1. **Authenticate** — paste the setup token.
-2. **Configure** — fill the fields below.
+1. **Authenticate**: paste the setup token.
+2. **Configure**: fill the fields below.
 
 The token-entry page submits to `POST /auth`; the config page submits to `POST /submit`. Both use HMAC-bound CSRF cookies (`SameSite=Strict`, `HttpOnly`, `Secure`).
 
-### Stage 1 — Authenticate
+### Stage 1, Authenticate
 
-![Setup wizard — token entry](/screenshots/setup-wizard-token.png)
+![Setup wizard, token entry](/screenshots/setup-wizard-token.png)
 
-### Stage 2 — Configure
+### Stage 2, Configure
 
-![Setup wizard — config form, filled](/screenshots/setup-wizard-config-filled.png)
+![Setup wizard, config form, filled](/screenshots/setup-wizard-config-filled.png)
 
 ### Identity
 
@@ -59,7 +59,7 @@ The token-entry page submits to `POST /auth`; the config page submits to `POST /
 | Field | Type | Notes |
 |---|---|---|
 | Provider | select (`anthropic`, `openai`) | **Display-only in this release.** The wizard collects the value but does not write it to the chart values; the chart's default (`openai-compatible`) applies. To pin a specific provider, edit `/etc/soctalk/values.yaml` to set `defaults.llm.provider` before `soctalk-firstboot.service` runs, or `helm upgrade` after install. Tracked for wiring through the wizard in a future release |
-| API key | password | written to `/etc/soctalk/llm.key` (mode `0600`) — NOT to the values file. The installer creates a Kubernetes Secret from it (`soctalk-system-llm-api-key`) with both `anthropic-api-key` and `openai-api-key` data fields, so the chart's runtime can use whichever provider the values say |
+| API key | password | written to `/etc/soctalk/llm.key` (mode `0600`), NOT to the values file. The installer creates a Kubernetes Secret from it (`soctalk-system-llm-api-key`) with both `anthropic-api-key` and `openai-api-key` data fields, so the chart's runtime can use whichever provider the values say |
 
 ### Demo tenant onboarding
 
@@ -82,7 +82,7 @@ TENANT_NAME='<org name> — Demo'
 | `/etc/soctalk/values.yaml` | 0640 | Rendered chart values (`install.*`, `ingress.*`, `postgres.*`) |
 | `/etc/soctalk/llm.key` | 0600 | LLM API key, single line |
 | `/etc/soctalk/onboard.env` | 0600 | Demo-tenant onboarding env-file |
-| `/var/lib/soctalk-wizard.done` | 0644 | Sentinel — prevents the wizard from re-firing on subsequent boots |
+| `/var/lib/soctalk-wizard.done` | 0644 | Sentinel, prevents the wizard from re-firing on subsequent boots |
 
 ## systemd unit
 
@@ -97,7 +97,7 @@ ConditionPathExists=!/etc/soctalk/values.yaml
 WantedBy=cloud-init.target
 ```
 
-It hooks `cloud-init.target` (not `multi-user.target`) to avoid an ordering cycle through `After=cloud-final.service`. Cloud-init's user-data is allowed to land `/etc/soctalk/values.yaml` directly — if it does, the wizard never starts and `soctalk-firstboot.service` proceeds straight to `helm install`.
+It hooks `cloud-init.target` (not `multi-user.target`) to avoid an ordering cycle through `After=cloud-final.service`. Cloud-init's user-data is allowed to land `/etc/soctalk/values.yaml` directly, if it does, the wizard never starts and `soctalk-firstboot.service` proceeds straight to `helm install`.
 
 ## Hardening
 
@@ -109,7 +109,7 @@ After a successful submit, the wizard writes the sentinel and exits. systemd's `
 
 - **Token gate** on every authenticated endpoint. Constant-time comparison.
 - **CSRF** via HMAC-bound double-submit cookies on every state-changing POST.
-- **Rate limit**: 30 s minimum between auth attempts per source IP; 10 failures within an hour blocks the IP for an hour. (Codex flagged this as a trivial DoS vector behind NAT — operators behind a shared NAT may see legitimate setup blocked. Restart the unit to clear.)
+- **Rate limit**: 30 s minimum between auth attempts per source IP; 10 failures within an hour blocks the IP for an hour. (Codex flagged this as a trivial DoS vector behind NAT, operators behind a shared NAT may see legitimate setup blocked. Restart the unit to clear.)
 - **Self-signed TLS only**. The wizard never serves plaintext HTTP. Customers accept the self-signed cert once; production users should never reach the wizard at all.
 
 ## What happens after submit
@@ -136,4 +136,4 @@ sudo rm /var/lib/soctalk-firstboot.done /var/lib/soctalk-wizard.done /etc/soctal
 sudo systemctl restart soctalk-setup-wizard
 ```
 
-This is destructive — the existing helm release still owns the `soctalk-system` namespace. For a clean reset, `helm uninstall soctalk-system -n soctalk-system` first.
+This is destructive, the existing helm release still owns the `soctalk-system` namespace. For a clean reset, `helm uninstall soctalk-system -n soctalk-system` first.

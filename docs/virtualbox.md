@@ -1,8 +1,8 @@
 # Run the demo VM on VirtualBox
 
-VirtualBox is the easiest cross-platform way to try SocTalk on a desktop — free, GUI-driven, and available on Windows, Linux, and Intel macOS. This guide imports the published demo image and boots it. Validated on VirtualBox 7.0.
+VirtualBox is the easiest cross-platform way to try SocTalk on a desktop, free, GUI-driven, and available on Windows, Linux, and Intel macOS. This guide imports the published demo image and boots it. Validated on VirtualBox 7.0.
 
-This path is for **evaluators and demos** — for a production install on your own cluster see [Install](/install).
+This path is for **evaluators and demos**: for a production install on your own cluster see [Install](/install).
 
 ::: warning Apple Silicon (M-series) Macs
 The demo image is **x86-64**, which VirtualBox can't run on Apple Silicon. On an M-series Mac, use a [cloud launch](/aws) or another host. VirtualBox here means Windows, Linux, or an **Intel** Mac.
@@ -34,11 +34,11 @@ The released vmdk is **streamOptimized** (a read-only VMware/OVA layout), which 
 VBoxManage clonemedium disk soctalk-demo-0.2.0.vmdk soctalk-demo-0.2.0.vdi --format VDI
 ```
 
-This produces a writable, dynamically-sized `soctalk-demo-0.2.0.vdi` (a few GB on disk). `VBoxManage` ships with VirtualBox — on Windows it's in `C:\Program Files\Oracle\VirtualBox\`.
+This produces a writable, dynamically-sized `soctalk-demo-0.2.0.vdi` (a few GB on disk). `VBoxManage` ships with VirtualBox, on Windows it's in `C:\Program Files\Oracle\VirtualBox\`.
 
 ## 3. Build a cloud-init seed ISO
 
-A small NoCloud seed ISO creates an `ops` user with your SSH key so you can read the per-boot setup token. If you skip it you can still log in as the build-time `ubuntu:packer` user (see [SSH access](/quickstart-vm#ssh-access-credentials)) — but that credential is in the public source tree, so harden the VM before exposing it. On Linux/macOS:
+A small NoCloud seed ISO creates an `ops` user with your SSH key so you can read the per-boot setup token. If you skip it you can still log in as the build-time `ubuntu:packer` user (see [SSH access](/quickstart-vm#ssh-access-credentials)), but that credential is in the public source tree, so harden the VM before exposing it. On Linux/macOS:
 
 ```bash
 cat > user-data <<EOF
@@ -61,19 +61,19 @@ Open **VirtualBox** and click **New**.
 
 ![VirtualBox Manager](/screenshots/virtualbox-manager.png)
 
-**Name and Operating System** — name it `soctalk-demo`, set **Type** to *Linux* and **Version** to *Ubuntu (64-bit)*. Leave the ISO empty:
+**Name and Operating System**: name it `soctalk-demo`, set **Type** to *Linux* and **Version** to *Ubuntu (64-bit)*. Leave the ISO empty:
 
 ![Name and OS](/screenshots/virtualbox-create-name.png)
 
-**Hardware** — give it **8192 MB** of memory and **4 CPUs** ([sizing](/reference/sizing) minimum is 4 vCPU / 8 GB; the Wazuh stack needs the RAM):
+**Hardware**: give it **8192 MB** of memory and **4 CPUs** ([sizing](/reference/sizing) minimum is 4 vCPU / 8 GB; the Wazuh stack needs the RAM):
 
 ![Hardware](/screenshots/virtualbox-create-hardware.png)
 
-**Virtual Hard disk** — choose **Use an Existing Virtual Hard Disk File** and select the `soctalk-demo-0.2.0.vdi` you converted:
+**Virtual Hard disk**: choose **Use an Existing Virtual Hard Disk File** and select the `soctalk-demo-0.2.0.vdi` you converted:
 
 ![Use existing disk](/screenshots/virtualbox-create-disk.png)
 
-**Summary** — confirm the settings and click **Finish**:
+**Summary**: confirm the settings and click **Finish**:
 
 ![Summary](/screenshots/virtualbox-create-summary.png)
 
@@ -85,13 +85,13 @@ The VM appears in the Manager with the VDI on its SATA controller:
 
 Select the VM and click **Settings**.
 
-**Storage** — under the IDE controller, click the optical drive and choose your `soctalk-seed.iso` (click the disc icon → *Choose a disk file*). The VDI is already on SATA:
+**Storage**: under the IDE controller, click the optical drive and choose your `soctalk-seed.iso` (click the disc icon → *Choose a disk file*). The VDI is already on SATA:
 
 ![Storage](/screenshots/virtualbox-storage.png)
 
-**Network** — set **Adapter 1 → Attached to: Bridged Adapter** so the VM gets an IP on your LAN and you can reach the wizard directly:
+**Network**: set **Adapter 1 → Attached to: Bridged Adapter** so the VM gets an IP on your LAN and you can reach the wizard directly:
 
-![Network — bridged](/screenshots/virtualbox-network.png)
+![Network, bridged](/screenshots/virtualbox-network.png)
 
 Click **OK**.
 
@@ -105,7 +105,7 @@ Click **Start**. The console boots to a login prompt:
 
 ![Console](/screenshots/virtualbox-console.png)
 
-Find the VM's bridged IP — from your router's DHCP leases, or by matching the VM's MAC:
+Find the VM's bridged IP, from your router's DHCP leases, or by matching the VM's MAC:
 
 ```bash
 VBoxManage showvminfo soctalk-demo | grep "MAC"      # note the MAC
@@ -120,7 +120,7 @@ Read the per-boot setup token over SSH, then drive the wizard:
 ssh ops@<vm-ip> sudo cat /var/log/soctalk-setup-token
 ```
 
-Browse to `https://<vm-ip>:8443/`, accept the self-signed certificate, paste the token, and fill in the wizard ([field reference](/setup-wizard)). After submit, the first-boot installer runs `helm install` and onboards the `demo` tenant — about 2 minutes for the `soctalk-system` pods, then a few more for the demo tenant's Wazuh stack:
+Browse to `https://<vm-ip>:8443/`, accept the self-signed certificate, paste the token, and fill in the wizard ([field reference](/setup-wizard)). After submit, the first-boot installer runs `helm install` and onboards the `demo` tenant, about 2 minutes for the `soctalk-system` pods, then a few more for the demo tenant's Wazuh stack:
 
 ```bash
 ssh ops@<vm-ip>
@@ -143,8 +143,8 @@ VBoxManage closemedium disk soctalk-demo-0.2.0.vdi --delete
 | Symptom | Check |
 |---|---|
 | VM won't start: "cannot open … streamOptimized" / disk read-only | You attached the raw `.vmdk`. Use the converted `.vdi` from step 2 |
-| Won't run on an Apple Silicon Mac | Expected — the image is x86-64; use a [cloud launch](/aws) instead |
-| Console shows `vmwgfx … unsupported hypervisor` errors | Harmless — VirtualBox's emulated GPU; the appliance is headless and boots fine |
+| Won't run on an Apple Silicon Mac | Expected, the image is x86-64; use a [cloud launch](/aws) instead |
+| Console shows `vmwgfx … unsupported hypervisor` errors | Harmless, VirtualBox's emulated GPU; the appliance is headless and boots fine |
 | VM has no IP on bridged | Pick the right host NIC in Network → Name; confirm your LAN has DHCP. Or use the NAT + port-forwarding option above |
 | Can't read the token (no SSH) | The seed ISO isn't attached (Storage → IDE) or its key is wrong; re-check step 3/5 |
-| Anything past the wizard | Same as every platform — see the [Quickstart troubleshooting table](/quickstart-vm#troubleshooting) |
+| Anything past the wizard | Same as every platform, see the [Quickstart troubleshooting table](/quickstart-vm#troubleshooting) |

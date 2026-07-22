@@ -57,24 +57,24 @@ Cross-tenant operations (MSSP rollups, migrations, admin tooling) use the `Syste
 
 All have `tenant_id` FK and are subject to RLS:
 
-- `Event` — event store, append-only
-- `InvestigationReadModel` — projected investigation state
-- `MetricsHourly`, `IOCStats`, `RuleStats`, `AnalyzerStats` — per-tenant projections
-- `PendingReview` — HIL queue
-- `IntegrationConfig` — per-tenant integration URLs, endpoints, thresholds
-- `BrandingConfig` — per-tenant app name, logo, colors
-- `TenantSecret` — references (ns + name + version) to K8s Secrets; no raw material
-- `TenantLifecycleEvent` — append-only log of tenant state transitions, config revisions
-- `AuditLog` — append-only log of mutation actions, with `mssp_user_id` when performed via impersonation
+- `Event`: event store, append-only
+- `InvestigationReadModel`: projected investigation state
+- `MetricsHourly`, `IOCStats`, `RuleStats`, `AnalyzerStats`: per-tenant projections
+- `PendingReview`: HIL queue
+- `IntegrationConfig`: per-tenant integration URLs, endpoints, thresholds
+- `BrandingConfig`: per-tenant app name, logo, colors
+- `TenantSecret`: references (ns + name + version) to K8s Secrets; no raw material
+- `TenantLifecycleEvent`: append-only log of tenant state transitions, config revisions
+- `AuditLog`: append-only log of mutation actions, with `mssp_user_id` when performed via impersonation
 
 ### Database resources (install-scoped)
 
 No `tenant_id`; Organization-scoped or global:
 
-- `Organization` — install-wide (mssp_id, mssp_name, install_id, install_label, reserved license_jwt)
-- `User` — both MSSP-side users (nullable tenant_id) and customer users (tenant_id required)
+- `Organization`: install-wide (mssp_id, mssp_name, install_id, install_label, reserved license_jwt)
+- `User`: both MSSP-side users (nullable tenant_id) and customer users (tenant_id required)
 - MSSP-user / Tenant-user semantics derived from role + tenant_id presence; single table
-- `Release` — SocTalk version metadata (install-wide)
+- `Release`: SocTalk version metadata (install-wide)
 - Install settings (feature flags, system-wide toggles)
 
 ### Kubernetes resources
@@ -136,7 +136,7 @@ Hard-scoped. Tenant context from JWT; no impersonation entry. All queries RLS-en
 
 Examples: `GET /api/tenant/overview`, `GET /api/tenant/incidents`, `GET /api/tenant/reports`, `GET /api/tenant/audit`, `GET /api/tenant/branding`.
 
-### `/api/internal/*` — Service-to-service (Worker JWT or Adapter JWT)
+### `/api/internal/*`: Service-to-service (Worker JWT or Adapter JWT)
 
 Not user-facing. Short-lived service JWTs with explicit tenant context. Examples: `POST /api/internal/adapter/health`, `POST /api/internal/adapter/bootstrap`, `GET /api/internal/adapter/config`.
 

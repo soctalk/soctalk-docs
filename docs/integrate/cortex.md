@@ -6,8 +6,8 @@
 
 The `soctalk-tenant` chart in V1 has no Cortex subchart (`dependencies: []`). The choices are:
 
-- **Customer-managed Cortex** — customer runs their own; MSSP supplies URL + API key.
-- **No Cortex** — the AI pipeline still attempts the `ENRICH` route (the supervisor doesn't know Cortex is missing); each `cortex_worker` invocation fails and the failure is logged. There is no per-observable status field in V1; the worker simply returns without enrichment and the supervisor moves on.
+- **Customer-managed Cortex**: customer runs their own; MSSP supplies URL + API key.
+- **No Cortex**: the AI pipeline still attempts the `ENRICH` route (the supervisor doesn't know Cortex is missing); each `cortex_worker` invocation fails and the failure is logged. There is no per-observable status field in V1; the worker simply returns without enrichment and the supervisor moves on.
 
 A "bundled Cortex subchart" was described in earlier drafts as a planned option but is **not implemented in this release**.
 
@@ -27,11 +27,11 @@ Tenant detail → Settings → Cortex.
 
 ## Analyzer selection
 
-For each observable, the worker tries the **first analyzer name** in a hard-coded `ANALYZER_MAP` (in [`src/soctalk/workers/cortex.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/workers/cortex.py)) for the observable's type — without checking whether that analyzer is actually installed on the Cortex instance. If the analyzer isn't installed (or fails), the failure is logged and the worker returns without the enrichment. There is no fallback to a second analyzer in V1; install the canonical analyzer named in `ANALYZER_MAP` for each observable type you care about. Exposing the analyzer-preference order as a chart value is on the roadmap.
+For each observable, the worker tries the **first analyzer name** in a hard-coded `ANALYZER_MAP` (in [`src/soctalk/workers/cortex.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/workers/cortex.py)) for the observable's type, without checking whether that analyzer is actually installed on the Cortex instance. If the analyzer isn't installed (or fails), the failure is logged and the worker returns without the enrichment. There is no fallback to a second analyzer in V1; install the canonical analyzer named in `ANALYZER_MAP` for each observable type you care about. Exposing the analyzer-preference order as a chart value is on the roadmap.
 
 ## Cost
 
-Cortex itself is free; analyzer providers charge for queries. SocTalk doesn't meter Cortex calls directly — meter them at the provider:
+Cortex itself is free; analyzer providers charge for queries. SocTalk doesn't meter Cortex calls directly, meter them at the provider:
 
 - VirusTotal: per-key quota
 - AbuseIPDB: per-key quota
@@ -51,7 +51,7 @@ Sequence:
 4. Polls `/api/job/{id}/report` until the job finishes or a per-job timeout fires.
 5. Appends the verdict (`safe`, `info`, `suspicious`, `malicious`) and report body to the case state. Failed jobs log the error and continue.
 
-Failed Cortex calls don't fail the run — the worker logs the failure and returns to the supervisor without enrichment for that observable. The verdict node reasons about whatever context is available.
+Failed Cortex calls don't fail the run, the worker logs the failure and returns to the supervisor without enrichment for that observable. The verdict node reasons about whatever context is available.
 
 ## Bundled Cortex: not in this release
 
@@ -65,8 +65,8 @@ The `soctalk-tenant` chart does not bundle Cortex as a subchart. Run Cortex your
 
 ## What's not in here
 
-- Custom analyzer development — out of scope; see [TheHive-Project/Cortex-Analyzers](https://github.com/TheHive-Project/Cortex-Analyzers).
-- Per-observable TLP/PAP overrides — planned; today the tenant-default applies to every submission.
+- Custom analyzer development, out of scope; see [TheHive-Project/Cortex-Analyzers](https://github.com/TheHive-Project/Cortex-Analyzers).
+- Per-observable TLP/PAP overrides, planned; today the tenant-default applies to every submission.
 
 ## Source pointers
 

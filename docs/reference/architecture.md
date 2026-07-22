@@ -362,7 +362,7 @@ Rules:
 3. Inbound webhooks from TheHive are accepted only for read-only
    dashboard cases (not v1). Any attempt to accept inbound state is
    explicitly rejected and logged.
-4. No reconciliation loop — TheHive is a downstream mirror, the source
+4. No reconciliation loop, TheHive is a downstream mirror, the source
    of truth is SocTalk.
 5. Failed exports retry with exponential backoff up to a cap; permanent
    failure surfaces on the integrations health panel.

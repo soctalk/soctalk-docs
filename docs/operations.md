@@ -1,6 +1,6 @@
 # Daily Operations
 
-Tasks MSSP operators run against a live SocTalk install. If you haven't yet, read the [MSSP UI Tour](/mssp-ui) first — it catalogs every page referenced below.
+Tasks MSSP operators run against a live SocTalk install. If you haven't yet, read the [MSSP UI Tour](/mssp-ui) first, it catalogs every page referenced below.
 
 ## Investigation queue
 
@@ -10,7 +10,7 @@ Open **Investigations** to see active cases for every tenant on one view. Filter
 
 ## Proposal review queue
 
-**Reviews** is the cross-tenant queue of AI proposals waiting on a human. Approve / reject / more-info each update the review row in the database (and the audit log). There is **no outbox** in V1 — the executor / downstream notification pipeline is on the roadmap.
+**Reviews** is the cross-tenant queue of AI proposals waiting on a human. Approve / reject / more-info each update the review row in the database (and the audit log). There is **no outbox** in V1, the executor / downstream notification pipeline is on the roadmap.
 
 ![Review queue](/screenshots/review-queue.png)
 
@@ -66,7 +66,7 @@ If the data plane is healthy but the adapter still cannot reach `soctalk-system`
 
 ## Rotate data plane bootstrap secrets
 
-There is no `soctalk-cli rotate-*` command in this release — that path was documented in earlier drafts. Today:
+There is no `soctalk-cli rotate-*` command in this release, that path was documented in earlier drafts. Today:
 
 - **Wazuh admin password:** patch the relevant Secret in the tenant namespace, then restart the affected pod. The chart's bootstrap rerun on pod start will pick up the new credential. TheHive and Cortex are external integrations, not bundled subcharts, so their credentials are rotated in those systems and updated via the integration config (see /integrate/thehive, /integrate/cortex).
 - **Wazuh `authd` shared secret:** patch `Secret/wazuh-authd-secret` in `tenant-<slug>`, restart the Wazuh manager. All existing agents must re-enroll with the new secret; distribute via your normal secure channel.
@@ -97,7 +97,7 @@ Backups are MSSP-managed externally (Velero, cluster snapshots, external `pg_dum
    ```bash
    kubectl -n soctalk-system scale deploy soctalk-system-api --replicas=0
    ```
-   (The V1 chart bundles the orchestrator into the API pod — no separate `soctalk-system-orchestrator` Deployment.)
+   (The V1 chart bundles the orchestrator into the API pod, no separate `soctalk-system-orchestrator` Deployment.)
 2. Restore Postgres data from your backup.
 3. Restart the API: `kubectl -n soctalk-system scale deploy soctalk-system-api --replicas=2` (or your normal replica count).
 
@@ -105,7 +105,7 @@ Tenant data plane PVCs follow the same pattern: restore per-namespace, then `hel
 
 ## Emergency: disable a tenant immediately
 
-The UI **Suspend** action in this release flips the tenant state to `suspended` and stops the orchestrator from scheduling new investigations — **but it does not scale workloads**. For an actual cut-off, run the steps below (scale all deployments + apply a deny-all NetworkPolicy as belt-and-braces):
+The UI **Suspend** action in this release flips the tenant state to `suspended` and stops the orchestrator from scheduling new investigations, **but it does not scale workloads**. For an actual cut-off, run the steps below (scale all deployments + apply a deny-all NetworkPolicy as belt-and-braces):
 
 ```bash
 # 1. Scale all workloads in the tenant namespace to zero. This is the
@@ -125,7 +125,7 @@ spec:
 EOF
 ```
 
-Reverse by deleting the NetworkPolicy, scaling workloads back up to their original replica counts, and calling **Resume** in the UI. **Resume** also only updates the DB state in this release — it won't restore replica counts for you.
+Reverse by deleting the NetworkPolicy, scaling workloads back up to their original replica counts, and calling **Resume** in the UI. **Resume** also only updates the DB state in this release, it won't restore replica counts for you.
 
 ## Cross-tenant data leak suspicion
 

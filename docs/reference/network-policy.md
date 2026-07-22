@@ -248,7 +248,7 @@ spec:
       toPorts: [{ ports: [{ port: "443", protocol: TCP }] }]
 ```
 
-Cilium combines all policies that select the orchestrator pods, so the union of every tenant's allowed FQDNs is reachable from those pods at the network layer. **There is no per-tenant FQDN isolation at the request level** — that's the application's responsibility (per-tenant LLM config, tenant-scoped cache keys). The network policy reduces blast radius (the LLM hostname allow-list as a whole, not arbitrary egress), but it does not by itself constrain which tenant the orchestrator can talk to.
+Cilium combines all policies that select the orchestrator pods, so the union of every tenant's allowed FQDNs is reachable from those pods at the network layer. **There is no per-tenant FQDN isolation at the request level**: that's the application's responsibility (per-tenant LLM config, tenant-scoped cache keys). The network policy reduces blast radius (the LLM hostname allow-list as a whole, not arbitrary egress), but it does not by itself constrain which tenant the orchestrator can talk to.
 
 ### Tenant namespace policies
 
@@ -350,7 +350,7 @@ spec:
 
 **4.3.5 Allow Wazuh agent ingress to the tenant manager**
 
-Agent telemetry on 1514/1515 arrives via the path documented in [Wazuh Ingress](/reference/wazuh-ingress). The reference deployment is a per-tenant LoadBalancer Service (cloud LB or MetalLB), with an in-cluster HAProxy Deployment in `soctalk-system` as the single-IP fallback. The NetworkPolicy must allow whichever of those paths the install actually runs — `ingress-system` is **not** the right source for either, so do not use the chart's stock template without editing it.
+Agent telemetry on 1514/1515 arrives via the path documented in [Wazuh Ingress](/reference/wazuh-ingress). The reference deployment is a per-tenant LoadBalancer Service (cloud LB or MetalLB), with an in-cluster HAProxy Deployment in `soctalk-system` as the single-IP fallback. The NetworkPolicy must allow whichever of those paths the install actually runs, `ingress-system` is **not** the right source for either, so do not use the chart's stock template without editing it.
 
 Pick one block based on the install:
 

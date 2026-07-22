@@ -40,13 +40,13 @@ MSSP UI → Settings → Slack:
 | Webhook URL | `https://hooks.slack.com/services/T…/B…/…` |
 | Channel | Optional channel override; otherwise the webhook posts to its default channel |
 | Notify on escalation | Default on. Posts when a verdict closes as `escalate` |
-| Notify on verdict | Default off. Posts every `close`-disposition as well — high volume |
+| Notify on verdict | Default off. Posts every `close`-disposition as well, high volume |
 
-**There is no API to mutate Slack integration settings in V1** — the V1 chart doesn't mount the legacy `PUT /api/settings` route. Slack config is environment-only: provide `SLACK_WEBHOOK_URL`, `SLACK_CHANNEL`, `SLACK_NOTIFY_ON_ESCALATION`, and `SLACK_NOTIFY_ON_VERDICT` as env vars on the `soctalk-system-api` Deployment.
+**There is no API to mutate Slack integration settings in V1**: the V1 chart doesn't mount the legacy `PUT /api/settings` route. Slack config is environment-only: provide `SLACK_WEBHOOK_URL`, `SLACK_CHANNEL`, `SLACK_NOTIFY_ON_ESCALATION`, and `SLACK_NOTIFY_ON_VERDICT` as env vars on the `soctalk-system-api` Deployment.
 
 Slack notifications cover escalation and verdict events only (no `notify_on_capacity` toggle exists).
 
-Tokens (webhook URL, bot token, app token) are **not** writable via this endpoint — provide them as environment variables on the orchestrator Deployment (`SLACK_WEBHOOK_URL`, `SLACK_BOT_TOKEN`, `SLACK_APP_TOKEN`) or via Secret-mounted env. Rotate by patching the Secret and rolling the orchestrator.
+Tokens (webhook URL, bot token, app token) are **not** writable via this endpoint, provide them as environment variables on the orchestrator Deployment (`SLACK_WEBHOOK_URL`, `SLACK_BOT_TOKEN`, `SLACK_APP_TOKEN`) or via Secret-mounted env. Rotate by patching the Secret and rolling the orchestrator.
 
 ### Message format
 
@@ -65,7 +65,7 @@ Minimal Block Kit; no buttons (those are the HIL backend's job).
 
 > **Status:** the Slack two-way HIL backend exists in code (`src/soctalk/hil/backends/slack.py`) but is **not wired into the V1 chart's runtime in this release**. The dashboard review queue at `/review` is the only working HIL surface. Treat the Slack HIL setup below as the planned design.
 
-For the analyst review workflow. The same Slack app, plus the App-Level Token. SocTalk's HIL backend opens an outbound WebSocket to Slack — no public endpoint needed; works behind NAT.
+For the analyst review workflow. The same Slack app, plus the App-Level Token. SocTalk's HIL backend opens an outbound WebSocket to Slack, no public endpoint needed; works behind NAT.
 
 ### Configure
 
@@ -79,7 +79,7 @@ env:
     valueFrom: { secretKeyRef: { name: soctalk-slack-creds, key: app_token } }
 ```
 
-Per-tenant Slack channel routing is **not implemented in this release** — the configured install-wide `slack_channel` receives every review and notification regardless of which tenant the case belongs to. Per-tenant routing is on the roadmap.
+Per-tenant Slack channel routing is **not implemented in this release**: the configured install-wide `slack_channel` receives every review and notification regardless of which tenant the case belongs to. Per-tenant routing is on the roadmap.
 
 ### What gets posted
 
@@ -100,7 +100,7 @@ Observables:
 
 Buttons fire `block_actions` events; the SocTalk HIL backend processes them and writes the decision back to the case state. Reject and Needs-more-info open a modal for the rationale (required).
 
-A future release wires the dashboard and Slack to share review state. In V1 the two backends do not yet share state — if Slack HIL were enabled, the Slack action would not dismiss the dashboard card and vice versa.
+A future release wires the dashboard and Slack to share review state. In V1 the two backends do not yet share state, if Slack HIL were enabled, the Slack action would not dismiss the dashboard card and vice versa.
 
 ## Rotate tokens
 

@@ -4,15 +4,15 @@ Operators do most things through the [MSSP UI](/mssp-ui) or the [REST API](/refe
 
 ## In-pod entry points
 
-These run inside `soctalk-system-api` (or a one-shot Job). They use the pod's mounted Postgres credentials and chart config — no external state.
+These run inside `soctalk-system-api` (or a one-shot Job). They use the pod's mounted Postgres credentials and chart config, no external state.
 
 ### Bootstrap
 
-There is no separate bootstrap CLI in this release — the chart's API pod init command runs the bootstrap inline (migrations, role passwords, organization row, optional admin user). See [Install — Migrations and bootstrap](/install#migrations-and-bootstrap-run-automatically).
+There is no separate bootstrap CLI in this release, the chart's API pod init command runs the bootstrap inline (migrations, role passwords, organization row, optional admin user). See [Install, Migrations and bootstrap](/install#migrations-and-bootstrap-run-automatically).
 
 ### LLM smoke test
 
-There is no `soctalk.llm.smoke_test` CLI in this release. To sanity-check that a configured LLM is reachable, see [LLM providers — Sanity test](/integrate/llm-providers#sanity-test) for the one-liner Python expression.
+There is no `soctalk.llm.smoke_test` CLI in this release. To sanity-check that a configured LLM is reachable, see [LLM providers, Sanity test](/integrate/llm-providers#sanity-test) for the one-liner Python expression.
 
 ### `soctalk-auth` (in-pod helper)
 
@@ -27,7 +27,7 @@ Prompts for a new password (or reads from `SOCTALK_PASSWORD`), looks up the user
 
 ### `soctalk` (orchestrator entry point)
 
-`soctalk` is the orchestrator entry point — runs the LangGraph supervisor + workers. In V1 the API pod embeds the orchestrator (no separate `soctalk-system-orchestrator` Deployment). Not typically invoked by hand outside of dev.
+`soctalk` is the orchestrator entry point, runs the LangGraph supervisor + workers. In V1 the API pod embeds the orchestrator (no separate `soctalk-system-orchestrator` Deployment). Not typically invoked by hand outside of dev.
 
 ### No general-purpose `soctalk-cli` yet
 

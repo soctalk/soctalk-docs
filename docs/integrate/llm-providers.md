@@ -2,8 +2,8 @@
 
 The runtime ([`src/soctalk/llm.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/llm.py)) supports two providers, picked via `SOCTALK_LLM_PROVIDER`:
 
-- `anthropic` — via `langchain-anthropic` (Claude models)
-- `openai` — via `langchain-openai` (OpenAI or any OpenAI-compatible endpoint that honours `Authorization: Bearer <key>` against `POST /v1/chat/completions`: Azure OpenAI, vLLM, Ollama, LiteLLM, etc.)
+- `anthropic`: via `langchain-anthropic` (Claude models)
+- `openai`: via `langchain-openai` (OpenAI or any OpenAI-compatible endpoint that honours `Authorization: Bearer <key>` against `POST /v1/chat/completions`: Azure OpenAI, vLLM, Ollama, LiteLLM, etc.)
 
 In V1, the provider env var (`SOCTALK_LLM_PROVIDER`) is **only honoured by the per-tenant runs-worker** pods. The API pod itself uses hard-coded provider defaults. Per-tenant provider is settable via `PATCH /api/mssp/tenants/{tenant_id}/llm` (see [Per-tenant overrides](#per-tenant-overrides)).
 
@@ -41,7 +41,7 @@ To run a tenant against Anthropic directly (no OpenAI-compatible proxy in betwee
 
 …and supply the Anthropic key via the BYOK flow (`PUT /api/tenant/llm/api-key`). The controller renders `SOCTALK_LLM_PROVIDER=anthropic` onto that tenant's runs-worker, which uses `langchain-anthropic`.
 
-The chart's `llm.provider: anthropic` value + `llm.existingSecret` (Secret with an `anthropic-api-key` key) seed the install-wide credential Secret that the controller mirrors into new tenants — but the chart value does **not** itself set `SOCTALK_LLM_PROVIDER` anywhere in V1; provider selection is per-tenant.
+The chart's `llm.provider: anthropic` value + `llm.existingSecret` (Secret with an `anthropic-api-key` key) seed the install-wide credential Secret that the controller mirrors into new tenants, but the chart value does **not** itself set `SOCTALK_LLM_PROVIDER` anywhere in V1; provider selection is per-tenant.
 
 ## API keys
 
@@ -54,11 +54,11 @@ kubectl -n soctalk-system create secret generic soctalk-system-llm-api-key \
   --dry-run=client -o yaml | kubectl apply -f -
 ```
 
-Provide both keys when possible — the chart bundles both keys into the Secret regardless of the active provider, so swapping providers later (e.g., dev: openai → prod: anthropic) doesn't require re-creating the Secret.
+Provide both keys when possible, the chart bundles both keys into the Secret regardless of the active provider, so swapping providers later (e.g., dev: openai → prod: anthropic) doesn't require re-creating the Secret.
 
 ## Settings UI
 
-[Settings → LLM](/mssp-ui#settings) in the MSSP UI shows the active provider, model, base URL, temperature, and max tokens. The fields are **read-only in this release** — the `Read-only` badge appears next to the title. Mutations are not implemented; today the chart values + the runtime's env-based selection are authoritative.
+[Settings → LLM](/mssp-ui#settings) in the MSSP UI shows the active provider, model, base URL, temperature, and max tokens. The fields are **read-only in this release**: the `Read-only` badge appears next to the title. Mutations are not implemented; today the chart values + the runtime's env-based selection are authoritative.
 
 API keys are never shown in the settings response (only the `present: bool` flag).
 
@@ -102,12 +102,12 @@ Per-tenant LLM rotation flow: see [Daily Operations → Rotate per-tenant LLM ke
 ## Cost notes
 
 - The runtime makes many small LLM calls per investigation (supervisor + workers + closure) and one large reasoning call (verdict). The fast vs reasoning split is now configurable per tier: SocTalk resolves each role, a lighter router/supervisor tier and a stronger verdict/reasoning tier, to its own tier, each pointing at its own provider, model, and endpoint. The `defaults.llm.fastTier` knob in the `soctalk-system` chart values and the per-tier rendering in the provisioning layer let you point the fast tier at a cheap model while keeping a stronger model for the verdict, so you no longer trade verdict quality to lower per-call cost. The fast tier is off by default (`fastTier: {}`); set its `provider`, `baseUrl`, and `model` to enable it. It seeds the per-tier config of newly onboarded tenants, so existing tenants keep their current setup until patched.
-- Per-tenant token usage is measured via the Prometheus metric `soctalk_tenant_llm_tokens_total{direction="input|output"}` — see [Observability](/observability#per-tenant-cost).
+- Per-tenant token usage is measured via the Prometheus metric `soctalk_tenant_llm_tokens_total{direction="input|output"}`: see [Observability](/observability#per-tenant-cost).
 - Self-hosting only pays off if you keep the GPU busy. The `runsWorker.concurrency` knob (default `1`) sets how many investigations a runs-worker processes in parallel; raise it to fill a self-hosted continuous batch and amortize an always-on GPU across more work. See [Keeping the AI triage bill low](/guides/inference-cost-optimization) for how to size it against a given backend.
 
 ## Sanity test
 
-No dedicated smoke-test CLI ships in this release. The fastest check is to onboard a test tenant and look at the orchestrator logs (`kubectl -n soctalk-system logs deploy/soctalk-system-api -f`) — the first investigation will surface any provider misconfiguration. A scripted smoke-test command is on the roadmap.
+No dedicated smoke-test CLI ships in this release. The fastest check is to onboard a test tenant and look at the orchestrator logs (`kubectl -n soctalk-system logs deploy/soctalk-system-api -f`), the first investigation will surface any provider misconfiguration. A scripted smoke-test command is on the roadmap.
 
 ## Source pointers
 

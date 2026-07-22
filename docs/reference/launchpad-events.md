@@ -72,7 +72,7 @@ tearing_down → torn_down → complete
 | `provider_unavailable` | Upstream provider (Tailscale, Hetzner, ...) is unreachable.      | yes       |
 | `quota`             | Provider-side quota exhausted.                                      | no        |
 | `timeout`           | Wait exceeded a policy deadline.                                    | yes       |
-| `internal`          | Plugin/orchestrator bug — unexpected error path.                    | no        |
+| `internal`          | Plugin/orchestrator bug, unexpected error path.                    | no        |
 | `network`           | Local network / TLS / DNS.                                          | yes       |
 | `cancelled`         | Ctrl-C or SIGTERM.                                                  | no        |
 

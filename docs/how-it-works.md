@@ -105,11 +105,11 @@ Pulled together, a few properties set this apart from pointing a model at each a
 
 Each stage has its own page and its code:
 
-- [Authorization](/authorization) — org-state reasoning and the ask-once memory.
-- [Triage Policies](/triage-policies) — the deterministic guardrails on the run.
-- [Response Playbooks](/response-playbooks) — turning a verdict into governed action.
-- [Human review](/human-review) — the review queue and the analyst decision path.
-- [AI pipeline](/ai-pipeline) — the agentic graph in more detail.
-- [Architecture](/reference/architecture) — the deployment and data model.
+- [Authorization](/authorization), org-state reasoning and the ask-once memory.
+- [Triage Policies](/triage-policies), the deterministic guardrails on the run.
+- [Response Playbooks](/response-playbooks), turning a verdict into governed action.
+- [Human review](/human-review), the review queue and the analyst decision path.
+- [AI pipeline](/ai-pipeline), the agentic graph in more detail.
+- [Architecture](/reference/architecture), the deployment and data model.
 
 The pipeline code lives under [`src/soctalk/core/ir/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/core/ir) (ingest plane), [`src/soctalk/graph/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/graph) and [`src/soctalk/supervisor/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/supervisor) (graph plane), and [`src/soctalk/response/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/response) (response).

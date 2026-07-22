@@ -1,9 +1,9 @@
 # Run on Windows (WSL2)
 
-SocTalk is Kubernetes-native. On Windows it runs as **k3s (lightweight Kubernetes) inside WSL2** — installed and wired up for you by a single PowerShell command. No Docker Desktop required.
+SocTalk is Kubernetes-native. On Windows it runs as **k3s (lightweight Kubernetes) inside WSL2**: installed and wired up for you by a single PowerShell command. No Docker Desktop required.
 
 ::: tip Just evaluating?
-The **[VM appliance](/downloads)** (Hyper-V `vhdx` or [VirtualBox](/virtualbox)) is the simplest and most robust way to try SocTalk on Windows — it's a self-contained Linux VM, nothing to configure. The WSL2 path on this page is the local-cluster convenience option for developers who'd rather not run a full VM.
+The **[VM appliance](/downloads)** (Hyper-V `vhdx` or [VirtualBox](/virtualbox)) is the simplest and most robust way to try SocTalk on Windows, it's a self-contained Linux VM, nothing to configure. The WSL2 path on this page is the local-cluster convenience option for developers who'd rather not run a full VM.
 :::
 
 ::: warning Architecture
@@ -12,11 +12,11 @@ SocTalk images are **amd64-only**, so this works on **Windows x64**. On Windows 
 
 ## Prerequisites
 
-- **Windows 10 2004 (build 19041) or newer, or Windows 11** — x64
+- **Windows 10 2004 (build 19041) or newer, or Windows 11**: x64
 - **Administrator** PowerShell (the installer enables Windows features and configures WSL2)
 - **CPU virtualization enabled** in firmware (WSL2 needs it; in a VM, enable nested virtualization)
 
-You do **not** need to pre-install WSL2, Ubuntu, or Docker — the installer handles all of it.
+You do **not** need to pre-install WSL2, Ubuntu, or Docker, the installer handles all of it.
 
 ## One-click install
 
@@ -28,7 +28,7 @@ irm https://raw.githubusercontent.com/soctalk/soctalk/main/install.ps1 | iex
 
 What happens:
 
-1. **Enables WSL2** (one reboot — log back in and the install **resumes automatically** at your next logon; WSL2 can't run as the SYSTEM account, so the resume runs in your session).
+1. **Enables WSL2** (one reboot, log back in and the install **resumes automatically** at your next logon; WSL2 can't run as the SYSTEM account, so the resume runs in your session).
 2. **Imports an Ubuntu** distro and enables systemd inside it.
 3. **Installs k3s** as a systemd service inside WSL2, then deploys SocTalk and onboards a **`demo` tenant**.
 4. **Exposes the UI to Windows** at **`https://localhost/`** (a `netsh portproxy` forwards to the cluster inside WSL2; a logon task refreshes it after reboots).
@@ -58,8 +58,8 @@ The ingress host is `localhost`, and a Windows `netsh portproxy` (`localhost:443
 ## Caveats
 
 - **One reboot** is required to finish enabling WSL2; log back in afterward and the install continues on its own.
-- **Keep the cluster's WSL distro running** — k3s lives inside it. The installer sets `vmIdleTimeout=-1` so WSL2 doesn't idle out, and a logon task re-boots WSL + refreshes the `localhost` forward after a Windows restart.
-- The WSL2 path is the **local-cluster convenience** option. For an always-on / production-style install on Windows, prefer the **[VM appliance](/downloads)** (Hyper-V/VirtualBox) — a single Linux VM with no WSL2 networking moving parts.
+- **Keep the cluster's WSL distro running**: k3s lives inside it. The installer sets `vmIdleTimeout=-1` so WSL2 doesn't idle out, and a logon task re-boots WSL + refreshes the `localhost` forward after a Windows restart.
+- The WSL2 path is the **local-cluster convenience** option. For an always-on / production-style install on Windows, prefer the **[VM appliance](/downloads)** (Hyper-V/VirtualBox), a single Linux VM with no WSL2 networking moving parts.
 - amd64 images → Windows **x64** only.
 
 ## Tear down
@@ -78,8 +78,8 @@ wsl --unregister Ubuntu      # optional: remove the distro entirely
 
 | Symptom | Check |
 |---|---|
-| Install didn't continue after the reboot | log back in as the **same user** — the resume runs at your logon. Re-running `install.ps1` is safe (completed steps are skipped). |
-| `https://localhost/` not loading | the WSL2 IP may have changed; the `SocTalkExpose` scheduled task refreshes the forward — run it (`Start-ScheduledTask SocTalkExpose`) or re-run, then retry. |
-| `503` from `https://localhost/` | the forward works but pods aren't ready yet — `wsl -d Ubuntu -u root -- k3s kubectl -n soctalk-system get pods` and wait for `Running`. |
+| Install didn't continue after the reboot | log back in as the **same user**: the resume runs at your logon. Re-running `install.ps1` is safe (completed steps are skipped). |
+| `https://localhost/` not loading | the WSL2 IP may have changed; the `SocTalkExpose` scheduled task refreshes the forward, run it (`Start-ScheduledTask SocTalkExpose`) or re-run, then retry. |
+| `503` from `https://localhost/` | the forward works but pods aren't ready yet, `wsl -d Ubuntu -u root -- k3s kubectl -n soctalk-system get pods` and wait for `Running`. |
 | WSL2 fails to start | enable CPU virtualization (VT-x/AMD-V) in firmware; in a VM, enable nested virtualization. |
-| Anything past the wizard | same as every platform — see the [Quickstart troubleshooting table](/quickstart-vm#troubleshooting). |
+| Anything past the wizard | same as every platform, see the [Quickstart troubleshooting table](/quickstart-vm#troubleshooting). |

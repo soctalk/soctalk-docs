@@ -2,7 +2,7 @@
 
 The fastest way to try SocTalk end-to-end: download a pre-built VM image, boot it, open the setup wizard in your browser, click through. Five minutes to a running multi-tenant install with a demo tenant onboarded.
 
-This path is for **evaluators and demos** — for a production install on your own cluster see [Install](/install).
+This path is for **evaluators and demos**: for a production install on your own cluster see [Install](/install).
 
 ## What's inside the image
 
@@ -58,7 +58,7 @@ Convert `soctalk-demo.vmdk` to VDI and attach it to a new VM. Full walkthrough w
 
 ### Hyper-V
 
-Use `soctalk-demo.vhdx` as the OS disk on a **Generation 1** VM (the image boots via BIOS firmware; Generation 2 / UEFI is untested). To inject an SSH key, attach a NoCloud `seed.iso` as a DVD drive — see [Optional: cloud-init seed](#optional-cloud-init-seed).
+Use `soctalk-demo.vhdx` as the OS disk on a **Generation 1** VM (the image boots via BIOS firmware; Generation 2 / UEFI is untested). To inject an SSH key, attach a NoCloud `seed.iso` as a DVD drive, see [Optional: cloud-init seed](#optional-cloud-init-seed).
 
 ### AWS
 
@@ -83,18 +83,18 @@ ssh ops@<vm-ip>
 sudo cat /var/log/soctalk-setup-token
 ```
 
-The recommended login is the **`ops` user with your SSH key**, created by the cloud-init seed in [§ Optional: cloud-init seed](#optional-cloud-init-seed) below. If you boot without a seed, see [§ SSH access + credentials](#ssh-access-credentials) for the build-time fallback — and read the security note there before exposing the VM to a network you don't trust.
+The recommended login is the **`ops` user with your SSH key**, created by the cloud-init seed in [§ Optional: cloud-init seed](#optional-cloud-init-seed) below. If you boot without a seed, see [§ SSH access + credentials](#ssh-access-credentials) for the build-time fallback, and read the security note there before exposing the VM to a network you don't trust.
 
 ## 4. Open the wizard
 
 Browse to `https://<vm-ip>:8443/`. Accept the self-signed cert. You'll land on the token-entry page:
 
-![Setup wizard — token entry](/screenshots/setup-wizard-token.png)
+![Setup wizard, token entry](/screenshots/setup-wizard-token.png)
 
 Paste the token, then fill in:
 
 - MSSP / organization name
-- Hostname (optional — leave blank to use the box IP)
+- Hostname (optional, leave blank to use the box IP)
 - Admin email + password (min 12 chars)
 - LLM provider + API key
 
@@ -111,7 +111,7 @@ Total wall-clock from submit: about 2 minutes for `soctalk-system` pods Ready, t
 
 ## 5. Sign in
 
-Browse to `https://<vm-ip>/` (note: port 443, not 8443 — the wizard binds 8443 specifically to avoid conflicting with Traefik). The MSSP dashboard expects a DNS name; if you used a blank hostname add a `/etc/hosts` entry pointing `soctalk.local` at the VM IP and browse to `https://soctalk.local/`.
+Browse to `https://<vm-ip>/` (note: port 443, not 8443, the wizard binds 8443 specifically to avoid conflicting with Traefik). The MSSP dashboard expects a DNS name; if you used a blank hostname add a `/etc/hosts` entry pointing `soctalk.local` at the VM IP and browse to `https://soctalk.local/`.
 
 Sign in with the admin email + password you set in the wizard. You'll land on the MSSP dashboard. Continue with the [MSSP UI Tour](/mssp-ui).
 
@@ -142,7 +142,7 @@ The downloadable disk images (qcow2 / vmdk / vhdx / vhd / raw) all ship with **t
 
 ### Production: `ops` user (recommended)
 
-The cloud-init seed in [§ Optional: cloud-init seed](#optional-cloud-init-seed) creates an `ops` user with your SSH key. SSH-key auth only — no password is set.
+The cloud-init seed in [§ Optional: cloud-init seed](#optional-cloud-init-seed) creates an `ops` user with your SSH key. SSH-key auth only, no password is set.
 
 ```bash
 ssh -i ~/.ssh/<your-private-key> ops@<vm-ip>
@@ -188,11 +188,11 @@ sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' \
 sudo systemctl reload ssh
 ```
 
-The AWS AMI is built from a separate Packer source (`amazon-ebs`) that doesn't include the seed and uses EC2's keypair injection instead — it doesn't carry the `ubuntu:packer` credential. The hardening checklist still applies to it for the standard AMI `ubuntu` cloud-image user.
+The AWS AMI is built from a separate Packer source (`amazon-ebs`) that doesn't include the seed and uses EC2's keypair injection instead, it doesn't carry the `ubuntu:packer` credential. The hardening checklist still applies to it for the standard AMI `ubuntu` cloud-image user.
 
 ## Next step: onboard customers with Launchpad
 
-You've just run SocTalk end-to-end on a single co-located box. The natural next step is a real pilot — an MSSP control plane plus one or more tenant environments on your own infrastructure. [**Launchpad**](/launchpad) does exactly that with one command: it boots the VMs, joins them to your tailnet, installs SocTalk from public sources, and hands you a URL. (Prefer to run every step by hand? See the [do-it-yourself MSSP pilot](/mssp-pilot).)
+You've just run SocTalk end-to-end on a single co-located box. The natural next step is a real pilot, an MSSP control plane plus one or more tenant environments on your own infrastructure. [**Launchpad**](/launchpad) does exactly that with one command: it boots the VMs, joins them to your tailnet, installs SocTalk from public sources, and hands you a URL. (Prefer to run every step by hand? See the [do-it-yourself MSSP pilot](/mssp-pilot).)
 
 ## Troubleshooting
 
