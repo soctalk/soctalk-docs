@@ -125,23 +125,23 @@ Ouvrez **« + New triage policy »** (ou `/triage-policies/editor`). L'éditeur 
 
 ![L'éditeur no-code vierge](/screenshots/triage-policy-editor-01-blank.png)
 
-**1, Identité.** Donnez à la politique un identifiant de type slug et une **priorité** : un entier contraint par le plancher (`≥ 60`) où le plus bas l'emporte en cas de double correspondance, de sorte qu'une politique rédigée ne puisse jamais surclasser les protections intégrées.
+**1. Identité.** Donnez à la politique un identifiant de type slug et une **priorité** : un entier contraint par le plancher (`≥ 60`) où le plus bas l'emporte en cas de double correspondance, de sorte qu'une politique rédigée ne puisse jamais surclasser les protections intégrées.
 
 ![Identité : slug et priorité](/screenshots/triage-policy-editor-02-identity.png)
 
-**2, Quelles alertes possède-t-elle ?** Les trois filtres de correspondance sont combinés par OU. Ici, la politique possède les groupes de règles `sudo, su, sudoers`, les identifiants de règles `5402, 5501`, sur le rail `account`.
+**2. Quelles alertes possède-t-elle ?** Les trois filtres de correspondance sont combinés par OU. Ici, la politique possède les groupes de règles `sudo, su, sudoers`, les identifiants de règles `5402, 5501`, sur le rail `account`.
 
 ![Filtres de correspondance](/screenshots/triage-policy-editor-03-matchers.png)
 
-**3, Exigences d'enquête.** Exigez l'étape `gather_authorization_context`, déclarez la dépendance au module `authorization_engine`, et restreignez la phase `decide` à `VERDICT` uniquement. Notez que `CLOSE` n'est pas proposé, les politiques rédigées ne peuvent pas l'accorder.
+**3. Exigences d'enquête.** Exigez l'étape `gather_authorization_context`, déclarez la dépendance au module `authorization_engine`, et restreignez la phase `decide` à `VERDICT` uniquement. Notez que `CLOSE` n'est pas proposé, les politiques rédigées ne peuvent pas l'accorder.
 
 ![Exigences d'enquête](/screenshots/triage-policy-editor-04-requirements.png)
 
-**4, Validation de clôture.** Une clôture validée sur un actif classé `pci` ou `phi` est retenue pour un humain.
+**4. Validation de clôture.** Une clôture validée sur un actif classé `pci` ou `phi` est retenue pour un humain.
 
 ![Validation de clôture](/screenshots/triage-policy-editor-05-signoff.png)
 
-**5, Garde-fous.** Les garde-fous s'exécutent après le plancher de sécurité, dans l'ordre, la première correspondance l'emporte. Chaque condition peut être rédigée en JSON, le dialecte en bac à sable `{"op": [{"var": "field"}, value]}` avec des groupes `and`/`or`…
+**5. Garde-fous.** Les garde-fous s'exécutent après le plancher de sécurité, dans l'ordre, la première correspondance l'emporte. Chaque condition peut être rédigée en JSON, le dialecte en bac à sable `{"op": [{"var": "field"}, value]}` avec des groupes `and`/`or`…
 
 ![Rédaction d'une condition en JSON](/screenshots/triage-policy-editor-06-guardrail-json.png)
 
@@ -153,7 +153,7 @@ Deux autres complètent la politique : un remplacement en basse confiance vers `
 
 ![Les trois garde-fous](/screenshots/triage-policy-editor-08-guardrails-all.png)
 
-**6, Lisez le flux, puis simulez.** La colonne de droite projette tout le document sur le pipeline : filtres de correspondance → phases → brouillon du LLM → **plancher de sécurité (toujours actif)** → garde-fous → validation → commit.
+**6. Lisez le flux, puis simulez.** La colonne de droite projette tout le document sur le pipeline : filtres de correspondance → phases → brouillon du LLM → **plancher de sécurité (toujours actif)** → garde-fous → validation → commit.
 
 ![Projection du flux de décision](/screenshots/triage-policy-editor-09-decision-flow.png)
 

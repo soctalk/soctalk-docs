@@ -125,23 +125,23 @@ Apri **“+ New triage policy”** (oppure `/triage-policies/editor`). L'editor 
 
 ![L'editor no-code vuoto](/screenshots/triage-policy-editor-01-blank.png)
 
-**1, Identità.** Assegna alla policy uno slug id e una **priority**: un intero con floor-gating (`≥ 60`) dove il valore più basso vince su un doppio match, così che una policy redatta non possa mai superare le protezioni integrate.
+**1. Identità.** Assegna alla policy uno slug id e una **priority**: un intero con floor-gating (`≥ 60`) dove il valore più basso vince su un doppio match, così che una policy redatta non possa mai superare le protezioni integrate.
 
 ![Identità: slug e priority](/screenshots/triage-policy-editor-02-identity.png)
 
-**2, Quali alert governa?** I tre matcher sono in OR. Qui la policy governa i rule group `sudo, su, sudoers`, i rule id `5402, 5501`, sul track `account`.
+**2. Quali alert governa?** I tre matcher sono in OR. Qui la policy governa i rule group `sudo, su, sudoers`, i rule id `5402, 5501`, sul track `account`.
 
 ![Matcher](/screenshots/triage-policy-editor-03-matchers.png)
 
-**3, Requisiti di indagine.** Richiedi lo step `gather_authorization_context`, dichiara l'affidamento al modulo `authorization_engine` e restringi la fase `decide` al solo `VERDICT`. Nota che `CLOSE` non è offerto, le policy redatte non possono concederlo.
+**3. Requisiti di indagine.** Richiedi lo step `gather_authorization_context`, dichiara l'affidamento al modulo `authorization_engine` e restringi la fase `decide` al solo `VERDICT`. Nota che `CLOSE` non è offerto, le policy redatte non possono concederlo.
 
 ![Requisiti di indagine](/screenshots/triage-policy-editor-04-requirements.png)
 
-**4, Approvazione della chiusura.** Una chiusura in fase di commit su un asset classificato `pci` o `phi` viene trattenuta per un umano.
+**4. Approvazione della chiusura.** Una chiusura in fase di commit su un asset classificato `pci` o `phi` viene trattenuta per un umano.
 
 ![Approvazione della chiusura](/screenshots/triage-policy-editor-05-signoff.png)
 
-**5, Guardrail.** I guardrail vengono eseguiti dopo il safety floor, in ordine, vince il primo match. Ogni condizione può essere redatta come JSON, il dialetto in sandbox `{"op": [{"var": "field"}, value]}` con gruppi `and`/`or`…
+**5. Guardrail.** I guardrail vengono eseguiti dopo il safety floor, in ordine, vince il primo match. Ogni condizione può essere redatta come JSON, il dialetto in sandbox `{"op": [{"var": "field"}, value]}` con gruppi `and`/`or`…
 
 ![Redazione di una condizione come JSON](/screenshots/triage-policy-editor-06-guardrail-json.png)
 
@@ -153,7 +153,7 @@ Altri due completano la policy: un override a bassa confidenza verso `needs_more
 
 ![Tutti e tre i guardrail](/screenshots/triage-policy-editor-08-guardrails-all.png)
 
-**6, Leggi il flusso, poi simula.** La colonna di destra proietta l'intero documento sulla pipeline: matcher → fasi → bozza LLM → **safety floor (sempre attivo)** → guardrail → approvazione → commit.
+**6. Leggi il flusso, poi simula.** La colonna di destra proietta l'intero documento sulla pipeline: matcher → fasi → bozza LLM → **safety floor (sempre attivo)** → guardrail → approvazione → commit.
 
 ![Proiezione del decision-flow](/screenshots/triage-policy-editor-09-decision-flow.png)
 

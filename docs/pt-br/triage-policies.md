@@ -125,23 +125,23 @@ Abra **“+ New triage policy”** (ou `/triage-policies/editor`). O editor tem 
 
 ![O editor no-code em branco](/screenshots/triage-policy-editor-01-blank.png)
 
-**1, Identidade.** Dê à política um id de slug e uma **prioridade**: um inteiro limitado pelo piso (`≥ 60`) onde o menor vence em uma dupla correspondência, de modo que uma política de autoria nunca possa superar as proteções embutidas.
+**1. Identidade.** Dê à política um id de slug e uma **prioridade**: um inteiro limitado pelo piso (`≥ 60`) onde o menor vence em uma dupla correspondência, de modo que uma política de autoria nunca possa superar as proteções embutidas.
 
 ![Identidade: slug e prioridade](/screenshots/triage-policy-editor-02-identity.png)
 
-**2, Quais alertas ela detém?** Os três matchers são combinados por OR. Aqui a política detém os grupos de regras `sudo, su, sudoers`, os ids de regras `5402, 5501`, no track `account`.
+**2. Quais alertas ela detém?** Os três matchers são combinados por OR. Aqui a política detém os grupos de regras `sudo, su, sudoers`, os ids de regras `5402, 5501`, no track `account`.
 
 ![Matchers](/screenshots/triage-policy-editor-03-matchers.png)
 
-**3, Requisitos de investigação.** Exija a etapa `gather_authorization_context`, declare dependência do módulo `authorization_engine`, e restrinja a fase `decide` a somente `VERDICT`. Note que `CLOSE` não é oferecido, políticas de autoria não podem concedê-lo.
+**3. Requisitos de investigação.** Exija a etapa `gather_authorization_context`, declare dependência do módulo `authorization_engine`, e restrinja a fase `decide` a somente `VERDICT`. Note que `CLOSE` não é oferecido, políticas de autoria não podem concedê-lo.
 
 ![Requisitos de investigação](/screenshots/triage-policy-editor-04-requirements.png)
 
-**4, Aprovação de fechamento.** Um fechamento efetivado em um ativo classificado como `pci` ou `phi` é retido para um humano.
+**4. Aprovação de fechamento.** Um fechamento efetivado em um ativo classificado como `pci` ou `phi` é retido para um humano.
 
 ![Aprovação de fechamento](/screenshots/triage-policy-editor-05-signoff.png)
 
-**5, Guardrails.** Guardrails rodam após o piso de segurança, em ordem, a primeira correspondência vence. Cada condição pode ser escrita como JSON, o dialeto em sandbox `{"op": [{"var": "field"}, value]}` com grupos `and`/`or`…
+**5. Guardrails.** Guardrails rodam após o piso de segurança, em ordem, a primeira correspondência vence. Cada condição pode ser escrita como JSON, o dialeto em sandbox `{"op": [{"var": "field"}, value]}` com grupos `and`/`or`…
 
 ![Escrevendo uma condição como JSON](/screenshots/triage-policy-editor-06-guardrail-json.png)
 
@@ -153,7 +153,7 @@ Mais dois completam a política: uma sobrescrita de baixa confiança para `needs
 
 ![Todos os três guardrails](/screenshots/triage-policy-editor-08-guardrails-all.png)
 
-**6, Leia o fluxo, depois simule.** A coluna direita projeta o documento inteiro no pipeline: matchers → fases → rascunho do LLM → **piso de segurança (sempre ativo)** → guardrails → aprovação → efetivação.
+**6. Leia o fluxo, depois simule.** A coluna direita projeta o documento inteiro no pipeline: matchers → fases → rascunho do LLM → **piso de segurança (sempre ativo)** → guardrails → aprovação → efetivação.
 
 ![Projeção de fluxo de decisão](/screenshots/triage-policy-editor-09-decision-flow.png)
 

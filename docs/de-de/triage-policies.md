@@ -125,23 +125,23 @@ Admins verfassen Triage-Richtlinien auf der Seite **Triage Policies**, während 
 
 ![Der leere No-Code-Editor](/screenshots/triage-policy-editor-01-blank.png)
 
-**1, Identität.** Gib der Richtlinie eine Slug-ID und eine **Priorität**: eine floor-gegatete Ganzzahl (`≥ 60`), bei der die niedrigere bei einem Doppel-Match gewinnt, sodass eine verfasste Richtlinie die eingebauten Schutzmechanismen niemals überbieten kann.
+**1. Identität.** Gib der Richtlinie eine Slug-ID und eine **Priorität**: eine floor-gegatete Ganzzahl (`≥ 60`), bei der die niedrigere bei einem Doppel-Match gewinnt, sodass eine verfasste Richtlinie die eingebauten Schutzmechanismen niemals überbieten kann.
 
 ![Identität: Slug und Priorität](/screenshots/triage-policy-editor-02-identity.png)
 
-**2, Welche Warnungen besitzt sie?** Die drei Matcher werden mit OR verknüpft. Hier besitzt die Richtlinie die Regelgruppen `sudo, su, sudoers`, die Regel-IDs `5402, 5501`, auf dem `account`-Track.
+**2. Welche Warnungen besitzt sie?** Die drei Matcher werden mit OR verknüpft. Hier besitzt die Richtlinie die Regelgruppen `sudo, su, sudoers`, die Regel-IDs `5402, 5501`, auf dem `account`-Track.
 
 ![Matcher](/screenshots/triage-policy-editor-03-matchers.png)
 
-**3, Untersuchungsanforderungen.** Erfordere den Schritt `gather_authorization_context`, deklariere die Abhängigkeit vom Modul `authorization_engine` und enge die `decide`-Phase auf nur `VERDICT` ein. Beachte: `CLOSE` wird nicht angeboten, verfasste Richtlinien können es nicht gewähren.
+**3. Untersuchungsanforderungen.** Erfordere den Schritt `gather_authorization_context`, deklariere die Abhängigkeit vom Modul `authorization_engine` und enge die `decide`-Phase auf nur `VERDICT` ein. Beachte: `CLOSE` wird nicht angeboten, verfasste Richtlinien können es nicht gewähren.
 
 ![Untersuchungsanforderungen](/screenshots/triage-policy-editor-04-requirements.png)
 
-**4, Abschluss-Freigabe.** Ein committender Abschluss auf einem `pci`- oder `phi`-klassifizierten Asset wird für einen Menschen zurückgehalten.
+**4. Abschluss-Freigabe.** Ein committender Abschluss auf einem `pci`- oder `phi`-klassifizierten Asset wird für einen Menschen zurückgehalten.
 
 ![Abschluss-Freigabe](/screenshots/triage-policy-editor-05-signoff.png)
 
-**5, Guardrails.** Guardrails laufen nach dem Safety Floor, der Reihe nach, der erste Match gewinnt. Jede Bedingung kann als JSON verfasst werden, der Sandbox-Dialekt `{"op": [{"var": "field"}, value]}` mit `and`/`or`-Gruppen…
+**5. Guardrails.** Guardrails laufen nach dem Safety Floor, der Reihe nach, der erste Match gewinnt. Jede Bedingung kann als JSON verfasst werden, der Sandbox-Dialekt `{"op": [{"var": "field"}, value]}` mit `and`/`or`-Gruppen…
 
 ![Eine Bedingung als JSON verfassen](/screenshots/triage-policy-editor-06-guardrail-json.png)
 
@@ -153,7 +153,7 @@ Zwei weitere vervollständigen die Richtlinie: ein Low-Confidence-Override auf `
 
 ![Alle drei Guardrails](/screenshots/triage-policy-editor-08-guardrails-all.png)
 
-**6, Lies den Fluss, dann simuliere.** Die rechte Spalte projiziert das gesamte Dokument auf die Pipeline: Matcher → Phasen → LLM-Entwurf → **Safety Floor (immer an)** → Guardrails → Freigabe → Commit.
+**6. Lies den Fluss, dann simuliere.** Die rechte Spalte projiziert das gesamte Dokument auf die Pipeline: Matcher → Phasen → LLM-Entwurf → **Safety Floor (immer an)** → Guardrails → Freigabe → Commit.
 
 ![Entscheidungsfluss-Projektion](/screenshots/triage-policy-editor-09-decision-flow.png)
 

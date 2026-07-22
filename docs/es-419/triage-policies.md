@@ -125,23 +125,23 @@ Abre **"+ New triage policy"** (o `/triage-policies/editor`). El editor tiene do
 
 ![El editor sin código en blanco](/screenshots/triage-policy-editor-01-blank.png)
 
-**1, Identidad.** Dale a la política un id de slug y una **priority**: un entero acotado por el piso (`≥ 60`) donde el menor gana en una doble coincidencia, de modo que una política redactada nunca pueda superar en rango las protecciones integradas.
+**1. Identidad.** Dale a la política un id de slug y una **priority**: un entero acotado por el piso (`≥ 60`) donde el menor gana en una doble coincidencia, de modo que una política redactada nunca pueda superar en rango las protecciones integradas.
 
 ![Identidad: slug y priority](/screenshots/triage-policy-editor-02-identity.png)
 
-**2, ¿Qué alertas posee?** Los tres matchers se combinan con OR. Aquí la política posee los grupos de reglas `sudo, su, sudoers`, los ids de reglas `5402, 5501`, en el track `account`.
+**2. ¿Qué alertas posee?** Los tres matchers se combinan con OR. Aquí la política posee los grupos de reglas `sudo, su, sudoers`, los ids de reglas `5402, 5501`, en el track `account`.
 
 ![Matchers](/screenshots/triage-policy-editor-03-matchers.png)
 
-**3, Requisitos de investigación.** Requiere el paso `gather_authorization_context`, declara dependencia del módulo `authorization_engine` y acota la fase `decide` a solo `VERDICT`. Nota que `CLOSE` no se ofrece, las políticas redactadas no pueden otorgarlo.
+**3. Requisitos de investigación.** Requiere el paso `gather_authorization_context`, declara dependencia del módulo `authorization_engine` y acota la fase `decide` a solo `VERDICT`. Nota que `CLOSE` no se ofrece, las políticas redactadas no pueden otorgarlo.
 
 ![Requisitos de investigación](/screenshots/triage-policy-editor-04-requirements.png)
 
-**4, Aprobación de cierre.** Un cierre que se confirma sobre un activo clasificado como `pci` o `phi` se retiene para un humano.
+**4. Aprobación de cierre.** Un cierre que se confirma sobre un activo clasificado como `pci` o `phi` se retiene para un humano.
 
 ![Aprobación de cierre](/screenshots/triage-policy-editor-05-signoff.png)
 
-**5, Guardrails.** Los guardrails se ejecutan después del piso de seguridad, en orden, gana la primera coincidencia. Cada condición puede redactarse como JSON, el dialecto aislado `{"op": [{"var": "field"}, value]}` con grupos `and`/`or`…
+**5. Guardrails.** Los guardrails se ejecutan después del piso de seguridad, en orden, gana la primera coincidencia. Cada condición puede redactarse como JSON, el dialecto aislado `{"op": [{"var": "field"}, value]}` con grupos `and`/`or`…
 
 ![Redactando una condición como JSON](/screenshots/triage-policy-editor-06-guardrail-json.png)
 
@@ -153,7 +153,7 @@ Dos más completan la política: una anulación por baja confianza a `needs_more
 
 ![Los tres guardrails](/screenshots/triage-policy-editor-08-guardrails-all.png)
 
-**6, Lee el flujo, luego simula.** La columna derecha proyecta el documento completo sobre el pipeline: matchers → fases → borrador del LLM → **piso de seguridad (siempre activo)** → guardrails → aprobación → confirmación.
+**6. Lee el flujo, luego simula.** La columna derecha proyecta el documento completo sobre el pipeline: matchers → fases → borrador del LLM → **piso de seguridad (siempre activo)** → guardrails → aprobación → confirmación.
 
 ![Proyección del flujo de decisión](/screenshots/triage-policy-editor-09-decision-flow.png)
 
