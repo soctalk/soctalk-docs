@@ -11,7 +11,7 @@ Drei Dinge wurden gemessen, vom synthetischen Durchsatz bis zur realistischen Tr
 
 ## Continuous Batching füllt die GPU
 
-Ein offenes Modell wurde pro GPU deployt und eine steigende Zahl identischer triage-förmiger Anfragen an den SGLang OpenAI-compatible Endpoint gefeuert. Das misst die Backend-Seite dessen, was Worker-Nebenläufigkeit freischaltet: wenn die Client-Nebenläufigkeit N steigt, füllt sich der continuous Batch, der aggregierte Durchsatz klettert, und die Kosten pro Anfrage fallen.
+Ein offenes Modell wurde pro GPU deployt und eine steigende Zahl identischer triage-förmiger Anfragen an den SGLang OpenAI-kompatiblen Endpoint gefeuert. Das misst die Backend-Seite dessen, was Worker-Nebenläufigkeit freischaltet: wenn die Client-Nebenläufigkeit N steigt, füllt sich der continuous Batch, der aggregierte Durchsatz klettert, und die Kosten pro Anfrage fallen.
 
 Die serverless Plattform hat keine Consumer-RTX-Karten, also stehen Low-End-Datacenter-GPUs als Stellvertreter ein: A10G (Ampere 24GB) für RTX 3090, L4 (Ada 24GB) für eine Karte der RTX-4090-Klasse. Qwen3-14B braucht etwa 28GB bei bf16 und passt nicht mit Batch-Spielraum auf eine 24GB-Karte, also lassen die 24GB-Karten DeepSeek-R1-Distill-Qwen-7B laufen, das KV-cache-Raum für einen größeren Batch lässt.
 
@@ -21,7 +21,7 @@ Die serverless Plattform hat keine Consumer-RTX-Karten, also stehen Low-End-Data
 | A10G (ca. RTX 3090) | DS-R1-7B | 29.2 | 216.7 | 7.4x | 2.09 bis 0.28 (minus 87%) |
 | L4 (ca. RTX 4090) | DS-R1-7B | 17.3 | 131.2 | 7.6x | 2.57 bis 0.34 (minus 87%) |
 
-Seriell (N=1) lässt die GPU auf jeder Karte unterausgelastet. Das Füllen des Batches bei N=8 maß den 5,9- bis 7,6-fachen aggregierten Durchsatz und Kosten pro Anfrage bei 13 bis 17 Prozent des seriellen Falls. Die 24GB-Karten zeigten einen höheren speedup (7,4 bis 7,6x) als die mid-Karte, die das 14B laufen ließ (5,9x), weil das kleinere Modell mehr KV-cache-Raum für einen größeren Batch lässt. Der niedrigere absolute tok/s-Wert der L4 gegenüber der A10G ist zu erwarten, da die L4 ein Inferenz-Teil mit niedriger TDP ist, also liest es sich als konservativer Boden für eine echte RTX 4090. Die Skalierungsfaktoren waren über die Karten hinweg ähnlich, was der Punkt ist: die Auslastung, nicht die Karte, treibt die Einsparung.
+Seriell (N=1) lässt die GPU auf jeder Karte unterausgelastet. Das Füllen des Batches bei N=8 maß den 5.9- bis 7.6-fachen aggregierten Durchsatz und Kosten pro Anfrage bei 13 bis 17 Prozent des seriellen Falls. Die 24GB-Karten zeigten einen höheren speedup (7.4 bis 7.6x) als die mid-Karte, die das 14B laufen ließ (5.9x), weil das kleinere Modell mehr KV-cache-Raum für einen größeren Batch lässt. Der niedrigere absolute tok/s-Wert der L4 gegenüber der A10G ist zu erwarten, da die L4 ein Inferenz-Teil mit niedriger TDP ist, also liest es sich als konservativer Boden für eine echte RTX 4090. Die Skalierungsfaktoren waren über die Karten hinweg ähnlich, was der Punkt ist: die Auslastung, nicht die Karte, treibt die Einsparung.
 
 ## Echtes Consumer-Silizium, auf einem Mietmarktplatz
 
@@ -37,7 +37,7 @@ Gemessen auf einer echten RTX 3090:
 | 4 | 179.0 | 3.91x | 0.068 |
 | 8 | 352.2 | 7.69x | 0.035 |
 
-Der Batching-speedup hielt auf echtem Silizium (7,69x bei N=8, gegenüber 7,42x auf dem A10G-Stellvertreter und 7,58x auf dem L4-Stellvertreter). Die echte RTX 3090 lief schneller als der A10G-Stellvertreter (45,8 gegenüber 29,2 tok/s bei N=1, 352 gegenüber 217 bei N=8), weil die A10G ein beschnittenes Teil ist. Die gemessenen Kosten waren auf der gemieteten Karte niedriger: $0.035 pro 1k Anfragen bei N=8 gegenüber $0.282 der A10G, in diesem Lauf etwa 8x niedriger, aus einer günstigeren Karte ($0.22 gegenüber $1.10/hr) und höherem Durchsatz, ohne im Voraus eine GPU zu kaufen. Der pod-Pfad hat einen langsamen Kaltstart (Image-Pull plus Modell-Download), also lief er entkoppelt: erstellen, pollen bis bereit, sweepen, terminieren.
+Der Batching-speedup hielt auf echtem Silizium (7.69x bei N=8, gegenüber 7.42x auf dem A10G-Stellvertreter und 7.58x auf dem L4-Stellvertreter). Die echte RTX 3090 lief schneller als der A10G-Stellvertreter (45.8 gegenüber 29.2 tok/s bei N=1, 352 gegenüber 217 bei N=8), weil die A10G ein beschnittenes Teil ist. Die gemessenen Kosten waren auf der gemieteten Karte niedriger: $0.035 pro 1k Anfragen bei N=8 gegenüber $0.282 der A10G, in diesem Lauf etwa 8x niedriger, aus einer günstigeren Karte ($0.22 gegenüber $1.10/hr) und höherem Durchsatz, ohne im Voraus eine GPU zu kaufen. Der pod-Pfad hat einen langsamen Kaltstart (Image-Pull plus Modell-Download), also lief er entkoppelt: erstellen, pollen bis bereit, sweepen, terminieren.
 
 ## Realistische Triage-Zeit, und ob ein kleines Modell standhält
 
@@ -59,7 +59,7 @@ Stock gegenüber distilled, beide auf der gemieteten RTX 4090 (secure), N=8:
 
 Realistische golden Triage bei N=8 schloss den 12-Warnungen-Satz über diese Läufe hinweg in 11 bis 43 Sekunden ab, unter einer Minute. Das 7B produzierte null schema errors und verdict-Werte von 5/6 bis 6/6, also produzierte ein kleines selbst hostbares Modell hier gültige strukturierte Triage-Ausgabe. Stock Qwen2.5-7B-Instruct funktionierte ebenfalls (gültige strukturierte Ausgabe, null schema errors, derselbe verdict-Wert wie das distill) und lag beim routing um einen Fall hinter dem distill, was eine zu kleine routing-Stichprobe ist, um stark gelesen zu werden.
 
-Kosten pro realistischer Triage, gemessen pro Node (ein voller agentischer Lauf sind ein paar Aufrufe, also mit ungefähr 2 bis 3 multiplizieren): die serverless A10G bei $1.10/hr ist etwa $1.10 pro 1.000 Warnungen; die gemietete RTX 4090 secure bei $0.69/hr ist etwa $0.18 pro 1.000, und community bei $0.34/hr etwa $0.09 pro 1.000.
+Kosten pro realistischer Triage, gemessen pro Node (ein voller agentischer Lauf sind ein paar Aufrufe, also mit ungefähr 2 bis 3 multiplizieren): die serverless A10G bei $1.10/hr ist etwa $1.10 pro 1,000 Warnungen; die gemietete RTX 4090 secure bei $0.69/hr ist etwa $0.18 pro 1,000, und community bei $0.34/hr etwa $0.09 pro 1,000.
 
 ## Die Capabilities hinter diesen Zahlen
 
@@ -87,8 +87,8 @@ Wenn Sie die kurze Antwort wollen, hier ist, worauf diese Läufe hindeuten, nach
 
 | Situation | Das Setup, das hier am besten maß | Gesehene Kosten | Der Kompromiss, den Sie eingehen |
 |---|---|---|---|
-| Stetiges Volumen, und Sie können eine GPU betreiben | Eine gemietete Consumer-Karte (eine RTX 4090 auf secure Cloud kam zuverlässig hoch, wo 3090er es nicht taten), ein offenes 7B-Modell auf vLLM oder SGLang, Worker-Nebenläufigkeit bei 8, um den Batch zu füllen | etwa $0.09 bis $0.18 pro 1.000 Warnungen, der 12-Warnungen-Satz in etwa 11 Sekunden | Sie betreiben den Lebenszyklus: Kaltstarts, kein scale-to-zero, manuelles Abbauen |
-| Stoßweises oder betriebsarmes Volumen | Eine verwaltete scale-to-zero serverless GPU, dasselbe 7B auf SGLang, Nebenläufigkeit bei 8 | etwa $1.10 pro 1.000 Warnungen | Ein höherer Stundensatz, aber null Leerlaufkosten und nichts zu betreiben; halten Sie ein warmes Fallback für dringende Schübe bereit, die während eines Kaltstarts ankommen |
+| Stetiges Volumen, und Sie können eine GPU betreiben | Eine gemietete Consumer-Karte (eine RTX 4090 auf secure Cloud kam zuverlässig hoch, wo 3090er es nicht taten), ein offenes 7B-Modell auf vLLM oder SGLang, Worker-Nebenläufigkeit bei 8, um den Batch zu füllen | etwa $0.09 bis $0.18 pro 1,000 Warnungen, der 12-Warnungen-Satz in etwa 11 Sekunden | Sie betreiben den Lebenszyklus: Kaltstarts, kein scale-to-zero, manuelles Abbauen |
+| Stoßweises oder betriebsarmes Volumen | Eine verwaltete scale-to-zero serverless GPU, dasselbe 7B auf SGLang, Nebenläufigkeit bei 8 | etwa $1.10 pro 1,000 Warnungen | Ein höherer Stundensatz, aber null Leerlaufkosten und nichts zu betreiben; halten Sie ein warmes Fallback für dringende Schübe bereit, die während eines Kaltstarts ankommen |
 | Die schwersten Fälle, mit minimalem Betrieb | Ein leistungsfähiges Frontier-Modell für das verdict mit eingeschalteter Batch API und prompt caching, und das günstige selbst gehostete tier für die routinemäßige Mitte | Der Frontier-Satz, aber nur auf einem Bruchteil der Warnungen | Am teuersten pro Aufruf, im Gegenzug für keine Infrastruktur und ein leistungsfähigeres verwaltetes Modell-tier für die schwersten Fälle |
 | Warnungsinhalte dürfen Ihren Perimeter nicht verlassen | Das 7B in-cluster selbst hosten, sobald In-Cluster-serving ausgeliefert wird, mit einem leistungsfähigen Fallback und dem safety floor an Ort und Stelle | Hier nicht gemessen; die gemieteten und serverless Self-Host-Zahlen oben sind richtungsweisende Stellvertreter, bis In-Cluster-serving landet | Sie besitzen das serving; das In-Cluster-Deployment wird noch gebaut ([#13](https://github.com/soctalk/soctalk/issues/13)) |
 

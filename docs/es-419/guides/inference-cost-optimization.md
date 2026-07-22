@@ -1,6 +1,6 @@
 ---
 title: Mantener la factura del triage de IA lo más baja posible
-description: "En cuanto el triage de IA funciona, la siguiente pregunta es la factura. Batching y caché, escalonamiento de modelos, modelos alojados más baratos y autoalojamiento en GPU alquiladas o locales, con coste y latencia medidos para reducir al mínimo la factura del modelo."
+description: "En cuanto el triage de IA funciona, la siguiente pregunta es la factura. Batching y caché, escalonamiento de modelos, modelos alojados más baratos y autoalojamiento en GPU alquiladas o locales, con costo y latencia medidos para reducir al mínimo la factura del modelo."
 ---
 
 # Mantener la factura del triage de IA lo más baja posible
@@ -13,13 +13,13 @@ Las opciones de abajo van de más barata y segura a menos. La mayoría de los de
 
 ## Batching y caché antes que nada
 
-Dos funciones gestionadas en las API de frontera reducen el coste sin cambiar la calidad del modelo.
+Dos funciones gestionadas en las API de frontera reducen el costo sin cambiar la calidad del modelo.
 
 **La Batch API** procesa las solicitudes de forma asíncrona a cambio de un descuento fijo, y la salida es idéntica. SocTalk encaja aquí sin esfuerzo. La ventana de settle ya retiene una ejecución para que las alertas correlacionadas se acumulen, y una ejecución es asíncrona de por sí, así que el triage no es una ruta sensible a la latencia.
 
 **El caché de prompts (prompt caching)** factura la parte repetida de un prompt a una fracción de la tarifa de entrada. Los prompts de supervisor y de verdict de SocTalk llevan un prefijo estable grande, el prompt de sistema y las definiciones de herramientas, con el contenido volátil de cada caso al final, así que la fracción cacheable es real y ya se usa en la ruta de Anthropic.
 
-Activa ambas y mide el nuevo coste por ejecución antes de considerar cualquier cosa de abajo. Ninguna toca la calidad, así que no hay motivo para saltárselas.
+Activa ambas y mide el nuevo costo por ejecución antes de considerar cualquier cosa de abajo. Ninguna toca la calidad, así que no hay motivo para saltárselas.
 
 ## Pon un modelo más barato en el trabajo más barato
 
@@ -31,7 +31,7 @@ Varios provider sirven modelos abiertos casi de frontera que pueden abaratar a l
 
 ## Autoalojar el modelo
 
-El autoalojamiento es el mayor ahorro y la única opción que mantiene el contenido de las alertas dentro de tu perímetro. SocTalk consume un modelo autoalojado igual que consume una API de frontera, apuntando un tier a un endpoint compatible con OpenAI. Clasifica el backend por su modelo de entrega, una API gestionada en caliente, una GPU serverless que baja a cero, una GPU alquilada siempre encendida o una instancia local, para que el coste y la planificación se comporten bien en cada caso.
+El autoalojamiento es el mayor ahorro y la única opción que mantiene el contenido de las alertas dentro de tu perímetro. SocTalk consume un modelo autoalojado igual que consume una API de frontera, apuntando un tier a un endpoint compatible con OpenAI. Clasifica el backend por su modelo de entrega, una API gestionada en caliente, una GPU serverless que baja a cero, una GPU alquilada siempre encendida o una instancia local, para que el costo y la planificación se comporten bien en cada caso.
 
 Dónde lo corres es una compensación real.
 
@@ -43,7 +43,7 @@ Dónde lo corres es una compensación real.
 
 Un servidor autoalojado solo es barato cuando su batch continuo está lleno. Una sola solicitud a la vez deja la GPU infrautilizada y hace que el autoalojamiento cueste más de lo que debería. SocTalk corre varias investigaciones de forma concurrente por worker, así que hay varias solicitudes en vuelo contra el backend a la vez y el batch se llena.
 
-En nuestras pruebas, llenar el batch a ocho solicitudes concurrentes elevó el rendimiento agregado unas seis a ocho veces respecto a una a una y recortó el coste por solicitud a cerca del 13 al 17 por ciento del caso serial, en las ejecuciones probadas con L40S, A10G, L4, RTX 3090 y RTX 4090. La utilización hizo la mayor parte del trabajo. La concurrencia, no la tarjeta, llevó al autoalojamiento de ineficiente a más barato que la línea base serial en estas ejecuciones.
+En nuestras pruebas, llenar el batch a ocho solicitudes concurrentes elevó el rendimiento agregado unas seis a ocho veces respecto a una a una y recortó el costo por solicitud a cerca del 13 al 17 por ciento del caso serial, en las ejecuciones probadas con L40S, A10G, L4, RTX 3090 y RTX 4090. La utilización hizo la mayor parte del trabajo. La concurrencia, no la tarjeta, llevó al autoalojamiento de ineficiente a más barato que la línea base serial en estas ejecuciones.
 
 ## Lo que cuesta, medido
 
@@ -57,7 +57,7 @@ Para las tablas completas detrás de estos números, los barridos de rendimiento
 
 ## Si un modelo pequeño es suficiente
 
-El coste solo importa si el modelo barato aguanta. En nuestras ejecuciones, un modelo abierto de 7B mantuvo el contrato de triage estructurado de SocTalk: salida válida de router y de verdict, sin errores de esquema, y verdicts que coincidieron con un modelo de razonamiento mayor en cerca del 58 al 75 por ciento de una muestra pequeña de referencia. Fue más débil en el enrutamiento, y en los casos sensibles a autorización a veces cerró actividad que no tenía autorización registrada y debía escalarse.
+El costo solo importa si el modelo barato aguanta. En nuestras ejecuciones, un modelo abierto de 7B mantuvo el contrato de triage estructurado de SocTalk: salida válida de router y de verdict, sin errores de esquema, y verdicts que coincidieron con un modelo de razonamiento mayor en cerca del 58 al 75 por ciento de una muestra pequeña de referencia. Fue más débil en el enrutamiento, y en los casos sensibles a autorización a veces cerró actividad que no tenía autorización registrada y debía escalarse.
 
 Así que un modelo pequeño autoalojado es un tier barato viable para el grueso rutinario, con un modelo capaz detrás para los casos difíciles. Si es lo bastante bueno para tu entorno es una medición, no una suposición, y corresponde hacerla contra un benchmark representativo antes de confiar a un modelo pequeño cualquier decisión de cierre. El safety floor sigue en pie de todos modos. Ningún modelo puede cerrar sobre una señal maliciosa conocida ni sobre un caso relacionado activo, sea cual sea la forma en que se sirvió.
 
@@ -65,13 +65,13 @@ Así que un modelo pequeño autoalojado es un tier barato viable para el grueso 
 
 - **Arranques en frío.** Un backend que baja a cero o recién alquilado no está listo al instante. La descarga y la carga del modelo tardan minutos, así que una ráfaga que llega en frío espera. Bien para triage rutinario, un problema para cualquier cosa urgente, por lo que un tier de respaldo en caliente gana su lugar.
 - **Carga operativa en alquileres.** Una GPU alquilada factura hasta que la detienes y no baja a cero, así que el tiempo ocioso es dinero perdido y desmontar te toca recordarlo a ti. La disponibilidad en los niveles más baratos varía.
-- **Contabilidad de costes.** Un presupuesto por token es la unidad correcta para una API de frontera y la equivocada para un backend por GPU-segundo. Contabiliza por la unidad de facturación del propio backend cuando autoalojas.
+- **Contabilidad de costos.** Un presupuesto por token es la unidad correcta para una API de frontera y la equivocada para un backend por GPU-segundo. Contabiliza por la unidad de facturación del propio backend cuando autoalojas.
 - **La gobernanza de datos es un espectro.** El enmascaramiento quita los secretos antes de que algo salga, pero el contexto operativo, hosts, cuentas, contenido de logs, igual viaja a una API externa. Solo el autoalojamiento dentro del perímetro mantiene ese contexto dentro de tu perímetro.
 
 ## Elegir dónde correrlo
 
-Tres preguntas lo resuelven. **Utilización.** Una carga estable y de alta utilización favorece una tarjeta alquilada; una carga esporádica y a ráfagas favorece una plataforma que baja a cero o una API gestionada cuyo coste en inactividad es cero. **Apetito operativo.** Un alquiler es lo más barato pero lo operas tú; una plataforma serverless cuesta más y se opera sola; una API cuesta lo máximo sin nada que operar. **Sensibilidad de los datos.** Si el contenido de las alertas no puede salir de tu perímetro, el autoalojamiento es la única respuesta, y el trabajo de arriba es cómo lo haces asequible.
+Tres preguntas lo resuelven. **Utilización.** Una carga estable y de alta utilización favorece una tarjeta alquilada; una carga esporádica y a ráfagas favorece una plataforma que baja a cero o una API gestionada cuyo costo en inactividad es cero. **Apetito operativo.** Un alquiler es lo más barato pero lo operas tú; una plataforma serverless cuesta más y se opera sola; una API cuesta lo máximo sin nada que operar. **Sensibilidad de los datos.** Si el contenido de las alertas no puede salir de tu perímetro, el autoalojamiento es la única respuesta, y el trabajo de arriba es cómo lo haces asequible.
 
 Para la mayoría de los equipos el orden es el mismo de esta guía. Batching y caché primero, el enrutador en un modelo más barato después, y un tier autoalojado solo cuando el volumen y la necesidad de residencia de datos justifican operarlo.
 
-**Aviso.** SocTalk no está afiliada, respaldada ni patrocinada por ningún proveedor de servicios de LLM o de GPU. Modal, RunPod, Anthropic, OpenAI, Ollama y cualquier otro servicio nombrado en esta guía se mencionan solo como ejemplos de dónde puede correr un modelo. Las cifras de coste y rendimiento son nuestras propias observaciones de benchmark, no números publicados por los proveedores, y todos los nombres de producto y marcas pertenecen a sus respectivos dueños.
+**Aviso.** SocTalk no está afiliada, respaldada ni patrocinada por ningún proveedor de servicios de LLM o de GPU. Modal, RunPod, Anthropic, OpenAI, Ollama y cualquier otro servicio nombrado en esta guía se mencionan solo como ejemplos de dónde puede correr un modelo. Las cifras de costo y rendimiento son nuestras propias observaciones de benchmark, no números publicados por los proveedores, y todos los nombres de producto y marcas pertenecen a sus respectivos dueños.

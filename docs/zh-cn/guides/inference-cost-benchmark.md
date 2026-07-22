@@ -11,7 +11,7 @@ description: "成本指南背后的实测运行：serverless GPU 上的持续批
 
 ## 持续批处理把 GPU 填满
 
-每块 GPU 部署一个开源模型，并向 SGLang 的 OpenAI-compatible endpoint 发出数量递增的、完全相同的形如分诊的请求。这测的是 worker 并发所解锁能力的 backend 一侧：随着客户端并发 N 上升，持续批处理被填满，聚合吞吐攀升，单请求成本下降。
+每块 GPU 部署一个开源模型，并向 SGLang 的 OpenAI 兼容端点发出数量递增的、完全相同的形如分诊的请求。这测的是 worker 并发所解锁能力的 backend 一侧：随着客户端并发 N 上升，持续批处理被填满，聚合吞吐攀升，单请求成本下降。
 
 这个 serverless 平台没有消费级 RTX 卡，所以用低端数据中心 GPU 来充当替身：A10G（Ampere 24GB）替 RTX 3090，L4（Ada 24GB）替一张 RTX 4090 级别的卡。Qwen3-14B 在 bf16 下大约需要 28GB，装不进一张还要留出批处理余量的 24GB 卡，所以这些 24GB 卡跑 DeepSeek-R1-Distill-Qwen-7B，它给更大的批处理留出了 KV-cache 空间。
 
