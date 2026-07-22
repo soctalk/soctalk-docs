@@ -10,7 +10,7 @@ do código como um schema OpenAPI e servida **em `/api/`** (o ingress roteia
 
 A superfície OpenAPI é a fonte da verdade. Um snapshot dela é distribuído junto
 com esta documentação em [`/openapi.json`](/openapi.json), e o catálogo abaixo é
-**gerado a partir desse schema** — ele não pode divergir do código.
+**gerado a partir desse schema**: ele não pode divergir do código.
 
 ::: tip Regenerando o catálogo
 O catálogo de endpoints é produzido por `npm run gen:api`, que lê
@@ -31,7 +31,7 @@ manualmente.
 
 A coluna **Auth** é derivada do guard `require_role` / `require_tenant_role` de
 cada rota. Um rótulo `session cookie` significa que *qualquer* sessão autenticada
-é aceita no handler — mas os perfis com escopo de tenant permanecem confinados
+é aceita no handler, mas os perfis com escopo de tenant permanecem confinados
 aos seus próprios dados por row-level security, de modo que um `tenant_admin` vê
 apenas as linhas do seu tenant, mesmo em uma rota sem proteção no estilo MSSP.
 
@@ -116,14 +116,14 @@ _146 operations across 33 groups, generated from the OpenAPI schema (API version
 |---|---|---|---|
 | `GET` | `/api/investigations` | List Investigations | session cookie |
 | `GET` | `/api/investigations/{investigation_id}` | Get Investigation | session cookie |
-| `POST` | `/api/investigations/{investigation_id}/cancel` | Post Cancel Investigation | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `POST` | `/api/investigations/{investigation_id}/cancel` | Post Cancel Investigation | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
 | `GET` | `/api/investigations/{investigation_id}/events` | Get Events | session cookie |
 
 ### `ir-alerts`
 
 | Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/alerts` | List Alerts | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/alerts` | List Alerts | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
 
 ### `ir-engagements`
 
@@ -137,44 +137,44 @@ _146 operations across 33 groups, generated from the OpenAPI schema (API version
 
 | Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/tenants/{tenant_id}/integrations` | Get Integrations | session — roles: mssp_admin / platform_admin |
-| `PATCH` | `/api/mssp/tenants/{tenant_id}/integrations` | Patch Integrations | session — roles: mssp_admin / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/integrations` | Get Integrations | session (roles: mssp_admin / platform_admin) |
+| `PATCH` | `/api/mssp/tenants/{tenant_id}/integrations` | Patch Integrations | session (roles: mssp_admin / platform_admin) |
 
 ### `ir-mssp`
 
 | Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/investigations` | List Cases Mssp | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
-| `GET` | `/api/mssp/investigations/{investigation_id}` | Get Case Mssp | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
-| `GET` | `/api/mssp/investigations/{investigation_id}/events` | List Case Events Mssp | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
-| `PATCH` | `/api/mssp/investigations/{investigation_id}/facts` | Patch Case Facts | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
-| `POST` | `/api/mssp/investigations/{investigation_id}/messages` | Post Analyst Message | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/investigations` | List Cases Mssp | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
+| `GET` | `/api/mssp/investigations/{investigation_id}` | Get Case Mssp | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
+| `GET` | `/api/mssp/investigations/{investigation_id}/events` | List Case Events Mssp | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
+| `PATCH` | `/api/mssp/investigations/{investigation_id}/facts` | Patch Case Facts | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
+| `POST` | `/api/mssp/investigations/{investigation_id}/messages` | Post Analyst Message | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
 
 ### `ir-playbooks`
 
 | Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/playbooks` | List Triage Policies Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
-| `GET` | `/api/mssp/tenants/{tenant_id}/playbooks` | List Authored Triage Policies Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}/playbooks` | Create Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
-| `PUT` | `/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}` | Update Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
-| `DELETE` | `/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}` | Retire Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}/activate` | Activate Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}/deactivate` | Deactivate Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
-| `GET` | `/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}/export` | Export Authored Triage Policy Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
-| `GET` | `/api/mssp/tenants/{tenant_id}/triage-policies` | List Authored Triage Policies Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}/triage-policies` | Create Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
-| `PUT` | `/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}` | Update Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
-| `DELETE` | `/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}` | Retire Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}/activate` | Activate Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}/deactivate` | Deactivate Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
-| `GET` | `/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}/export` | Export Authored Triage Policy Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/playbooks` | List Triage Policies Route | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
+| `GET` | `/api/mssp/tenants/{tenant_id}/playbooks` | List Authored Triage Policies Route | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
+| `POST` | `/api/mssp/tenants/{tenant_id}/playbooks` | Create Authored Triage Policy Route | session (roles: mssp_admin / platform_admin) |
+| `PUT` | `/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}` | Update Authored Triage Policy Route | session (roles: mssp_admin / platform_admin) |
+| `DELETE` | `/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}` | Retire Authored Triage Policy Route | session (roles: mssp_admin / platform_admin) |
+| `POST` | `/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}/activate` | Activate Authored Triage Policy Route | session (roles: mssp_admin / platform_admin) |
+| `POST` | `/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}/deactivate` | Deactivate Authored Triage Policy Route | session (roles: mssp_admin / platform_admin) |
+| `GET` | `/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}/export` | Export Authored Triage Policy Route | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
+| `GET` | `/api/mssp/tenants/{tenant_id}/triage-policies` | List Authored Triage Policies Route | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
+| `POST` | `/api/mssp/tenants/{tenant_id}/triage-policies` | Create Authored Triage Policy Route | session (roles: mssp_admin / platform_admin) |
+| `PUT` | `/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}` | Update Authored Triage Policy Route | session (roles: mssp_admin / platform_admin) |
+| `DELETE` | `/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}` | Retire Authored Triage Policy Route | session (roles: mssp_admin / platform_admin) |
+| `POST` | `/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}/activate` | Activate Authored Triage Policy Route | session (roles: mssp_admin / platform_admin) |
+| `POST` | `/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}/deactivate` | Deactivate Authored Triage Policy Route | session (roles: mssp_admin / platform_admin) |
+| `GET` | `/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}/export` | Export Authored Triage Policy Route | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
 
 ### `ir-proposals`
 
 | Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/proposals` | List Pending Proposals | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/proposals` | List Pending Proposals | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
 | `POST` | `/api/mssp/proposals/{proposal_id}/approve` | Approve Proposal Route | session cookie |
 | `POST` | `/api/mssp/proposals/{proposal_id}/reject` | Reject Proposal Route | session cookie |
 
@@ -182,13 +182,13 @@ _146 operations across 33 groups, generated from the OpenAPI schema (API version
 
 | Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/tenants/{tenant_id}/response-playbooks` | List Authored Response Playbooks Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}/response-playbooks` | Create Authored Response Playbook Route | session — roles: mssp_admin / platform_admin |
-| `PUT` | `/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}` | Update Authored Response Playbook Route | session — roles: mssp_admin / platform_admin |
-| `DELETE` | `/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}` | Retire Authored Response Playbook Route | session — roles: mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}/activate` | Activate Authored Response Playbook Route | session — roles: mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}/deactivate` | Deactivate Authored Response Playbook Route | session — roles: mssp_admin / platform_admin |
-| `GET` | `/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}/export` | Export Authored Response Playbook Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/response-playbooks` | List Authored Response Playbooks Route | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
+| `POST` | `/api/mssp/tenants/{tenant_id}/response-playbooks` | Create Authored Response Playbook Route | session (roles: mssp_admin / platform_admin) |
+| `PUT` | `/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}` | Update Authored Response Playbook Route | session (roles: mssp_admin / platform_admin) |
+| `DELETE` | `/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}` | Retire Authored Response Playbook Route | session (roles: mssp_admin / platform_admin) |
+| `POST` | `/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}/activate` | Activate Authored Response Playbook Route | session (roles: mssp_admin / platform_admin) |
+| `POST` | `/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}/deactivate` | Deactivate Authored Response Playbook Route | session (roles: mssp_admin / platform_admin) |
+| `GET` | `/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}/export` | Export Authored Response Playbook Route | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
 
 ### `ir-tenant`
 
@@ -203,7 +203,7 @@ _146 operations across 33 groups, generated from the OpenAPI schema (API version
 
 | Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/triage-policies` | List Triage Policies Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/triage-policies` | List Triage Policies Route | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
 
 ### `l2-agent`
 
@@ -248,52 +248,52 @@ _146 operations across 33 groups, generated from the OpenAPI schema (API version
 
 | Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/analytics/heatmap` | Heatmap | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
-| `GET` | `/api/mssp/analytics/ranking` | Ranking | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
-| `GET` | `/api/mssp/analytics/trends` | Trends | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/analytics/heatmap` | Heatmap | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
+| `GET` | `/api/mssp/analytics/ranking` | Ranking | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
+| `GET` | `/api/mssp/analytics/trends` | Trends | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
 
 ### `mssp-dashboard`
 
 | Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/dashboard/open-by-tenant` | Open By Tenant | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
-| `GET` | `/api/mssp/dashboard/pending-reviews` | Pending Reviews | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
-| `GET` | `/api/mssp/dashboard/repeated-iocs` | Repeated Iocs | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
-| `GET` | `/api/mssp/dashboard/stuck-investigations` | Stuck Investigations | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
-| `GET` | `/api/mssp/dashboard/tenant-health` | Tenant Health | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/dashboard/open-by-tenant` | Open By Tenant | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
+| `GET` | `/api/mssp/dashboard/pending-reviews` | Pending Reviews | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
+| `GET` | `/api/mssp/dashboard/repeated-iocs` | Repeated Iocs | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
+| `GET` | `/api/mssp/dashboard/stuck-investigations` | Stuck Investigations | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
+| `GET` | `/api/mssp/dashboard/tenant-health` | Tenant Health | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
 
 ### `mssp-tenant-branding`
 
 | Method | Path | Summary | Auth |
 |---|---|---|---|
-| `PATCH` | `/api/mssp/tenants/{tenant_id}/branding` | Update Tenant Branding | session — roles: mssp_admin / platform_admin |
+| `PATCH` | `/api/mssp/tenants/{tenant_id}/branding` | Update Tenant Branding | session (roles: mssp_admin / platform_admin) |
 
 ### `mssp-tenant-llm`
 
 | Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/tenants/{tenant_id}/llm` | Get Tenant Llm | session — roles: mssp_admin / platform_admin |
-| `PATCH` | `/api/mssp/tenants/{tenant_id}/llm` | Update Tenant Llm | session — roles: mssp_admin / platform_admin |
-| `DELETE` | `/api/mssp/tenants/{tenant_id}/llm/api-key` | Clear Tenant Llm Api Key | session — roles: mssp_admin / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/llm` | Get Tenant Llm | session (roles: mssp_admin / platform_admin) |
+| `PATCH` | `/api/mssp/tenants/{tenant_id}/llm` | Update Tenant Llm | session (roles: mssp_admin / platform_admin) |
+| `DELETE` | `/api/mssp/tenants/{tenant_id}/llm/api-key` | Clear Tenant Llm Api Key | session (roles: mssp_admin / platform_admin) |
 
 ### `mssp-tenants`
 
 | Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/tenants` | List Tenants | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
-| `POST` | `/api/mssp/tenants` | Create Tenant | session — roles: mssp_admin / platform_admin |
-| `GET` | `/api/mssp/tenants/{tenant_id}` | Get Tenant | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}:decommission` | Decommission Tenant | session — roles: mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}:issue-agent` | Issue Agent | session — roles: mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}:resume` | Resume Tenant | session — roles: mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}:retry` | Retry Provisioning | session — roles: mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}:retry-install` | Retry Install | session — roles: mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}:suspend` | Suspend Tenant | session — roles: mssp_admin / platform_admin |
-| `GET` | `/api/mssp/tenants/{tenant_id}/adapter-status` | Get Tenant Adapter Status | session — roles: mssp_admin / platform_admin |
-| `GET` | `/api/mssp/tenants/{tenant_id}/events` | List Events | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
-| `GET` | `/api/mssp/tenants/{tenant_id}/external-siem` | Get Tenant External Siem | session — roles: mssp_admin / platform_admin |
-| `PATCH` | `/api/mssp/tenants/{tenant_id}/external-siem` | Update Tenant External Siem | session — roles: mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/onboard` | Onboard Tenant | session — roles: mssp_admin / platform_admin |
+| `GET` | `/api/mssp/tenants` | List Tenants | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
+| `POST` | `/api/mssp/tenants` | Create Tenant | session (roles: mssp_admin / platform_admin) |
+| `GET` | `/api/mssp/tenants/{tenant_id}` | Get Tenant | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
+| `POST` | `/api/mssp/tenants/{tenant_id}:decommission` | Decommission Tenant | session (roles: mssp_admin / platform_admin) |
+| `POST` | `/api/mssp/tenants/{tenant_id}:issue-agent` | Issue Agent | session (roles: mssp_admin / platform_admin) |
+| `POST` | `/api/mssp/tenants/{tenant_id}:resume` | Resume Tenant | session (roles: mssp_admin / platform_admin) |
+| `POST` | `/api/mssp/tenants/{tenant_id}:retry` | Retry Provisioning | session (roles: mssp_admin / platform_admin) |
+| `POST` | `/api/mssp/tenants/{tenant_id}:retry-install` | Retry Install | session (roles: mssp_admin / platform_admin) |
+| `POST` | `/api/mssp/tenants/{tenant_id}:suspend` | Suspend Tenant | session (roles: mssp_admin / platform_admin) |
+| `GET` | `/api/mssp/tenants/{tenant_id}/adapter-status` | Get Tenant Adapter Status | session (roles: mssp_admin / platform_admin) |
+| `GET` | `/api/mssp/tenants/{tenant_id}/events` | List Events | session (roles: analyst / mssp_admin / mssp_manager / platform_admin) |
+| `GET` | `/api/mssp/tenants/{tenant_id}/external-siem` | Get Tenant External Siem | session (roles: mssp_admin / platform_admin) |
+| `PATCH` | `/api/mssp/tenants/{tenant_id}/external-siem` | Update Tenant External Siem | session (roles: mssp_admin / platform_admin) |
+| `POST` | `/api/mssp/tenants/onboard` | Onboard Tenant | session (roles: mssp_admin / platform_admin) |
 
 ### `mssp-users`
 
@@ -371,7 +371,7 @@ Clientes programáticos podem:
 
 Com `SOCTALK_AUTH_MODE=proxy`, a API confia nos cabeçalhos upstream
 `X-Forwarded-User` / `X-Forwarded-Email` / `X-Forwarded-Groups` e **toda** a
-superfície de autenticação por sessão é desmontada — `/api/auth/*` (`login`,
+superfície de autenticação por sessão é desmontada, `/api/auth/*` (`login`,
 `logout`, `me`, `assume-tenant`, `password/change`) **e**
 `/api/mssp/users/{id}/password/reset` retornam 404 (não 405). Seu IdP é dono da
 superfície de identidade.
@@ -467,7 +467,7 @@ curl -N -b jar 'https://mssp.../api/events/stream'
 ```
 
 Server-Sent Events. **Nesta versão o stream emite apenas pings de keep-alive**
-(um `ping` aproximadamente a cada 25 s) — a transmissão de eventos de domínio
+(um `ping` aproximadamente a cada 25 s), a transmissão de eventos de domínio
 (atualizações de investigação, ciclo de vida do tenant, etc.) está no roadmap.
 Trate o endpoint hoje como um teste de conectividade de baixo nível.
 
@@ -519,13 +519,13 @@ print(detail.phase, detail.alert_count, detail.verdict_decision)
 ```
 
 As funções de endpoint recebem o nome do operationId que o FastAPI deriva da rota
-(`list_investigations_api_investigations_get`) — crie apelidos (alias) para elas
+(`list_investigations_api_investigations_get`), crie apelidos (alias) para elas
 no import, como acima, para melhor legibilidade. `sync()` retorna o modelo
 desserializado (`InvestigationList`, cujos `.items` são `Investigation`);
 `sync_detailed()` retorna o `Response` bruto com o código de status, se você
 precisar.
 
-Uma versão executável — gerar, fazer login, listar + ler — é distribuída como o
+Uma versão executável, gerar, fazer login, listar + ler, é distribuída como o
 smoke test de codegen [`tests/e2e/smoke_openapi_client.py`](https://github.com/soctalk/soctalk/blob/main/tests/e2e/smoke_openapi_client.py),
 que o pipeline de deploy executa contra a API ativa, de modo que um schema que
 deixe de gerar um cliente funcional quebra o build.
@@ -534,13 +534,13 @@ deixe de gerar um cliente funcional quebra o build.
 
 Usados pelo adapter e pelo runs-worker por tenant (veja os grupos
 `internal-adapter` e `internal-worker` no catálogo acima). Não se destinam a
-consumo humano — estão listados para que MSSPs possam ver o que esses pods estão
+consumo humano, estão listados para que MSSPs possam ver o que esses pods estão
 fazendo.
 
 Cada chamada carrega um token com escopo de tenant que a API gera no
 provisionamento e **renova automaticamente** antes de expirar (tokens de adapter
 duram 7 dias, tokens de worker 30 dias; o control plane os regenera bem dentro
-dessa janela). Os tokens são vinculados ao tenant — um adapter só pode atuar nas
+dessa janela). Os tokens são vinculados ao tenant, um adapter só pode atuar nas
 URLs do seu próprio tenant.
 
 ## Limites de taxa

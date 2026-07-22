@@ -7994,7 +7994,7 @@
         "tags": [
           "investigations-bridge"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/investigations/{investigation_id}/events": {
@@ -8198,7 +8198,7 @@
         "tags": [
           "ir-alerts"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/mssp/analytics/heatmap": {
@@ -8255,7 +8255,7 @@
         "tags": [
           "mssp-analytics"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/mssp/analytics/ranking": {
@@ -8336,7 +8336,7 @@
         "tags": [
           "mssp-analytics"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/mssp/analytics/trends": {
@@ -8382,7 +8382,7 @@
         "tags": [
           "mssp-analytics"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/mssp/dashboard/open-by-tenant": {
@@ -8404,7 +8404,7 @@
         "tags": [
           "mssp-dashboard"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/mssp/dashboard/pending-reviews": {
@@ -8426,7 +8426,7 @@
         "tags": [
           "mssp-dashboard"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/mssp/dashboard/repeated-iocs": {
@@ -8484,7 +8484,7 @@
         "tags": [
           "mssp-dashboard"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/mssp/dashboard/stuck-investigations": {
@@ -8530,7 +8530,7 @@
         "tags": [
           "mssp-dashboard"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/mssp/dashboard/tenant-health": {
@@ -8552,7 +8552,7 @@
         "tags": [
           "mssp-dashboard"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/mssp/investigations": {
@@ -8648,7 +8648,7 @@
         "tags": [
           "ir-mssp"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/mssp/investigations/{investigation_id}": {
@@ -8692,7 +8692,7 @@
         "tags": [
           "ir-mssp"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/mssp/investigations/{investigation_id}/events": {
@@ -8740,7 +8740,7 @@
         "tags": [
           "ir-mssp"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/mssp/investigations/{investigation_id}/facts": {
@@ -8798,7 +8798,7 @@
         "tags": [
           "ir-mssp"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/mssp/investigations/{investigation_id}/messages": {
@@ -8856,7 +8856,7 @@
         "tags": [
           "ir-mssp"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/mssp/playbooks": {
@@ -8884,7 +8884,7 @@
         "tags": [
           "ir-playbooks"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/mssp/proposals": {
@@ -8910,7 +8910,7 @@
         "tags": [
           "ir-proposals"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/mssp/proposals/{proposal_id}/approve": {
@@ -9052,7 +9052,7 @@
         "tags": [
           "mssp-tenants"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       },
       "post": {
         "operationId": "create_tenant_api_mssp_tenants_post",
@@ -9092,7 +9092,7 @@
         "tags": [
           "mssp-tenants"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/onboard": {
@@ -9135,7 +9135,7 @@
         "tags": [
           "mssp-tenants"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}": {
@@ -9179,7 +9179,7 @@
         "tags": [
           "mssp-tenants"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}/adapter-status": {
@@ -9226,7 +9226,7 @@
         "tags": [
           "mssp-tenants"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}/authorization/answer": {
@@ -9570,7 +9570,7 @@
         "tags": [
           "mssp-tenant-branding"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}/engagements": {
@@ -9810,7 +9810,7 @@
         "tags": [
           "mssp-tenants"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}/external-siem": {
@@ -9855,7 +9855,7 @@
         "tags": [
           "mssp-tenants"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       },
       "patch": {
         "description": "Profile-agnostic external-SIEM update.\n\nDual-write ordering (mirrors ``llm_config.update_tenant_llm:267-270``):\n\n  1. Apply non-None payload fields to the ``IntegrationConfig.wazuh_*``\n     columns + flush, inside ``tenant_context``.\n  2. ``session.commit()`` \u2014 Postgres is authoritative and lands BEFORE\n     any K8s side effect.\n  3. Re-read the merged row, write/patch\n     ``Secret/tenant-external-siem-creds`` in ``tenant-<slug>`` (token key\n     omitted when unset).\n  4. Patch the ``soctalk-adapter`` Deployment annotation so its pod rolls\n     and mounts the freshly-written Secret.\n\nSteps 3-4 are best-effort: a K8s failure is logged via structlog and does\nNOT roll back the committed Postgres update \u2014 the user's intent is already\nrecorded authoritatively, and the provisioning worker re-reconciles the\nSecret on its next pass.",
@@ -9908,7 +9908,7 @@
         "tags": [
           "mssp-tenants"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}/integrations": {
@@ -9952,7 +9952,7 @@
         "tags": [
           "ir-integrations"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       },
       "patch": {
         "operationId": "patch_integrations_api_mssp_tenants__tenant_id__integrations_patch",
@@ -10004,7 +10004,7 @@
         "tags": [
           "ir-integrations"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}/llm": {
@@ -10048,7 +10048,7 @@
         "tags": [
           "mssp-tenant-llm"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       },
       "patch": {
         "operationId": "update_tenant_llm_api_mssp_tenants__tenant_id__llm_patch",
@@ -10100,7 +10100,7 @@
         "tags": [
           "mssp-tenant-llm"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}/llm/api-key": {
@@ -10138,7 +10138,7 @@
         "tags": [
           "mssp-tenant-llm"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}/playbooks": {
@@ -10187,7 +10187,7 @@
         "tags": [
           "ir-playbooks"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       },
       "post": {
         "deprecated": true,
@@ -10240,7 +10240,7 @@
         "tags": [
           "ir-playbooks"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}": {
@@ -10298,7 +10298,7 @@
         "tags": [
           "ir-playbooks"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       },
       "put": {
         "deprecated": true,
@@ -10360,7 +10360,7 @@
         "tags": [
           "ir-playbooks"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}/activate": {
@@ -10415,7 +10415,7 @@
         "tags": [
           "ir-playbooks"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}/deactivate": {
@@ -10470,7 +10470,7 @@
         "tags": [
           "ir-playbooks"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}/export": {
@@ -10529,7 +10529,7 @@
         "tags": [
           "ir-playbooks"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}/response-playbooks": {
@@ -10577,7 +10577,7 @@
         "tags": [
           "ir-response-playbooks"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       },
       "post": {
         "operationId": "create_authored_response_playbook_route_api_mssp_tenants__tenant_id__response_playbooks_post",
@@ -10629,7 +10629,7 @@
         "tags": [
           "ir-response-playbooks"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}": {
@@ -10686,7 +10686,7 @@
         "tags": [
           "ir-response-playbooks"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       },
       "put": {
         "operationId": "update_authored_response_playbook_route_api_mssp_tenants__tenant_id__response_playbooks__response_playbook_id__put",
@@ -10747,7 +10747,7 @@
         "tags": [
           "ir-response-playbooks"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}/activate": {
@@ -10801,7 +10801,7 @@
         "tags": [
           "ir-response-playbooks"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}/deactivate": {
@@ -10855,7 +10855,7 @@
         "tags": [
           "ir-response-playbooks"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}/export": {
@@ -10912,7 +10912,7 @@
         "tags": [
           "ir-response-playbooks"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}/triage-policies": {
@@ -10960,7 +10960,7 @@
         "tags": [
           "ir-playbooks"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       },
       "post": {
         "operationId": "create_authored_triage_policy_route_api_mssp_tenants__tenant_id__triage_policies_post",
@@ -11012,7 +11012,7 @@
         "tags": [
           "ir-playbooks"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}": {
@@ -11069,7 +11069,7 @@
         "tags": [
           "ir-playbooks"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       },
       "put": {
         "operationId": "update_authored_triage_policy_route_api_mssp_tenants__tenant_id__triage_policies__triage_policy_id__put",
@@ -11130,7 +11130,7 @@
         "tags": [
           "ir-playbooks"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}/activate": {
@@ -11184,7 +11184,7 @@
         "tags": [
           "ir-playbooks"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}/deactivate": {
@@ -11238,7 +11238,7 @@
         "tags": [
           "ir-playbooks"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}/export": {
@@ -11296,7 +11296,7 @@
         "tags": [
           "ir-playbooks"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}:decommission": {
@@ -11351,7 +11351,7 @@
         "tags": [
           "mssp-tenants"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}:issue-agent": {
@@ -11396,7 +11396,7 @@
         "tags": [
           "mssp-tenants"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}:resume": {
@@ -11440,7 +11440,7 @@
         "tags": [
           "mssp-tenants"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}:retry": {
@@ -11485,7 +11485,7 @@
         "tags": [
           "mssp-tenants"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}:retry-install": {
@@ -11530,7 +11530,7 @@
         "tags": [
           "mssp-tenants"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/tenants/{tenant_id}:suspend": {
@@ -11574,7 +11574,7 @@
         "tags": [
           "mssp-tenants"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session (roles: mssp_admin / platform_admin)"
       }
     },
     "/api/mssp/triage-policies": {
@@ -11601,7 +11601,7 @@
         "tags": [
           "ir-triage-policies"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+        "x-soctalk-auth": "session (roles: analyst / mssp_admin / mssp_manager / platform_admin)"
       }
     },
     "/api/mssp/users": {
