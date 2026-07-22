@@ -30,6 +30,8 @@ The left rail is persistent on every page. From top to bottom:
 
 Top-right of every page is the user chip (`email`, `role`) and a **Log out** button.
 
+The application UI ships localized in seven languages, switchable in-app from the language selector, which lists each option under its own native name: English, Português (Brasil), Español (Latinoamérica), 中文（简体）, Français, Deutsch, Italiano.
+
 ## Dashboard
 
 ![MSSP dashboard](/screenshots/mssp-dashboard.png)
@@ -119,6 +121,14 @@ Trend-shaped cross-tenant view, time-bucketed (default Window: 30 days). Reports
 - **Activity heatmap** — day-of-week × hour-of-day, alerts (toggleable to other dimensions)
 
 Use this for capacity planning, model-version evaluation, and SLA review.
+
+### Decision analytics
+
+Pinning the Analytics page to a single tenant swaps the cross-tenant trends above for a set of decision-focused surfaces for that customer:
+
+- **Confidence Distribution** — how AI decision confidence is spread across triaged alerts, bucketed by confidence.
+- **Decision Trends** — how the mix of decisions (close, escalate, and so on) moves over time.
+- **Average Confidence by Decision** — mean confidence broken out per decision type.
 
 ## Audit log
 

@@ -42,6 +42,14 @@ The saved grant is the point. The next time the same activity produces an alert,
 
 One rule is deliberate: a fact is created only by this explicit answer. SocTalk never learns an authorization from a plain close or reject. An analyst clearing the queue is not the same as an analyst stating that an activity is sanctioned, and treating it that way would let queue pressure quietly poison the store.
 
+## Engagements
+
+A fact answers a standing question, is this account allowed to do this on this host. Some authorizations are not standing at all, they are bounded to a window of time during which otherwise-suspicious activity is expected. A sanctioned pentest, a red-team exercise, or a maintenance window is authorization that opens and then closes. SocTalk models this as an engagement, and an engagement is simply a kind of authorization: a scoped, time-bounded authorization window during which the activity it describes is expected rather than alarming.
+
+Engagements live in the same tenant Authorization area as facts, on their own Engagements tab. The older `/engagements` path still works and deep-links straight into that tab, since engagements were folded into the unified Authorization area rather than kept as a separate surface.
+
+An engagement works differently from a fact, though. It is not gated: a tenant-authorized user declares it, and can revoke it, directly, with no MSSP review step. What an engagement does is deconflict activity by validated source, target, and time window. Alert activity that falls inside a declared engagement, an in-scope source acting on an in-scope target during the window, is attributed to the tester: SocTalk records the observation, takes the alert out of the open queue, and skips LLM triage for it. It is never auto-closed or marked a false positive, the observation row stays queryable and counted. Activity from the tester that lands outside the declared scope is flagged for a closer look rather than waved through. When the window closes, deconfliction no longer applies and the activity is triaged normally again.
+
 ## The guardrails
 
 Authorization is a suppression surface, so its limits are enforced in code, not left to prompt wording:

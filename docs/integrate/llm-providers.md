@@ -7,26 +7,29 @@ The runtime ([`src/soctalk/llm.py`](https://github.com/soctalk/soctalk/blob/main
 
 In V1, the provider env var (`SOCTALK_LLM_PROVIDER`) is **only honoured by the per-tenant runs-worker** pods. The API pod itself uses hard-coded provider defaults. Per-tenant provider is settable via `PATCH /api/mssp/tenants/{tenant_id}/llm` (see [Per-tenant overrides](#per-tenant-overrides)).
 
+A self-hosted, OpenAI-compatible model is a first-class option, not a fallback: point the `openai` provider at a vLLM or SGLang server you run, a managed serverless GPU endpoint, or a local Ollama, all via `OPENAI_BASE_URL`. SocTalk classifies backends by delivery model, warm managed API, scale-to-zero serverless GPU, always-on rented GPU, or local, and each has a different cost and latency profile. For how to choose, see [Keeping the AI triage bill low](/guides/inference-cost-optimization) and [What triage inference actually costs, measured](/guides/inference-cost-benchmark).
+
 ## What the chart exposes
 
-Today the `soctalk-system` chart accepts three install-wide LLM value keys, but most of them do **not** flow through to runtime behavior in V1:
+The `soctalk-system` chart accepts install-wide LLM defaults that seed each newly onboarded tenant's per-tier LLM config:
 
 ```yaml
 defaults:
   llm:
-    provider: openai-compatible   # rendered as SOCTALK_LLM_PROVIDER_DEFAULT on API pod, but V1 API IGNORES this env
-    baseUrl: https://api.openai.com/v1   # rendered as SOCTALK_LLM_BASE_URL_DEFAULT, also IGNORED by V1 API
-    model: gpt-4o                  # rendered as SOCTALK_LLM_MODEL_DEFAULT, also IGNORED by V1 API
+    provider: openai-compatible          # SOCTALK_LLM_PROVIDER_DEFAULT
+    baseUrl: https://api.openai.com/v1   # SOCTALK_LLM_BASE_URL_DEFAULT
+    model: gpt-4o                        # SOCTALK_LLM_MODEL_DEFAULT
+    fastTier: {}                         # optional cheaper router/supervisor tier; off until provider/baseUrl/model are set
 
 llm:
-  provider: openai               # NOT propagated to SOCTALK_LLM_PROVIDER on the API by V1 chart
+  provider: openai               # provider whose API key the install ships with
   existingSecret: ""             # Secret with anthropic-api-key / openai-api-key keys
-  apiKey: ""                     # inline alternative; creates ONE provider key only (not both) — dev / lab use only
+  apiKey: ""                     # inline alternative; creates ONE provider key only (not both), dev / lab use only
 ```
 
-**V1 behavior summary:** the API pod uses its **own hard-coded defaults** for provider/model/base URL. The chart-rendered `*_DEFAULT` envs are scaffolding for a future release; today they go unread.
+**How the defaults take effect:** the `defaults.llm.*` keys are read at tenant onboarding and seed the new tenant's per-tier config, so a tenant created after you set them inherits them. Existing tenants keep their current config until patched.
 
-**Where the LLM env wiring actually takes effect:** the per-tenant `soctalk-runs-worker` Deployment. Its `SOCTALK_LLM_PROVIDER`, `SOCTALK_FAST_MODEL`, `SOCTALK_REASONING_MODEL`, and `OPENAI_BASE_URL` env vars are rendered by the provisioning controller from the tenant's `IntegrationConfig` row. That's the surface that actually controls which provider gets called.
+**Where the resolved config runs:** the per-tenant `soctalk-runs-worker` Deployment. Its `SOCTALK_LLM_PROVIDER`, `SOCTALK_FAST_MODEL`, `SOCTALK_REASONING_MODEL`, and `OPENAI_BASE_URL` env vars are rendered by the provisioning controller from the tenant's config row, and that is the surface that controls which provider and model each tier calls.
 
 ## Switch to Anthropic
 
@@ -98,8 +101,9 @@ Per-tenant LLM rotation flow: see [Daily Operations → Rotate per-tenant LLM ke
 
 ## Cost notes
 
-- The runtime makes many small LLM calls per investigation (supervisor + workers + closure) and one large reasoning call (verdict). Picking a cheap model for `defaults.llm.model` lowers cost dramatically but currently degrades verdict quality too — the chart doesn't yet split fast vs reasoning model. A planned change separates the two.
+- The runtime makes many small LLM calls per investigation (supervisor + workers + closure) and one large reasoning call (verdict). The fast vs reasoning split is now configurable per tier: SocTalk resolves each role, a lighter router/supervisor tier and a stronger verdict/reasoning tier, to its own tier, each pointing at its own provider, model, and endpoint. The `defaults.llm.fastTier` knob in the `soctalk-system` chart values and the per-tier rendering in the provisioning layer let you point the fast tier at a cheap model while keeping a stronger model for the verdict, so you no longer trade verdict quality to lower per-call cost. The fast tier is off by default (`fastTier: {}`); set its `provider`, `baseUrl`, and `model` to enable it. It seeds the per-tier config of newly onboarded tenants, so existing tenants keep their current setup until patched.
 - Per-tenant token usage is measured via the Prometheus metric `soctalk_tenant_llm_tokens_total{direction="input|output"}` — see [Observability](/observability#per-tenant-cost).
+- Self-hosting only pays off if you keep the GPU busy. The `runsWorker.concurrency` knob (default `1`) sets how many investigations a runs-worker processes in parallel; raise it to fill a self-hosted continuous batch and amortize an always-on GPU across more work. See [Keeping the AI triage bill low](/guides/inference-cost-optimization) for how to size it against a given backend.
 
 ## Sanity test
 
