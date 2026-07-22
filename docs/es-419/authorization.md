@@ -42,6 +42,14 @@ La concesión guardada es el punto. La próxima vez que la misma actividad produ
 
 Una regla es deliberada: un hecho se crea únicamente mediante esta respuesta explícita. SocTalk nunca aprende una autorización a partir de un cierre o un rechazo simple. Un analista que despeja la cola no es lo mismo que un analista que declara que una actividad está autorizada, y tratarlo así permitiría que la presión de la cola envenenara silenciosamente el almacén.
 
+## Compromisos
+
+Un hecho responde una pregunta permanente, ¿está permitido que esta cuenta haga esto en este host? Algunas autorizaciones no son permanentes en absoluto, están acotadas a una ventana de tiempo durante la cual se espera una actividad que de otro modo sería sospechosa. Un pentest autorizado, un ejercicio de red team o una ventana de mantenimiento son autorizaciones que se abren y luego se cierran. SocTalk modela esto como un compromiso (engagement), y un compromiso es simplemente un tipo de autorización: una ventana de autorización acotada y limitada en el tiempo durante la cual la actividad que describe se espera en lugar de alarmar.
+
+Los compromisos viven en la misma área de Autorización del tenant que los hechos, en su propia pestaña de Compromisos. La antigua ruta `/engagements` sigue funcionando y enlaza directamente a esa pestaña, ya que los compromisos se integraron en el área unificada de Autorización en lugar de mantenerse como una superficie separada.
+
+Sin embargo, un compromiso funciona de manera diferente a un hecho. No está sujeto a revisión: un usuario autorizado por el tenant lo declara, y puede revocarlo, directamente, sin ningún paso de revisión del MSSP. Lo que hace un compromiso es desconflictuar la actividad por fuente, objetivo y ventana de tiempo validados. La actividad de alerta que cae dentro de un compromiso declarado, una fuente dentro del alcance actuando sobre un objetivo dentro del alcance durante la ventana, se atribuye al tester: SocTalk registra la observación, retira la alerta de la cola abierta y omite el triaje por LLM para ella. Nunca se cierra automáticamente ni se marca como falso positivo, la fila de la observación permanece consultable y contabilizada. La actividad del tester que cae fuera del alcance declarado se marca para una revisión más cercana en lugar de dejarse pasar. Cuando la ventana se cierra, la desconflicción deja de aplicarse y la actividad vuelve a triarse normalmente.
+
 ## Los guardrails
 
 La autorización es una superficie de supresión, así que sus límites se aplican en el código, no se dejan a la redacción de un prompt:

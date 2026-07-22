@@ -80,9 +80,11 @@ protette secondo §6.
 | ---    | ---                                           | ---                                    |
 | POST   | `/api/auth/login`                             | email + password, imposta il cookie di sessione |
 | POST   | `/api/auth/logout`                            | revoca la sessione corrente            |
-| GET    | `/api/auth/me`                                | restituisce il payload dell'identità corrente |
+| GET    | `/api/auth/me`                                | payload dell'identità corrente + `permissions[]` del ruolo |
 | POST   | `/api/auth/password/change`                   | vecchia + nuova, autenticato           |
 | POST   | `/api/mssp/users/{id}/password/reset`         | reset forzato dell'admin, imposta `must_change` |
+
+`/api/auth/me` restituisce l'identità più un elenco `permissions[]` calcolato, le capability detenute dal ruolo con cui si è effettuato l'accesso, derivate dalla mappa ruolo-a-permesso unica fonte autorevole. Il frontend gestisce navigazione e azioni in base a questi permessi anziché dedurli dalla stringa del ruolo.
 
 L'endpoint di reset dell'admin genera lato server una password casuale
 robusta e la restituisce una sola volta nel corpo della risposta; l'admin

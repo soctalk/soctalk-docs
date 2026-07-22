@@ -7,26 +7,29 @@ O runtime ([`src/soctalk/llm.py`](https://github.com/soctalk/soctalk/blob/main/s
 
 No V1, a variável de ambiente do provedor (`SOCTALK_LLM_PROVIDER`) é **respeitada apenas pelos pods do runs-worker por tenant**. O próprio pod da API usa provedores padrão fixados no código. O provedor por tenant pode ser definido via `PATCH /api/mssp/tenants/{tenant_id}/llm` (veja [Substituições por tenant](#substituicoes-por-tenant)).
 
+Um modelo auto-hospedado e compatível com OpenAI é uma opção de primeira classe, não um fallback: aponte o provedor `openai` para um servidor vLLM ou SGLang que você opera, um endpoint serverless de GPU gerenciado, ou um Ollama local, tudo via `OPENAI_BASE_URL`. O SocTalk classifica os backends por modelo de entrega, API gerenciada aquecida, serverless GPU com scale-to-zero, GPU alugada sempre ativa, ou local, e cada um tem um perfil de custo e latência diferente. Para saber como escolher, veja [Mantendo baixa a conta de triagem por AI](/pt-br/guides/inference-cost-optimization) e [Quanto a inferência de triagem realmente custa, medido](/pt-br/guides/inference-cost-benchmark).
+
 ## O que o chart expõe
 
-Atualmente o chart `soctalk-system` aceita três chaves de valores de LLM abrangentes para toda a instalação, mas a maioria delas **não** se reflete no comportamento em runtime no V1:
+O chart `soctalk-system` aceita padrões de LLM abrangentes para toda a instalação que semeiam a configuração de LLM por tier de cada novo tenant integrado:
 
 ```yaml
 defaults:
   llm:
-    provider: openai-compatible   # rendered as SOCTALK_LLM_PROVIDER_DEFAULT on API pod, but V1 API IGNORES this env
-    baseUrl: https://api.openai.com/v1   # rendered as SOCTALK_LLM_BASE_URL_DEFAULT, also IGNORED by V1 API
-    model: gpt-4o                  # rendered as SOCTALK_LLM_MODEL_DEFAULT, also IGNORED by V1 API
+    provider: openai-compatible          # SOCTALK_LLM_PROVIDER_DEFAULT
+    baseUrl: https://api.openai.com/v1   # SOCTALK_LLM_BASE_URL_DEFAULT
+    model: gpt-4o                        # SOCTALK_LLM_MODEL_DEFAULT
+    fastTier: {}                         # optional cheaper router/supervisor tier; off until provider/baseUrl/model are set
 
 llm:
-  provider: openai               # NOT propagated to SOCTALK_LLM_PROVIDER on the API by V1 chart
+  provider: openai               # provider whose API key the install ships with
   existingSecret: ""             # Secret with anthropic-api-key / openai-api-key keys
-  apiKey: ""                     # inline alternative; creates ONE provider key only (not both) — dev / lab use only
+  apiKey: ""                     # inline alternative; creates ONE provider key only (not both), dev / lab use only
 ```
 
-**Resumo do comportamento no V1:** o pod da API usa seus **próprios padrões fixados no código** para provedor/modelo/URL base. As variáveis de ambiente `*_DEFAULT` renderizadas pelo chart são estrutura para uma versão futura; hoje elas não são lidas.
+**Como os padrões entram em vigor:** as chaves `defaults.llm.*` são lidas no onboarding do tenant e semeiam a configuração por tier do novo tenant, então um tenant criado depois de você defini-las as herda. Tenants existentes mantêm sua configuração atual até serem atualizados via patch.
 
-**Onde a configuração de ambiente do LLM realmente entra em vigor:** o Deployment `soctalk-runs-worker` por tenant. Suas variáveis de ambiente `SOCTALK_LLM_PROVIDER`, `SOCTALK_FAST_MODEL`, `SOCTALK_REASONING_MODEL` e `OPENAI_BASE_URL` são renderizadas pelo controlador de provisionamento a partir da linha `IntegrationConfig` do tenant. Essa é a superfície que efetivamente controla qual provedor é chamado.
+**Onde a configuração resolvida roda:** o Deployment `soctalk-runs-worker` por tenant. Suas variáveis de ambiente `SOCTALK_LLM_PROVIDER`, `SOCTALK_FAST_MODEL`, `SOCTALK_REASONING_MODEL` e `OPENAI_BASE_URL` são renderizadas pelo controlador de provisionamento a partir da linha de configuração do tenant, e essa é a superfície que controla qual provedor e modelo cada tier chama.
 
 ## Mudar para o Anthropic
 
@@ -98,8 +101,9 @@ Fluxo de rotação de LLM por tenant: veja [Operações diárias → Rotacionar 
 
 ## Notas sobre custo
 
-- O runtime faz muitas chamadas pequenas de LLM por investigação (supervisor + workers + encerramento) e uma grande chamada de raciocínio (veredito). Escolher um modelo barato para `defaults.llm.model` reduz o custo drasticamente, mas atualmente também degrada a qualidade do veredito — o chart ainda não separa o modelo rápido do modelo de raciocínio. Uma mudança planejada separa os dois.
+- O runtime faz muitas chamadas pequenas de LLM por investigação (supervisor + workers + encerramento) e uma grande chamada de raciocínio (veredito). A divisão entre rápido e raciocínio agora é configurável por tier: o SocTalk resolve cada papel, um tier mais leve de router/supervisor e um tier mais forte de veredito/raciocínio, para seu próprio tier, cada um apontando para seu próprio provedor, modelo e endpoint. O ajuste `defaults.llm.fastTier` nos valores do chart `soctalk-system` e a renderização por tier na camada de provisionamento permitem apontar o tier rápido para um modelo barato mantendo um modelo mais forte para o veredito, então você não troca mais qualidade de veredito para reduzir o custo por chamada. O tier rápido vem desligado por padrão (`fastTier: {}`); defina seu `provider`, `baseUrl` e `model` para habilitá-lo. Ele semeia a configuração por tier de novos tenants integrados, então tenants existentes mantêm sua configuração atual até serem atualizados via patch.
 - O uso de tokens por tenant é medido via a métrica Prometheus `soctalk_tenant_llm_tokens_total{direction="input|output"}` — veja [Observabilidade](/pt-br/observability#per-tenant-cost).
+- Auto-hospedar só compensa se você mantiver a GPU ocupada. O ajuste `runsWorker.concurrency` (padrão `1`) define quantas investigações um runs-worker processa em paralelo; aumente-o para preencher um batch contínuo auto-hospedado e amortizar uma GPU sempre ativa sobre mais trabalho. Veja [Mantendo baixa a conta de triagem por AI](/pt-br/guides/inference-cost-optimization) para saber como dimensioná-lo em relação a um dado backend.
 
 ## Teste de sanidade
 

@@ -58,14 +58,15 @@ helm install cilium cilium/cilium --version 1.15.x \
 
 | 源 | 目的地 | 原因 |
 |---|---|---|
-| `soctalk-system` → `tenant-<slug>`（例如 Wazuh :55000、TheHive :9000、Cortex :9001） | 东西向 | SocTalk 编排器的 MCP 子进程调用租户数据平面 API |
+| `soctalk-system` → `tenant-<slug>`（Wazuh :55000、indexer :9200） | 东西向 | SocTalk 编排器的 MCP 子进程调用租户 Wazuh 数据平面 |
+| `soctalk-system` → 外部 TheHive / Cortex 端点 | 出站 | TheHive 和 Cortex 是通过网络访问的外部集成，而非命名空间内的租户 Pod |
 | `tenant-<slug>`（适配器）→ `soctalk-system`（SocTalk API :8000） | 东西向 | 适配器上报健康状态并拉取配置 |
 | `soctalk-system` → 外部的、按租户划分的 LLM FQDN | 出站 | 分诊期间的 LLM 调用（在 worker 上下文中使用租户的 LLM 密钥） |
 | 外部 Wazuh 代理 → `tenant-<slug>` Wazuh manager（:1514、:1515） | 入站 | 客户端点遥测数据 |
 | MSSP 用户 → `soctalk-system`（经由 Ingress :443） | 入站 | MSSP UI + 客户 UI 访问 |
 | `soctalk-system` Postgres ↔ `soctalk-system`（自身） | 命名空间内 | SocTalk 组件与数据库通信 |
 | `soctalk-system` → 外部 OIDC 提供方 | 出站 | Ingress 级别的 OIDC；流量经由 ingress-system 命名空间 |
-| 租户 Pod 命名空间内通信（manager↔indexer、TheHive↔Cassandra 等） | 命名空间内 | 正常的技术栈运行 |
+| 租户 Pod 命名空间内通信（Wazuh manager↔indexer、agent↔manager 等） | 命名空间内 | 正常的技术栈运行 |
 
 ### 必须阻断的流（由默认拒绝捕获）
 
@@ -199,8 +200,9 @@ spec:
         - ports:
             - { port: "55000", protocol: TCP }  # Wazuh manager API
             - { port: "9200",  protocol: TCP }  # Wazuh indexer
-            - { port: "9000",  protocol: TCP }  # TheHive
-            - { port: "9001",  protocol: TCP }  # Cortex
+    # TheHive and Cortex are external integrations, not in-namespace tenant
+    # pods, so orchestrator reaches them via network egress (per-tenant
+    # FQDN/endpoint), not through this tenant-namespace selector.
     # Postgres (intra-ns)
     - toEndpoints:
         - matchLabels: { app.kubernetes.io/name: soctalk-postgres }
@@ -265,7 +267,7 @@ spec:
 
 **4.3.2 允许命名空间内 + 集群 DNS**
 
-Wazuh、TheHive 和 Cortex 通过 Kubernetes Service DNS 名称相互解析，因此每个数据平面 Pod 都需要向 `kube-dns` 出站。仅有命名空间内允许是不够的——没有 kube-dns 规则，技术栈将无法启动。
+Wazuh 数据平面 Pod 通过 Kubernetes Service DNS 名称相互解析，因此每个数据平面 Pod 都需要向 `kube-dns` 出站。仅有命名空间内允许是不够的；没有 kube-dns 规则，技术栈将无法启动。
 
 ```yaml
 apiVersion: networking.k8s.io/v1
@@ -295,20 +297,32 @@ metadata: { name: allow-from-soctalk-system, namespace: tenant-acme }
 spec:
   podSelector:
     matchExpressions:
+      # `wazuh` covers the wazuh subchart's manager/indexer/dashboard.
+      # `thehive`/`cortex` are inert forward-compat placeholders: TheHive
+      # and Cortex are external integrations today, so these selectors and
+      # the 9000/9001 ports below match no in-namespace pods. They stay in
+      # the rendered policy so a future in-namespace dep needs no NP change.
       - { key: app.kubernetes.io/name, operator: In,
-          values: [wazuh-manager, wazuh-indexer, thehive, cortex] }
+          values: [wazuh, thehive, cortex] }
+      - { key: app.kubernetes.io/component, operator: In,
+          values: [manager, indexer, dashboard, thehive, cortex] }
   policyTypes: [Ingress]
   ingress:
+    # Ingress from BOTH the orchestrator (verdict / runs-worker path) and
+    # the API pod (the chat agent's per-tenant Wazuh routing lands on the
+    # API process, not the orchestrator).
     - from:
         - namespaceSelector:
             matchLabels: { kubernetes.io/metadata.name: soctalk-system }
           podSelector:
-            matchLabels: { app.kubernetes.io/name: soctalk-orchestrator }
+            matchExpressions:
+              - { key: app.kubernetes.io/component, operator: In,
+                  values: [orchestrator, api] }
       ports:
-        - { port: 55000, protocol: TCP }
-        - { port: 9200,  protocol: TCP }
-        - { port: 9000,  protocol: TCP }
-        - { port: 9001,  protocol: TCP }
+        - { port: 55000, protocol: TCP }  # Wazuh manager API
+        - { port: 9200,  protocol: TCP }  # Wazuh indexer
+        - { port: 9000,  protocol: TCP }  # TheHive (inert placeholder)
+        - { port: 9001,  protocol: TCP }  # Cortex (inert placeholder)
 ```
 
 **4.3.4 允许适配器出站到 soctalk-system API**

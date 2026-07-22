@@ -103,7 +103,7 @@ MSSP 侧（`tenant_id` 为 NULL）：
 
 说明：
 - 列中展示的是角色的代表性子集。`mssp_manager` 位于 `mssp_admin` 与 `analyst` 之间（authorize-risk 层级）；`tenant_manager` 与 `tenant_analyst` 在租户侧位于 `customer_viewer` 之上。每个角色都持有其下层级的全部能力。
-- 用户管理按受众设有能力隔离墙。MSSP 员工用户仅由 `mssp_admin`/`platform_admin` 通过 `/api/mssp/users` 管理；租户用户仅由该租户自己的 `tenant_admin` 通过 `/api/tenant/users` 管理。MSSP 管理员不管理租户用户，反之亦然。分配 `platform_admin`，以及变更现有的 `platform_admin`，都需要一名 `platform_admin`。
+- 用户管理按受众设有能力隔离墙，是一种**职责分离（separation of duties）**。MSSP 员工用户仅由 `mssp_admin`/`platform_admin` 通过 `/api/mssp/users` 管理；租户用户仅由该租户自己的 `tenant_admin` 通过 `/api/tenant/users` 管理。MSSP 管理员不管理租户用户，反之亦然。分配 `platform_admin`，以及变更现有的 `platform_admin`，都需要一名 `platform_admin`。
 - “仅经 API”意味着人类主体通过调用 SocTalk API 端点来触发 K8s 操作，而非直接操作。API 处理程序使用 SocTalk K8s ServiceAccount。
 - `analyst` 对某个租户执行动作时，会写入同时包含 `user_id` 与该租户 `tenant_id` 的审计行；客户侧的审计视图将这些显示为模拟身份条目。
 

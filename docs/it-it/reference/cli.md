@@ -45,7 +45,7 @@ Il [`justfile`](https://github.com/soctalk/soctalk/blob/main/justfile) nella roo
 | `just build-mock-endpoint` | Compila l'immagine del simulatore di endpoint mock |
 | `just run` | Esegue lo stack di sviluppo tramite docker-compose |
 | `just push-all` | Effettua il push di tutte le immagini nel registry configurato |
-| `just release` | Tag + push delle immagini + chart + crea una GitHub Release |
+| `just release` | Compila ed effettua il push di tutte le immagini (`build-all` + `push-all`). La pubblicazione versionata del chart, il tag git e la GitHub Release vengono prodotti separatamente dalla GitHub Action **Cut k8s Release**, non da questa ricetta. |
 
 ## Lato repo: `scripts/`
 
@@ -56,7 +56,7 @@ Il [`justfile`](https://github.com/soctalk/soctalk/blob/main/justfile) nella roo
 | `scripts/local-down.sh` | Smantella un cluster creato con `local-up.sh` |
 | `scripts/e2e-l1-l2-k3d.sh` | Configurazione k3d a due cluster (MSSP L1 + tenant L2) per la validazione e2e completa |
 | `scripts/seed-mssp-demo-data.py` | Popola Postgres con tenant di fixture (`acme-corp`, `wayne-industries`, `stark-defense`) e riproduce gli Alert Wazuh tramite l'indexer per la preparazione degli screenshot |
-| `scripts/inject_test_data.py` | Inietta payload di test specifici — utile per riprodurre un bug segnalato da un cliente |
+| `scripts/dump_openapi.py` | Esporta lo schema OpenAPI di FastAPI in JSON; la fonte autorevole da cui viene generato il riferimento REST API della documentazione |
 | `scripts/verify-pages-visual.py` | Controllo di regressione visiva con Playwright sulla UI di sviluppo di SocTalk |
 
 Tutti questi presuppongono l'esecuzione dalla root del repo. Leggi l'intestazione dello script per gli argomenti esatti.

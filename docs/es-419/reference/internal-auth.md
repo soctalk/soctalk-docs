@@ -80,9 +80,11 @@ protegidas según §6.
 | ---    | ---                                           | ---                                    |
 | POST   | `/api/auth/login`                             | email + contraseña, fija la cookie de sesión |
 | POST   | `/api/auth/logout`                            | revoca la sesión actual                |
-| GET    | `/api/auth/me`                                | devuelve el payload de identidad actual |
+| GET    | `/api/auth/me`                                | payload de identidad actual + `permissions[]` del rol |
 | POST   | `/api/auth/password/change`                   | antigua + nueva, autenticado           |
 | POST   | `/api/mssp/users/{id}/password/reset`         | reinicio forzado por el admin, fija `must_change` |
+
+`/api/auth/me` devuelve la identidad más una lista `permissions[]` computada, las capacidades que posee el rol con sesión iniciada, derivadas del mapa único y autoritativo de rol a permiso. El frontend controla la navegación y las acciones según estos permisos en lugar de inferirlos a partir de la cadena del rol.
 
 El endpoint de reinicio del admin genera una contraseña aleatoria fuerte
 del lado del servidor y la devuelve una sola vez en el cuerpo de la

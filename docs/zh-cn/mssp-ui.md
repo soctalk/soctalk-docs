@@ -30,6 +30,8 @@ MSSP 操作员登录后看到的界面。在阅读[日常运维](/zh-cn/operatio
 
 每个页面右上角是用户标签（`email`、`role`）和一个 **Log out** 按钮。
 
+应用 UI 提供七种语言的本地化版本，可在应用内通过语言选择器切换，选择器以每个选项各自的母语名称列出：English、Português (Brasil)、Español (Latinoamérica)、中文（简体）、Français、Deutsch、Italiano。
+
 ## 仪表盘
 
 ![MSSP dashboard](/screenshots/mssp-dashboard.png)
@@ -64,7 +66,7 @@ MSSP 操作员登录后看到的界面。在阅读[日常运维](/zh-cn/operatio
 2. **Actions** —— Suspend / Resume / Retry Provisioning / Decommission。**本版本中的 Suspend 会将租户状态翻转为 `suspended`**，使编排器停止为其调度新的调查；它**不会**对工作负载进行缩容。若需彻底切断，请遵循[日常运维 → 紧急停用](/zh-cn/operations#emergency-disable-a-tenant-immediately)。**Retry Provisioning** 仅对处于 `degraded` 状态的租户有效 —— API 会拒绝对处于 `pending` 状态的租户执行 `:retry`（`pending → provisioning` 在首次尝试时自动完成）。
 3. **Lifecycle Events** —— 配置状态机的时间顺序日志：`preflight_ok → secrets_minted → namespace_ready → secrets_applied → helm_applied (soctalk-tenant chart) → helm_applied (Wazuh chart) → workloads_ready → integration_config_written → active`。两行 `helm_applied` 可通过事件负载（chart 标识）区分。当某个租户卡住时，此表会告诉你是哪一步失败了。
 
-该页面在其他方面为只读；每个租户的 SOC（Wazuh、Cortex、TheHive）通过租户列表上的 **Open SOC** 操作在独立窗口中打开。
+该页面在其他方面为只读；每个租户的 SOC 通过租户列表上的 **Open SOC** 操作在独立窗口中打开。Wazuh 是命名空间内的数据平面；TheHive 和 Cortex 是外部集成，而非按租户捆绑的组件。
 
 ## 调查（Investigations）
 
@@ -120,6 +122,14 @@ MSSP 操作员登录后看到的界面。在阅读[日常运维](/zh-cn/operatio
 
 用它进行容量规划、模型版本评估和 SLA 审查。
 
+### 决策分析（Decision analytics）
+
+将 Analytics 页面固定到单个租户，会把上文的跨租户趋势替换为针对该客户的一组以决策为核心的界面：
+
+- **Confidence Distribution**：AI 决策置信度在已分诊告警中的分布情况，按置信度分桶。
+- **Decision Trends**：各类决策（关闭、升级等）的构成如何随时间变化。
+- **Average Confidence by Decision**：按决策类型细分的平均置信度。
+
 ## 审计日志
 
 ![Audit log](/screenshots/audit-log.png)
@@ -142,8 +152,8 @@ MSSP 全局设置页面。**在 V1 中此页面显示的是硬编码的占位值
 
 - **LLM** —— Provider（`openai-compatible | anthropic`）、Fast Model、Reasoning Model、Temperature、Max Tokens、可选的 Base URL + Organization。API 密钥保存在环境变量 / Kubernetes Secrets 中，绝不会保存在此表单里。
 - **Wazuh SIEM** —— 启用开关、URL、凭据。
-- **Cortex** —— 启用开关、URL、凭据。
-- **TheHive** —— 启用开关、URL、organisation、凭据。
+- **Cortex** —— 启用开关、URL、凭据。外部集成，而非捆绑的子 chart；该 URL 指向租户的 Cortex 实例（参见 /zh-cn/integrate/cortex）。
+- **TheHive** —— 启用开关、URL、organisation、凭据。外部集成，而非捆绑的子 chart；该 URL 指向租户的 TheHive 实例（参见 /zh-cn/integrate/thehive）。
 - **Slack** —— webhook + 交互式后端配置。
 
 **Bring your own LLM key →** 链接会跳转到每租户 LLM 密钥轮换（每租户的 LLM 密钥会覆盖安装范围内的密钥）。

@@ -81,9 +81,11 @@ conforme §6.
 | ---    | ---                                           | ---                                    |
 | POST   | `/api/auth/login`                             | e-mail + senha, define o cookie de sessão |
 | POST   | `/api/auth/logout`                            | revoga a sessão atual                  |
-| GET    | `/api/auth/me`                                | retorna o payload de identidade atual  |
+| GET    | `/api/auth/me`                                | payload de identidade atual + `permissions[]` do papel |
 | POST   | `/api/auth/password/change`                   | antiga + nova, autenticado             |
 | POST   | `/api/mssp/users/{id}/password/reset`         | redefinição forçada pelo admin, define `must_change` |
+
+`/api/auth/me` retorna a identidade mais uma lista `permissions[]` computada, as capacidades que o papel autenticado detém, derivadas do mapa de papel-para-permissão de fonte única da verdade. O frontend controla a navegação e as ações com base nessas permissões em vez de inferi-las a partir da string do papel.
 
 O endpoint de redefinição pelo admin gera uma senha aleatória forte no
 lado do servidor e a retorna uma única vez no corpo da resposta; o admin

@@ -65,9 +65,11 @@ SOCTALK_AUTH_MODE = internal | proxy
 | ---    | ---                                           | ---                                    |
 | POST   | `/api/auth/login`                             | 邮箱 + 密码，设置会话 cookie            |
 | POST   | `/api/auth/logout`                            | 撤销当前会话                            |
-| GET    | `/api/auth/me`                                | 返回当前身份负载                        |
+| GET    | `/api/auth/me`                                | 当前身份负载 + 角色 `permissions[]`     |
 | POST   | `/api/auth/password/change`                   | 旧密码 + 新密码，需认证                  |
 | POST   | `/api/mssp/users/{id}/password/reset`         | 管理员强制重置，设置 `must_change`       |
+
+`/api/auth/me` 会返回身份信息，外加一个计算得出的 `permissions[]` 列表，即登录角色所持有的能力，它派生自作为唯一权威来源的角色到权限映射。前端基于这些权限对导航和操作进行门控，而非从角色字符串推断。
 
 管理员重置端点在服务端生成一个强随机密码，并在响应体中一次性返回；管理员通过带外方式将其交给用户。基于邮件的自助重置被推迟（§12）。
 

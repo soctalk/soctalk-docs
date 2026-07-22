@@ -45,7 +45,7 @@ kubectl -n soctalk-system exec -it deploy/soctalk-system-api -- \
 | `just build-mock-endpoint` | 构建 mock endpoint 模拟镜像 |
 | `just run` | 通过 docker-compose 运行开发栈 |
 | `just push-all` | 将所有镜像推送到配置的镜像仓库 |
-| `just release` | 打标签 + 推送镜像 + chart + 创建 GitHub Release |
+| `just release` | 构建并推送所有镜像（`build-all` + `push-all`）。带版本号的 chart 发布、git 标签和 GitHub Release 由 **Cut k8s Release** GitHub Action 单独完成，而非由此配方完成。 |
 
 ## 仓库侧：`scripts/`
 
@@ -56,7 +56,7 @@ kubectl -n soctalk-system exec -it deploy/soctalk-system-api -- \
 | `scripts/local-down.sh` | 拆除由 `local-up.sh` 创建的集群 |
 | `scripts/e2e-l1-l2-k3d.sh` | 双集群 k3d 配置（MSSP L1 + 租户 L2），用于完整的端到端验证 |
 | `scripts/seed-mssp-demo-data.py` | 用固定租户（`acme-corp`、`wayne-industries`、`stark-defense`）填充 Postgres，并通过索引器回放 Wazuh 告警，用于截图准备 |
-| `scripts/inject_test_data.py` | 注入特定的测试载荷——在复现客户报告的 bug 时很有用 |
+| `scripts/dump_openapi.py` | 将 FastAPI 的 OpenAPI schema 导出为 JSON；作为文档 REST API 参考据以生成的权威来源 |
 | `scripts/verify-pages-visual.py` | 针对开发环境 SocTalk UI 的 Playwright 视觉回归检查 |
 
 这些脚本都期望从仓库根目录运行。请阅读脚本头部以了解确切的参数。

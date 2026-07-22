@@ -30,6 +30,8 @@ La barra di sinistra è persistente su ogni pagina. Dall'alto verso il basso:
 
 In alto a destra su ogni pagina c'è il chip utente (`email`, `role`) e un pulsante **Esci**.
 
+La UI dell'applicazione è distribuita localizzata in sette lingue, commutabili in-app dal selettore di lingua, che elenca ciascuna opzione sotto il proprio nome nativo: English, Português (Brasil), Español (Latinoamérica), 中文（简体）, Français, Deutsch, Italiano.
+
 ## Dashboard
 
 ![Dashboard MSSP](/screenshots/mssp-dashboard.png)
@@ -64,7 +66,7 @@ Tre sezioni:
 2. **Azioni** — Sospendi / Riprendi / Riprova provisioning / Decommissiona. **In questa release Sospendi porta lo stato del tenant a `suspended`** così l'orchestratore smette di pianificare nuove indagini; **non** ridimensiona i workload. Per un blocco definitivo, segui [Operazioni quotidiane → Disabilitazione di emergenza](/it-it/operations#emergency-disable-a-tenant-immediately). **Riprova provisioning** funziona solo sui tenant in `degraded` — l'API rifiuta `:retry` sui tenant in `pending` (`pending → provisioning` è automatico al primo tentativo).
 3. **Eventi del ciclo di vita** — log cronologico della macchina a stati del provisioning: `preflight_ok → secrets_minted → namespace_ready → secrets_applied → helm_applied (soctalk-tenant chart) → helm_applied (Wazuh chart) → workloads_ready → integration_config_written → active`. Le due righe `helm_applied` sono distinguibili tramite il payload dell'evento (identità della chart). Quando un tenant si blocca, questa tabella ti dice quale passo è fallito.
 
-Per il resto la pagina è di sola lettura; il SOC per-tenant (Wazuh, Cortex, TheHive) si apre in una finestra propria tramite l'azione **Apri SOC** nell'elenco dei tenant.
+Per il resto la pagina è di sola lettura; il SOC per-tenant si apre in una finestra propria tramite l'azione **Apri SOC** nell'elenco dei tenant. Wazuh è il data plane in-namespace; TheHive e Cortex sono integrazioni esterne, non componenti bundle per-tenant.
 
 ## Indagini
 
@@ -120,6 +122,14 @@ Vista cross-tenant orientata alle tendenze, suddivisa per intervalli temporali (
 
 Usa questa vista per la pianificazione della capacità, la valutazione delle versioni del modello e la revisione degli SLA.
 
+### Analytics decisionali
+
+Fissare la pagina Analytics su un singolo tenant sostituisce le tendenze cross-tenant qui sopra con un insieme di superfici orientate alle decisioni per quel cliente:
+
+- **Distribuzione della confidenza** — come la confidenza delle decisioni AI si distribuisce tra gli alert sottoposti a triage, suddivisa per confidenza.
+- **Tendenze delle decisioni** — come il mix di decisioni (chiudi, escala, e così via) si muove nel tempo.
+- **Confidenza media per decisione** — confidenza media suddivisa per tipo di decisione.
+
 ## Audit log
 
 ![Audit log](/screenshots/audit-log.png)
@@ -142,8 +152,8 @@ Sezioni:
 
 - **LLM** — Provider (`openai-compatible | anthropic`), Fast Model, Reasoning Model, Temperature, Max Tokens, Base URL + Organization opzionali. Le chiavi API vivono nell'ambiente / nei Kubernetes Secret, mai in questo modulo.
 - **Wazuh SIEM** — toggle di abilitazione, URL, credenziali.
-- **Cortex** — toggle di abilitazione, URL, credenziali.
-- **TheHive** — toggle di abilitazione, URL, organizzazione, credenziali.
+- **Cortex** — toggle di abilitazione, URL, credenziali. Integrazione esterna, non un subchart bundle; l'URL punta all'istanza Cortex del tenant (vedi /it-it/integrate/cortex).
+- **TheHive** — toggle di abilitazione, URL, organizzazione, credenziali. Integrazione esterna, non un subchart bundle; l'URL punta all'istanza TheHive del tenant (vedi /it-it/integrate/thehive).
 - **Slack** — configurazione del webhook + del backend interattivo.
 
 Il collegamento **Bring your own LLM key →** porta alla rotazione della chiave LLM per-tenant (le chiavi LLM per-tenant hanno la precedenza su quella a livello di installazione).

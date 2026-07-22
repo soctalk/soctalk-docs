@@ -42,6 +42,14 @@ L'octroi enregistré est l'essentiel. La prochaine fois que la même activité p
 
 Une règle est délibérée : un fait n'est créé que par cette réponse explicite. SocTalk n'apprend jamais une autorisation à partir d'une simple clôture ou d'un rejet. Un analyste qui vide la file n'est pas la même chose qu'un analyste qui déclare qu'une activité est sanctionnée, et traiter cela ainsi laisserait la pression de la file empoisonner discrètement le magasin.
 
+## Engagements
+
+Un fait répond à une question permanente : ce compte est-il autorisé à faire ceci sur cet hôte. Certaines autorisations ne sont pas du tout permanentes, elles sont bornées à une fenêtre de temps durant laquelle une activité autrement suspecte est attendue. Un pentest sanctionné, un exercice de red-team ou une fenêtre de maintenance constituent une autorisation qui s'ouvre puis se ferme. SocTalk modélise cela comme un engagement, et un engagement est simplement une sorte d'autorisation : une fenêtre d'autorisation cadrée et bornée dans le temps durant laquelle l'activité qu'elle décrit est attendue plutôt qu'alarmante.
+
+Les engagements vivent dans la même zone Autorisation du tenant que les faits, sur leur propre onglet Engagements. L'ancien chemin `/engagements` fonctionne toujours et redirige directement (deep-link) vers cet onglet, puisque les engagements ont été intégrés à la zone Autorisation unifiée plutôt que conservés comme une surface distincte.
+
+Un engagement fonctionne cependant différemment d'un fait. Il n'est pas soumis à validation : un utilisateur autorisé par le tenant le déclare, et peut le révoquer, directement, sans étape d'examen MSSP. Ce qu'un engagement fait, c'est déconflictualiser l'activité par source, cible et fenêtre temporelle validées. L'activité d'alerte qui tombe à l'intérieur d'un engagement déclaré, une source dans le périmètre agissant sur une cible dans le périmètre pendant la fenêtre, est attribuée au testeur : SocTalk enregistre l'observation, retire l'alerte de la file ouverte et saute le triage LLM pour celle-ci. Elle n'est jamais clôturée automatiquement ni marquée comme faux positif, la ligne d'observation reste interrogeable et comptabilisée. L'activité du testeur qui atterrit en dehors du périmètre déclaré est signalée pour un examen plus attentif plutôt que laissée passer. Lorsque la fenêtre se ferme, la déconfliction ne s'applique plus et l'activité est de nouveau triée normalement.
+
 ## Les garde-fous
 
 L'autorisation est une surface de suppression, ses limites sont donc appliquées dans le code, et non laissées à la formulation d'un prompt :

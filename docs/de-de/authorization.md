@@ -42,6 +42,14 @@ Die gespeicherte Berechtigung ist der springende Punkt. Wenn dieselbe Aktivität
 
 Eine Regel ist bewusst gewählt: Ein Fakt wird nur durch diese explizite Antwort erzeugt. SocTalk lernt niemals eine Autorisierung aus einem bloßen Schließen oder Ablehnen. Ein Analyst, der die Warteschlange leert, ist nicht dasselbe wie ein Analyst, der erklärt, dass eine Aktivität genehmigt ist, und dies so zu behandeln würde zulassen, dass der Druck der Warteschlange den Speicher stillschweigend vergiftet.
 
+## Engagements
+
+Ein Fakt beantwortet eine stehende Frage, darf dieses Konto dies auf diesem Host tun. Manche Autorisierungen sind überhaupt nicht stehend, sie sind auf ein Zeitfenster begrenzt, in dem ansonsten verdächtige Aktivität erwartet wird. Ein genehmigter Pentest, eine Red-Team-Übung oder ein Wartungsfenster ist eine Autorisierung, die sich öffnet und dann wieder schließt. SocTalk modelliert dies als ein Engagement, und ein Engagement ist einfach eine Art von Autorisierung: ein eingegrenztes, zeitlich begrenztes Autorisierungsfenster, in dem die von ihm beschriebene Aktivität erwartet und nicht alarmierend ist.
+
+Engagements leben im selben mandantenspezifischen Autorisierungsbereich wie Fakten, auf ihrem eigenen Engagements-Tab. Der ältere `/engagements`-Pfad funktioniert weiterhin und verlinkt per Deep-Link direkt in diesen Tab, da Engagements in den vereinheitlichten Autorisierungsbereich eingegliedert wurden, statt als separate Oberfläche geführt zu werden.
+
+Ein Engagement funktioniert jedoch anders als ein Fakt. Es ist nicht geregelt: Ein mandantenautorisierter Benutzer deklariert es und kann es widerrufen, direkt, ohne MSSP-Prüfschritt. Was ein Engagement tut, ist, Aktivität nach validierter Quelle, validiertem Ziel und Zeitfenster zu dekonfligieren. Warnungsaktivität, die in ein deklariertes Engagement fällt, eine Quelle im Geltungsbereich, die während des Fensters auf ein Ziel im Geltungsbereich einwirkt, wird dem Tester zugeschrieben: SocTalk erfasst die Beobachtung, nimmt die Warnung aus der offenen Warteschlange und überspringt die LLM-Triage dafür. Sie wird niemals automatisch geschlossen oder als False Positive markiert, die Beobachtungszeile bleibt abfragbar und gezählt. Aktivität des Testers, die außerhalb des deklarierten Geltungsbereichs landet, wird zur genaueren Prüfung markiert, statt durchgewunken zu werden. Wenn das Fenster schließt, gilt die Dekonfliktierung nicht mehr und die Aktivität wird wieder normal triagiert.
+
 ## Die Guardrails
 
 Autorisierung ist eine Unterdrückungsfläche, daher werden ihre Grenzen im Code durchgesetzt und nicht der Formulierung eines Prompts überlassen:

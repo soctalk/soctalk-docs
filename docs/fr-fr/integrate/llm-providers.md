@@ -7,26 +7,29 @@ Le runtime ([`src/soctalk/llm.py`](https://github.com/soctalk/soctalk/blob/main/
 
 En V1, la variable d'environnement de fournisseur (`SOCTALK_LLM_PROVIDER`) n'est **honorée que par les pods runs-worker propres à chaque tenant**. Le pod API lui-même utilise des valeurs de fournisseur codées en dur. Le fournisseur par tenant est configurable via `PATCH /api/mssp/tenants/{tenant_id}/llm` (voir [Surcharges par tenant](#per-tenant-overrides)).
 
+Un modèle auto-hébergé, compatible OpenAI, est une option de premier plan, pas un repli : pointez le fournisseur `openai` vers un serveur vLLM ou SGLang que vous exploitez, un endpoint GPU serverless managé, ou un Ollama local, le tout via `OPENAI_BASE_URL`. SocTalk classe les backends par modèle de livraison, API managée à chaud, GPU serverless scale-to-zero, GPU loué toujours actif, ou local, et chacun a un profil de coût et de latence différent. Pour savoir comment choisir, voir [Réduire au minimum la facture du triage AI](/fr-fr/guides/inference-cost-optimization) et [Ce que coûte réellement l'inférence de triage, mesuré](/fr-fr/guides/inference-cost-benchmark).
+
 ## Ce que le chart expose
 
-Aujourd'hui, le chart `soctalk-system` accepte trois clés de valeurs LLM à l'échelle de l'installation, mais la plupart d'entre elles **ne** se répercutent **pas** sur le comportement du runtime en V1 :
+Le chart `soctalk-system` accepte des valeurs par défaut LLM à l'échelle de l'installation qui amorcent la configuration LLM par palier de chaque tenant nouvellement intégré :
 
 ```yaml
 defaults:
   llm:
-    provider: openai-compatible   # rendered as SOCTALK_LLM_PROVIDER_DEFAULT on API pod, but V1 API IGNORES this env
-    baseUrl: https://api.openai.com/v1   # rendered as SOCTALK_LLM_BASE_URL_DEFAULT, also IGNORED by V1 API
-    model: gpt-4o                  # rendered as SOCTALK_LLM_MODEL_DEFAULT, also IGNORED by V1 API
+    provider: openai-compatible          # SOCTALK_LLM_PROVIDER_DEFAULT
+    baseUrl: https://api.openai.com/v1   # SOCTALK_LLM_BASE_URL_DEFAULT
+    model: gpt-4o                        # SOCTALK_LLM_MODEL_DEFAULT
+    fastTier: {}                         # optional cheaper router/supervisor tier; off until provider/baseUrl/model are set
 
 llm:
-  provider: openai               # NOT propagated to SOCTALK_LLM_PROVIDER on the API by V1 chart
+  provider: openai               # provider whose API key the install ships with
   existingSecret: ""             # Secret with anthropic-api-key / openai-api-key keys
-  apiKey: ""                     # inline alternative; creates ONE provider key only (not both) — dev / lab use only
+  apiKey: ""                     # inline alternative; creates ONE provider key only (not both), dev / lab use only
 ```
 
-**Résumé du comportement V1 :** le pod API utilise ses **propres valeurs codées en dur** pour le fournisseur/modèle/URL de base. Les variables d'environnement `*_DEFAULT` rendues par le chart sont un échafaudage pour une version future ; aujourd'hui, elles ne sont pas lues.
+**Comment les valeurs par défaut prennent effet :** les clés `defaults.llm.*` sont lues lors de l'intégration du tenant et amorcent la configuration par palier du nouveau tenant, de sorte qu'un tenant créé après que vous les avez définies en hérite. Les tenants existants conservent leur configuration actuelle jusqu'à ce qu'elle soit patchée.
 
-**Là où le câblage des variables d'environnement LLM prend réellement effet :** le Deployment `soctalk-runs-worker` propre à chaque tenant. Ses variables d'environnement `SOCTALK_LLM_PROVIDER`, `SOCTALK_FAST_MODEL`, `SOCTALK_REASONING_MODEL` et `OPENAI_BASE_URL` sont rendues par le contrôleur de provisionnement à partir de la ligne `IntegrationConfig` du tenant. C'est la surface qui contrôle réellement quel fournisseur est appelé.
+**Là où la configuration résolue s'exécute :** le Deployment `soctalk-runs-worker` propre à chaque tenant. Ses variables d'environnement `SOCTALK_LLM_PROVIDER`, `SOCTALK_FAST_MODEL`, `SOCTALK_REASONING_MODEL` et `OPENAI_BASE_URL` sont rendues par le contrôleur de provisionnement à partir de la ligne de configuration du tenant, et c'est la surface qui contrôle quel fournisseur et quel modèle chaque palier appelle.
 
 ## Basculer vers Anthropic
 
@@ -98,8 +101,9 @@ Flux de rotation de la clé LLM par tenant : voir [Opérations quotidiennes → 
 
 ## Notes sur les coûts
 
-- Le runtime effectue de nombreux petits appels LLM par enquête (superviseur + workers + clôture) et un grand appel de raisonnement (verdict). Choisir un modèle bon marché pour `defaults.llm.model` réduit considérablement les coûts mais dégrade actuellement aussi la qualité du verdict — le chart ne sépare pas encore le modèle rapide du modèle de raisonnement. Un changement planifié dissocie les deux.
+- Le runtime effectue de nombreux petits appels LLM par enquête (superviseur + workers + clôture) et un grand appel de raisonnement (verdict). La séparation rapide vs raisonnement est désormais configurable par palier : SocTalk résout chaque rôle, un palier router/superviseur plus léger et un palier verdict/raisonnement plus puissant, vers son propre palier, chacun pointant vers son propre fournisseur, modèle et endpoint. Le réglage `defaults.llm.fastTier` dans les valeurs du chart `soctalk-system` et le rendu par palier dans la couche de provisionnement vous permettent de pointer le palier rapide vers un modèle bon marché tout en conservant un modèle plus puissant pour le verdict, de sorte que vous ne troquez plus la qualité du verdict pour réduire le coût par appel. Le palier rapide est désactivé par défaut (`fastTier: {}`) ; définissez ses `provider`, `baseUrl` et `model` pour l'activer. Il amorce la configuration par palier des tenants nouvellement intégrés, de sorte que les tenants existants conservent leur configuration actuelle jusqu'à ce qu'elle soit patchée.
 - L'utilisation des tokens par tenant est mesurée via la métrique Prometheus `soctalk_tenant_llm_tokens_total{direction="input|output"}` — voir [Observabilité](/fr-fr/observability#per-tenant-cost).
+- L'auto-hébergement n'est rentable que si vous gardez le GPU occupé. Le réglage `runsWorker.concurrency` (par défaut `1`) définit combien d'enquêtes un runs-worker traite en parallèle ; augmentez-le pour remplir un batch continu auto-hébergé et amortir un GPU toujours actif sur davantage de travail. Voir [Réduire au minimum la facture du triage AI](/fr-fr/guides/inference-cost-optimization) pour savoir comment le dimensionner face à un backend donné.
 
 ## Test de bon fonctionnement
 

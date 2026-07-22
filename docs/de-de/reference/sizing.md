@@ -45,12 +45,11 @@ Dies sind Ausgangswerte für `ResourceQuota` und `LimitRange` im Tenant-Chart. D
 | Wazuh indexer (OpenSearch fork) | 2 GB (heap 1 GB) | 4 GB (heap 2 GB) | 500 m | 2000 m | 50 GB |
 | Wazuh dashboard | 512 MB | 1 GB | 100 m | 500 m | |
 | Filebeat | 128 MB | 256 MB | 50 m | 200 m | |
-| TheHive | 1 GB | 2 GB | 300 m | 1000 m | |
-| Cassandra (TheHive backing) | 2 GB | 4 GB | 500 m | 1500 m | 30 GB |
-| Cortex | 768 MB | 1.5 GB | 200 m | 800 m | |
-| Cortex ElasticSearch | 1 GB | 2 GB | 300 m | 1000 m | 20 GB |
+| linux-ep (L2 endpoint agent) | 256 MB | 512 MB | 100 m | 500 m | |
 | SocTalk adapter | 128 MB | 256 MB | 50 m | 200 m | |
-| **Gesamt pro Mandant (Limits)** | **~8 GB request, ~16 GB limit** | | **~2,2 vCPU request, ~7,7 vCPU limit** | | **~120 GB** |
+| **Reserviertes Budget pro Mandant** | **~8 GB request, ~16 GB limit** | | **~2,2 vCPU request, ~7,7 vCPU limit** | | **~120 GB** |
+
+TheHive und Cortex sind externe Integrationen, keine gebündelten Subcharts, daher laufen sie außerhalb des Mandanten-Namespace und sind nicht Teil dieses Footprints pro Mandant; dimensioniere sie dort, wo sie gehostet werden. Der gebündelte In-Namespace-Stack ist Wazuh plus der linux-ep-Agent, sodass das reservierte Budget oben Reserve gegenüber den aktuellen In-Namespace-Pods bietet.
 
 Hinweis: Limits sind Burst-Obergrenzen; die dauerhafte Nutzung liegt näher an den Requests. Der Betrieb von 3 Mandanten auf einem Host mit 8 vCPU / 32 GB / 500 GB bedeutet:
 - RAM: ~24 GB an Requests (passt), ~48 GB an Limits (erfordert sorgfältiges Overcommit-Tuning).

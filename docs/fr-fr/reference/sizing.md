@@ -45,12 +45,11 @@ Ce sont des valeurs de départ pour `ResourceQuota` et `LimitRange` dans le char
 | Wazuh indexer (fork OpenSearch) | 2 Go (heap 1 Go) | 4 Go (heap 2 Go) | 500 m | 2000 m | 50 Go |
 | Wazuh dashboard | 512 Mo | 1 Go | 100 m | 500 m | |
 | Filebeat | 128 Mo | 256 Mo | 50 m | 200 m | |
-| TheHive | 1 Go | 2 Go | 300 m | 1000 m | |
-| Cassandra (backend TheHive) | 2 Go | 4 Go | 500 m | 1500 m | 30 Go |
-| Cortex | 768 Mo | 1,5 Go | 200 m | 800 m | |
-| Cortex ElasticSearch | 1 Go | 2 Go | 300 m | 1000 m | 20 Go |
+| linux-ep (agent d'endpoint L2) | 256 Mo | 512 Mo | 100 m | 500 m | |
 | Adaptateur SocTalk | 128 Mo | 256 Mo | 50 m | 200 m | |
-| **Total par tenant (limites)** | **~8 Go en requête, ~16 Go en limite** | | **~2,2 vCPU en requête, ~7,7 vCPU en limite** | | **~120 Go** |
+| **Budget réservé par tenant** | **~8 Go en requête, ~16 Go en limite** | | **~2,2 vCPU en requête, ~7,7 vCPU en limite** | | **~120 Go** |
+
+TheHive et Cortex sont des intégrations externes, pas des sous-charts fournis d'office, ils s'exécutent donc en dehors du namespace du tenant et ne font pas partie de cette empreinte par tenant ; dimensionnez-les là où ils sont hébergés. La pile in-namespace fournie d'office est Wazuh plus l'agent linux-ep, de sorte que le budget réservé ci-dessus conserve une marge sur les pods in-namespace actuels.
 
 Note : les limites sont des plafonds de pointe ; l'usage soutenu est plus proche des requêtes. Exécuter 3 tenants sur un hôte 8 vCPU / 32 Go / 500 Go signifie :
 - RAM : ~24 Go de requêtes (tient), ~48 Go de limites (nécessite un réglage soigneux du surengagement).

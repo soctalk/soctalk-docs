@@ -42,6 +42,14 @@ La concessione salvata è il punto centrale. La volta successiva in cui la stess
 
 Una regola è deliberata: un fatto viene creato solo da questa risposta esplicita. SocTalk non apprende mai un'autorizzazione da una semplice chiusura o rifiuto. Un analista che svuota la coda non è la stessa cosa di un analista che dichiara che un'attività è autorizzata, e trattarla in questo modo lascerebbe che la pressione della coda avvelenasse silenziosamente l'archivio.
 
+## Engagement
+
+Un fatto risponde a una domanda permanente: questo account è autorizzato a fare questo su questo host? Alcune autorizzazioni non sono affatto permanenti, sono circoscritte a una finestra di tempo durante la quale un'attività altrimenti sospetta è attesa. Un pentest autorizzato, un'esercitazione red-team o una finestra di manutenzione sono un'autorizzazione che si apre e poi si chiude. SocTalk modella questo come un engagement, e un engagement è semplicemente un tipo di autorizzazione: una finestra di autorizzazione circoscritta e limitata nel tempo durante la quale l'attività che descrive è attesa anziché allarmante.
+
+Gli engagement risiedono nella stessa area Autorizzazione del tenant in cui vivono i fatti, in una loro scheda Engagement dedicata. Il vecchio percorso `/engagements` funziona ancora e rimanda direttamente a quella scheda, dal momento che gli engagement sono stati integrati nell'area Autorizzazione unificata anziché mantenuti come superficie separata.
+
+Un engagement funziona però in modo diverso da un fatto. Non è soggetto a gating: un utente autorizzato dal tenant lo dichiara, e può revocarlo, direttamente, senza alcun passaggio di revisione MSSP. Ciò che un engagement fa è deconfliggere l'attività per source, target e finestra temporale validati. L'attività degli alert che ricade all'interno di un engagement dichiarato, una source in-scope che agisce su un target in-scope durante la finestra, viene attribuita al tester: SocTalk registra l'osservazione, toglie l'alert dalla coda aperta e salta il triage LLM per esso. Non viene mai chiuso automaticamente né marcato come falso positivo, la riga dell'osservazione resta interrogabile e conteggiata. L'attività del tester che ricade al di fuori dell'ambito dichiarato viene segnalata per un esame più attento anziché lasciata passare. Quando la finestra si chiude, la deconflittazione non si applica più e l'attività viene nuovamente sottoposta a triage in modo normale.
+
 ## I guardrail
 
 L'autorizzazione è una superficie di soppressione, quindi i suoi limiti sono applicati nel codice, non lasciati alla formulazione del prompt:

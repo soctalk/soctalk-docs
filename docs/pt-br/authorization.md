@@ -42,6 +42,14 @@ A concessão salva é o ponto central. Na próxima vez que a mesma atividade pro
 
 Uma regra é deliberada: um fato é criado apenas por esta resposta explícita. O SocTalk nunca aprende uma autorização a partir de um simples fechamento ou rejeição. Um analista limpando a fila não é o mesmo que um analista afirmando que uma atividade é sancionada, e tratar assim deixaria a pressão da fila envenenar silenciosamente o armazenamento.
 
+## Engajamentos
+
+Um fato responde a uma pergunta permanente, esta conta tem permissão para fazer isto neste host. Algumas autorizações não são permanentes de forma alguma, elas são delimitadas a uma janela de tempo durante a qual uma atividade que de outra forma seria suspeita é esperada. Um pentest sancionado, um exercício de red-team ou uma janela de manutenção é uma autorização que abre e depois fecha. O SocTalk modela isto como um engajamento, e um engajamento é simplesmente um tipo de autorização: uma janela de autorização com escopo e delimitada no tempo durante a qual a atividade que ela descreve é esperada em vez de alarmante.
+
+Engajamentos vivem na mesma área de Autorização do tenant que os fatos, em sua própria aba Engajamentos. O caminho antigo `/engagements` ainda funciona e leva por deep-link diretamente para essa aba, já que os engajamentos foram incorporados à área unificada de Autorização em vez de mantidos como uma superfície separada.
+
+Um engajamento funciona de forma diferente de um fato, porém. Ele não é controlado por gate: um usuário autorizado pelo tenant o declara, e pode revogá-lo, diretamente, sem etapa de revisão do MSSP. O que um engajamento faz é desconflitar a atividade por origem, alvo e janela de tempo validados. A atividade de alerta que cai dentro de um engajamento declarado, uma origem em escopo agindo sobre um alvo em escopo durante a janela, é atribuída ao testador: o SocTalk registra a observação, retira o alerta da fila aberta e pula a triagem por LLM dele. Ele nunca é fechado automaticamente nem marcado como falso positivo, a linha de observação permanece consultável e contabilizada. A atividade do testador que aterrissa fora do escopo declarado é sinalizada para um olhar mais atento em vez de liberada. Quando a janela fecha, a desconflitação não se aplica mais e a atividade é triada normalmente de novo.
+
 ## Os guardrails
 
 Autorização é uma superfície de supressão, então seus limites são impostos em código, não deixados à formulação de prompts:

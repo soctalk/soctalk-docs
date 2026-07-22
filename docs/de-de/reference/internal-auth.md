@@ -79,9 +79,11 @@ Alle unter `/api/auth/*`. JSON. Zustandsändernde Routen gemäß §6 geschützt.
 | ---    | ---                                           | ---                                    |
 | POST   | `/api/auth/login`                             | E-Mail + Passwort, setzt Sitzungscookie |
 | POST   | `/api/auth/logout`                            | widerruft die aktuelle Sitzung         |
-| GET    | `/api/auth/me`                                | gibt die aktuelle Identitäts-Payload zurück |
+| GET    | `/api/auth/me`                                | aktuelle Identitäts-Payload + Rollen-`permissions[]` |
 | POST   | `/api/auth/password/change`                   | alt + neu, authentifiziert             |
 | POST   | `/api/mssp/users/{id}/password/reset`         | erzwungener Admin-Reset, setzt `must_change` |
+
+`/api/auth/me` gibt die Identität plus eine berechnete `permissions[]`-Liste zurück, die Capabilities, die die angemeldete Rolle hält, abgeleitet aus der Single-Source-of-Truth-Rollen-zu-Berechtigungs-Map. Das Frontend gated Navigation und Aktionen anhand dieser Berechtigungen, statt sie aus dem Rollen-String abzuleiten.
 
 Der Admin-Reset-Endpunkt erzeugt serverseitig ein starkes zufälliges
 Passwort und gibt es einmalig im Antworttext zurück; der Admin übergibt es

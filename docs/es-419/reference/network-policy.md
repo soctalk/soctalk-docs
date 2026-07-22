@@ -58,14 +58,15 @@ Base de denegación por defecto (default-deny) en cada namespace que SocTalk adm
 
 | Origen | Destino | Por qué |
 |---|---|---|
-| `soctalk-system` → `tenant-<slug>` (p. ej., Wazuh :55000, TheHive :9000, Cortex :9001) | Este-oeste | Los subprocesos MCP del orquestador de SocTalk llaman a las API del plano de datos del tenant |
+| `soctalk-system` → `tenant-<slug>` (Wazuh :55000, indexador :9200) | Este-oeste | Los subprocesos MCP del orquestador de SocTalk llaman al plano de datos Wazuh del tenant |
+| `soctalk-system` → endpoints externos de TheHive / Cortex | Salida | TheHive y Cortex son integraciones externas alcanzadas por red, no pods de tenant en el namespace |
 | `tenant-<slug>` (adaptador) → `soctalk-system` (SocTalk API :8000) | Este-oeste | El adaptador reporta su salud y extrae configuración |
 | `soctalk-system` → FQDN externo del LLM por tenant | Salida | Llamadas al LLM durante el triaje (usando la clave de LLM del tenant bajo el contexto del worker) |
 | Agentes Wazuh externos → gestor Wazuh de `tenant-<slug>` (:1514, :1515) | Entrada | Telemetría del endpoint del cliente |
 | Usuarios MSSP → `soctalk-system` (vía Ingress :443) | Entrada | Acceso a la UI de MSSP + UI de Cliente |
 | Postgres de `soctalk-system` ↔ `soctalk-system` (a sí mismo) | Intra-ns | Componentes de SocTalk hablando con la BD |
 | `soctalk-system` → proveedor OIDC externo | Salida | OIDC a nivel de ingress; fluye vía el ns ingress-system |
-| Pods de tenant intra-namespace (manager↔indexer, TheHive↔Cassandra, etc.) | Intra-ns | Operación normal del stack |
+| Pods de tenant intra-namespace (Wazuh manager↔indexer, agente↔manager, etc.) | Intra-ns | Operación normal del stack |
 
 ### Flujos que deben bloquearse (default-deny los captura)
 
@@ -199,8 +200,9 @@ spec:
         - ports:
             - { port: "55000", protocol: TCP }  # API del gestor Wazuh
             - { port: "9200",  protocol: TCP }  # indexador Wazuh
-            - { port: "9000",  protocol: TCP }  # TheHive
-            - { port: "9001",  protocol: TCP }  # Cortex
+    # TheHive and Cortex are external integrations, not in-namespace tenant
+    # pods, so orchestrator reaches them via network egress (per-tenant
+    # FQDN/endpoint), not through this tenant-namespace selector.
     # Postgres (intra-ns)
     - toEndpoints:
         - matchLabels: { app.kubernetes.io/name: soctalk-postgres }
@@ -265,7 +267,7 @@ spec:
 
 **4.3.2 Permitir intra-namespace + DNS del clúster**
 
-Wazuh, TheHive y Cortex se resuelven entre sí vía los nombres DNS de Service de Kubernetes, por lo que cada pod del plano de datos necesita salida hacia `kube-dns`. El permiso intra-ns por sí solo no es suficiente — sin la regla de kube-dns, el stack no logra arrancar.
+Los pods del plano de datos de Wazuh se resuelven entre sí vía los nombres DNS de Service de Kubernetes, por lo que cada pod del plano de datos necesita salida hacia `kube-dns`. El permiso intra-ns por sí solo no es suficiente; sin la regla de kube-dns, el stack no logra arrancar.
 
 ```yaml
 apiVersion: networking.k8s.io/v1
@@ -295,20 +297,32 @@ metadata: { name: allow-from-soctalk-system, namespace: tenant-acme }
 spec:
   podSelector:
     matchExpressions:
+      # `wazuh` covers the wazuh subchart's manager/indexer/dashboard.
+      # `thehive`/`cortex` are inert forward-compat placeholders: TheHive
+      # and Cortex are external integrations today, so these selectors and
+      # the 9000/9001 ports below match no in-namespace pods. They stay in
+      # the rendered policy so a future in-namespace dep needs no NP change.
       - { key: app.kubernetes.io/name, operator: In,
-          values: [wazuh-manager, wazuh-indexer, thehive, cortex] }
+          values: [wazuh, thehive, cortex] }
+      - { key: app.kubernetes.io/component, operator: In,
+          values: [manager, indexer, dashboard, thehive, cortex] }
   policyTypes: [Ingress]
   ingress:
+    # Ingress from BOTH the orchestrator (verdict / runs-worker path) and
+    # the API pod (the chat agent's per-tenant Wazuh routing lands on the
+    # API process, not the orchestrator).
     - from:
         - namespaceSelector:
             matchLabels: { kubernetes.io/metadata.name: soctalk-system }
           podSelector:
-            matchLabels: { app.kubernetes.io/name: soctalk-orchestrator }
+            matchExpressions:
+              - { key: app.kubernetes.io/component, operator: In,
+                  values: [orchestrator, api] }
       ports:
-        - { port: 55000, protocol: TCP }
-        - { port: 9200,  protocol: TCP }
-        - { port: 9000,  protocol: TCP }
-        - { port: 9001,  protocol: TCP }
+        - { port: 55000, protocol: TCP }  # Wazuh manager API
+        - { port: 9200,  protocol: TCP }  # Wazuh indexer
+        - { port: 9000,  protocol: TCP }  # TheHive (inert placeholder)
+        - { port: 9001,  protocol: TCP }  # Cortex (inert placeholder)
 ```
 
 **4.3.4 Permitir al adaptador salir hacia la API de soctalk-system**

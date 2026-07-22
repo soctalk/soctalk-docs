@@ -68,7 +68,7 @@ Si le plan de données est sain mais que l'adaptateur ne parvient toujours pas �
 
 Il n'existe aucune commande `soctalk-cli rotate-*` dans cette release — cette voie était documentée dans des brouillons antérieurs. Aujourd'hui :
 
-- **Mots de passe admin Wazuh / TheHive / Cortex :** patchez le Secret concerné dans le namespace du tenant, puis redémarrez le pod affecté. La réexécution du bootstrap du chart au démarrage du pod prendra en compte le nouvel identifiant.
+- **Mot de passe admin Wazuh :** patchez le Secret concerné dans le namespace du tenant, puis redémarrez le pod affecté. La réexécution du bootstrap du chart au démarrage du pod prendra en compte le nouvel identifiant. TheHive et Cortex sont des intégrations externes, pas des sous-charts fournis d'office, de sorte que leurs identifiants sont pivotés dans ces systèmes et mis à jour via la configuration d'intégration (voir /fr-fr/integrate/thehive, /fr-fr/integrate/cortex).
 - **Secret partagé `authd` de Wazuh :** patchez `Secret/wazuh-authd-secret` dans `tenant-<slug>`, redémarrez le manager Wazuh. Tous les agents existants doivent se réenrôler avec le nouveau secret ; distribuez-le via votre canal sécurisé habituel.
 
 Un CLI enveloppant pour ces rotations figure dans la feuille de route.

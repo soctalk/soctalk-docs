@@ -104,6 +104,25 @@ telemetry:
   enabled: false
 ```
 
+### Overrides de render de tenant
+
+O `soctalk-system` também carrega as chaves que o controlador usa quando renderiza e instala cada chart por tenant. Elas fixam a referência do chart de tenant e as tags de imagem de autoria do SocTalk que o control plane injeta em cada render de tenant, então uma instalação atualiza toda a sua frota de tenants ao bumpar isto em um único lugar.
+
+```yaml
+tenantProvisioning:
+  # Which tenant chart the controller renders + installs
+  tenantChartRef: oci://ghcr.io/soctalk/charts/soctalk-tenant
+  tenantChartVersion: 0.2.0
+
+  # Image overrides injected into each tenant render.
+  # Empty repo means "use the chart's default repository"; only the tag is pinned here.
+  adapterImageRepo: ''
+  adapterImageTag: '0.2.0'
+  runsWorkerImageRepo: ''
+  runsWorkerImageTag: '0.2.0'
+  linuxEpImageTag: '0.2.0'
+```
+
 ## 3. Schema de valores do `soctalk-tenant` (rascunho)
 
 Corresponde ao modelo de config de tenant que o SocTalk renderiza a partir do banco de dados. Este é o contrato contra o qual o controlador do SocTalk renderiza; o `values.schema.json` o valida em ambos os lados.
@@ -138,9 +157,10 @@ llm:
 
 # Integration endpoints (tenant's external systems, if any)
 integrations:
-  # These are mostly informational in MVP;
-  # real integration endpoints are tenant data plane (Wazuh/TheHive/Cortex in-ns).
-  externalCortexUrl: ""        # if tenant wants to use an external Cortex instead of the in-ns one
+  # Wazuh is the in-namespace data plane; TheHive and Cortex are external
+  # integrations reached over the network (see /integrate/thehive, /integrate/cortex),
+  # not bundled subcharts.
+  externalCortexUrl: ""        # external Cortex endpoint for this tenant, if used
 
 # Data plane component sizing
 components:
@@ -164,29 +184,20 @@ components:
       resources:
         requests: { cpu: 100m, memory: 512Mi }
         limits:   { cpu: 500m, memory: 1Gi }
-  thehive:
-    resources:
-      requests: { cpu: 300m, memory: 1Gi }
-      limits:   { cpu: 1,    memory: 2Gi }
-    cassandra:
-      resources:
-        requests: { cpu: 500m, memory: 2Gi }
-        limits:   { cpu: 1.5,  memory: 4Gi }
-      persistence:
-        size: 30Gi
-  cortex:
-    resources:
-      requests: { cpu: 200m, memory: 768Mi }
-      limits:   { cpu: 800m, memory: 1.5Gi }
-    elasticsearch:
-      resources:
-        requests: { cpu: 300m, memory: 1Gi }
-        limits:   { cpu: 1,    memory: 2Gi }
-      persistence:
-        size: 20Gi
-    analyzers: []              # allowlist; empty = safe defaults
+  # linux-ep is gated here (components.linuxep.enabled); its resources and
+  # other subchart values are set on the top-level `linuxep:` passthrough
+  # (shown below), not under components.
   misp:
     enabled: false             # a future release
+
+# linux-ep (L2 endpoint-agent subchart) passthrough. Defaults from the subchart:
+linuxep:
+  resources:
+    requests: { cpu: 50m,  memory: 128Mi }
+    limits:   { cpu: 500m, memory: 512Mi }
+# TheHive and Cortex are external integrations, not bundled subcharts.
+# Configure them per tenant via /integrate/thehive and /integrate/cortex;
+# the tenant chart does not render or size them.
 
 # Tenant namespace policies
 networkPolicies:
@@ -234,6 +245,15 @@ adapter:
   tokenSecretRef:
     name: adapter-token
     key: token
+
+# Runs worker: pulls investigations and fills the continuous vLLM/SGLang batch.
+runsWorker:
+  image:
+    repository: ghcr.io/soctalk/soctalk-orchestrator
+    # tag is pinned by the system chart's runsWorkerImageTag override
+  concurrency: 1                # default 1 (serial, uses the code default);
+                                # >1 runs concurrent investigations to keep the batch full
+  drainSeconds: 60             # grace period applied when concurrency > 1
 
 # Labels applied to the tenant namespace
 namespaceLabels:
@@ -299,22 +319,24 @@ adapter:
     digest: sha256:abc123...
 ```
 
-### Subcharts OSS upstream (Wazuh / TheHive / Cortex)
+### Subcharts OSS upstream (Wazuh / linux-ep)
 
-Vendorizadas em `charts/soctalk-tenant/charts/` como diretórios, não obtidas em tempo de instalação. O `Chart.yaml` as lista como dependências locais:
+Mantidos como charts irmãos sob `charts/` (`charts/wazuh`, `charts/linux-ep`) e referenciados por caminho relativo, não obtidos em tempo de instalação. O `Chart.yaml` os lista como dependências locais, cada um controlado por sua condição de componente:
 
 ```yaml
 dependencies:
   - name: wazuh
-    version: "0.3.2-soctalk-v1"
-    repository: "file://./charts/wazuh"
-  - name: thehive
-    version: "5.2.0-soctalk-v1"
-    repository: "file://./charts/thehive"
-  - name: cortex
-    version: "3.1.8-soctalk-v1"
-    repository: "file://./charts/cortex"
+    version: "0.2.0"
+    repository: "file://../wazuh"
+    condition: components.wazuh.enabled
+  - name: linux-ep
+    alias: linuxep
+    version: "0.2.0"
+    repository: "file://../linux-ep"
+    condition: components.linuxep.enabled
 ```
+
+TheHive e Cortex **não** são subcharts embutidos. Eles são integrações externas configuradas por tenant (veja /pt-br/integrate/thehive e /pt-br/integrate/cortex).
 
 Motivos para vendorizar (do chart-audit):
 - Aplicar patches do SocTalk sem depender da aceitação upstream.
@@ -327,15 +349,14 @@ Fluxo no lado do controlador quando um `POST /api/mssp/tenants` chega:
 
 ```
 1. Validate payload against tenant config JSON Schema.
-2. Generate secrets (secret-placement §5): wazuh-bootstrap pw, thehive admin, cortex admin,
-   cassandra pw, wazuh authd secret.
+2. Generate secrets (secret-placement §5): wazuh-bootstrap pw, wazuh authd secret.
 3. Write K8s Secrets in soctalk-system (per-tenant LLM, integration creds).
 4. Write K8s Secrets in (to-be-created) tenant-<slug>: deferred until ns exists,
    deferred until step 6.
 5. Insert Tenant row + TenantSecret references (state=pending).
 6. Use SocTalk K8s ServiceAccount:
    a. Create Namespace tenant-<slug> with required labels.
-   b. Create per-ns bootstrap Secrets (wazuh-bootstrap, thehive admin, etc.).
+   b. Create per-ns bootstrap Secrets (wazuh-bootstrap, wazuh-authd, etc.).
    c. helm install soctalk-tenant -n tenant-<slug> --values <rendered-values.yaml>
 7. Transition state to provisioning.
 8. Wait for all Helm-managed resources to be Ready (timeout 15 min pilot-prod, 30 min small-dev).

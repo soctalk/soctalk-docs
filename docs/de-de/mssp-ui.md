@@ -30,6 +30,8 @@ Die linke Leiste ist auf jeder Seite dauerhaft vorhanden. Von oben nach unten:
 
 Oben rechts auf jeder Seite befinden sich der Benutzer-Chip (`email`, `role`) und eine Schaltfläche **Abmelden**.
 
+Die Anwendungs-UI wird in sieben Sprachen lokalisiert ausgeliefert, in der App über den Sprachauswähler umschaltbar, der jede Option unter ihrem eigenen nativen Namen auflistet: English, Português (Brasil), Español (Latinoamérica), 中文（简体）, Français, Deutsch, Italiano.
+
 ## Dashboard
 
 ![MSSP-Dashboard](/screenshots/mssp-dashboard.png)
@@ -64,7 +66,7 @@ Drei Abschnitte:
 2. **Aktionen** — Suspend / Resume / Retry Provisioning / Decommission. **Suspend versetzt in diesem Release den Zustand des Mandanten auf `suspended`**, sodass der Orchestrator keine neuen Untersuchungen mehr einplant; es skaliert die Workloads **nicht**. Für eine definitive Abschaltung folge [Täglicher Betrieb → Notabschaltung](/de-de/operations#emergency-disable-a-tenant-immediately). **Retry Provisioning** funktioniert nur bei Mandanten im Zustand `degraded` — die API lehnt `:retry` bei Mandanten im Zustand `pending` ab (`pending → provisioning` erfolgt beim ersten Versuch automatisch).
 3. **Lifecycle-Ereignisse** — chronologisches Protokoll der Provisioning-Zustandsmaschine: `preflight_ok → secrets_minted → namespace_ready → secrets_applied → helm_applied (soctalk-tenant chart) → helm_applied (Wazuh chart) → workloads_ready → integration_config_written → active`. Die beiden `helm_applied`-Zeilen sind über die Ereignis-Payload (Chart-Identität) unterscheidbar. Wenn ein Mandant hängen bleibt, zeigt dir diese Tabelle, welcher Schritt fehlgeschlagen ist.
 
-Ansonsten ist die Seite schreibgeschützt; das mandantenspezifische SOC (Wazuh, Cortex, TheHive) öffnet sich über die Aktion **Open SOC** in der Mandantenliste in einem eigenen Fenster.
+Ansonsten ist die Seite schreibgeschützt; das mandantenspezifische SOC öffnet sich über die Aktion **Open SOC** in der Mandantenliste in einem eigenen Fenster. Wazuh ist die In-Namespace-Data-Plane; TheHive und Cortex sind externe Integrationen, keine gebündelten mandantenspezifischen Komponenten.
 
 ## Untersuchungen
 
@@ -120,6 +122,14 @@ Trendorientierte mandantenübergreifende Ansicht, in Zeitfenster gruppiert (Vore
 
 Nutze dies für Kapazitätsplanung, Modellversions-Bewertung und SLA-Prüfung.
 
+### Entscheidungsanalytik
+
+Wenn du die Analytics-Seite auf einen einzelnen Mandanten fixierst, werden die mandantenübergreifenden Trends oben durch eine Reihe entscheidungsorientierter Oberflächen für diesen Kunden ersetzt:
+
+- **Konfidenzverteilung** — wie die Konfidenz der KI-Entscheidungen über triagierte Warnungen verteilt ist, nach Konfidenz gruppiert.
+- **Entscheidungstrends** — wie sich der Mix der Entscheidungen (schließen, eskalieren usw.) im Zeitverlauf bewegt.
+- **Durchschnittliche Konfidenz nach Entscheidung** — mittlere Konfidenz aufgeschlüsselt nach Entscheidungstyp.
+
 ## Audit-Log
 
 ![Audit-Log](/screenshots/audit-log.png)
@@ -142,8 +152,8 @@ Abschnitte:
 
 - **LLM** — Provider (`openai-compatible | anthropic`), Fast Model, Reasoning Model, Temperature, Max Tokens, optional Base URL + Organization. API-Schlüssel liegen in der Umgebung / in Kubernetes Secrets, niemals in diesem Formular.
 - **Wazuh SIEM** — Aktivierungsschalter, URL, Zugangsdaten.
-- **Cortex** — Aktivierungsschalter, URL, Zugangsdaten.
-- **TheHive** — Aktivierungsschalter, URL, Organisation, Zugangsdaten.
+- **Cortex** — Aktivierungsschalter, URL, Zugangsdaten. Externe Integration, kein gebündeltes Subchart; die URL zeigt auf die Cortex-Instanz des Mandanten (siehe /de-de/integrate/cortex).
+- **TheHive** — Aktivierungsschalter, URL, Organisation, Zugangsdaten. Externe Integration, kein gebündeltes Subchart; die URL zeigt auf die TheHive-Instanz des Mandanten (siehe /de-de/integrate/thehive).
 - **Slack** — Webhook- + interaktive Backend-Konfiguration.
 
 Der Link **Bring your own LLM key →** führt zur mandantenspezifischen LLM-Schlüsselrotation (mandantenspezifische LLM-Schlüssel überschreiben den installationsweiten).

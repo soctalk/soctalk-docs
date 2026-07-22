@@ -7,26 +7,29 @@ Il runtime ([`src/soctalk/llm.py`](https://github.com/soctalk/soctalk/blob/main/
 
 In V1, la variabile d'ambiente del provider (`SOCTALK_LLM_PROVIDER`) è **onorata solo dai pod runs-worker per-tenant**. Il pod API utilizza invece impostazioni predefinite del provider cablate nel codice. Il provider per-tenant è impostabile tramite `PATCH /api/mssp/tenants/{tenant_id}/llm` (vedi [Override per-tenant](#per-tenant-overrides)).
 
+Un modello self-hosted e compatibile con OpenAI è un'opzione di prima classe, non un ripiego: punta il provider `openai` verso un server vLLM o SGLang che gestisci tu, un endpoint GPU serverless gestito, o un Ollama locale, tutto tramite `OPENAI_BASE_URL`. SocTalk classifica i backend per modello di erogazione, API gestita warm, GPU serverless scale-to-zero, GPU affittata always-on, o locale, e ciascuno ha un profilo di costo e latenza differente. Per sapere come scegliere, vedi [Contenere la spesa del triage AI](/it-it/guides/inference-cost-optimization) e [Quanto costa davvero l'inferenza di triage, misurato](/it-it/guides/inference-cost-benchmark).
+
 ## Cosa espone il chart
 
-Attualmente il chart `soctalk-system` accetta tre chiavi di valore LLM valide per l'intera installazione, ma la maggior parte di esse **non** si propaga al comportamento a runtime in V1:
+Il chart `soctalk-system` accetta impostazioni predefinite LLM valide per l'intera installazione che inizializzano la configurazione LLM per-tier di ogni tenant appena onboardato:
 
 ```yaml
 defaults:
   llm:
-    provider: openai-compatible   # rendered as SOCTALK_LLM_PROVIDER_DEFAULT on API pod, but V1 API IGNORES this env
-    baseUrl: https://api.openai.com/v1   # rendered as SOCTALK_LLM_BASE_URL_DEFAULT, also IGNORED by V1 API
-    model: gpt-4o                  # rendered as SOCTALK_LLM_MODEL_DEFAULT, also IGNORED by V1 API
+    provider: openai-compatible          # SOCTALK_LLM_PROVIDER_DEFAULT
+    baseUrl: https://api.openai.com/v1   # SOCTALK_LLM_BASE_URL_DEFAULT
+    model: gpt-4o                        # SOCTALK_LLM_MODEL_DEFAULT
+    fastTier: {}                         # optional cheaper router/supervisor tier; off until provider/baseUrl/model are set
 
 llm:
-  provider: openai               # NOT propagated to SOCTALK_LLM_PROVIDER on the API by V1 chart
+  provider: openai               # provider whose API key the install ships with
   existingSecret: ""             # Secret with anthropic-api-key / openai-api-key keys
-  apiKey: ""                     # inline alternative; creates ONE provider key only (not both) — dev / lab use only
+  apiKey: ""                     # inline alternative; creates ONE provider key only (not both), dev / lab use only
 ```
 
-**Riepilogo del comportamento V1:** il pod API utilizza le **proprie impostazioni predefinite cablate nel codice** per provider/modello/base URL. Le variabili d'ambiente `*_DEFAULT` renderizzate dal chart sono impalcatura per una release futura; oggi non vengono lette.
+**Come le impostazioni predefinite prendono effetto:** le chiavi `defaults.llm.*` vengono lette all'onboarding del tenant e inizializzano la configurazione per-tier del nuovo tenant, così un tenant creato dopo averle impostate le eredita. I tenant esistenti mantengono la loro configurazione attuale finché non vengono patchati.
 
-**Dove il cablaggio delle variabili d'ambiente LLM ha effettivamente effetto:** il Deployment `soctalk-runs-worker` per-tenant. Le sue variabili d'ambiente `SOCTALK_LLM_PROVIDER`, `SOCTALK_FAST_MODEL`, `SOCTALK_REASONING_MODEL` e `OPENAI_BASE_URL` vengono renderizzate dal provisioning controller a partire dalla riga `IntegrationConfig` del tenant. È questa la superficie che controlla effettivamente quale provider viene chiamato.
+**Dove gira la configurazione risolta:** il Deployment `soctalk-runs-worker` per-tenant. Le sue variabili d'ambiente `SOCTALK_LLM_PROVIDER`, `SOCTALK_FAST_MODEL`, `SOCTALK_REASONING_MODEL` e `OPENAI_BASE_URL` vengono renderizzate dal provisioning controller a partire dalla riga di configurazione del tenant, ed è questa la superficie che controlla quale provider e modello chiama ogni tier.
 
 ## Passare ad Anthropic
 
@@ -98,8 +101,9 @@ Flusso di rotazione della chiave LLM per-tenant: vedi [Operazioni quotidiane →
 
 ## Note sui costi
 
-- Il runtime effettua molte piccole chiamate LLM per indagine (supervisor + worker + closure) e una grande chiamata di reasoning (verdetto). Scegliere un modello economico per `defaults.llm.model` riduce drasticamente i costi ma attualmente degrada anche la qualità del verdetto — il chart non separa ancora il modello veloce da quello di reasoning. Una modifica pianificata separa i due.
+- Il runtime effettua molte piccole chiamate LLM per indagine (supervisor + worker + closure) e una grande chiamata di reasoning (verdetto). La separazione tra fast e reasoning è ora configurabile per tier: SocTalk risolve ogni ruolo, un tier router/supervisor più leggero e un tier verdetto/reasoning più forte, verso il proprio tier, ciascuno che punta al proprio provider, modello ed endpoint. Il parametro `defaults.llm.fastTier` nei valori del chart `soctalk-system` e il rendering per-tier nel livello di provisioning ti permettono di puntare il fast tier verso un modello economico mantenendo un modello più forte per il verdetto, così non baratti più la qualità del verdetto per abbassare il costo per chiamata. Il fast tier è disattivato di default (`fastTier: {}`); imposta il suo `provider`, `baseUrl` e `model` per abilitarlo. Inizializza la configurazione per-tier dei tenant appena onboardati, così i tenant esistenti mantengono la loro configurazione attuale finché non vengono patchati.
 - L'utilizzo di token per-tenant è misurato tramite la metrica Prometheus `soctalk_tenant_llm_tokens_total{direction="input|output"}` — vedi [Osservabilità](/it-it/observability#per-tenant-cost).
+- Il self-hosting conviene solo se mantieni la GPU occupata. Il parametro `runsWorker.concurrency` (default `1`) imposta quante indagini un runs-worker elabora in parallelo; aumentalo per riempire un batch continuo self-hosted e ammortizzare una GPU always-on su più lavoro. Vedi [Contenere la spesa del triage AI](/it-it/guides/inference-cost-optimization) per come dimensionarlo rispetto a un dato backend.
 
 ## Test di sanità
 

@@ -68,7 +68,7 @@ curl -X POST https://mssp.../api/mssp/tenants/<id>:decommission?force=true
 
 本版本中没有 `soctalk-cli rotate-*` 命令——该路径见于早期草稿。当前做法：
 
-- **Wazuh / TheHive / Cortex 管理员密码：** 修补（patch）租户命名空间中相应的 Secret，然后重启受影响的 pod。chart 在 pod 启动时的引导重跑会拾取新凭据。
+- **Wazuh 管理员密码：** 修补（patch）租户命名空间中相应的 Secret，然后重启受影响的 pod。chart 在 pod 启动时的引导重跑会拾取新凭据。TheHive 和 Cortex 是外部集成，而非捆绑的子 chart，因此它们的凭据在各自系统中轮换，并通过集成配置更新（参见 /zh-cn/integrate/thehive、/zh-cn/integrate/cortex）。
 - **Wazuh `authd` 共享密钥：** 修补 `tenant-<slug>` 中的 `Secret/wazuh-authd-secret`，重启 Wazuh manager。所有现有 agent 必须使用新密钥重新注册；请通过你惯常的安全渠道分发。
 
 用于这些轮换的封装 CLI 已列入路线图。

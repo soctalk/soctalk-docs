@@ -45,12 +45,11 @@ Questi sono i valori di partenza per `ResourceQuota` e `LimitRange` nel chart de
 | Wazuh indexer (fork di OpenSearch) | 2 GB (heap 1 GB) | 4 GB (heap 2 GB) | 500 m | 2000 m | 50 GB |
 | Wazuh dashboard | 512 MB | 1 GB | 100 m | 500 m | |
 | Filebeat | 128 MB | 256 MB | 50 m | 200 m | |
-| TheHive | 1 GB | 2 GB | 300 m | 1000 m | |
-| Cassandra (backing di TheHive) | 2 GB | 4 GB | 500 m | 1500 m | 30 GB |
-| Cortex | 768 MB | 1.5 GB | 200 m | 800 m | |
-| Cortex ElasticSearch | 1 GB | 2 GB | 300 m | 1000 m | 20 GB |
+| linux-ep (agent endpoint L2) | 256 MB | 512 MB | 100 m | 500 m | |
 | Adapter SocTalk | 128 MB | 256 MB | 50 m | 200 m | |
-| **Totale per tenant (limiti)** | **~8 GB richiesta, ~16 GB limite** | | **~2.2 vCPU richiesta, ~7.7 vCPU limite** | | **~120 GB** |
+| **Budget riservato per tenant** | **~8 GB richiesta, ~16 GB limite** | | **~2.2 vCPU richiesta, ~7.7 vCPU limite** | | **~120 GB** |
+
+TheHive e Cortex sono integrazioni esterne, non subchart bundle, quindi girano al di fuori del namespace del tenant e non fanno parte di questo footprint per-tenant; dimensionali dove sono ospitati. Lo stack bundle in-namespace è Wazuh più l'agent linux-ep, quindi il budget riservato qui sopra porta margine rispetto ai pod in-namespace attuali.
 
 Nota: i limiti sono soglie massime di burst; l'utilizzo sostenuto è più vicino alle richieste. Eseguire 3 tenant su un host da 8 vCPU / 32 GB / 500 GB significa:
 - RAM: ~24 GB di richieste (rientra), ~48 GB di limiti (richiede un'attenta messa a punto dell'overcommit).

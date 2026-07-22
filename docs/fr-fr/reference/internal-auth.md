@@ -80,9 +80,11 @@ Tous sous `/api/auth/*`. JSON. Routes modifiant l'état protégées selon §6.
 | ---    | ---                                           | ---                                    |
 | POST   | `/api/auth/login`                             | e-mail + mot de passe, définit le cookie de session |
 | POST   | `/api/auth/logout`                            | révoque la session en cours            |
-| GET    | `/api/auth/me`                                | renvoie la charge utile d'identité en cours |
+| GET    | `/api/auth/me`                                | charge utile d'identité en cours + `permissions[]` du rôle |
 | POST   | `/api/auth/password/change`                   | ancien + nouveau, authentifié          |
 | POST   | `/api/mssp/users/{id}/password/reset`         | réinitialisation forcée par l'admin, définit `must_change` |
+
+`/api/auth/me` renvoie l'identité plus une liste `permissions[]` calculée, les capacités que détient le rôle connecté, dérivée de la source unique de vérité qu'est la table de correspondance rôle-vers-permission. Le frontend conditionne la navigation et les actions sur ces permissions plutôt que de les déduire de la chaîne du rôle.
 
 Le point de terminaison de réinitialisation admin génère côté serveur
 un mot de passe aléatoire robuste et le renvoie une seule fois dans le

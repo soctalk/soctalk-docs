@@ -10,11 +10,12 @@
 | 上游 | 上游来源 | 目标版本 |
 |---|---|---|
 | Wazuh | `wazuh/wazuh-kubernetes` Helm chart（社区版）或官方 OCI chart | 支持单 manager HA 的最新稳定 4.x |
-| TheHive | `StrangeBee/thehive4` Helm chart 或社区版 | 5.x |
-| Cortex | `TheHive-Project/Cortex` Helm chart 或社区版 | 3.x |
+| linux-ep | SocTalk L2 端点 agent 子 chart（组件键 `components.linuxep`） | `0.2.0` |
 | MISP | **推迟到后续版本** | |
 
-对于每个 chart，我们将其 manifest 模板（如有需要则附带补丁）以子 chart 依赖的形式纳入 `charts/soctalk-tenant/`：版本锁定是严格的。`Chart.yaml` 采用精确 semver，并在可用时（OCI）附带 digest。
+`soctalk-tenant` chart 恰好内置（vendor）两个子 chart：`wazuh` 和 `linux-ep`。对于每一个，我们都将其 manifest 模板（如有需要则附带补丁）以子 chart 依赖的形式内置于 `charts/soctalk-tenant/`：版本锁定是严格的。`Chart.yaml` 采用精确 semver，并在可用时（OCI）附带 digest。
+
+TheHive 和 Cortex 是**外部集成**，通过网络访问并按租户配置（参见 /zh-cn/integrate/thehive 与 /zh-cn/integrate/cortex）。它们不是内置的子 chart，因此不在本次 chart 审计的范围内。
 
 ## 分类规则
 
@@ -57,44 +58,24 @@ Wazuh chart 通常渲染出：
 5. 确保所有 Pod 都设置了 `securityContext: { runAsNonRoot: true, allowPrivilegeEscalation: false }`；如上游设置为其他值则打补丁。
 6. 将镜像锁定到 digest，而非 `latest`。
 
-### TheHive
+### linux-ep
+
+L2 端点 agent 子 chart（`components.linuxep`）。它渲染出的清单很窄：该 chart 仅发出一个 `StatefulSet`，并通过 `secretKeyRef` 消费一个既有 Secret，而非渲染其自身的凭据对象。
 
 | 对象 | 预期分类 | 备注 |
 |---|---|---|
-| `Deployment`（TheHive 应用） | NS-OK | |
-| `StatefulSet`（Cassandra 或外部 DB 支持的变体） | NS-OK | 使用内嵌 Cassandra；外部 Cassandra 是后续版本选项 |
-| `Service`（TheHive Web + API 在 9000） | NS-OK | |
-| `ConfigMap`（application.conf） | NS-OK | 由 SocTalk 渲染的每租户配置 |
-| `Secret`（管理员凭据、本租户 Cortex 的 Cortex API key） | NS-OK | |
-| `PersistentVolumeClaim`（Cassandra 数据、索引数据） | NS-OK | |
-| `ServiceAccount` | NS-OK | |
-| `Ingress` | PATCH 或禁用 | 与 Wazuh 相同：dashboard 通过 MSSP 侧带租户路由的代理暴露，而非按命名空间的 Ingress |
-| `Job`（bootstrap / init） | NS-OK | 用于首次运行的证书生成 / DB 初始化，可接受 |
-| `CustomResourceDefinition` | **FORBIDDEN**：如存在则必须放在 `soctalk-system` chart 中 |
-| `ClusterRole` / `ClusterRoleBinding` | 在租户 chart 中 **FORBIDDEN** |
+| `StatefulSet`（端点 agent） | NS-OK | 该子 chart 渲染的唯一工作负载；命名空间级 |
+| `Secret`（注册 / agent 凭据） | 被消费，非渲染 | 通过 `secretKeyRef` 引用；在预置时按租户播种，位于本子 chart 之外 |
+| `ClusterRole` / `ClusterRoleBinding` | 在租户 chart 中 **FORBIDDEN** | 绝不从租户命名空间安装集群级 RBAC |
 
-**预期补丁**：
-1. 移除 Ingress；仅使用 ClusterIP Service。
-2. 将 Cassandra 锁定到 digest；设置与容量规划相匹配的资源限制。
-3. 确保 init Job 是幂等的（重复运行无害）。
-4. 无 CRD 依赖。
+**当前状态与预期补丁**：
+1. 该子 chart 默认在 agent pod 上设置 `securityContext.privileged: true`。这是仅用于 PoC 的行为，且是一项真实风险，必须在任何生产使用之前将其收窄（去掉 privileged，设置 `allowPrivilegeEscalation: false`）。
+2. 确认渲染输出中不出现 `ClusterRole`/`ClusterRoleBinding`。
+3. 将镜像锁定到 digest，而非 `latest`。
 
-### Cortex
+### 外部集成（不在审计范围内）
 
-| 对象 | 预期分类 | 备注 |
-|---|---|---|
-| `Deployment`（Cortex 应用） | NS-OK | |
-| `StatefulSet`（Elasticsearch 或兼容索引） | NS-OK | 内嵌 ES；外部 ES 为后续版本 |
-| `Service`（Cortex API 在 9001） | NS-OK | |
-| `ConfigMap`（application.conf、analyzer 列表） | NS-OK | |
-| `Secret`（管理员、服务间令牌） | NS-OK | |
-| `PersistentVolumeClaim` | NS-OK | |
-| `ServiceAccount` | NS-OK | |
-| `Job`（analyzer 注册） | 若幂等则 NS-OK |
-| `Ingress` | PATCH 或禁用 |
-| `PrivilegedContainer`（用于 analyzer 沙箱的 Docker-in-Docker，如上游采用此模式） | **FORBIDDEN**：打补丁 | 需要 Docker 沙箱的 Cortex analyzer 不在本版本范围内。仅使用进程内运行或调用沙箱化外部服务的 analyzer |
-
-**已知风险**：Cortex 历来将某些 analyzer 作为子进程或 Docker 容器运行。本版本仅限于不需要特权主机访问的“纯代码”analyzer。analyzer 列表在 values 中锁定；需要 Docker-in-Docker 的 analyzer 在预置时被拒绝。
+TheHive 和 Cortex 是**外部集成**，而非内置的子 chart，因此不在本次 chart 审计的范围内。SocTalk 按租户通过网络访问它们；不存在需要分类的命名空间内 TheHive/Cortex 对象。请通过 /zh-cn/integrate/thehive 与 /zh-cn/integrate/cortex 配置它们。
 
 ## 集群前置条件清单（并入安装指南 + `soctalk-system` chart 前置检查）
 
@@ -123,7 +104,7 @@ Wazuh chart 通常渲染出：
 1. **values 驱动的覆盖**：优先使用上游 chart 中可禁用不需要对象的 values（例如 `ingress.enabled: false`、当上游的策略比我们的更宽松时使用 `networkPolicy.enabled: false`、将 `rbac.create: true` 限定为仅命名空间级）。
 2. **Kustomize 风格的 overlay**（Helm 的 `kustomize` 集成或 post-render 钩子），用于无法通过 values 禁用的对象：移除 `ClusterRole`、去掉 `hostPath` 卷、设置 `securityContext`。
 
-我们将上游 chart 以锁定版本的子 chart 依赖形式纳入 `charts/soctalk-tenant/charts/`，而非作为 `helm repo` 引用。这使我们能够：
+我们将上游 chart 作为 `charts/` 下的同级 chart（`charts/wazuh`、`charts/linux-ep`）以相对路径引用，而非作为 `helm repo` 引用（helm 会在构建时将它们复制进包中）。这使我们能够：
 - 锁定到精确版本（不会有上游意外更新）
 - 按需应用补丁，而不依赖上游 PR 被接受
 - 将我们的捆绑包签名为单一制品（cosign 落地后的后续版本）
@@ -135,22 +116,20 @@ Wazuh chart 通常渲染出：
 需要实际 `helm template` 运行 + 检查才能确认的项：
 
 - [ ] **Wazuh**：所选 chart 版本是否需要 CRD 以实现 operator 驱动的部署？如果需要，将 CRD 移至 `soctalk-system` chart。
-- [ ] **TheHive**：Cassandra 是否需要具备特定特性的 `StorageClass`（例如仅 RWO、最低 IOPS）？记录在容量规划中。
-- [ ] **Cortex**：默认启用了哪些 analyzer，是否有任何一个需要 Docker-in-Docker？产出一份安全 analyzer 的允许列表。
+- [ ] **linux-ep**：端点 agent 是否需要必须被打补丁移除或收窄的主机级访问（hostPath、主机网络）？
 - [ ] **所有 chart**：是否有任何 `Job` 或 `CronJob` 使用超出命名空间范围的 `ServiceAccount` 运行？打补丁改为命名空间本地 SA。
 - [ ] **所有 chart**：是否有任何 `initContainer` 带有 `privileged: true` 或 `hostPath` 挂载？打补丁或替换。
 - [ ] **所有 chart**：默认的 `resources.requests` 和 `limits`：与容量规划配置进行对比；在需要时通过 values 覆盖。
 
-每个未决项都会成为一条发布前验证清单条目。本次 spike 的产出是一张填好的分类表以及可放入 `charts/soctalk-tenant/charts/` 的已打补丁 chart。
+每个未决项都会成为一条发布前验证清单条目。本次 spike 的产出是一张填好的分类表以及维护在 `charts/wazuh` / `charts/linux-ep` 下的已打补丁 chart。
 
 ## 输出制品（发货前产出）
 
 本次 spike 产出：
 
 1. **已分类的对象清单**（用实际渲染出的对象填充第 3 节的表格）。
-2. **已打补丁的 chart 捆绑包**，以锁定版本签入 `charts/soctalk-tenant/charts/wazuh/`、`thehive/`、`cortex/`。
+2. **已打补丁的 chart 捆绑包**，以锁定版本维护在 `charts/wazuh/` 和 `charts/linux-ep/` 下。
 3. **集群前置条件清单**，并入安装指南。
-4. Cortex 的 **analyzer 允许列表**（仅含安全项的集合）。
-5. 每个子 chart 的 **values schema 片段**（SocTalk 将按租户提供的输入项）。
+4. 每个子 chart 的 **values schema 片段**（SocTalk 将按租户提供的输入项）。
 
 本次 spike 的完成是 Helm chart 实现的前置条件。

@@ -103,7 +103,7 @@ Pas de `tenant_id` ; cadrées par Organization ou globales :
 
 Notes :
 - Les colonnes montrent un sous-ensemble représentatif de rôles. `mssp_manager` se situe entre `mssp_admin` et `analyst` (niveau authorize-risk) ; `tenant_manager` et `tenant_analyst` se situent au-dessus de `customer_viewer` côté Tenant. Chacun détient toutes les capacités du niveau inférieur.
-- La gestion des utilisateurs est cloisonnée par capacité selon l'audience. Les utilisateurs du personnel MSSP sont gérés uniquement par `mssp_admin`/`platform_admin` via `/api/mssp/users` ; les utilisateurs Tenant sont gérés uniquement par le `tenant_admin` de ce Tenant via `/api/tenant/users`. Un administrateur MSSP ne gère pas les utilisateurs Tenant, et réciproquement. Attribuer `platform_admin`, et modifier un `platform_admin` existant, requiert un `platform_admin`.
+- La gestion des utilisateurs est cloisonnée par capacité selon l'audience, une **séparation des responsabilités**. Les utilisateurs du personnel MSSP sont gérés uniquement par `mssp_admin`/`platform_admin` via `/api/mssp/users` ; les utilisateurs Tenant sont gérés uniquement par le `tenant_admin` de ce Tenant via `/api/tenant/users`. Un administrateur MSSP ne gère pas les utilisateurs Tenant, et réciproquement. Attribuer `platform_admin`, et modifier un `platform_admin` existant, requiert un `platform_admin`.
 - « via API uniquement » signifie que le principal humain déclenche les opérations K8s en appelant les endpoints de l'API SocTalk, non directement. Les handlers d'API utilisent le SocTalk K8s ServiceAccount.
 - `analyst` agissant sur un Tenant écrit des lignes d'audit avec à la fois `user_id` et le `tenant_id` du Tenant ; la vue d'audit côté client les affiche comme entrées d'usurpation d'identité.
 

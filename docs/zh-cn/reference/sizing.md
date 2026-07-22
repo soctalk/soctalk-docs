@@ -44,12 +44,11 @@
 | Wazuh indexer (OpenSearch fork) | 2 GB (heap 1 GB) | 4 GB (heap 2 GB) | 500 m | 2000 m | 50 GB |
 | Wazuh dashboard | 512 MB | 1 GB | 100 m | 500 m | |
 | Filebeat | 128 MB | 256 MB | 50 m | 200 m | |
-| TheHive | 1 GB | 2 GB | 300 m | 1000 m | |
-| Cassandra (TheHive backing) | 2 GB | 4 GB | 500 m | 1500 m | 30 GB |
-| Cortex | 768 MB | 1.5 GB | 200 m | 800 m | |
-| Cortex ElasticSearch | 1 GB | 2 GB | 300 m | 1000 m | 20 GB |
+| linux-ep (L2 endpoint agent) | 256 MB | 512 MB | 100 m | 500 m | |
 | SocTalk adapter | 128 MB | 256 MB | 50 m | 200 m | |
-| **每租户合计（limits）** | **~8 GB request，~16 GB limit** | | **~2.2 vCPU request，~7.7 vCPU limit** | | **~120 GB** |
+| **每租户预留预算** | **~8 GB request，~16 GB limit** | | **~2.2 vCPU request，~7.7 vCPU limit** | | **~120 GB** |
+
+TheHive 和 Cortex 是外部集成，而非捆绑的子 chart，因此它们运行在租户命名空间之外，不属于本每租户占用；请在其托管之处为它们设定大小。捆绑的命名空间内技术栈是 Wazuh 加上 linux-ep agent，因此上面的预留预算相对当前命名空间内的 Pod 留有余量。
 
 注意：limits 是突发上限；持续使用量更接近 requests。在一台 8-vCPU / 32 GB / 500 GB 主机上运行 3 个租户意味着：
 - RAM：~24 GB 的 requests（可容纳），~48 GB 的 limits（需要谨慎调优超额分配）。

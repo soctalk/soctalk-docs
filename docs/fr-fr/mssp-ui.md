@@ -30,6 +30,8 @@ La barre de gauche est persistante sur chaque page. De haut en bas :
 
 En haut à droite de chaque page se trouvent la puce utilisateur (`email`, `role`) et un bouton **Se déconnecter**.
 
+L'interface de l'application est livrée localisée en sept langues, permutables dans l'application depuis le sélecteur de langue, qui liste chaque option sous son propre nom natif : English, Português (Brasil), Español (Latinoamérica), 中文（简体）, Français, Deutsch, Italiano.
+
 ## Tableau de bord
 
 ![Tableau de bord MSSP](/screenshots/mssp-dashboard.png)
@@ -64,7 +66,7 @@ Trois sections :
 2. **Actions** — Suspendre / Reprendre / Réessayer le provisionnement / Désaffecter. **Dans cette version, Suspendre bascule l'état du tenant à `suspended`** afin que l'orchestrateur cesse de planifier de nouvelles enquêtes ; cela ne met **pas** à l'échelle les charges de travail. Pour une coupure définitive, suivez [Opérations quotidiennes → Désactivation d'urgence](/fr-fr/operations#emergency-disable-a-tenant-immediately). **Réessayer le provisionnement** ne fonctionne que sur les tenants en `degraded` — l'API rejette `:retry` sur les tenants en `pending` (`pending → provisioning` est automatique à la première tentative).
 3. **Événements de cycle de vie** — journal chronologique de la machine à états de provisionnement : `preflight_ok → secrets_minted → namespace_ready → secrets_applied → helm_applied (soctalk-tenant chart) → helm_applied (Wazuh chart) → workloads_ready → integration_config_written → active`. Les deux lignes `helm_applied` se distinguent par la charge utile de l'événement (identité du chart). Lorsqu'un tenant se bloque, ce tableau vous indique quelle étape a échoué.
 
-La page est en lecture seule par ailleurs ; le SOC par tenant (Wazuh, Cortex, TheHive) s'ouvre dans sa propre fenêtre via l'action **Ouvrir le SOC** de la liste des tenants.
+La page est en lecture seule par ailleurs ; le SOC par tenant s'ouvre dans sa propre fenêtre via l'action **Ouvrir le SOC** de la liste des tenants. Wazuh est le plan de données in-namespace ; TheHive et Cortex sont des intégrations externes, pas des composants par tenant fournis d'office.
 
 ## Enquêtes
 
@@ -120,6 +122,14 @@ Vue inter-tenants axée sur les tendances, découpée par intervalles de temps (
 
 Utilisez ceci pour la planification des capacités, l'évaluation de version de modèle et l'examen des SLA.
 
+### Analytique des décisions
+
+Épingler la page Analytique à un tenant unique remplace les tendances inter-tenants ci-dessus par un ensemble de surfaces axées sur les décisions pour ce client :
+
+- **Distribution de confiance** — comment la confiance des décisions AI se répartit sur les alertes triées, regroupée par confiance.
+- **Tendances des décisions** — comment le mix de décisions (clôturer, escalader, etc.) évolue dans le temps.
+- **Confiance moyenne par décision** — confiance moyenne ventilée par type de décision.
+
 ## Journal d'audit
 
 ![Journal d'audit](/screenshots/audit-log.png)
@@ -142,8 +152,8 @@ Sections :
 
 - **LLM** — Fournisseur (`openai-compatible | anthropic`), Modèle rapide, Modèle de raisonnement, Température, Max Tokens, Base URL + Organisation en option. Les clés API vivent dans l'environnement / les Secrets Kubernetes, jamais dans ce formulaire.
 - **Wazuh SIEM** — bascule d'activation, URL, identifiants.
-- **Cortex** — bascule d'activation, URL, identifiants.
-- **TheHive** — bascule d'activation, URL, organisation, identifiants.
+- **Cortex** — bascule d'activation, URL, identifiants. Intégration externe, pas un sous-chart fourni d'office ; l'URL pointe vers l'instance Cortex du tenant (voir /fr-fr/integrate/cortex).
+- **TheHive** — bascule d'activation, URL, organisation, identifiants. Intégration externe, pas un sous-chart fourni d'office ; l'URL pointe vers l'instance TheHive du tenant (voir /fr-fr/integrate/thehive).
 - **Slack** — configuration du webhook + backend interactif.
 
 Le lien **Apportez votre propre clé LLM →** mène à la rotation de clé LLM par tenant (les clés LLM par tenant remplacent celle de l'installation).
