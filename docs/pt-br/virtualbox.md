@@ -19,7 +19,7 @@ A imagem de demonstração é **x86-64**, que o VirtualBox não consegue executa
 Obtenha o **vmdk** na página de [Downloads](/pt-br/downloads) (o formato do VirtualBox compatível com VMware):
 
 ```bash
-VER=0.1.4
+VER=0.2.0
 curl -L -O https://github.com/soctalk/soctalk/releases/download/v$VER/soctalk-demo-$VER.vmdk.xz
 curl -L -O https://github.com/soctalk/soctalk/releases/download/v$VER/SHA256SUMS.txt
 sha256sum -c SHA256SUMS.txt --ignore-missing   # macOS: shasum -a 256 -c
@@ -31,10 +31,10 @@ xz -d soctalk-demo-$VER.vmdk.xz
 O vmdk lançado é **streamOptimized** (um layout VMware/OVA somente leitura), que o VirtualBox não inicializa como um disco gravável. Converta-o uma vez para um VDI:
 
 ```bash
-VBoxManage clonemedium disk soctalk-demo-0.1.4.vmdk soctalk-demo-0.1.4.vdi --format VDI
+VBoxManage clonemedium disk soctalk-demo-0.2.0.vmdk soctalk-demo-0.2.0.vdi --format VDI
 ```
 
-Isso produz um `soctalk-demo-0.1.4.vdi` gravável e de tamanho dinâmico (alguns GB em disco). O `VBoxManage` acompanha o VirtualBox — no Windows ele fica em `C:\Program Files\Oracle\VirtualBox\`.
+Isso produz um `soctalk-demo-0.2.0.vdi` gravável e de tamanho dinâmico (alguns GB em disco). O `VBoxManage` acompanha o VirtualBox — no Windows ele fica em `C:\Program Files\Oracle\VirtualBox\`.
 
 ## 3. Criar um ISO de seed do cloud-init
 
@@ -69,7 +69,7 @@ Abra o **VirtualBox** e clique em **New**.
 
 ![Hardware](/screenshots/virtualbox-create-hardware.png)
 
-**Virtual Hard disk** — escolha **Use an Existing Virtual Hard Disk File** e selecione o `soctalk-demo-0.1.4.vdi` que você converteu:
+**Virtual Hard disk** — escolha **Use an Existing Virtual Hard Disk File** e selecione o `soctalk-demo-0.2.0.vdi` que você converteu:
 
 ![Use existing disk](/screenshots/virtualbox-create-disk.png)
 
@@ -135,7 +135,7 @@ Em seguida, acesse `https://<vm-ip>/` (porta 443, não 8443), faça login com as
 ```bash
 VBoxManage controlvm soctalk-demo poweroff
 VBoxManage unregistervm soctalk-demo --delete
-VBoxManage closemedium disk soctalk-demo-0.1.4.vdi --delete
+VBoxManage closemedium disk soctalk-demo-0.2.0.vdi --delete
 ```
 
 ## Solução de problemas

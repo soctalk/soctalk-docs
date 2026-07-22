@@ -27,7 +27,7 @@ az account set --subscription "<subscription-name-or-id>"
 ## 1. Télécharger et décompresser le VHD
 
 ```bash
-VER=<ver>   # p. ex. 0.1.4
+VER=<ver>   # p. ex. 0.2.0
 curl -L -O https://github.com/soctalk/soctalk/releases/latest/download/soctalk-demo-$VER.vhd.xz
 curl -L -O https://github.com/soctalk/soctalk/releases/latest/download/SHA256SUMS.txt
 sha256sum -c SHA256SUMS.txt --ignore-missing

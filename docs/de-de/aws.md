@@ -39,7 +39,7 @@ Packer startet eine temporäre Builder-Instanz vom Ubuntu-24.04-Basis-AMI, provi
 ### 1. Herunterladen und entpacken
 
 ```bash
-VER=<ver>   # e.g. 0.1.4
+VER=<ver>   # e.g. 0.2.0
 curl -L -O https://github.com/soctalk/soctalk/releases/latest/download/soctalk-demo-$VER.vmdk.xz
 curl -L -O https://github.com/soctalk/soctalk/releases/latest/download/SHA256SUMS.txt
 sha256sum -c SHA256SUMS.txt --ignore-missing

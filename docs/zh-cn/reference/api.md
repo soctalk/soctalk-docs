@@ -34,7 +34,7 @@ npm run gen:api
 
 <!-- BEGIN GENERATED:endpoints (do not edit — npm run gen:api) -->
 
-_97 个操作，涵盖 23 个分组，由 OpenAPI schema 生成（API 版本 `0.1.0`）。认证由路由的 `require_role` / `require_tenant_role` 守卫推导得出。_
+_97 个操作，涵盖 23 个分组，由 OpenAPI schema 生成（API 版本 `0.2.0`）。认证由路由的 `require_role` / `require_tenant_role` 守卫推导得出。_
 
 ### `auth`
 

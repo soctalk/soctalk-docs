@@ -40,7 +40,7 @@ MSSP-artigen Route nur die Zeilen seines Mandanten sieht.
 
 <!-- BEGIN GENERATED:endpoints (do not edit — npm run gen:api) -->
 
-_97 Operationen über 23 Gruppen, generiert aus dem OpenAPI-Schema (API-Version `0.1.0`). Auth leitet sich aus den `require_role`- / `require_tenant_role`-Guards der Route ab._
+_97 Operationen über 23 Gruppen, generiert aus dem OpenAPI-Schema (API-Version `0.2.0`). Auth leitet sich aus den `require_role`- / `require_tenant_role`-Guards der Route ab._
 
 ### `auth`
 

@@ -6,16 +6,16 @@
 
 ## 最新版本
 
-当前版本：**v0.1.4** — [发布页面](https://github.com/soctalk/soctalk/releases/tag/v0.1.4) · [所有版本](https://github.com/soctalk/soctalk/releases)
+当前版本：**v0.2.0** — [发布页面](https://github.com/soctalk/soctalk/releases/tag/v0.2.0) · [所有版本](https://github.com/soctalk/soctalk/releases)
 
 该版本包含：
 
-- [`soctalk-demo-0.1.4.qcow2.xz`](https://github.com/soctalk/soctalk/releases/download/v0.1.4/soctalk-demo-0.1.4.qcow2.xz) — KVM、QEMU、libvirt、Proxmox
-- [`soctalk-demo-0.1.4.vmdk.xz`](https://github.com/soctalk/soctalk/releases/download/v0.1.4/soctalk-demo-0.1.4.vmdk.xz) — VMware ESXi、Workstation、Fusion、VirtualBox
-- [`soctalk-demo-0.1.4.vhdx.xz`](https://github.com/soctalk/soctalk/releases/download/v0.1.4/soctalk-demo-0.1.4.vhdx.xz) — Microsoft Hyper-V（第 1 代）
-- [`soctalk-demo-0.1.4.vhd.xz`](https://github.com/soctalk/soctalk/releases/download/v0.1.4/soctalk-demo-0.1.4.vhd.xz) — Microsoft Azure（固定大小，1 MiB 对齐）
-- [`soctalk-demo-0.1.4.raw.xz`](https://github.com/soctalk/soctalk/releases/download/v0.1.4/soctalk-demo-0.1.4.raw.xz) — 通用云导入（GCP、OpenStack），可 `dd` 写入物理磁盘
-- [`SHA256SUMS.txt`](https://github.com/soctalk/soctalk/releases/download/v0.1.4/SHA256SUMS.txt) — 以上所有文件的校验和
+- [`soctalk-demo-0.2.0.qcow2.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.qcow2.xz) — KVM、QEMU、libvirt、Proxmox
+- [`soctalk-demo-0.2.0.vmdk.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.vmdk.xz) — VMware ESXi、Workstation、Fusion、VirtualBox
+- [`soctalk-demo-0.2.0.vhdx.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.vhdx.xz) — Microsoft Hyper-V（第 1 代）
+- [`soctalk-demo-0.2.0.vhd.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.vhd.xz) — Microsoft Azure（固定大小，1 MiB 对齐）
+- [`soctalk-demo-0.2.0.raw.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.raw.xz) — 通用云导入（GCP、OpenStack），可 `dd` 写入物理磁盘
+- [`SHA256SUMS.txt`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/SHA256SUMS.txt) — 以上所有文件的校验和
 
 所有制品均使用 `xz -9` 压缩。请使用 `xz -d <file>.xz` 解压。
 
@@ -39,8 +39,8 @@
 ## 校验下载
 
 ```bash
-curl -L -O https://github.com/soctalk/soctalk/releases/download/v0.1.4/SHA256SUMS.txt
-curl -L -O https://github.com/soctalk/soctalk/releases/download/v0.1.4/soctalk-demo-0.1.4.qcow2.xz
+curl -L -O https://github.com/soctalk/soctalk/releases/download/v0.2.0/SHA256SUMS.txt
+curl -L -O https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.qcow2.xz
 sha256sum -c SHA256SUMS.txt --ignore-missing
 ```
 
@@ -70,7 +70,7 @@ packer build -only="soctalk-demo.qemu.soctalk_demo" .
 `build-packer-images.yml` 仅支持 `workflow_dispatch` — Packer 构建不会在每次推送时触发，因为它们速度慢且消耗 runner 时长。请为新版本有意手动触发：
 
 ```bash
-gh workflow run build-packer-images.yml -f version=0.1.4
+gh workflow run build-packer-images.yml -f version=0.2.0
 ```
 
 该工作流执行：

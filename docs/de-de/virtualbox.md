@@ -19,7 +19,7 @@ Das Demo-Image ist **x86-64**, was VirtualBox auf Apple Silicon nicht ausführen
 Hol dir die **vmdk** von der Seite [Downloads](/de-de/downloads) (VirtualBox' VMware-kompatibles Format):
 
 ```bash
-VER=0.1.4
+VER=0.2.0
 curl -L -O https://github.com/soctalk/soctalk/releases/download/v$VER/soctalk-demo-$VER.vmdk.xz
 curl -L -O https://github.com/soctalk/soctalk/releases/download/v$VER/SHA256SUMS.txt
 sha256sum -c SHA256SUMS.txt --ignore-missing   # macOS: shasum -a 256 -c
@@ -31,10 +31,10 @@ xz -d soctalk-demo-$VER.vmdk.xz
 Die veröffentlichte vmdk ist **streamOptimized** (ein schreibgeschütztes VMware/OVA-Layout), das VirtualBox nicht als beschreibbare Festplatte bootet. Konvertiere sie einmalig in ein VDI:
 
 ```bash
-VBoxManage clonemedium disk soctalk-demo-0.1.4.vmdk soctalk-demo-0.1.4.vdi --format VDI
+VBoxManage clonemedium disk soctalk-demo-0.2.0.vmdk soctalk-demo-0.2.0.vdi --format VDI
 ```
 
-Dies erzeugt ein beschreibbares, dynamisch dimensioniertes `soctalk-demo-0.1.4.vdi` (einige GB auf der Festplatte). `VBoxManage` wird mit VirtualBox ausgeliefert — unter Windows liegt es in `C:\Program Files\Oracle\VirtualBox\`.
+Dies erzeugt ein beschreibbares, dynamisch dimensioniertes `soctalk-demo-0.2.0.vdi` (einige GB auf der Festplatte). `VBoxManage` wird mit VirtualBox ausgeliefert — unter Windows liegt es in `C:\Program Files\Oracle\VirtualBox\`.
 
 ## 3. Eine cloud-init-Seed-ISO erstellen
 
@@ -69,7 +69,7 @@ genisoimage -output soctalk-seed.iso -volid cidata -joliet -rock user-data meta-
 
 ![Hardware](/screenshots/virtualbox-create-hardware.png)
 
-**Virtual Hard disk** — wähle **Use an Existing Virtual Hard Disk File** und selektiere die von dir konvertierte `soctalk-demo-0.1.4.vdi`:
+**Virtual Hard disk** — wähle **Use an Existing Virtual Hard Disk File** und selektiere die von dir konvertierte `soctalk-demo-0.2.0.vdi`:
 
 ![Use existing disk](/screenshots/virtualbox-create-disk.png)
 
@@ -135,7 +135,7 @@ Rufe anschließend `https://<vm-ip>/` auf (Port 443, nicht 8443), melde dich mit
 ```bash
 VBoxManage controlvm soctalk-demo poweroff
 VBoxManage unregistervm soctalk-demo --delete
-VBoxManage closemedium disk soctalk-demo-0.1.4.vdi --delete
+VBoxManage closemedium disk soctalk-demo-0.2.0.vdi --delete
 ```
 
 ## Fehlerbehebung

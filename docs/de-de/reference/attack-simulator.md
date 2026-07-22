@@ -21,7 +21,7 @@ Die Pods registrieren sich als `linux-ep-0`, `linux-ep-1`, … sodass die SocTal
 
 ```bash
 helm install linux-ep oci://ghcr.io/soctalk/charts/linux-ep \
-  --version 0.1.1 \
+  --version 0.2.0 \
   --namespace tenant-demo \
   --set wazuh.managerHost=wazuh-demo-wazuh-manager \
   --set wazuh.credsSecret.name=wazuh-demo-wazuh-creds \

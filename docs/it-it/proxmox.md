@@ -15,7 +15,7 @@ Questo percorso è pensato per **valutatori e demo** — per un'installazione in
 Collegati via SSH al nodo Proxmox:
 
 ```bash
-VER=<ver>   # e.g. 0.1.4
+VER=<ver>   # e.g. 0.2.0
 curl -L -O https://github.com/soctalk/soctalk/releases/latest/download/soctalk-demo-$VER.qcow2.xz
 curl -L -O https://github.com/soctalk/soctalk/releases/latest/download/SHA256SUMS.txt
 sha256sum -c SHA256SUMS.txt --ignore-missing

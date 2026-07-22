@@ -39,7 +39,7 @@ Packer 会从 Ubuntu 24.04 基础 AMI 启动一个临时的构建实例，以与
 ### 1. 下载并解压
 
 ```bash
-VER=<ver>   # 例如 0.1.4
+VER=<ver>   # 例如 0.2.0
 curl -L -O https://github.com/soctalk/soctalk/releases/latest/download/soctalk-demo-$VER.vmdk.xz
 curl -L -O https://github.com/soctalk/soctalk/releases/latest/download/SHA256SUMS.txt
 sha256sum -c SHA256SUMS.txt --ignore-missing

@@ -147,7 +147,7 @@ install:
 
 image:
   registry: ghcr.io/soctalk
-  tag: "0.1.4"
+  tag: "0.2.0"
 
 ingress:
   enabled: true
@@ -197,7 +197,7 @@ install:
 
 ```bash
 helm install soctalk-system oci://ghcr.io/soctalk/charts/soctalk-system \
-  --version 0.1.4 \
+  --version 0.2.0 \
   --namespace soctalk-system --create-namespace \
   -f soctalk-system-values.yaml
 ```

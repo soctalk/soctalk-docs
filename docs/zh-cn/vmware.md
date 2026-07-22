@@ -21,7 +21,7 @@ ESXi 安装程序会在引导磁盘上创建一个 `OSDATA-*` 卷。它会出现
 从 [下载](/zh-cn/downloads) 页面获取 **vmdk**。在任何装有 `ovftool` 的 Linux/macOS 主机上，或通过 SSH 进入具备控制台访问权限的 ESXi 虚拟机：
 
 ```bash
-VER=0.1.4
+VER=0.2.0
 curl -L -O https://github.com/soctalk/soctalk/releases/download/v$VER/soctalk-demo-$VER.vmdk.xz
 curl -L -O https://github.com/soctalk/soctalk/releases/download/v$VER/SHA256SUMS.txt
 sha256sum -c SHA256SUMS.txt --ignore-missing   # macOS: shasum -a 256 -c
@@ -90,7 +90,7 @@ genisoimage -output soctalk-seed.iso -volid cidata -joliet -rock user-data meta-
 # Enable SSH on the ESXi host: Host Client → Actions → Services → Enable SSH
 # Copy the vmdk to the datastore (from any host that has scp)
 DS=/vmfs/volumes/datastore1
-scp soctalk-demo-0.1.4.vmdk root@<esxi-host>:$DS/soctalk-source.vmdk
+scp soctalk-demo-0.2.0.vmdk root@<esxi-host>:$DS/soctalk-source.vmdk
 
 # On the ESXi host: convert to VMFS thin (~1 minute on a fast SSD)
 ssh root@<esxi-host>
@@ -106,7 +106,7 @@ ovftool --acceptAllEulas --diskMode=thin \
   --datastore=datastore1 \
   --net:"VM Network"="VM Network" \
   --name=SocTalk-Demo \
-  soctalk-demo-0.1.4.vmdk \
+  soctalk-demo-0.2.0.vmdk \
   vi://root:<password>@<esxi-host>
 ```
 

@@ -39,7 +39,7 @@ estilo MSSP sin control de acceso.
 
 <!-- BEGIN GENERATED:endpoints (do not edit — npm run gen:api) -->
 
-_97 operaciones en 23 grupos, generadas a partir del esquema OpenAPI (versión de API `0.1.0`). Auth se deriva de los guards `require_role` / `require_tenant_role` de la ruta._
+_97 operaciones en 23 grupos, generadas a partir del esquema OpenAPI (versión de API `0.2.0`). Auth se deriva de los guards `require_role` / `require_tenant_role` de la ruta._
 
 ### `auth`
 

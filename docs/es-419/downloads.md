@@ -6,16 +6,16 @@ Todas las imágenes corresponden a la misma compilación de Ubuntu 24.04 + K3s +
 
 ## Última versión
 
-Versión actual: **v0.1.4** — [página de la versión](https://github.com/soctalk/soctalk/releases/tag/v0.1.4) · [todas las versiones](https://github.com/soctalk/soctalk/releases)
+Versión actual: **v0.2.0** — [página de la versión](https://github.com/soctalk/soctalk/releases/tag/v0.2.0) · [todas las versiones](https://github.com/soctalk/soctalk/releases)
 
 La versión incluye:
 
-- [`soctalk-demo-0.1.4.qcow2.xz`](https://github.com/soctalk/soctalk/releases/download/v0.1.4/soctalk-demo-0.1.4.qcow2.xz) — KVM, QEMU, libvirt, Proxmox
-- [`soctalk-demo-0.1.4.vmdk.xz`](https://github.com/soctalk/soctalk/releases/download/v0.1.4/soctalk-demo-0.1.4.vmdk.xz) — VMware ESXi, Workstation, Fusion, VirtualBox
-- [`soctalk-demo-0.1.4.vhdx.xz`](https://github.com/soctalk/soctalk/releases/download/v0.1.4/soctalk-demo-0.1.4.vhdx.xz) — Microsoft Hyper-V (Generation 1)
-- [`soctalk-demo-0.1.4.vhd.xz`](https://github.com/soctalk/soctalk/releases/download/v0.1.4/soctalk-demo-0.1.4.vhd.xz) — Microsoft Azure (tamaño fijo, alineado a 1 MiB)
-- [`soctalk-demo-0.1.4.raw.xz`](https://github.com/soctalk/soctalk/releases/download/v0.1.4/soctalk-demo-0.1.4.raw.xz) — importación genérica a la nube (GCP, OpenStack), `dd` a disco físico
-- [`SHA256SUMS.txt`](https://github.com/soctalk/soctalk/releases/download/v0.1.4/SHA256SUMS.txt) — sumas de verificación para todo lo anterior
+- [`soctalk-demo-0.2.0.qcow2.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.qcow2.xz) — KVM, QEMU, libvirt, Proxmox
+- [`soctalk-demo-0.2.0.vmdk.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.vmdk.xz) — VMware ESXi, Workstation, Fusion, VirtualBox
+- [`soctalk-demo-0.2.0.vhdx.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.vhdx.xz) — Microsoft Hyper-V (Generation 1)
+- [`soctalk-demo-0.2.0.vhd.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.vhd.xz) — Microsoft Azure (tamaño fijo, alineado a 1 MiB)
+- [`soctalk-demo-0.2.0.raw.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.raw.xz) — importación genérica a la nube (GCP, OpenStack), `dd` a disco físico
+- [`SHA256SUMS.txt`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/SHA256SUMS.txt) — sumas de verificación para todo lo anterior
 
 Todos los artefactos están comprimidos con `xz -9`. Descomprímelos con `xz -d <file>.xz`.
 
@@ -39,8 +39,8 @@ Todos los artefactos están comprimidos con `xz -9`. Descomprímelos con `xz -d 
 ## Verifica la descarga
 
 ```bash
-curl -L -O https://github.com/soctalk/soctalk/releases/download/v0.1.4/SHA256SUMS.txt
-curl -L -O https://github.com/soctalk/soctalk/releases/download/v0.1.4/soctalk-demo-0.1.4.qcow2.xz
+curl -L -O https://github.com/soctalk/soctalk/releases/download/v0.2.0/SHA256SUMS.txt
+curl -L -O https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.qcow2.xz
 sha256sum -c SHA256SUMS.txt --ignore-missing
 ```
 
@@ -70,7 +70,7 @@ Compila en ~1 minuto en un host moderno con aceleración KVM. Los resultados que
 `build-packer-images.yml` es exclusivo de `workflow_dispatch`: las compilaciones de Packer no se disparan en cada push porque son lentas y consumen minutos de runner. Dispáralo intencionalmente para una nueva versión:
 
 ```bash
-gh workflow run build-packer-images.yml -f version=0.1.4
+gh workflow run build-packer-images.yml -f version=0.2.0
 ```
 
 El flujo de trabajo ejecuta:

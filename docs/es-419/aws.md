@@ -39,7 +39,7 @@ Packer lanza una instancia constructora temporal a partir de la AMI base de Ubun
 ### 1. Descargar y descomprimir
 
 ```bash
-VER=<ver>   # p. ej. 0.1.4
+VER=<ver>   # p. ej. 0.2.0
 curl -L -O https://github.com/soctalk/soctalk/releases/latest/download/soctalk-demo-$VER.vmdk.xz
 curl -L -O https://github.com/soctalk/soctalk/releases/latest/download/SHA256SUMS.txt
 sha256sum -c SHA256SUMS.txt --ignore-missing

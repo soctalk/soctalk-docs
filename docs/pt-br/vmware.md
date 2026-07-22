@@ -21,7 +21,7 @@ O instalador do ESXi cria um volume `OSDATA-*` no disco de boot. Ele aparece em 
 Obtenha o **vmdk** na página de [Downloads](/pt-br/downloads). Em qualquer host Linux/macOS que tenha `ovftool` ou via SSH em um acesso ao console de VM ESXi:
 
 ```bash
-VER=0.1.4
+VER=0.2.0
 curl -L -O https://github.com/soctalk/soctalk/releases/download/v$VER/soctalk-demo-$VER.vmdk.xz
 curl -L -O https://github.com/soctalk/soctalk/releases/download/v$VER/SHA256SUMS.txt
 sha256sum -c SHA256SUMS.txt --ignore-missing   # macOS: shasum -a 256 -c
@@ -90,7 +90,7 @@ O vmdk do GHCR é streamOptimized. O subsistema de VM do ESXi precisa de um disc
 # Enable SSH on the ESXi host: Host Client → Actions → Services → Enable SSH
 # Copy the vmdk to the datastore (from any host that has scp)
 DS=/vmfs/volumes/datastore1
-scp soctalk-demo-0.1.4.vmdk root@<esxi-host>:$DS/soctalk-source.vmdk
+scp soctalk-demo-0.2.0.vmdk root@<esxi-host>:$DS/soctalk-source.vmdk
 
 # On the ESXi host: convert to VMFS thin (~1 minute on a fast SSD)
 ssh root@<esxi-host>
@@ -106,7 +106,7 @@ ovftool --acceptAllEulas --diskMode=thin \
   --datastore=datastore1 \
   --net:"VM Network"="VM Network" \
   --name=SocTalk-Demo \
-  soctalk-demo-0.1.4.vmdk \
+  soctalk-demo-0.2.0.vmdk \
   vi://root:<password>@<esxi-host>
 ```
 

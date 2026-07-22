@@ -19,7 +19,7 @@ L'image de démonstration est en **x86-64**, que VirtualBox ne peut pas exécute
 Récupérez le fichier **vmdk** depuis la page [Téléchargements](/fr-fr/downloads) (le format compatible VMware de VirtualBox) :
 
 ```bash
-VER=0.1.4
+VER=0.2.0
 curl -L -O https://github.com/soctalk/soctalk/releases/download/v$VER/soctalk-demo-$VER.vmdk.xz
 curl -L -O https://github.com/soctalk/soctalk/releases/download/v$VER/SHA256SUMS.txt
 sha256sum -c SHA256SUMS.txt --ignore-missing   # macOS: shasum -a 256 -c
@@ -31,10 +31,10 @@ xz -d soctalk-demo-$VER.vmdk.xz
 Le vmdk publié est en **streamOptimized** (une disposition VMware/OVA en lecture seule), que VirtualBox ne démarrera pas comme disque inscriptible. Convertissez-le une fois en VDI :
 
 ```bash
-VBoxManage clonemedium disk soctalk-demo-0.1.4.vmdk soctalk-demo-0.1.4.vdi --format VDI
+VBoxManage clonemedium disk soctalk-demo-0.2.0.vmdk soctalk-demo-0.2.0.vdi --format VDI
 ```
 
-Cela produit un fichier `soctalk-demo-0.1.4.vdi` inscriptible et à taille dynamique (quelques Go sur le disque). `VBoxManage` est fourni avec VirtualBox — sous Windows, il se trouve dans `C:\Program Files\Oracle\VirtualBox\`.
+Cela produit un fichier `soctalk-demo-0.2.0.vdi` inscriptible et à taille dynamique (quelques Go sur le disque). `VBoxManage` est fourni avec VirtualBox — sous Windows, il se trouve dans `C:\Program Files\Oracle\VirtualBox\`.
 
 ## 3. Créer une image ISO d'amorçage cloud-init
 
@@ -69,7 +69,7 @@ Ouvrez **VirtualBox** et cliquez sur **Nouvelle**.
 
 ![Matériel](/screenshots/virtualbox-create-hardware.png)
 
-**Disque dur virtuel** — choisissez **Utiliser un fichier de disque dur virtuel existant** et sélectionnez le fichier `soctalk-demo-0.1.4.vdi` que vous avez converti :
+**Disque dur virtuel** — choisissez **Utiliser un fichier de disque dur virtuel existant** et sélectionnez le fichier `soctalk-demo-0.2.0.vdi` que vous avez converti :
 
 ![Utiliser un disque existant](/screenshots/virtualbox-create-disk.png)
 
@@ -135,7 +135,7 @@ Accédez ensuite à `https://<vm-ip>/` (port 443, pas 8443), connectez-vous avec
 ```bash
 VBoxManage controlvm soctalk-demo poweroff
 VBoxManage unregistervm soctalk-demo --delete
-VBoxManage closemedium disk soctalk-demo-0.1.4.vdi --delete
+VBoxManage closemedium disk soctalk-demo-0.2.0.vdi --delete
 ```
 
 ## Dépannage

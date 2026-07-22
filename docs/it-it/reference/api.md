@@ -39,7 +39,7 @@ di tipo MSSP senza gating.
 
 <!-- BEGIN GENERATED:endpoints (do not edit — npm run gen:api) -->
 
-_97 operations across 23 groups, generated from the OpenAPI schema (API version `0.1.0`). Auth is derived from the route's `require_role` / `require_tenant_role` guards._
+_97 operations across 23 groups, generated from the OpenAPI schema (API version `0.2.0`). Auth is derived from the route's `require_role` / `require_tenant_role` guards._
 
 ### `auth`
 

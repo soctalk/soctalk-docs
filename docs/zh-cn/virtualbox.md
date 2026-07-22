@@ -19,7 +19,7 @@ VirtualBox 是在桌面上试用 SocTalk 最简便的跨平台方式——免费
 从 [下载](/zh-cn/downloads) 页面获取 **vmdk**（VirtualBox 兼容的 VMware 格式）：
 
 ```bash
-VER=0.1.4
+VER=0.2.0
 curl -L -O https://github.com/soctalk/soctalk/releases/download/v$VER/soctalk-demo-$VER.vmdk.xz
 curl -L -O https://github.com/soctalk/soctalk/releases/download/v$VER/SHA256SUMS.txt
 sha256sum -c SHA256SUMS.txt --ignore-missing   # macOS: shasum -a 256 -c
@@ -31,10 +31,10 @@ xz -d soctalk-demo-$VER.vmdk.xz
 发布的 vmdk 采用 **streamOptimized** 格式（一种只读的 VMware/OVA 布局），VirtualBox 无法将其作为可写磁盘启动。请一次性将它转换为 VDI：
 
 ```bash
-VBoxManage clonemedium disk soctalk-demo-0.1.4.vmdk soctalk-demo-0.1.4.vdi --format VDI
+VBoxManage clonemedium disk soctalk-demo-0.2.0.vmdk soctalk-demo-0.2.0.vdi --format VDI
 ```
 
-这将生成一个可写、动态分配大小的 `soctalk-demo-0.1.4.vdi`（磁盘上占用数 GB）。`VBoxManage` 随 VirtualBox 一起提供——在 Windows 上位于 `C:\Program Files\Oracle\VirtualBox\`。
+这将生成一个可写、动态分配大小的 `soctalk-demo-0.2.0.vdi`（磁盘上占用数 GB）。`VBoxManage` 随 VirtualBox 一起提供——在 Windows 上位于 `C:\Program Files\Oracle\VirtualBox\`。
 
 ## 3. 构建 cloud-init seed ISO
 
@@ -69,7 +69,7 @@ genisoimage -output soctalk-seed.iso -volid cidata -joliet -rock user-data meta-
 
 ![Hardware](/screenshots/virtualbox-create-hardware.png)
 
-**Virtual Hard disk**——选择 **Use an Existing Virtual Hard Disk File** 并选中你转换得到的 `soctalk-demo-0.1.4.vdi`：
+**Virtual Hard disk**——选择 **Use an Existing Virtual Hard Disk File** 并选中你转换得到的 `soctalk-demo-0.2.0.vdi`：
 
 ![Use existing disk](/screenshots/virtualbox-create-disk.png)
 
@@ -135,7 +135,7 @@ sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml get pods -A
 ```bash
 VBoxManage controlvm soctalk-demo poweroff
 VBoxManage unregistervm soctalk-demo --delete
-VBoxManage closemedium disk soctalk-demo-0.1.4.vdi --delete
+VBoxManage closemedium disk soctalk-demo-0.2.0.vdi --delete
 ```
 
 ## 故障排查
