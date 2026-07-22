@@ -40,219 +40,318 @@ MSSP-artigen Route nur die Zeilen seines Mandanten sieht.
 
 <!-- BEGIN GENERATED:endpoints (do not edit — npm run gen:api) -->
 
-_97 Operationen über 23 Gruppen, generiert aus dem OpenAPI-Schema (API-Version `0.2.0`). Auth leitet sich aus den `require_role`- / `require_tenant_role`-Guards der Route ab._
+_146 operations across 33 groups, generated from the OpenAPI schema (API version `0.2.0`). Auth is derived from the route's `require_role` / `require_tenant_role` guards._
 
 ### `auth`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `POST` | `/api/auth/assume-tenant` | Assume Tenant | Session-Cookie (Login) / keine |
-| `POST` | `/api/auth/login` | Login | Session-Cookie (Login) / keine |
-| `POST` | `/api/auth/logout` | Logout | Session-Cookie (Login) / keine |
-| `GET` | `/api/auth/me` | Me | Session-Cookie (Login) / keine |
-| `POST` | `/api/auth/password/change` | Password Change | Session-Cookie (Login) / keine |
+| `POST` | `/api/auth/assume-tenant` | Assume Tenant | session cookie (login) / none |
+| `POST` | `/api/auth/login` | Login | session cookie (login) / none |
+| `POST` | `/api/auth/logout` | Logout | session cookie (login) / none |
+| `GET` | `/api/auth/me` | Me | session cookie (login) / none |
+| `POST` | `/api/auth/password/change` | Password Change | session cookie (login) / none |
 
 ### `auth-admin`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `POST` | `/api/mssp/users/{user_id}/password/reset` | Admin Reset | Session — Rollen: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/users/{user_id}/password/reset` | Admin Reset | session cookie |
+
+### `authz-facts-mssp`
+
+| Method | Path | Summary | Auth |
+|---|---|---|---|
+| `POST` | `/api/mssp/tenants/{tenant_id}/authorization/answer` | Mssp Answer Authorization | session cookie |
+| `GET` | `/api/mssp/tenants/{tenant_id}/authorization/facts` | Mssp List Facts | session cookie |
+| `POST` | `/api/mssp/tenants/{tenant_id}/authorization/facts` | Mssp Create Fact | session cookie |
+| `POST` | `/api/mssp/tenants/{tenant_id}/authorization/facts/{fact_id}/review` | Mssp Review Fact | session cookie |
+| `POST` | `/api/mssp/tenants/{tenant_id}/authorization/facts/{fact_id}/revoke` | Mssp Revoke Fact | session cookie |
 
 ### `chat`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/chat/conversations` | List Conversations | Session-Cookie |
-| `POST` | `/api/chat/conversations` | Create Conversation | Session-Cookie |
-| `GET` | `/api/chat/conversations/{conv_id}` | Get Conversation | Session-Cookie |
-| `DELETE` | `/api/chat/conversations/{conv_id}` | Delete Conversation | Session-Cookie |
-| `POST` | `/api/chat/conversations/{conv_id}/messages` | Post Message | Session-Cookie |
-| `POST` | `/api/chat/conversations/{conv_id}/messages/{msg_id}/confirm` | Confirm Action | Session-Cookie |
-| `POST` | `/api/chat/conversations/{conv_id}/stop` | Stop Conversation | Session-Cookie |
+| `GET` | `/api/chat/conversations` | List Conversations | session cookie |
+| `POST` | `/api/chat/conversations` | Create Conversation | session cookie |
+| `GET` | `/api/chat/conversations/{conv_id}` | Get Conversation | session cookie |
+| `DELETE` | `/api/chat/conversations/{conv_id}` | Delete Conversation | session cookie |
+| `POST` | `/api/chat/conversations/{conv_id}/messages` | Post Message | session cookie |
+| `POST` | `/api/chat/conversations/{conv_id}/messages/{msg_id}/confirm` | Confirm Action | session cookie |
+| `POST` | `/api/chat/conversations/{conv_id}/stop` | Stop Conversation | session cookie |
 
 ### `health`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/health/live` | Live | keine (öffentlich) |
-| `GET` | `/health/ready` | Ready | keine (öffentlich) |
+| `GET` | `/health/live` | Live | none (public) |
+| `GET` | `/health/ready` | Ready | none (public) |
 
 ### `internal-adapter`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/internal/adapter/checkpoint` | Get Checkpoint | Service-JWT (Adapter-Token) |
-| `PUT` | `/api/internal/adapter/checkpoint` | Put Checkpoint | Service-JWT (Adapter-Token) |
-| `GET` | `/api/internal/adapter/config` | Fetch Config | Service-JWT (Adapter-Token) |
-| `POST` | `/api/internal/adapter/events` | Ingest Events | Service-JWT (Adapter-Token) |
-| `POST` | `/api/internal/adapter/heartbeat` | Heartbeat | Service-JWT (Adapter-Token) |
+| `GET` | `/api/internal/adapter/checkpoint` | Get Checkpoint | service JWT (adapter token) |
+| `PUT` | `/api/internal/adapter/checkpoint` | Put Checkpoint | service JWT (adapter token) |
+| `GET` | `/api/internal/adapter/config` | Fetch Config | service JWT (adapter token) |
+| `POST` | `/api/internal/adapter/events` | Ingest Events | service JWT (adapter token) |
+| `POST` | `/api/internal/adapter/heartbeat` | Heartbeat | service JWT (adapter token) |
+
+### `internal-authorization`
+
+| Method | Path | Summary | Auth |
+|---|---|---|---|
+| `GET` | `/api/internal/authorization/facts` | List Facts | session cookie |
+| `POST` | `/api/internal/authorization/facts` | Submit Facts | session cookie |
+| `POST` | `/api/internal/authorization/facts/{fact_id}/revoke` | Revoke | session cookie |
 
 ### `internal-worker`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `POST` | `/api/internal/worker/runs/{run_id}/complete` | Complete Run | Service-JWT (Worker-Token) |
-| `POST` | `/api/internal/worker/runs/{run_id}/heartbeat` | Heartbeat Run | Service-JWT (Worker-Token) |
-| `POST` | `/api/internal/worker/runs/claim` | Claim Run | Service-JWT (Worker-Token) |
+| `POST` | `/api/internal/worker/runs/{run_id}/complete` | Complete Run | service JWT (worker token) |
+| `POST` | `/api/internal/worker/runs/{run_id}/heartbeat` | Heartbeat Run | service JWT (worker token) |
+| `POST` | `/api/internal/worker/runs/claim` | Claim Run | service JWT (worker token) |
 
 ### `investigations-bridge`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/investigations` | List Investigations | Session-Cookie |
-| `GET` | `/api/investigations/{investigation_id}` | Get Investigation | Session-Cookie |
-| `POST` | `/api/investigations/{investigation_id}/cancel` | Post Cancel Investigation | Session — Rollen: analyst / mssp_admin / platform_admin |
-| `GET` | `/api/investigations/{investigation_id}/events` | Get Events | Session-Cookie |
+| `GET` | `/api/investigations` | List Investigations | session cookie |
+| `GET` | `/api/investigations/{investigation_id}` | Get Investigation | session cookie |
+| `POST` | `/api/investigations/{investigation_id}/cancel` | Post Cancel Investigation | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/investigations/{investigation_id}/events` | Get Events | session cookie |
 
 ### `ir-alerts`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/alerts` | List Alerts | Session — Rollen: analyst / mssp_admin / platform_admin |
+| `GET` | `/api/mssp/alerts` | List Alerts | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+
+### `ir-engagements`
+
+| Method | Path | Summary | Auth |
+|---|---|---|---|
+| `GET` | `/api/mssp/tenants/{tenant_id}/engagements` | List Engagements Route | session cookie |
+| `POST` | `/api/mssp/tenants/{tenant_id}/engagements` | Declare Engagement Route | session cookie |
+| `POST` | `/api/mssp/tenants/{tenant_id}/engagements/{engagement_id}/revoke` | Revoke Engagement Route | session cookie |
 
 ### `ir-integrations`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/tenants/{tenant_id}/integrations` | Get Integrations | Session — Rollen: mssp_admin / platform_admin |
-| `PATCH` | `/api/mssp/tenants/{tenant_id}/integrations` | Patch Integrations | Session — Rollen: mssp_admin / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/integrations` | Get Integrations | session — roles: mssp_admin / platform_admin |
+| `PATCH` | `/api/mssp/tenants/{tenant_id}/integrations` | Patch Integrations | session — roles: mssp_admin / platform_admin |
 
 ### `ir-mssp`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/investigations` | List Cases Mssp | Session — Rollen: analyst / mssp_admin / platform_admin |
-| `GET` | `/api/mssp/investigations/{investigation_id}` | Get Case Mssp | Session — Rollen: analyst / mssp_admin / platform_admin |
-| `GET` | `/api/mssp/investigations/{investigation_id}/events` | List Case Events Mssp | Session — Rollen: analyst / mssp_admin / platform_admin |
-| `PATCH` | `/api/mssp/investigations/{investigation_id}/facts` | Patch Case Facts | Session — Rollen: analyst / mssp_admin / platform_admin |
-| `POST` | `/api/mssp/investigations/{investigation_id}/messages` | Post Analyst Message | Session — Rollen: analyst / mssp_admin / platform_admin |
+| `GET` | `/api/mssp/investigations` | List Cases Mssp | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/investigations/{investigation_id}` | Get Case Mssp | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/investigations/{investigation_id}/events` | List Case Events Mssp | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `PATCH` | `/api/mssp/investigations/{investigation_id}/facts` | Patch Case Facts | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `POST` | `/api/mssp/investigations/{investigation_id}/messages` | Post Analyst Message | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+
+### `ir-playbooks`
+
+| Method | Path | Summary | Auth |
+|---|---|---|---|
+| `GET` | `/api/mssp/playbooks` | List Triage Policies Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/playbooks` | List Authored Triage Policies Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}/playbooks` | Create Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
+| `PUT` | `/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}` | Update Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
+| `DELETE` | `/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}` | Retire Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}/activate` | Activate Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}/deactivate` | Deactivate Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}/export` | Export Authored Triage Policy Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/triage-policies` | List Authored Triage Policies Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}/triage-policies` | Create Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
+| `PUT` | `/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}` | Update Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
+| `DELETE` | `/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}` | Retire Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}/activate` | Activate Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}/deactivate` | Deactivate Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}/export` | Export Authored Triage Policy Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
 
 ### `ir-proposals`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/proposals` | List Pending Proposals | Session — Rollen: analyst / mssp_admin / platform_admin |
-| `POST` | `/api/mssp/proposals/{proposal_id}/approve` | Approve Proposal Route | Session — Rollen: analyst / mssp_admin / platform_admin |
-| `POST` | `/api/mssp/proposals/{proposal_id}/reject` | Reject Proposal Route | Session — Rollen: analyst / mssp_admin / platform_admin |
+| `GET` | `/api/mssp/proposals` | List Pending Proposals | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `POST` | `/api/mssp/proposals/{proposal_id}/approve` | Approve Proposal Route | session cookie |
+| `POST` | `/api/mssp/proposals/{proposal_id}/reject` | Reject Proposal Route | session cookie |
+
+### `ir-response-playbooks`
+
+| Method | Path | Summary | Auth |
+|---|---|---|---|
+| `GET` | `/api/mssp/tenants/{tenant_id}/response-playbooks` | List Authored Response Playbooks Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}/response-playbooks` | Create Authored Response Playbook Route | session — roles: mssp_admin / platform_admin |
+| `PUT` | `/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}` | Update Authored Response Playbook Route | session — roles: mssp_admin / platform_admin |
+| `DELETE` | `/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}` | Retire Authored Response Playbook Route | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}/activate` | Activate Authored Response Playbook Route | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}/deactivate` | Deactivate Authored Response Playbook Route | session — roles: mssp_admin / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}/export` | Export Authored Response Playbook Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
 
 ### `ir-tenant`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/tenant/investigations` | List Cases Tenant | Mandanten-Session (customer_viewer / tenant_admin) |
-| `GET` | `/api/tenant/investigations/{investigation_id}` | Get Case Tenant | Mandanten-Session (customer_viewer / tenant_admin) |
+| `GET` | `/api/tenant/investigations` | List Cases Tenant | tenant session (customer_viewer / tenant_admin / tenant_analyst / tenant_manager) |
+| `GET` | `/api/tenant/investigations/{investigation_id}` | Get Case Tenant | tenant session (customer_viewer / tenant_admin / tenant_analyst / tenant_manager) |
+| `PATCH` | `/api/tenant/investigations/{investigation_id}/facts` | Tenant Patch Case Facts | tenant session |
+| `POST` | `/api/tenant/investigations/{investigation_id}/messages` | Tenant Post Analyst Message | tenant session |
+
+### `ir-triage-policies`
+
+| Method | Path | Summary | Auth |
+|---|---|---|---|
+| `GET` | `/api/mssp/triage-policies` | List Triage Policies Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
 
 ### `l2-agent`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `POST` | `/api/agent/heartbeat` | Heartbeat | L2-Agent-Installationstoken (Bearer) |
-| `POST` | `/api/agent/jobs:claim` | Claim Job | L2-Agent-Installationstoken (Bearer) |
-| `POST` | `/api/agent/jobs/{job_id}/complete` | Complete Job | L2-Agent-Installationstoken (Bearer) |
-| `POST` | `/api/agent/jobs/{job_id}/events` | Post Event | L2-Agent-Installationstoken (Bearer) |
-| `POST` | `/api/agent/register` | Register | L2-Agent-Installationstoken (Bearer) |
+| `POST` | `/api/agent/heartbeat` | Heartbeat | L2 agent install token (bearer) |
+| `POST` | `/api/agent/jobs:claim` | Claim Job | L2 agent install token (bearer) |
+| `POST` | `/api/agent/jobs/{job_id}/complete` | Complete Job | L2 agent install token (bearer) |
+| `POST` | `/api/agent/jobs/{job_id}/events` | Post Event | L2 agent install token (bearer) |
+| `POST` | `/api/agent/register` | Register | L2 agent install token (bearer) |
 
 ### `legacy-stubs`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/analytics/ai-behavior` | Analytics Ai Behavior | Session-Cookie |
-| `GET` | `/api/analytics/human-review` | Analytics Human Review | Session-Cookie |
-| `GET` | `/api/analytics/kpis` | Analytics Kpis | Session-Cookie |
-| `GET` | `/api/analytics/outcomes` | Analytics Outcomes | Session-Cookie |
-| `GET` | `/api/analytics/summary` | Analytics Summary | Session-Cookie |
-| `GET` | `/api/audit` | Audit List | Session-Cookie |
-| `GET` | `/api/audit/event-types` | Audit Event Types | Session-Cookie |
-| `GET` | `/api/audit/investigation/{investigation_id}` | Audit Investigation | Session-Cookie |
-| `GET` | `/api/audit/stats` | Audit Stats | Session-Cookie |
-| `GET` | `/api/events/stream` | Events Stream | Session-Cookie |
-| `GET` | `/api/review/{review_id}` | Review Detail | Session-Cookie |
-| `POST` | `/api/review/{review_id}/approve` | Review Approve | Session-Cookie |
-| `POST` | `/api/review/{review_id}/expire` | Review Expire | Session-Cookie |
-| `POST` | `/api/review/{review_id}/reject` | Review Reject | Session-Cookie |
-| `POST` | `/api/review/{review_id}/request-info` | Review Request Info | Session-Cookie |
-| `GET` | `/api/review/pending` | Review Pending | Session-Cookie |
-| `GET` | `/api/settings` | Settings Get | Session-Cookie |
+| `GET` | `/api/analytics/ai-behavior` | Analytics Ai Behavior | session cookie |
+| `GET` | `/api/analytics/human-review` | Analytics Human Review | session cookie |
+| `GET` | `/api/analytics/kpis` | Analytics Kpis | session cookie |
+| `GET` | `/api/analytics/outcomes` | Analytics Outcomes | session cookie |
+| `GET` | `/api/analytics/summary` | Analytics Summary | session cookie |
+| `GET` | `/api/audit` | Audit List | session cookie |
+| `GET` | `/api/audit/event-types` | Audit Event Types | session cookie |
+| `GET` | `/api/audit/investigation/{investigation_id}` | Audit Investigation | session cookie |
+| `GET` | `/api/audit/stats` | Audit Stats | session cookie |
+| `GET` | `/api/events/stream` | Events Stream | session cookie |
+| `GET` | `/api/review/{review_id}` | Review Detail | session cookie |
+| `POST` | `/api/review/{review_id}/approve` | Review Approve | session cookie |
+| `POST` | `/api/review/{review_id}/expire` | Review Expire | session cookie |
+| `POST` | `/api/review/{review_id}/reject` | Review Reject | session cookie |
+| `POST` | `/api/review/{review_id}/request-info` | Review Request Info | session cookie |
+| `GET` | `/api/review/pending` | Review Pending | session cookie |
+| `GET` | `/api/settings` | Settings Get | session cookie |
 
 ### `metrics-bridge`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/metrics/hourly` | Hourly | Session-Cookie |
-| `GET` | `/api/metrics/overview` | Overview | Session-Cookie |
+| `GET` | `/api/metrics/hourly` | Hourly | session cookie |
+| `GET` | `/api/metrics/overview` | Overview | session cookie |
 
 ### `mssp-analytics`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/analytics/heatmap` | Heatmap | Session — Rollen: analyst / mssp_admin / platform_admin |
-| `GET` | `/api/mssp/analytics/ranking` | Ranking | Session — Rollen: analyst / mssp_admin / platform_admin |
-| `GET` | `/api/mssp/analytics/trends` | Trends | Session — Rollen: analyst / mssp_admin / platform_admin |
+| `GET` | `/api/mssp/analytics/heatmap` | Heatmap | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/analytics/ranking` | Ranking | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/analytics/trends` | Trends | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
 
 ### `mssp-dashboard`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/dashboard/open-by-tenant` | Open By Tenant | Session — Rollen: analyst / mssp_admin / platform_admin |
-| `GET` | `/api/mssp/dashboard/pending-reviews` | Pending Reviews | Session — Rollen: analyst / mssp_admin / platform_admin |
-| `GET` | `/api/mssp/dashboard/repeated-iocs` | Repeated Iocs | Session — Rollen: analyst / mssp_admin / platform_admin |
-| `GET` | `/api/mssp/dashboard/stuck-investigations` | Stuck Investigations | Session — Rollen: analyst / mssp_admin / platform_admin |
-| `GET` | `/api/mssp/dashboard/tenant-health` | Tenant Health | Session — Rollen: analyst / mssp_admin / platform_admin |
+| `GET` | `/api/mssp/dashboard/open-by-tenant` | Open By Tenant | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/dashboard/pending-reviews` | Pending Reviews | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/dashboard/repeated-iocs` | Repeated Iocs | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/dashboard/stuck-investigations` | Stuck Investigations | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/dashboard/tenant-health` | Tenant Health | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
 
 ### `mssp-tenant-branding`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `PATCH` | `/api/mssp/tenants/{tenant_id}/branding` | Update Tenant Branding | Session — Rollen: mssp_admin / platform_admin |
+| `PATCH` | `/api/mssp/tenants/{tenant_id}/branding` | Update Tenant Branding | session — roles: mssp_admin / platform_admin |
 
 ### `mssp-tenant-llm`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/tenants/{tenant_id}/llm` | Get Tenant Llm | Session — Rollen: mssp_admin / platform_admin |
-| `PATCH` | `/api/mssp/tenants/{tenant_id}/llm` | Update Tenant Llm | Session — Rollen: mssp_admin / platform_admin |
-| `DELETE` | `/api/mssp/tenants/{tenant_id}/llm/api-key` | Clear Tenant Llm Api Key | Session — Rollen: mssp_admin / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/llm` | Get Tenant Llm | session — roles: mssp_admin / platform_admin |
+| `PATCH` | `/api/mssp/tenants/{tenant_id}/llm` | Update Tenant Llm | session — roles: mssp_admin / platform_admin |
+| `DELETE` | `/api/mssp/tenants/{tenant_id}/llm/api-key` | Clear Tenant Llm Api Key | session — roles: mssp_admin / platform_admin |
 
 ### `mssp-tenants`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/tenants` | List Tenants | Session — Rollen: analyst / mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants` | Create Tenant | Session — Rollen: mssp_admin / platform_admin |
-| `GET` | `/api/mssp/tenants/{tenant_id}` | Get Tenant | Session — Rollen: analyst / mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}:decommission` | Decommission Tenant | Session — Rollen: mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}:issue-agent` | Issue Agent | Session — Rollen: mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}:resume` | Resume Tenant | Session — Rollen: mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}:retry` | Retry Provisioning | Session — Rollen: mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}:retry-install` | Retry Install | Session — Rollen: mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}:suspend` | Suspend Tenant | Session — Rollen: mssp_admin / platform_admin |
-| `GET` | `/api/mssp/tenants/{tenant_id}/adapter-status` | Get Tenant Adapter Status | Session — Rollen: mssp_admin / platform_admin |
-| `GET` | `/api/mssp/tenants/{tenant_id}/events` | List Events | Session — Rollen: analyst / mssp_admin / platform_admin |
-| `GET` | `/api/mssp/tenants/{tenant_id}/external-siem` | Get Tenant External Siem | Session — Rollen: mssp_admin / platform_admin |
-| `PATCH` | `/api/mssp/tenants/{tenant_id}/external-siem` | Update Tenant External Siem | Session — Rollen: mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/onboard` | Onboard Tenant | Session — Rollen: mssp_admin / platform_admin |
+| `GET` | `/api/mssp/tenants` | List Tenants | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `POST` | `/api/mssp/tenants` | Create Tenant | session — roles: mssp_admin / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}` | Get Tenant | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}:decommission` | Decommission Tenant | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}:issue-agent` | Issue Agent | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}:resume` | Resume Tenant | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}:retry` | Retry Provisioning | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}:retry-install` | Retry Install | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}:suspend` | Suspend Tenant | session — roles: mssp_admin / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/adapter-status` | Get Tenant Adapter Status | session — roles: mssp_admin / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/events` | List Events | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/external-siem` | Get Tenant External Siem | session — roles: mssp_admin / platform_admin |
+| `PATCH` | `/api/mssp/tenants/{tenant_id}/external-siem` | Update Tenant External Siem | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/onboard` | Onboard Tenant | session — roles: mssp_admin / platform_admin |
+
+### `mssp-users`
+
+| Method | Path | Summary | Auth |
+|---|---|---|---|
+| `GET` | `/api/mssp/users` | List Mssp Users | session cookie |
+| `POST` | `/api/mssp/users` | Create Mssp User | session cookie |
+| `PATCH` | `/api/mssp/users/{user_id}` | Update Mssp User | session cookie |
+| `POST` | `/api/mssp/users/{user_id}/deactivate` | Deactivate Mssp User | session cookie |
 
 ### `public-tenant`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/public/mssp-by-slug/{slug}` | Mssp By Slug | keine (öffentlich) |
-| `GET` | `/api/public/scope-by-slug/{slug}` | Scope By Slug | keine (öffentlich) |
-| `GET` | `/api/public/tenant-by-slug/{slug}` | Tenant By Slug | keine (öffentlich) |
+| `GET` | `/api/public/mssp-by-slug/{slug}` | Mssp By Slug | none (public) |
+| `GET` | `/api/public/scope-by-slug/{slug}` | Scope By Slug | none (public) |
+| `GET` | `/api/public/tenant-by-slug/{slug}` | Tenant By Slug | none (public) |
+
+### `tenant-authz-facts`
+
+| Method | Path | Summary | Auth |
+|---|---|---|---|
+| `GET` | `/api/tenant/authorization/facts` | Tenant List Own Facts | tenant session |
+| `POST` | `/api/tenant/authorization/facts` | Tenant Assert Fact | tenant session |
 
 ### `tenant-branding`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/tenant/branding` | Get Own Branding | Mandanten-Session (customer_viewer / tenant_admin) |
+| `GET` | `/api/tenant/branding` | Get Own Branding | tenant session (customer_viewer / tenant_admin / tenant_analyst / tenant_manager) |
+
+### `tenant-engagements`
+
+| Method | Path | Summary | Auth |
+|---|---|---|---|
+| `GET` | `/api/tenant/engagements` | Tenant List Engagements Route | tenant session |
+| `POST` | `/api/tenant/engagements` | Tenant Declare Engagement Route | tenant session |
+| `POST` | `/api/tenant/engagements/{engagement_id}/revoke` | Tenant Revoke Engagement Route | tenant session |
 
 ### `tenant-llm`
 
-| Methode | Pfad | Zusammenfassung | Auth |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/tenant/llm` | Tenant Get Llm | Mandanten-Session (tenant_admin) |
-| `PUT` | `/api/tenant/llm/api-key` | Tenant Put Llm Key | Mandanten-Session (tenant_admin) |
-| `DELETE` | `/api/tenant/llm/api-key` | Tenant Clear Llm Key | Mandanten-Session (tenant_admin) |
+| `GET` | `/api/tenant/llm` | Tenant Get Llm | tenant session (tenant_admin) |
+| `PUT` | `/api/tenant/llm/api-key` | Tenant Put Llm Key | tenant session (tenant_admin) |
+| `DELETE` | `/api/tenant/llm/api-key` | Tenant Clear Llm Key | tenant session (tenant_admin) |
+
+### `tenant-users`
+
+| Method | Path | Summary | Auth |
+|---|---|---|---|
+| `GET` | `/api/tenant/users` | List Tenant Users | tenant session |
+| `POST` | `/api/tenant/users` | Create Tenant User | tenant session |
+| `PATCH` | `/api/tenant/users/{user_id}` | Update Tenant User | tenant session |
+| `POST` | `/api/tenant/users/{user_id}/deactivate` | Deactivate Tenant User | tenant session |
 
 <!-- END GENERATED:endpoints -->
 

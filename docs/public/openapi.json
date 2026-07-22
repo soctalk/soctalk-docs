@@ -445,6 +445,43 @@
         "title": "AnalystMessageRequest",
         "type": "object"
       },
+      "AnswerRequest": {
+        "properties": {
+          "investigation_id": {
+            "format": "uuid",
+            "title": "Investigation Id",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "review_id": {
+            "format": "uuid",
+            "title": "Review Id",
+            "type": "string"
+          },
+          "valid_until": {
+            "format": "date-time",
+            "title": "Valid Until",
+            "type": "string"
+          }
+        },
+        "required": [
+          "review_id",
+          "investigation_id",
+          "valid_until"
+        ],
+        "title": "AnswerRequest",
+        "type": "object"
+      },
       "AssumeTenantRequest": {
         "properties": {
           "slug": {
@@ -471,6 +508,109 @@
           }
         },
         "title": "AssumeTenantRequest",
+        "type": "object"
+      },
+      "AuthoredResponsePlaybookDTO": {
+        "properties": {
+          "definition": {
+            "additionalProperties": true,
+            "title": "Definition",
+            "type": "object"
+          },
+          "response_playbook_id": {
+            "title": "Response Playbook Id",
+            "type": "string"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "response_playbook_id",
+          "revision",
+          "status",
+          "definition"
+        ],
+        "title": "AuthoredResponsePlaybookDTO",
+        "type": "object"
+      },
+      "AuthoredResponsePlaybookRequest": {
+        "properties": {
+          "definition": {
+            "additionalProperties": true,
+            "title": "Definition",
+            "type": "object"
+          },
+          "status": {
+            "default": "shadow",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "definition"
+        ],
+        "title": "AuthoredResponsePlaybookRequest",
+        "type": "object"
+      },
+      "AuthoredTriagePolicyDTO": {
+        "properties": {
+          "definition": {
+            "additionalProperties": true,
+            "title": "Definition",
+            "type": "object"
+          },
+          "playbook_id": {
+            "description": "Deprecated wire mirror of ``triage_policy_id`` \u2014 kept one release for\nclients still reading the old field. Remove alongside the /playbooks routes.",
+            "readOnly": true,
+            "title": "Playbook Id",
+            "type": "string"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "triage_policy_id": {
+            "title": "Triage Policy Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "triage_policy_id",
+          "revision",
+          "status",
+          "definition",
+          "playbook_id"
+        ],
+        "title": "AuthoredTriagePolicyDTO",
+        "type": "object"
+      },
+      "AuthoredTriagePolicyRequest": {
+        "properties": {
+          "definition": {
+            "additionalProperties": true,
+            "title": "Definition",
+            "type": "object"
+          },
+          "status": {
+            "default": "shadow",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "definition"
+        ],
+        "title": "AuthoredTriagePolicyRequest",
         "type": "object"
       },
       "BrandingRead": {
@@ -993,6 +1133,18 @@
             "title": "Alerts",
             "type": "array"
           },
+          "authorization_context": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authorization Context"
+          },
           "dollars_budget": {
             "default": 0.0,
             "title": "Dollars Budget",
@@ -1320,6 +1472,158 @@
         "title": "CustomerCaseSummary",
         "type": "object"
       },
+      "DeactivateResult": {
+        "properties": {
+          "deactivated": {
+            "title": "Deactivated",
+            "type": "string"
+          }
+        },
+        "required": [
+          "deactivated"
+        ],
+        "title": "DeactivateResult",
+        "type": "object"
+      },
+      "DeclareEngagementRequest": {
+        "properties": {
+          "ends_at": {
+            "format": "date-time",
+            "title": "Ends At",
+            "type": "string"
+          },
+          "kind": {
+            "default": "pentest",
+            "title": "Kind",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "scope_hosts": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Scope Hosts",
+            "type": "array"
+          },
+          "scope_source_ips": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Scope Source Ips",
+            "type": "array"
+          },
+          "scope_techniques": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Scope Techniques",
+            "type": "array"
+          },
+          "starts_at": {
+            "format": "date-time",
+            "title": "Starts At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "starts_at",
+          "ends_at"
+        ],
+        "title": "DeclareEngagementRequest",
+        "type": "object"
+      },
+      "EngagementDTO": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "declared_test_count": {
+            "title": "Declared Test Count",
+            "type": "integer"
+          },
+          "ends_at": {
+            "format": "date-time",
+            "title": "Ends At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "out_of_scope_count": {
+            "title": "Out Of Scope Count",
+            "type": "integer"
+          },
+          "revoked_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revoked At"
+          },
+          "scope_hosts": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Scope Hosts",
+            "type": "array"
+          },
+          "scope_source_ips": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Scope Source Ips",
+            "type": "array"
+          },
+          "scope_techniques": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Scope Techniques",
+            "type": "array"
+          },
+          "starts_at": {
+            "format": "date-time",
+            "title": "Starts At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "starts_at",
+          "ends_at",
+          "scope_source_ips",
+          "scope_hosts",
+          "scope_techniques",
+          "revoked_at",
+          "created_at",
+          "declared_test_count",
+          "out_of_scope_count"
+        ],
+        "title": "EngagementDTO",
+        "type": "object"
+      },
       "EventBody": {
         "properties": {
           "detail": {
@@ -1623,6 +1927,44 @@
           "verify_ssl"
         ],
         "title": "ExternalSiemRead",
+        "type": "object"
+      },
+      "FactCreateRequest": {
+        "properties": {
+          "fact": {
+            "additionalProperties": true,
+            "title": "Fact",
+            "type": "object"
+          }
+        },
+        "required": [
+          "fact"
+        ],
+        "title": "FactCreateRequest",
+        "type": "object"
+      },
+      "FactSubmission": {
+        "properties": {
+          "facts": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "minItems": 1,
+            "title": "Facts",
+            "type": "array"
+          },
+          "tenant_id": {
+            "format": "uuid",
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "facts"
+        ],
+        "title": "FactSubmission",
         "type": "object"
       },
       "FactsCorrectionRequest": {
@@ -2907,6 +3249,159 @@
         "title": "MetricsOverview",
         "type": "object"
       },
+      "MsspUserCreate": {
+        "properties": {
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "role"
+        ],
+        "title": "MsspUserCreate",
+        "type": "object"
+      },
+      "MsspUserCreated": {
+        "properties": {
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "temporary_password": {
+            "title": "Temporary Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "display_name",
+          "role",
+          "active",
+          "temporary_password"
+        ],
+        "title": "MsspUserCreated",
+        "type": "object"
+      },
+      "MsspUserOut": {
+        "properties": {
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "display_name",
+          "role",
+          "active"
+        ],
+        "title": "MsspUserOut",
+        "type": "object"
+      },
+      "MsspUserUpdate": {
+        "properties": {
+          "active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
+          }
+        },
+        "title": "MsspUserUpdate",
+        "type": "object"
+      },
       "OpenByTenantResponse": {
         "properties": {
           "items": {
@@ -3633,6 +4128,64 @@
         "title": "RetryInstallResponse",
         "type": "object"
       },
+      "ReviewRequest": {
+        "properties": {
+          "decision": {
+            "title": "Decision",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "required": [
+          "decision"
+        ],
+        "title": "ReviewRequest",
+        "type": "object"
+      },
+      "RevokeEngagementRequest": {
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "title": "RevokeEngagementRequest",
+        "type": "object"
+      },
+      "RevokeRequest": {
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "title": "RevokeRequest",
+        "type": "object"
+      },
       "StuckCaseRow": {
         "properties": {
           "display_name": {
@@ -4115,6 +4668,159 @@
         "title": "TenantRead",
         "type": "object"
       },
+      "TenantUserCreate": {
+        "properties": {
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "role"
+        ],
+        "title": "TenantUserCreate",
+        "type": "object"
+      },
+      "TenantUserCreated": {
+        "properties": {
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "temporary_password": {
+            "title": "Temporary Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "display_name",
+          "role",
+          "active",
+          "temporary_password"
+        ],
+        "title": "TenantUserCreated",
+        "type": "object"
+      },
+      "TenantUserOut": {
+        "properties": {
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "display_name",
+          "role",
+          "active"
+        ],
+        "title": "TenantUserOut",
+        "type": "object"
+      },
+      "TenantUserUpdate": {
+        "properties": {
+          "active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
+          }
+        },
+        "title": "TenantUserUpdate",
+        "type": "object"
+      },
       "TimelineEvent": {
         "properties": {
           "data": {
@@ -4266,6 +4972,164 @@
         "title": "TrendsResponse",
         "type": "object"
       },
+      "TriagePolicyDTO": {
+        "properties": {
+          "applies_to": {
+            "$ref": "#/components/schemas/TriagePolicyMatchDTO"
+          },
+          "close_signoff_data_classes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Close Signoff Data Classes",
+            "type": "array"
+          },
+          "decision_modules": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Decision Modules",
+            "type": "array"
+          },
+          "deterministic_disposition": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deterministic Disposition"
+          },
+          "guardrails": {
+            "items": {
+              "$ref": "#/components/schemas/TriagePolicyGuardrailDTO"
+            },
+            "title": "Guardrails",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "legal_actions": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Legal Actions",
+            "type": "object"
+          },
+          "priority": {
+            "title": "Priority",
+            "type": "integer"
+          },
+          "required_steps": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Required Steps",
+            "type": "array"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "tenant": {
+            "title": "Tenant",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "tenant",
+          "status",
+          "priority",
+          "source",
+          "applies_to",
+          "required_steps",
+          "decision_modules",
+          "deterministic_disposition",
+          "legal_actions",
+          "close_signoff_data_classes",
+          "guardrails"
+        ],
+        "title": "TriagePolicyDTO",
+        "type": "object"
+      },
+      "TriagePolicyGuardrailDTO": {
+        "properties": {
+          "effect": {
+            "title": "Effect",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "to": {
+            "title": "To",
+            "type": "string"
+          },
+          "when": {
+            "additionalProperties": true,
+            "title": "When",
+            "type": "object"
+          }
+        },
+        "required": [
+          "when",
+          "effect",
+          "to",
+          "reason"
+        ],
+        "title": "TriagePolicyGuardrailDTO",
+        "type": "object"
+      },
+      "TriagePolicyMatchDTO": {
+        "properties": {
+          "authorization_tracks": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Authorization Tracks",
+            "type": "array"
+          },
+          "rule_groups": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Rule Groups",
+            "type": "array"
+          },
+          "rule_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Rule Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "rule_groups",
+          "rule_ids",
+          "authorization_tracks"
+        ],
+        "title": "TriagePolicyMatchDTO",
+        "type": "object"
+      },
       "UserPayload": {
         "properties": {
           "current_tenant": {
@@ -4305,6 +5169,15 @@
             "title": "Email",
             "type": "string"
           },
+          "permissions": {
+            "description": "The capabilities this role holds \u2014 the frontend gates nav/actions on these\ninstead of guessing from the role string. Derived from the single-source-of-truth\nrole\u2192permission map.",
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "title": "Permissions",
+            "type": "array"
+          },
           "role": {
             "title": "Role",
             "type": "string"
@@ -4335,7 +5208,8 @@
           "user_type",
           "role",
           "tenant_id",
-          "current_tenant"
+          "current_tenant",
+          "permissions"
         ],
         "title": "UserPayload",
         "type": "object"
@@ -4909,6 +5783,17 @@
             "title": "Suspicious Count",
             "type": "integer"
           },
+          "tenant_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenant Id"
+          },
           "timeout_seconds": {
             "default": 3600,
             "title": "Timeout Seconds",
@@ -5028,7 +5913,7 @@
   "info": {
     "description": "MSSP-deployed SOC control plane. See docs/multi-tenant/ for architecture.",
     "title": "SocTalk V1",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -6618,6 +7503,152 @@
         "x-soctalk-auth": "service JWT (adapter token)"
       }
     },
+    "/api/internal/authorization/facts": {
+      "get": {
+        "description": "List the tenant's current (non-revoked, non-superseded) facts.",
+        "operationId": "list_facts_api_internal_authorization_facts_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response List Facts Api Internal Authorization Facts Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Facts",
+        "tags": [
+          "internal-authorization"
+        ],
+        "x-soctalk-auth": "session cookie"
+      },
+      "post": {
+        "description": "Ingest a batch of typed AuthorizationFacts. Per-fact validation: a bad fact is\nreported in ``errors`` and skipped; valid facts are stored. Trust is credential-stamped.",
+        "operationId": "submit_facts_api_internal_authorization_facts_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FactSubmission"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Submit Facts Api Internal Authorization Facts Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Submit Facts",
+        "tags": [
+          "internal-authorization"
+        ],
+        "x-soctalk-auth": "session cookie"
+      }
+    },
+    "/api/internal/authorization/facts/{fact_id}/revoke": {
+      "post": {
+        "description": "Soft-delete one fact (the row survives for audit).",
+        "operationId": "revoke_api_internal_authorization_facts__fact_id__revoke_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fact_id",
+            "required": true,
+            "schema": {
+              "title": "Fact Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Revoke Api Internal Authorization Facts  Fact Id  Revoke Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Revoke",
+        "tags": [
+          "internal-authorization"
+        ],
+        "x-soctalk-auth": "session cookie"
+      }
+    },
     "/api/internal/worker/runs/claim": {
       "post": {
         "description": "Claim the oldest active run for the caller's tenant.\n\nReturns ``null`` (HTTP 200) when nothing is available \u2014 keeps the\nworker loop simple. Uses ``FOR UPDATE SKIP LOCKED`` so multiple\nreplicas can poll without contention.",
@@ -6963,7 +7994,7 @@
         "tags": [
           "investigations-bridge"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / platform_admin"
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
       }
     },
     "/api/investigations/{investigation_id}/events": {
@@ -7167,7 +8198,7 @@
         "tags": [
           "ir-alerts"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / platform_admin"
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
       }
     },
     "/api/mssp/analytics/heatmap": {
@@ -7224,7 +8255,7 @@
         "tags": [
           "mssp-analytics"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / platform_admin"
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
       }
     },
     "/api/mssp/analytics/ranking": {
@@ -7305,7 +8336,7 @@
         "tags": [
           "mssp-analytics"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / platform_admin"
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
       }
     },
     "/api/mssp/analytics/trends": {
@@ -7351,7 +8382,7 @@
         "tags": [
           "mssp-analytics"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / platform_admin"
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
       }
     },
     "/api/mssp/dashboard/open-by-tenant": {
@@ -7373,7 +8404,7 @@
         "tags": [
           "mssp-dashboard"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / platform_admin"
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
       }
     },
     "/api/mssp/dashboard/pending-reviews": {
@@ -7395,7 +8426,7 @@
         "tags": [
           "mssp-dashboard"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / platform_admin"
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
       }
     },
     "/api/mssp/dashboard/repeated-iocs": {
@@ -7453,7 +8484,7 @@
         "tags": [
           "mssp-dashboard"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / platform_admin"
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
       }
     },
     "/api/mssp/dashboard/stuck-investigations": {
@@ -7499,7 +8530,7 @@
         "tags": [
           "mssp-dashboard"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / platform_admin"
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
       }
     },
     "/api/mssp/dashboard/tenant-health": {
@@ -7521,7 +8552,7 @@
         "tags": [
           "mssp-dashboard"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / platform_admin"
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
       }
     },
     "/api/mssp/investigations": {
@@ -7617,7 +8648,7 @@
         "tags": [
           "ir-mssp"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / platform_admin"
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
       }
     },
     "/api/mssp/investigations/{investigation_id}": {
@@ -7661,7 +8692,7 @@
         "tags": [
           "ir-mssp"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / platform_admin"
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
       }
     },
     "/api/mssp/investigations/{investigation_id}/events": {
@@ -7709,7 +8740,7 @@
         "tags": [
           "ir-mssp"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / platform_admin"
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
       }
     },
     "/api/mssp/investigations/{investigation_id}/facts": {
@@ -7767,7 +8798,7 @@
         "tags": [
           "ir-mssp"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / platform_admin"
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
       }
     },
     "/api/mssp/investigations/{investigation_id}/messages": {
@@ -7825,7 +8856,35 @@
         "tags": [
           "ir-mssp"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / platform_admin"
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+      }
+    },
+    "/api/mssp/playbooks": {
+      "get": {
+        "deprecated": true,
+        "description": "The compiled-in (built-in) triage policies that govern triage. Deliberately\nscoped to built-ins: file triage policies (``SOCTALK_PLAYBOOK_DIR``) load per-PROCESS\nin the runs-worker, so the API can't truthfully report which govern \u2014 listing\nthe API process's own files would show triage policies that no worker enforces (and\nhide tenant-scoped ones that do). Read-only; built-ins are vetted code.",
+        "operationId": "list_triage_policies_route_api_mssp_playbooks_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TriagePolicyDTO"
+                  },
+                  "title": "Response List Triage Policies Route Api Mssp Playbooks Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Triage Policies Route",
+        "tags": [
+          "ir-playbooks"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
       }
     },
     "/api/mssp/proposals": {
@@ -7851,7 +8910,7 @@
         "tags": [
           "ir-proposals"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / platform_admin"
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
       }
     },
     "/api/mssp/proposals/{proposal_id}/approve": {
@@ -7909,7 +8968,7 @@
         "tags": [
           "ir-proposals"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / platform_admin"
+        "x-soctalk-auth": "session cookie"
       }
     },
     "/api/mssp/proposals/{proposal_id}/reject": {
@@ -7967,7 +9026,7 @@
         "tags": [
           "ir-proposals"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / platform_admin"
+        "x-soctalk-auth": "session cookie"
       }
     },
     "/api/mssp/tenants": {
@@ -7993,7 +9052,7 @@
         "tags": [
           "mssp-tenants"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / platform_admin"
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
       },
       "post": {
         "operationId": "create_tenant_api_mssp_tenants_post",
@@ -8120,7 +9179,7 @@
         "tags": [
           "mssp-tenants"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / platform_admin"
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
       }
     },
     "/api/mssp/tenants/{tenant_id}/adapter-status": {
@@ -8168,6 +9227,296 @@
           "mssp-tenants"
         ],
         "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+      }
+    },
+    "/api/mssp/tenants/{tenant_id}/authorization/answer": {
+      "post": {
+        "description": "Answer an ASK_AUTHORIZATION question affirmatively (epic M3): mint a durable\n``analyst_asserted`` grant covering the asked activity \u2014 the explicit \"save reusable\nauthorization\" action \u2014 and resolve the originating review as a benign close.\n\nThe answer is bound to a GENUINE pending question: the review must exist within the caller's\ntenant scope, still be ``pending``, match the given investigation, and actually carry an\n``authorization_question`` in its enrichments. The grant's scope is taken from that question,\nnever from the client, so a caller can neither mint an arbitrary grant nor widen the scope.\n\nThis is the ONLY path that mints a fact from the review surface (guardrail \u00a74: memory is never\nauto-learned from a plain close/reject). A negative answer is the existing review\napprove/escalate action and mints nothing. The grant is a ``change_ticket`` so ``valid_until``\n(the mandatory expiry) is enforced by the model; the floor still vetoes any future IOC or\nactive incident, so a saved authorization can never suppress a malicious recurrence.",
+        "operationId": "mssp_answer_authorization_api_mssp_tenants__tenant_id__authorization_answer_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Mssp Answer Authorization Api Mssp Tenants  Tenant Id  Authorization Answer Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Mssp Answer Authorization",
+        "tags": [
+          "authz-facts-mssp"
+        ],
+        "x-soctalk-auth": "session cookie"
+      }
+    },
+    "/api/mssp/tenants/{tenant_id}/authorization/facts": {
+      "get": {
+        "description": "All live facts for the tenant with their review lifecycle, so an analyst can see (and\napprove/reject) tenant-asserted facts that are still ``pending`` and not yet influencing\ntriage.",
+        "operationId": "mssp_list_facts_api_mssp_tenants__tenant_id__authorization_facts_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Mssp List Facts Api Mssp Tenants  Tenant Id  Authorization Facts Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Mssp List Facts",
+        "tags": [
+          "authz-facts-mssp"
+        ],
+        "x-soctalk-auth": "session cookie"
+      },
+      "post": {
+        "description": "Create an analyst-asserted fact (HIL / manual). Trust is stamped analyst_asserted.",
+        "operationId": "mssp_create_fact_api_mssp_tenants__tenant_id__authorization_facts_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FactCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Mssp Create Fact Api Mssp Tenants  Tenant Id  Authorization Facts Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Mssp Create Fact",
+        "tags": [
+          "authz-facts-mssp"
+        ],
+        "x-soctalk-auth": "session cookie"
+      }
+    },
+    "/api/mssp/tenants/{tenant_id}/authorization/facts/{fact_id}/review": {
+      "post": {
+        "description": "Analyst promotes (approve) or refuses (reject) a pending tenant-asserted fact. Approving\nmakes it live to the reasoning engine; rejecting keeps it invisible.",
+        "operationId": "mssp_review_fact_api_mssp_tenants__tenant_id__authorization_facts__fact_id__review_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "fact_id",
+            "required": true,
+            "schema": {
+              "title": "Fact Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Mssp Review Fact Api Mssp Tenants  Tenant Id  Authorization Facts  Fact Id  Review Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Mssp Review Fact",
+        "tags": [
+          "authz-facts-mssp"
+        ],
+        "x-soctalk-auth": "session cookie"
+      }
+    },
+    "/api/mssp/tenants/{tenant_id}/authorization/facts/{fact_id}/revoke": {
+      "post": {
+        "operationId": "mssp_revoke_fact_api_mssp_tenants__tenant_id__authorization_facts__fact_id__revoke_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "fact_id",
+            "required": true,
+            "schema": {
+              "title": "Fact Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Mssp Revoke Fact Api Mssp Tenants  Tenant Id  Authorization Facts  Fact Id  Revoke Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Mssp Revoke Fact",
+        "tags": [
+          "authz-facts-mssp"
+        ],
+        "x-soctalk-auth": "session cookie"
       }
     },
     "/api/mssp/tenants/{tenant_id}/branding": {
@@ -8222,6 +9571,188 @@
           "mssp-tenant-branding"
         ],
         "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+      }
+    },
+    "/api/mssp/tenants/{tenant_id}/engagements": {
+      "get": {
+        "operationId": "list_engagements_route_api_mssp_tenants__tenant_id__engagements_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_revoked",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Revoked",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/EngagementDTO"
+                  },
+                  "title": "Response List Engagements Route Api Mssp Tenants  Tenant Id  Engagements Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Engagements Route",
+        "tags": [
+          "ir-engagements"
+        ],
+        "x-soctalk-auth": "session cookie"
+      },
+      "post": {
+        "operationId": "declare_engagement_route_api_mssp_tenants__tenant_id__engagements_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeclareEngagementRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Declare Engagement Route Api Mssp Tenants  Tenant Id  Engagements Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Declare Engagement Route",
+        "tags": [
+          "ir-engagements"
+        ],
+        "x-soctalk-auth": "session cookie"
+      }
+    },
+    "/api/mssp/tenants/{tenant_id}/engagements/{engagement_id}/revoke": {
+      "post": {
+        "operationId": "revoke_engagement_route_api_mssp_tenants__tenant_id__engagements__engagement_id__revoke_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "engagement_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Engagement Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeEngagementRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Revoke Engagement Route Api Mssp Tenants  Tenant Id  Engagements  Engagement Id  Revoke Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Revoke Engagement Route",
+        "tags": [
+          "ir-engagements"
+        ],
+        "x-soctalk-auth": "session cookie"
       }
     },
     "/api/mssp/tenants/{tenant_id}/events": {
@@ -8279,7 +9810,7 @@
         "tags": [
           "mssp-tenants"
         ],
-        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / platform_admin"
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
       }
     },
     "/api/mssp/tenants/{tenant_id}/external-siem": {
@@ -8610,6 +10141,1164 @@
         "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
       }
     },
+    "/api/mssp/tenants/{tenant_id}/playbooks": {
+      "get": {
+        "deprecated": true,
+        "operationId": "list_authored_triage_policies_route_api_mssp_tenants__tenant_id__playbooks_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AuthoredTriagePolicyDTO"
+                  },
+                  "title": "Response List Authored Triage Policies Route Api Mssp Tenants  Tenant Id  Playbooks Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Authored Triage Policies Route",
+        "tags": [
+          "ir-playbooks"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+      },
+      "post": {
+        "deprecated": true,
+        "operationId": "create_authored_triage_policy_route_api_mssp_tenants__tenant_id__playbooks_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthoredTriagePolicyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthoredTriagePolicyDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Authored Triage Policy Route",
+        "tags": [
+          "ir-playbooks"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+      }
+    },
+    "/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}": {
+      "delete": {
+        "deprecated": true,
+        "operationId": "retire_authored_triage_policy_route_api_mssp_tenants__tenant_id__playbooks__triage_policy_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "triage_policy_id",
+            "required": true,
+            "schema": {
+              "title": "Triage Policy Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Retire Authored Triage Policy Route Api Mssp Tenants  Tenant Id  Playbooks  Triage Policy Id  Delete",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Retire Authored Triage Policy Route",
+        "tags": [
+          "ir-playbooks"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+      },
+      "put": {
+        "deprecated": true,
+        "operationId": "update_authored_triage_policy_route_api_mssp_tenants__tenant_id__playbooks__triage_policy_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "triage_policy_id",
+            "required": true,
+            "schema": {
+              "title": "Triage Policy Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthoredTriagePolicyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthoredTriagePolicyDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Authored Triage Policy Route",
+        "tags": [
+          "ir-playbooks"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+      }
+    },
+    "/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}/activate": {
+      "post": {
+        "deprecated": true,
+        "description": "Activate an authored triage policy so it governs triage. Materialized into the tenant's\ntriage policy ConfigMap on the queued reconcile (rollout is the activation gate).",
+        "operationId": "activate_authored_triage_policy_route_api_mssp_tenants__tenant_id__playbooks__triage_policy_id__activate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "triage_policy_id",
+            "required": true,
+            "schema": {
+              "title": "Triage Policy Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthoredTriagePolicyDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Activate Authored Triage Policy Route",
+        "tags": [
+          "ir-playbooks"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+      }
+    },
+    "/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}/deactivate": {
+      "post": {
+        "deprecated": true,
+        "description": "Deactivate (back to shadow) \u2014 the reconcile drops it from the ConfigMap.",
+        "operationId": "deactivate_authored_triage_policy_route_api_mssp_tenants__tenant_id__playbooks__triage_policy_id__deactivate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "triage_policy_id",
+            "required": true,
+            "schema": {
+              "title": "Triage Policy Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthoredTriagePolicyDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Deactivate Authored Triage Policy Route",
+        "tags": [
+          "ir-playbooks"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+      }
+    },
+    "/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}/export": {
+      "get": {
+        "deprecated": true,
+        "description": "Export the authored definition as YAML for git / worker rollout (activation).",
+        "operationId": "export_authored_triage_policy_route_api_mssp_tenants__tenant_id__playbooks__triage_policy_id__export_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "triage_policy_id",
+            "required": true,
+            "schema": {
+              "title": "Triage Policy Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Export Authored Triage Policy Route Api Mssp Tenants  Tenant Id  Playbooks  Triage Policy Id  Export Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Export Authored Triage Policy Route",
+        "tags": [
+          "ir-playbooks"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+      }
+    },
+    "/api/mssp/tenants/{tenant_id}/response-playbooks": {
+      "get": {
+        "operationId": "list_authored_response_playbooks_route_api_mssp_tenants__tenant_id__response_playbooks_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AuthoredResponsePlaybookDTO"
+                  },
+                  "title": "Response List Authored Response Playbooks Route Api Mssp Tenants  Tenant Id  Response Playbooks Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Authored Response Playbooks Route",
+        "tags": [
+          "ir-response-playbooks"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+      },
+      "post": {
+        "operationId": "create_authored_response_playbook_route_api_mssp_tenants__tenant_id__response_playbooks_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthoredResponsePlaybookRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthoredResponsePlaybookDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Authored Response Playbook Route",
+        "tags": [
+          "ir-response-playbooks"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+      }
+    },
+    "/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}": {
+      "delete": {
+        "operationId": "retire_authored_response_playbook_route_api_mssp_tenants__tenant_id__response_playbooks__response_playbook_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "response_playbook_id",
+            "required": true,
+            "schema": {
+              "title": "Response Playbook Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Retire Authored Response Playbook Route Api Mssp Tenants  Tenant Id  Response Playbooks  Response Playbook Id  Delete",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Retire Authored Response Playbook Route",
+        "tags": [
+          "ir-response-playbooks"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+      },
+      "put": {
+        "operationId": "update_authored_response_playbook_route_api_mssp_tenants__tenant_id__response_playbooks__response_playbook_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "response_playbook_id",
+            "required": true,
+            "schema": {
+              "title": "Response Playbook Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthoredResponsePlaybookRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthoredResponsePlaybookDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Authored Response Playbook Route",
+        "tags": [
+          "ir-response-playbooks"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+      }
+    },
+    "/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}/activate": {
+      "post": {
+        "description": "Activate so it governs response dispatch LIVE (no rollout \u2014 L1 reads the DB).",
+        "operationId": "activate_authored_response_playbook_route_api_mssp_tenants__tenant_id__response_playbooks__response_playbook_id__activate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "response_playbook_id",
+            "required": true,
+            "schema": {
+              "title": "Response Playbook Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthoredResponsePlaybookDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Activate Authored Response Playbook Route",
+        "tags": [
+          "ir-response-playbooks"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+      }
+    },
+    "/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}/deactivate": {
+      "post": {
+        "description": "Deactivate back to shadow \u2014 stops dispatching immediately (audited only).",
+        "operationId": "deactivate_authored_response_playbook_route_api_mssp_tenants__tenant_id__response_playbooks__response_playbook_id__deactivate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "response_playbook_id",
+            "required": true,
+            "schema": {
+              "title": "Response Playbook Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthoredResponsePlaybookDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Deactivate Authored Response Playbook Route",
+        "tags": [
+          "ir-response-playbooks"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+      }
+    },
+    "/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}/export": {
+      "get": {
+        "operationId": "export_authored_response_playbook_route_api_mssp_tenants__tenant_id__response_playbooks__response_playbook_id__export_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "response_playbook_id",
+            "required": true,
+            "schema": {
+              "title": "Response Playbook Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Export Authored Response Playbook Route Api Mssp Tenants  Tenant Id  Response Playbooks  Response Playbook Id  Export Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Export Authored Response Playbook Route",
+        "tags": [
+          "ir-response-playbooks"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+      }
+    },
+    "/api/mssp/tenants/{tenant_id}/triage-policies": {
+      "get": {
+        "operationId": "list_authored_triage_policies_route_api_mssp_tenants__tenant_id__triage_policies_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AuthoredTriagePolicyDTO"
+                  },
+                  "title": "Response List Authored Triage Policies Route Api Mssp Tenants  Tenant Id  Triage Policies Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Authored Triage Policies Route",
+        "tags": [
+          "ir-playbooks"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+      },
+      "post": {
+        "operationId": "create_authored_triage_policy_route_api_mssp_tenants__tenant_id__triage_policies_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthoredTriagePolicyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthoredTriagePolicyDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Authored Triage Policy Route",
+        "tags": [
+          "ir-playbooks"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+      }
+    },
+    "/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}": {
+      "delete": {
+        "operationId": "retire_authored_triage_policy_route_api_mssp_tenants__tenant_id__triage_policies__triage_policy_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "triage_policy_id",
+            "required": true,
+            "schema": {
+              "title": "Triage Policy Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Retire Authored Triage Policy Route Api Mssp Tenants  Tenant Id  Triage Policies  Triage Policy Id  Delete",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Retire Authored Triage Policy Route",
+        "tags": [
+          "ir-playbooks"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+      },
+      "put": {
+        "operationId": "update_authored_triage_policy_route_api_mssp_tenants__tenant_id__triage_policies__triage_policy_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "triage_policy_id",
+            "required": true,
+            "schema": {
+              "title": "Triage Policy Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthoredTriagePolicyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthoredTriagePolicyDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Authored Triage Policy Route",
+        "tags": [
+          "ir-playbooks"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+      }
+    },
+    "/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}/activate": {
+      "post": {
+        "description": "Activate an authored triage policy so it governs triage. Materialized into the tenant's\ntriage policy ConfigMap on the queued reconcile (rollout is the activation gate).",
+        "operationId": "activate_authored_triage_policy_route_api_mssp_tenants__tenant_id__triage_policies__triage_policy_id__activate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "triage_policy_id",
+            "required": true,
+            "schema": {
+              "title": "Triage Policy Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthoredTriagePolicyDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Activate Authored Triage Policy Route",
+        "tags": [
+          "ir-playbooks"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+      }
+    },
+    "/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}/deactivate": {
+      "post": {
+        "description": "Deactivate (back to shadow) \u2014 the reconcile drops it from the ConfigMap.",
+        "operationId": "deactivate_authored_triage_policy_route_api_mssp_tenants__tenant_id__triage_policies__triage_policy_id__deactivate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "triage_policy_id",
+            "required": true,
+            "schema": {
+              "title": "Triage Policy Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthoredTriagePolicyDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Deactivate Authored Triage Policy Route",
+        "tags": [
+          "ir-playbooks"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+      }
+    },
+    "/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}/export": {
+      "get": {
+        "description": "Export the authored definition as YAML for git / worker rollout (activation).",
+        "operationId": "export_authored_triage_policy_route_api_mssp_tenants__tenant_id__triage_policies__triage_policy_id__export_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "triage_policy_id",
+            "required": true,
+            "schema": {
+              "title": "Triage Policy Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Export Authored Triage Policy Route Api Mssp Tenants  Tenant Id  Triage Policies  Triage Policy Id  Export Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Export Authored Triage Policy Route",
+        "tags": [
+          "ir-playbooks"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+      }
+    },
     "/api/mssp/tenants/{tenant_id}:decommission": {
       "post": {
         "description": "Enqueue tear-down of a tenant's data plane.\n\nFlips the tenant to ``decommissioning`` + records a\n``decommission_started`` lifecycle event synchronously, then\nenqueues a ``tenant.decommission`` job for the provisioning worker\nto drive. Returns 202 immediately so the wizard/UI can poll.",
@@ -8888,6 +11577,197 @@
         "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
       }
     },
+    "/api/mssp/triage-policies": {
+      "get": {
+        "description": "The compiled-in (built-in) triage policies that govern triage. Deliberately\nscoped to built-ins: file triage policies (``SOCTALK_PLAYBOOK_DIR``) load per-PROCESS\nin the runs-worker, so the API can't truthfully report which govern \u2014 listing\nthe API process's own files would show triage policies that no worker enforces (and\nhide tenant-scoped ones that do). Read-only; built-ins are vetted code.",
+        "operationId": "list_triage_policies_route_api_mssp_triage_policies_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TriagePolicyDTO"
+                  },
+                  "title": "Response List Triage Policies Route Api Mssp Triage Policies Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Triage Policies Route",
+        "tags": [
+          "ir-triage-policies"
+        ],
+        "x-soctalk-auth": "session \u2014 roles: analyst / mssp_admin / mssp_manager / platform_admin"
+      }
+    },
+    "/api/mssp/users": {
+      "get": {
+        "operationId": "list_mssp_users_api_mssp_users_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MsspUserOut"
+                  },
+                  "title": "Response List Mssp Users Api Mssp Users Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Mssp Users",
+        "tags": [
+          "mssp-users"
+        ],
+        "x-soctalk-auth": "session cookie"
+      },
+      "post": {
+        "operationId": "create_mssp_user_api_mssp_users_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MsspUserCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MsspUserCreated"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Mssp User",
+        "tags": [
+          "mssp-users"
+        ],
+        "x-soctalk-auth": "session cookie"
+      }
+    },
+    "/api/mssp/users/{user_id}": {
+      "patch": {
+        "operationId": "update_mssp_user_api_mssp_users__user_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "User Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MsspUserUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MsspUserOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Mssp User",
+        "tags": [
+          "mssp-users"
+        ],
+        "x-soctalk-auth": "session cookie"
+      }
+    },
+    "/api/mssp/users/{user_id}/deactivate": {
+      "post": {
+        "operationId": "deactivate_mssp_user_api_mssp_users__user_id__deactivate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "User Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeactivateResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Deactivate Mssp User",
+        "tags": [
+          "mssp-users"
+        ],
+        "x-soctalk-auth": "session cookie"
+      }
+    },
     "/api/mssp/users/{user_id}/password/reset": {
       "post": {
         "operationId": "admin_reset_api_mssp_users__user_id__password_reset_post",
@@ -8929,7 +11809,7 @@
         "tags": [
           "auth-admin"
         ],
-        "x-soctalk-auth": "session \u2014 roles: mssp_admin / platform_admin"
+        "x-soctalk-auth": "session cookie"
       }
     },
     "/api/public/mssp-by-slug/{slug}": {
@@ -9124,7 +12004,7 @@
     },
     "/api/review/{review_id}": {
       "get": {
-        "description": "Fetch a single HIL review by id, role-aware tenant-scoped.\n\nUses the same two-pool RLS idiom as ``_resolve_pending_review``:\nMSSP-level roles read cross-tenant via the BYPASSRLS session; tenant\nusers are pinned by ``tenant_context`` so a cross-tenant id 404s the\nsame way a truly missing row does (never disclose existence).",
+        "description": "Fetch a single HIL review by id, role-aware tenant-scoped.\n\nUses the same two-pool RLS idiom as ``_resolve_pending_review``:\nfleet MSSP roles read cross-tenant via the BYPASSRLS session; everyone\nelse is pinned by ``tenant_context`` to their effective tenant (Open-SOC\npin or home tenant_id) so a cross-tenant id 404s the same way a truly\nmissing row does (never disclose existence).",
         "operationId": "review_detail_api_review__review_id__get",
         "parameters": [
           {
@@ -9407,6 +12287,74 @@
         "x-soctalk-auth": "session cookie"
       }
     },
+    "/api/tenant/authorization/facts": {
+      "get": {
+        "description": "The tenant's own facts, each with its review status (so they see what's pending).",
+        "operationId": "tenant_list_own_facts_api_tenant_authorization_facts_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Tenant List Own Facts Api Tenant Authorization Facts Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Tenant List Own Facts",
+        "tags": [
+          "tenant-authz-facts"
+        ],
+        "x-soctalk-auth": "tenant session"
+      },
+      "post": {
+        "description": "A tenant asserts a fact about its own environment. It lands 'pending' (invisible to\ntriage) until an MSSP analyst approves it. All trust-bearing fields are stamped here.",
+        "operationId": "tenant_assert_fact_api_tenant_authorization_facts_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FactCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Tenant Assert Fact Api Tenant Authorization Facts Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Tenant Assert Fact",
+        "tags": [
+          "tenant-authz-facts"
+        ],
+        "x-soctalk-auth": "tenant session"
+      }
+    },
     "/api/tenant/branding": {
       "get": {
         "operationId": "get_own_branding_api_tenant_branding_get",
@@ -9426,7 +12374,157 @@
         "tags": [
           "tenant-branding"
         ],
-        "x-soctalk-auth": "tenant session (customer_viewer / tenant_admin)"
+        "x-soctalk-auth": "tenant session (customer_viewer / tenant_admin / tenant_analyst / tenant_manager)"
+      }
+    },
+    "/api/tenant/engagements": {
+      "get": {
+        "operationId": "tenant_list_engagements_route_api_tenant_engagements_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "include_revoked",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Revoked",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/EngagementDTO"
+                  },
+                  "title": "Response Tenant List Engagements Route Api Tenant Engagements Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Tenant List Engagements Route",
+        "tags": [
+          "tenant-engagements"
+        ],
+        "x-soctalk-auth": "tenant session"
+      },
+      "post": {
+        "operationId": "tenant_declare_engagement_route_api_tenant_engagements_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeclareEngagementRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Tenant Declare Engagement Route Api Tenant Engagements Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Tenant Declare Engagement Route",
+        "tags": [
+          "tenant-engagements"
+        ],
+        "x-soctalk-auth": "tenant session"
+      }
+    },
+    "/api/tenant/engagements/{engagement_id}/revoke": {
+      "post": {
+        "operationId": "tenant_revoke_engagement_route_api_tenant_engagements__engagement_id__revoke_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "engagement_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Engagement Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeEngagementRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Tenant Revoke Engagement Route Api Tenant Engagements  Engagement Id  Revoke Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Tenant Revoke Engagement Route",
+        "tags": [
+          "tenant-engagements"
+        ],
+        "x-soctalk-auth": "tenant session"
       }
     },
     "/api/tenant/investigations": {
@@ -9474,7 +12572,7 @@
         "tags": [
           "ir-tenant"
         ],
-        "x-soctalk-auth": "tenant session (customer_viewer / tenant_admin)"
+        "x-soctalk-auth": "tenant session (customer_viewer / tenant_admin / tenant_analyst / tenant_manager)"
       }
     },
     "/api/tenant/investigations/{investigation_id}": {
@@ -9519,7 +12617,123 @@
         "tags": [
           "ir-tenant"
         ],
-        "x-soctalk-auth": "tenant session (customer_viewer / tenant_admin)"
+        "x-soctalk-auth": "tenant session (customer_viewer / tenant_admin / tenant_analyst / tenant_manager)"
+      }
+    },
+    "/api/tenant/investigations/{investigation_id}/facts": {
+      "patch": {
+        "operationId": "tenant_patch_case_facts_api_tenant_investigations__investigation_id__facts_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "investigation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Investigation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FactsCorrectionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Tenant Patch Case Facts Api Tenant Investigations  Investigation Id  Facts Patch",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Tenant Patch Case Facts",
+        "tags": [
+          "ir-tenant"
+        ],
+        "x-soctalk-auth": "tenant session"
+      }
+    },
+    "/api/tenant/investigations/{investigation_id}/messages": {
+      "post": {
+        "operationId": "tenant_post_analyst_message_api_tenant_investigations__investigation_id__messages_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "investigation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Investigation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalystMessageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Tenant Post Analyst Message Api Tenant Investigations  Investigation Id  Messages Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Tenant Post Analyst Message",
+        "tags": [
+          "ir-tenant"
+        ],
+        "x-soctalk-auth": "tenant session"
       }
     },
     "/api/tenant/llm": {
@@ -9607,6 +12821,170 @@
           "tenant-llm"
         ],
         "x-soctalk-auth": "tenant session (tenant_admin)"
+      }
+    },
+    "/api/tenant/users": {
+      "get": {
+        "operationId": "list_tenant_users_api_tenant_users_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TenantUserOut"
+                  },
+                  "title": "Response List Tenant Users Api Tenant Users Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Tenant Users",
+        "tags": [
+          "tenant-users"
+        ],
+        "x-soctalk-auth": "tenant session"
+      },
+      "post": {
+        "operationId": "create_tenant_user_api_tenant_users_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantUserCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantUserCreated"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Tenant User",
+        "tags": [
+          "tenant-users"
+        ],
+        "x-soctalk-auth": "tenant session"
+      }
+    },
+    "/api/tenant/users/{user_id}": {
+      "patch": {
+        "operationId": "update_tenant_user_api_tenant_users__user_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "User Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantUserUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantUserOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Tenant User",
+        "tags": [
+          "tenant-users"
+        ],
+        "x-soctalk-auth": "tenant session"
+      }
+    },
+    "/api/tenant/users/{user_id}/deactivate": {
+      "post": {
+        "operationId": "deactivate_tenant_user_api_tenant_users__user_id__deactivate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "User Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeactivateResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Deactivate Tenant User",
+        "tags": [
+          "tenant-users"
+        ],
+        "x-soctalk-auth": "tenant session"
       }
     },
     "/health/live": {

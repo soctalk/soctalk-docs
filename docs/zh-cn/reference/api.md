@@ -34,219 +34,318 @@ npm run gen:api
 
 <!-- BEGIN GENERATED:endpoints (do not edit — npm run gen:api) -->
 
-_97 个操作，涵盖 23 个分组，由 OpenAPI schema 生成（API 版本 `0.2.0`）。认证由路由的 `require_role` / `require_tenant_role` 守卫推导得出。_
+_146 operations across 33 groups, generated from the OpenAPI schema (API version `0.2.0`). Auth is derived from the route's `require_role` / `require_tenant_role` guards._
 
 ### `auth`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `POST` | `/api/auth/assume-tenant` | Assume Tenant | 会话 cookie（登录）/ 无 |
-| `POST` | `/api/auth/login` | Login | 会话 cookie（登录）/ 无 |
-| `POST` | `/api/auth/logout` | Logout | 会话 cookie（登录）/ 无 |
-| `GET` | `/api/auth/me` | Me | 会话 cookie（登录）/ 无 |
-| `POST` | `/api/auth/password/change` | Password Change | 会话 cookie（登录）/ 无 |
+| `POST` | `/api/auth/assume-tenant` | Assume Tenant | session cookie (login) / none |
+| `POST` | `/api/auth/login` | Login | session cookie (login) / none |
+| `POST` | `/api/auth/logout` | Logout | session cookie (login) / none |
+| `GET` | `/api/auth/me` | Me | session cookie (login) / none |
+| `POST` | `/api/auth/password/change` | Password Change | session cookie (login) / none |
 
 ### `auth-admin`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `POST` | `/api/mssp/users/{user_id}/password/reset` | Admin Reset | 会话 —— 角色：mssp_admin / platform_admin |
+| `POST` | `/api/mssp/users/{user_id}/password/reset` | Admin Reset | session cookie |
+
+### `authz-facts-mssp`
+
+| Method | Path | Summary | Auth |
+|---|---|---|---|
+| `POST` | `/api/mssp/tenants/{tenant_id}/authorization/answer` | Mssp Answer Authorization | session cookie |
+| `GET` | `/api/mssp/tenants/{tenant_id}/authorization/facts` | Mssp List Facts | session cookie |
+| `POST` | `/api/mssp/tenants/{tenant_id}/authorization/facts` | Mssp Create Fact | session cookie |
+| `POST` | `/api/mssp/tenants/{tenant_id}/authorization/facts/{fact_id}/review` | Mssp Review Fact | session cookie |
+| `POST` | `/api/mssp/tenants/{tenant_id}/authorization/facts/{fact_id}/revoke` | Mssp Revoke Fact | session cookie |
 
 ### `chat`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/chat/conversations` | List Conversations | 会话 cookie |
-| `POST` | `/api/chat/conversations` | Create Conversation | 会话 cookie |
-| `GET` | `/api/chat/conversations/{conv_id}` | Get Conversation | 会话 cookie |
-| `DELETE` | `/api/chat/conversations/{conv_id}` | Delete Conversation | 会话 cookie |
-| `POST` | `/api/chat/conversations/{conv_id}/messages` | Post Message | 会话 cookie |
-| `POST` | `/api/chat/conversations/{conv_id}/messages/{msg_id}/confirm` | Confirm Action | 会话 cookie |
-| `POST` | `/api/chat/conversations/{conv_id}/stop` | Stop Conversation | 会话 cookie |
+| `GET` | `/api/chat/conversations` | List Conversations | session cookie |
+| `POST` | `/api/chat/conversations` | Create Conversation | session cookie |
+| `GET` | `/api/chat/conversations/{conv_id}` | Get Conversation | session cookie |
+| `DELETE` | `/api/chat/conversations/{conv_id}` | Delete Conversation | session cookie |
+| `POST` | `/api/chat/conversations/{conv_id}/messages` | Post Message | session cookie |
+| `POST` | `/api/chat/conversations/{conv_id}/messages/{msg_id}/confirm` | Confirm Action | session cookie |
+| `POST` | `/api/chat/conversations/{conv_id}/stop` | Stop Conversation | session cookie |
 
 ### `health`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/health/live` | Live | 无（公开） |
-| `GET` | `/health/ready` | Ready | 无（公开） |
+| `GET` | `/health/live` | Live | none (public) |
+| `GET` | `/health/ready` | Ready | none (public) |
 
 ### `internal-adapter`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/internal/adapter/checkpoint` | Get Checkpoint | 服务 JWT（适配器令牌） |
-| `PUT` | `/api/internal/adapter/checkpoint` | Put Checkpoint | 服务 JWT（适配器令牌） |
-| `GET` | `/api/internal/adapter/config` | Fetch Config | 服务 JWT（适配器令牌） |
-| `POST` | `/api/internal/adapter/events` | Ingest Events | 服务 JWT（适配器令牌） |
-| `POST` | `/api/internal/adapter/heartbeat` | Heartbeat | 服务 JWT（适配器令牌） |
+| `GET` | `/api/internal/adapter/checkpoint` | Get Checkpoint | service JWT (adapter token) |
+| `PUT` | `/api/internal/adapter/checkpoint` | Put Checkpoint | service JWT (adapter token) |
+| `GET` | `/api/internal/adapter/config` | Fetch Config | service JWT (adapter token) |
+| `POST` | `/api/internal/adapter/events` | Ingest Events | service JWT (adapter token) |
+| `POST` | `/api/internal/adapter/heartbeat` | Heartbeat | service JWT (adapter token) |
+
+### `internal-authorization`
+
+| Method | Path | Summary | Auth |
+|---|---|---|---|
+| `GET` | `/api/internal/authorization/facts` | List Facts | session cookie |
+| `POST` | `/api/internal/authorization/facts` | Submit Facts | session cookie |
+| `POST` | `/api/internal/authorization/facts/{fact_id}/revoke` | Revoke | session cookie |
 
 ### `internal-worker`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `POST` | `/api/internal/worker/runs/{run_id}/complete` | Complete Run | 服务 JWT（worker 令牌） |
-| `POST` | `/api/internal/worker/runs/{run_id}/heartbeat` | Heartbeat Run | 服务 JWT（worker 令牌） |
-| `POST` | `/api/internal/worker/runs/claim` | Claim Run | 服务 JWT（worker 令牌） |
+| `POST` | `/api/internal/worker/runs/{run_id}/complete` | Complete Run | service JWT (worker token) |
+| `POST` | `/api/internal/worker/runs/{run_id}/heartbeat` | Heartbeat Run | service JWT (worker token) |
+| `POST` | `/api/internal/worker/runs/claim` | Claim Run | service JWT (worker token) |
 
 ### `investigations-bridge`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/investigations` | List Investigations | 会话 cookie |
-| `GET` | `/api/investigations/{investigation_id}` | Get Investigation | 会话 cookie |
-| `POST` | `/api/investigations/{investigation_id}/cancel` | Post Cancel Investigation | 会话 —— 角色：analyst / mssp_admin / platform_admin |
-| `GET` | `/api/investigations/{investigation_id}/events` | Get Events | 会话 cookie |
+| `GET` | `/api/investigations` | List Investigations | session cookie |
+| `GET` | `/api/investigations/{investigation_id}` | Get Investigation | session cookie |
+| `POST` | `/api/investigations/{investigation_id}/cancel` | Post Cancel Investigation | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/investigations/{investigation_id}/events` | Get Events | session cookie |
 
 ### `ir-alerts`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/alerts` | List Alerts | 会话 —— 角色：analyst / mssp_admin / platform_admin |
+| `GET` | `/api/mssp/alerts` | List Alerts | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+
+### `ir-engagements`
+
+| Method | Path | Summary | Auth |
+|---|---|---|---|
+| `GET` | `/api/mssp/tenants/{tenant_id}/engagements` | List Engagements Route | session cookie |
+| `POST` | `/api/mssp/tenants/{tenant_id}/engagements` | Declare Engagement Route | session cookie |
+| `POST` | `/api/mssp/tenants/{tenant_id}/engagements/{engagement_id}/revoke` | Revoke Engagement Route | session cookie |
 
 ### `ir-integrations`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/tenants/{tenant_id}/integrations` | Get Integrations | 会话 —— 角色：mssp_admin / platform_admin |
-| `PATCH` | `/api/mssp/tenants/{tenant_id}/integrations` | Patch Integrations | 会话 —— 角色：mssp_admin / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/integrations` | Get Integrations | session — roles: mssp_admin / platform_admin |
+| `PATCH` | `/api/mssp/tenants/{tenant_id}/integrations` | Patch Integrations | session — roles: mssp_admin / platform_admin |
 
 ### `ir-mssp`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/investigations` | List Cases Mssp | 会话 —— 角色：analyst / mssp_admin / platform_admin |
-| `GET` | `/api/mssp/investigations/{investigation_id}` | Get Case Mssp | 会话 —— 角色：analyst / mssp_admin / platform_admin |
-| `GET` | `/api/mssp/investigations/{investigation_id}/events` | List Case Events Mssp | 会话 —— 角色：analyst / mssp_admin / platform_admin |
-| `PATCH` | `/api/mssp/investigations/{investigation_id}/facts` | Patch Case Facts | 会话 —— 角色：analyst / mssp_admin / platform_admin |
-| `POST` | `/api/mssp/investigations/{investigation_id}/messages` | Post Analyst Message | 会话 —— 角色：analyst / mssp_admin / platform_admin |
+| `GET` | `/api/mssp/investigations` | List Cases Mssp | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/investigations/{investigation_id}` | Get Case Mssp | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/investigations/{investigation_id}/events` | List Case Events Mssp | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `PATCH` | `/api/mssp/investigations/{investigation_id}/facts` | Patch Case Facts | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `POST` | `/api/mssp/investigations/{investigation_id}/messages` | Post Analyst Message | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+
+### `ir-playbooks`
+
+| Method | Path | Summary | Auth |
+|---|---|---|---|
+| `GET` | `/api/mssp/playbooks` | List Triage Policies Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/playbooks` | List Authored Triage Policies Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}/playbooks` | Create Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
+| `PUT` | `/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}` | Update Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
+| `DELETE` | `/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}` | Retire Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}/activate` | Activate Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}/deactivate` | Deactivate Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/playbooks/{triage_policy_id}/export` | Export Authored Triage Policy Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/triage-policies` | List Authored Triage Policies Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}/triage-policies` | Create Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
+| `PUT` | `/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}` | Update Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
+| `DELETE` | `/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}` | Retire Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}/activate` | Activate Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}/deactivate` | Deactivate Authored Triage Policy Route | session — roles: mssp_admin / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/triage-policies/{triage_policy_id}/export` | Export Authored Triage Policy Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
 
 ### `ir-proposals`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/proposals` | List Pending Proposals | 会话 —— 角色：analyst / mssp_admin / platform_admin |
-| `POST` | `/api/mssp/proposals/{proposal_id}/approve` | Approve Proposal Route | 会话 —— 角色：analyst / mssp_admin / platform_admin |
-| `POST` | `/api/mssp/proposals/{proposal_id}/reject` | Reject Proposal Route | 会话 —— 角色：analyst / mssp_admin / platform_admin |
+| `GET` | `/api/mssp/proposals` | List Pending Proposals | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `POST` | `/api/mssp/proposals/{proposal_id}/approve` | Approve Proposal Route | session cookie |
+| `POST` | `/api/mssp/proposals/{proposal_id}/reject` | Reject Proposal Route | session cookie |
+
+### `ir-response-playbooks`
+
+| Method | Path | Summary | Auth |
+|---|---|---|---|
+| `GET` | `/api/mssp/tenants/{tenant_id}/response-playbooks` | List Authored Response Playbooks Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}/response-playbooks` | Create Authored Response Playbook Route | session — roles: mssp_admin / platform_admin |
+| `PUT` | `/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}` | Update Authored Response Playbook Route | session — roles: mssp_admin / platform_admin |
+| `DELETE` | `/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}` | Retire Authored Response Playbook Route | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}/activate` | Activate Authored Response Playbook Route | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}/deactivate` | Deactivate Authored Response Playbook Route | session — roles: mssp_admin / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/response-playbooks/{response_playbook_id}/export` | Export Authored Response Playbook Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
 
 ### `ir-tenant`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/tenant/investigations` | List Cases Tenant | 租户会话（customer_viewer / tenant_admin） |
-| `GET` | `/api/tenant/investigations/{investigation_id}` | Get Case Tenant | 租户会话（customer_viewer / tenant_admin） |
+| `GET` | `/api/tenant/investigations` | List Cases Tenant | tenant session (customer_viewer / tenant_admin / tenant_analyst / tenant_manager) |
+| `GET` | `/api/tenant/investigations/{investigation_id}` | Get Case Tenant | tenant session (customer_viewer / tenant_admin / tenant_analyst / tenant_manager) |
+| `PATCH` | `/api/tenant/investigations/{investigation_id}/facts` | Tenant Patch Case Facts | tenant session |
+| `POST` | `/api/tenant/investigations/{investigation_id}/messages` | Tenant Post Analyst Message | tenant session |
+
+### `ir-triage-policies`
+
+| Method | Path | Summary | Auth |
+|---|---|---|---|
+| `GET` | `/api/mssp/triage-policies` | List Triage Policies Route | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
 
 ### `l2-agent`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `POST` | `/api/agent/heartbeat` | Heartbeat | L2 agent 安装令牌（bearer） |
-| `POST` | `/api/agent/jobs:claim` | Claim Job | L2 agent 安装令牌（bearer） |
-| `POST` | `/api/agent/jobs/{job_id}/complete` | Complete Job | L2 agent 安装令牌（bearer） |
-| `POST` | `/api/agent/jobs/{job_id}/events` | Post Event | L2 agent 安装令牌（bearer） |
-| `POST` | `/api/agent/register` | Register | L2 agent 安装令牌（bearer） |
+| `POST` | `/api/agent/heartbeat` | Heartbeat | L2 agent install token (bearer) |
+| `POST` | `/api/agent/jobs:claim` | Claim Job | L2 agent install token (bearer) |
+| `POST` | `/api/agent/jobs/{job_id}/complete` | Complete Job | L2 agent install token (bearer) |
+| `POST` | `/api/agent/jobs/{job_id}/events` | Post Event | L2 agent install token (bearer) |
+| `POST` | `/api/agent/register` | Register | L2 agent install token (bearer) |
 
 ### `legacy-stubs`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/analytics/ai-behavior` | Analytics Ai Behavior | 会话 cookie |
-| `GET` | `/api/analytics/human-review` | Analytics Human Review | 会话 cookie |
-| `GET` | `/api/analytics/kpis` | Analytics Kpis | 会话 cookie |
-| `GET` | `/api/analytics/outcomes` | Analytics Outcomes | 会话 cookie |
-| `GET` | `/api/analytics/summary` | Analytics Summary | 会话 cookie |
-| `GET` | `/api/audit` | Audit List | 会话 cookie |
-| `GET` | `/api/audit/event-types` | Audit Event Types | 会话 cookie |
-| `GET` | `/api/audit/investigation/{investigation_id}` | Audit Investigation | 会话 cookie |
-| `GET` | `/api/audit/stats` | Audit Stats | 会话 cookie |
-| `GET` | `/api/events/stream` | Events Stream | 会话 cookie |
-| `GET` | `/api/review/{review_id}` | Review Detail | 会话 cookie |
-| `POST` | `/api/review/{review_id}/approve` | Review Approve | 会话 cookie |
-| `POST` | `/api/review/{review_id}/expire` | Review Expire | 会话 cookie |
-| `POST` | `/api/review/{review_id}/reject` | Review Reject | 会话 cookie |
-| `POST` | `/api/review/{review_id}/request-info` | Review Request Info | 会话 cookie |
-| `GET` | `/api/review/pending` | Review Pending | 会话 cookie |
-| `GET` | `/api/settings` | Settings Get | 会话 cookie |
+| `GET` | `/api/analytics/ai-behavior` | Analytics Ai Behavior | session cookie |
+| `GET` | `/api/analytics/human-review` | Analytics Human Review | session cookie |
+| `GET` | `/api/analytics/kpis` | Analytics Kpis | session cookie |
+| `GET` | `/api/analytics/outcomes` | Analytics Outcomes | session cookie |
+| `GET` | `/api/analytics/summary` | Analytics Summary | session cookie |
+| `GET` | `/api/audit` | Audit List | session cookie |
+| `GET` | `/api/audit/event-types` | Audit Event Types | session cookie |
+| `GET` | `/api/audit/investigation/{investigation_id}` | Audit Investigation | session cookie |
+| `GET` | `/api/audit/stats` | Audit Stats | session cookie |
+| `GET` | `/api/events/stream` | Events Stream | session cookie |
+| `GET` | `/api/review/{review_id}` | Review Detail | session cookie |
+| `POST` | `/api/review/{review_id}/approve` | Review Approve | session cookie |
+| `POST` | `/api/review/{review_id}/expire` | Review Expire | session cookie |
+| `POST` | `/api/review/{review_id}/reject` | Review Reject | session cookie |
+| `POST` | `/api/review/{review_id}/request-info` | Review Request Info | session cookie |
+| `GET` | `/api/review/pending` | Review Pending | session cookie |
+| `GET` | `/api/settings` | Settings Get | session cookie |
 
 ### `metrics-bridge`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/metrics/hourly` | Hourly | 会话 cookie |
-| `GET` | `/api/metrics/overview` | Overview | 会话 cookie |
+| `GET` | `/api/metrics/hourly` | Hourly | session cookie |
+| `GET` | `/api/metrics/overview` | Overview | session cookie |
 
 ### `mssp-analytics`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/analytics/heatmap` | Heatmap | 会话 —— 角色：analyst / mssp_admin / platform_admin |
-| `GET` | `/api/mssp/analytics/ranking` | Ranking | 会话 —— 角色：analyst / mssp_admin / platform_admin |
-| `GET` | `/api/mssp/analytics/trends` | Trends | 会话 —— 角色：analyst / mssp_admin / platform_admin |
+| `GET` | `/api/mssp/analytics/heatmap` | Heatmap | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/analytics/ranking` | Ranking | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/analytics/trends` | Trends | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
 
 ### `mssp-dashboard`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/dashboard/open-by-tenant` | Open By Tenant | 会话 —— 角色：analyst / mssp_admin / platform_admin |
-| `GET` | `/api/mssp/dashboard/pending-reviews` | Pending Reviews | 会话 —— 角色：analyst / mssp_admin / platform_admin |
-| `GET` | `/api/mssp/dashboard/repeated-iocs` | Repeated Iocs | 会话 —— 角色：analyst / mssp_admin / platform_admin |
-| `GET` | `/api/mssp/dashboard/stuck-investigations` | Stuck Investigations | 会话 —— 角色：analyst / mssp_admin / platform_admin |
-| `GET` | `/api/mssp/dashboard/tenant-health` | Tenant Health | 会话 —— 角色：analyst / mssp_admin / platform_admin |
+| `GET` | `/api/mssp/dashboard/open-by-tenant` | Open By Tenant | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/dashboard/pending-reviews` | Pending Reviews | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/dashboard/repeated-iocs` | Repeated Iocs | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/dashboard/stuck-investigations` | Stuck Investigations | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/dashboard/tenant-health` | Tenant Health | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
 
 ### `mssp-tenant-branding`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `PATCH` | `/api/mssp/tenants/{tenant_id}/branding` | Update Tenant Branding | 会话 —— 角色：mssp_admin / platform_admin |
+| `PATCH` | `/api/mssp/tenants/{tenant_id}/branding` | Update Tenant Branding | session — roles: mssp_admin / platform_admin |
 
 ### `mssp-tenant-llm`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/tenants/{tenant_id}/llm` | Get Tenant Llm | 会话 —— 角色：mssp_admin / platform_admin |
-| `PATCH` | `/api/mssp/tenants/{tenant_id}/llm` | Update Tenant Llm | 会话 —— 角色：mssp_admin / platform_admin |
-| `DELETE` | `/api/mssp/tenants/{tenant_id}/llm/api-key` | Clear Tenant Llm Api Key | 会话 —— 角色：mssp_admin / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/llm` | Get Tenant Llm | session — roles: mssp_admin / platform_admin |
+| `PATCH` | `/api/mssp/tenants/{tenant_id}/llm` | Update Tenant Llm | session — roles: mssp_admin / platform_admin |
+| `DELETE` | `/api/mssp/tenants/{tenant_id}/llm/api-key` | Clear Tenant Llm Api Key | session — roles: mssp_admin / platform_admin |
 
 ### `mssp-tenants`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/mssp/tenants` | List Tenants | 会话 —— 角色：analyst / mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants` | Create Tenant | 会话 —— 角色：mssp_admin / platform_admin |
-| `GET` | `/api/mssp/tenants/{tenant_id}` | Get Tenant | 会话 —— 角色：analyst / mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}:decommission` | Decommission Tenant | 会话 —— 角色：mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}:issue-agent` | Issue Agent | 会话 —— 角色：mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}:resume` | Resume Tenant | 会话 —— 角色：mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}:retry` | Retry Provisioning | 会话 —— 角色：mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}:retry-install` | Retry Install | 会话 —— 角色：mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/{tenant_id}:suspend` | Suspend Tenant | 会话 —— 角色：mssp_admin / platform_admin |
-| `GET` | `/api/mssp/tenants/{tenant_id}/adapter-status` | Get Tenant Adapter Status | 会话 —— 角色：mssp_admin / platform_admin |
-| `GET` | `/api/mssp/tenants/{tenant_id}/events` | List Events | 会话 —— 角色：analyst / mssp_admin / platform_admin |
-| `GET` | `/api/mssp/tenants/{tenant_id}/external-siem` | Get Tenant External Siem | 会话 —— 角色：mssp_admin / platform_admin |
-| `PATCH` | `/api/mssp/tenants/{tenant_id}/external-siem` | Update Tenant External Siem | 会话 —— 角色：mssp_admin / platform_admin |
-| `POST` | `/api/mssp/tenants/onboard` | Onboard Tenant | 会话 —— 角色：mssp_admin / platform_admin |
+| `GET` | `/api/mssp/tenants` | List Tenants | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `POST` | `/api/mssp/tenants` | Create Tenant | session — roles: mssp_admin / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}` | Get Tenant | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}:decommission` | Decommission Tenant | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}:issue-agent` | Issue Agent | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}:resume` | Resume Tenant | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}:retry` | Retry Provisioning | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}:retry-install` | Retry Install | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/{tenant_id}:suspend` | Suspend Tenant | session — roles: mssp_admin / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/adapter-status` | Get Tenant Adapter Status | session — roles: mssp_admin / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/events` | List Events | session — roles: analyst / mssp_admin / mssp_manager / platform_admin |
+| `GET` | `/api/mssp/tenants/{tenant_id}/external-siem` | Get Tenant External Siem | session — roles: mssp_admin / platform_admin |
+| `PATCH` | `/api/mssp/tenants/{tenant_id}/external-siem` | Update Tenant External Siem | session — roles: mssp_admin / platform_admin |
+| `POST` | `/api/mssp/tenants/onboard` | Onboard Tenant | session — roles: mssp_admin / platform_admin |
+
+### `mssp-users`
+
+| Method | Path | Summary | Auth |
+|---|---|---|---|
+| `GET` | `/api/mssp/users` | List Mssp Users | session cookie |
+| `POST` | `/api/mssp/users` | Create Mssp User | session cookie |
+| `PATCH` | `/api/mssp/users/{user_id}` | Update Mssp User | session cookie |
+| `POST` | `/api/mssp/users/{user_id}/deactivate` | Deactivate Mssp User | session cookie |
 
 ### `public-tenant`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/public/mssp-by-slug/{slug}` | Mssp By Slug | 无（公开） |
-| `GET` | `/api/public/scope-by-slug/{slug}` | Scope By Slug | 无（公开） |
-| `GET` | `/api/public/tenant-by-slug/{slug}` | Tenant By Slug | 无（公开） |
+| `GET` | `/api/public/mssp-by-slug/{slug}` | Mssp By Slug | none (public) |
+| `GET` | `/api/public/scope-by-slug/{slug}` | Scope By Slug | none (public) |
+| `GET` | `/api/public/tenant-by-slug/{slug}` | Tenant By Slug | none (public) |
+
+### `tenant-authz-facts`
+
+| Method | Path | Summary | Auth |
+|---|---|---|---|
+| `GET` | `/api/tenant/authorization/facts` | Tenant List Own Facts | tenant session |
+| `POST` | `/api/tenant/authorization/facts` | Tenant Assert Fact | tenant session |
 
 ### `tenant-branding`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/tenant/branding` | Get Own Branding | 租户会话（customer_viewer / tenant_admin） |
+| `GET` | `/api/tenant/branding` | Get Own Branding | tenant session (customer_viewer / tenant_admin / tenant_analyst / tenant_manager) |
+
+### `tenant-engagements`
+
+| Method | Path | Summary | Auth |
+|---|---|---|---|
+| `GET` | `/api/tenant/engagements` | Tenant List Engagements Route | tenant session |
+| `POST` | `/api/tenant/engagements` | Tenant Declare Engagement Route | tenant session |
+| `POST` | `/api/tenant/engagements/{engagement_id}/revoke` | Tenant Revoke Engagement Route | tenant session |
 
 ### `tenant-llm`
 
-| 方法 | 路径 | 摘要 | 认证 |
+| Method | Path | Summary | Auth |
 |---|---|---|---|
-| `GET` | `/api/tenant/llm` | Tenant Get Llm | 租户会话（tenant_admin） |
-| `PUT` | `/api/tenant/llm/api-key` | Tenant Put Llm Key | 租户会话（tenant_admin） |
-| `DELETE` | `/api/tenant/llm/api-key` | Tenant Clear Llm Key | 租户会话（tenant_admin） |
+| `GET` | `/api/tenant/llm` | Tenant Get Llm | tenant session (tenant_admin) |
+| `PUT` | `/api/tenant/llm/api-key` | Tenant Put Llm Key | tenant session (tenant_admin) |
+| `DELETE` | `/api/tenant/llm/api-key` | Tenant Clear Llm Key | tenant session (tenant_admin) |
+
+### `tenant-users`
+
+| Method | Path | Summary | Auth |
+|---|---|---|---|
+| `GET` | `/api/tenant/users` | List Tenant Users | tenant session |
+| `POST` | `/api/tenant/users` | Create Tenant User | tenant session |
+| `PATCH` | `/api/tenant/users/{user_id}` | Update Tenant User | tenant session |
+| `POST` | `/api/tenant/users/{user_id}/deactivate` | Deactivate Tenant User | tenant session |
 
 <!-- END GENERATED:endpoints -->
 
