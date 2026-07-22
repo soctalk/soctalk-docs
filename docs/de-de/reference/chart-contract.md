@@ -158,7 +158,7 @@ llm:
 # Integration endpoints (tenant's external systems, if any)
 integrations:
   # Wazuh is the in-namespace data plane; TheHive and Cortex are external
-  # integrations reached over the network (see /de-de/integrate/thehive, /de-de/integrate/cortex),
+  # integrations reached over the network (see /integrate/thehive, /integrate/cortex),
   # not bundled subcharts.
   externalCortexUrl: ""        # external Cortex endpoint for this tenant, if used
 
@@ -196,7 +196,7 @@ linuxep:
     requests: { cpu: 50m,  memory: 128Mi }
     limits:   { cpu: 500m, memory: 512Mi }
 # TheHive and Cortex are external integrations, not bundled subcharts.
-# Configure them per tenant via /de-de/integrate/thehive and /de-de/integrate/cortex;
+# Configure them per tenant via /integrate/thehive and /integrate/cortex;
 # the tenant chart does not render or size them.
 
 # Tenant namespace policies
@@ -336,7 +336,7 @@ dependencies:
     condition: components.linuxep.enabled
 ```
 
-TheHive und Cortex sind **keine** vendorten Subcharts. Sie sind externe Integrationen, pro Mandant konfiguriert (siehe /de-de/integrate/thehive und /de-de/integrate/cortex).
+TheHive und Cortex sind **keine** vendorten Subcharts. Sie sind externe Integrationen, pro Mandant konfiguriert (siehe /integrate/thehive und /integrate/cortex).
 
 Gründe für das Vendoring (aus dem Chart-Audit):
 - SocTalk-Patches anwenden, ohne von der Annahme durch Upstream abhängig zu sein.
