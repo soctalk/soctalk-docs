@@ -8,13 +8,13 @@ Una plataforma SOC multi-tenant creada para MSP y MSSP. Un único plano de contr
 
 ## ¿Qué es de código abierto y qué es comercial?
 
-**Todo lo que está en el repositorio [`soctalk/soctalk`](https://github.com/soctalk/soctalk) es Apache 2.0** — el plano de control, el pipeline de AI, la integración con Wazuh, los charts y la VM de demostración. No existe una división de funcionalidades "community vs enterprise".
+**Todo lo que está en el repositorio [`soctalk/soctalk`](https://github.com/soctalk/soctalk) es Apache 2.0**: el plano de control, el pipeline de AI, la integración con Wazuh, los charts y la VM de demostración. No existe una división de funcionalidades "community vs enterprise".
 
 Existe un servicio de hosting gestionado (SocTalk Cloud) para los MSP que no quieren operar la plataforma por su cuenta. El servicio alojado usa el mismo código que la distribución abierta.
 
 ## ¿Puedo evaluarlo sin un clúster de Kubernetes?
 
-Sí — la [imagen de VM de demostración](/es-419/quickstart-vm) es una instalación de un solo nodo. Arráncala en KVM, VMware, Hyper-V, Azure, o conviértela desde raw. Cinco minutos hasta tener una instalación multi-tenant en funcionamiento con un tenant `demo` incorporado.
+Sí, la [imagen de VM de demostración](/es-419/quickstart-vm) es una instalación de un solo nodo. Arráncala en KVM, VMware, Hyper-V, Azure, o conviértela desde raw. Cinco minutos hasta tener una instalación multi-tenant en funcionamiento con un tenant `demo` incorporado.
 
 ## ¿Puedo ejecutarlo en un solo nodo de forma permanente?
 
@@ -47,25 +47,25 @@ Muy variable, depende de:
 - La selección de modelo (`fast_model` + `reasoning_model`)
 - Con qué frecuencia el veredicto indica `needs_more_info` (provoca una nueva ejecución)
 
-Orden de magnitud con el presupuesto por defecto de 200,000 tokens por ejecución y uso típico: 30 alertas/día × ~60k tokens/investigación × $5/Mtok de entrada ≈ $9/día por tenant en una configuración económica compatible con OpenAI. Baja 5–10× con un fast model más barato. Consulta [Observabilidad — Costo por tenant](/es-419/observability#per-tenant-cost) para medirlo.
+Orden de magnitud con el presupuesto por defecto de 200,000 tokens por ejecución y uso típico: 30 alertas/día × ~60k tokens/investigación × $5/Mtok de entrada ≈ $9/día por tenant en una configuración económica compatible con OpenAI. Baja 5–10× con un fast model más barato. Consulta [Observabilidad, Costo por tenant](/es-419/observability#per-tenant-cost) para medirlo.
 
 ## ¿Pueden diferentes clientes usar diferentes modelos de LLM?
 
-Sí — override por tenant en el momento de la incorporación. El modelo de toda la instalación es el valor por defecto; los tenants pueden optar por no usarlo especificando el suyo propio. Consulta [Proveedores de LLM — Overrides por tenant](/es-419/integrate/llm-providers#per-tenant-overrides).
+Sí, override por tenant en el momento de la incorporación. El modelo de toda la instalación es el valor por defecto; los tenants pueden optar por no usarlo especificando el suyo propio. Consulta [Proveedores de LLM, Overrides por tenant](/es-419/integrate/llm-providers#per-tenant-overrides).
 
 ## ¿Puede un cliente traer su propia clave de LLM?
 
-Sí — el override por tenant también aplica a la clave de API. El almacén autoritativo es `IntegrationConfig.llm_api_key_plain` en Postgres; el controlador la materializa en `Secret/tenant-llm-key` en el namespace **del tenant** (no en `soctalk-system`), que el runs-worker monta. Útil para el aislamiento de facturación.
+Sí, el override por tenant también aplica a la clave de API. El almacén autoritativo es `IntegrationConfig.llm_api_key_plain` en Postgres; el controlador la materializa en `Secret/tenant-llm-key` en el namespace **del tenant** (no en `soctalk-system`), que el runs-worker monta. Útil para el aislamiento de facturación.
 
 ## ¿SocTalk envía datos de clientes a Anthropic / OpenAI?
 
-Solo aquello sobre lo que razona el pipeline de AI: el cuerpo de la alerta, los observables extraídos y las salidas de los workers. El runtime no exfiltra datos en reposo — solo lo que está en el estado actual de la investigación. Si necesitas una postura más estricta, usa un endpoint de LLM on-prem (vLLM, Ollama). Consulta [Proveedores de LLM — Cambiar a Anthropic / parámetros de runtime](/es-419/integrate/llm-providers#runtime-only-knobs-env-not-chart).
+Solo aquello sobre lo que razona el pipeline de AI: el cuerpo de la alerta, los observables extraídos y las salidas de los workers. El runtime no exfiltra datos en reposo, solo lo que está en el estado actual de la investigación. Si necesitas una postura más estricta, usa un endpoint de LLM on-prem (vLLM, Ollama). Consulta [Proveedores de LLM, Cambiar a Anthropic / parámetros de runtime](/es-419/integrate/llm-providers#runtime-only-knobs-env-not-chart).
 
 ## ¿Reemplaza a mis analistas?
 
 No. SocTalk se posiciona como un **copiloto**, no como un reemplazo. El nodo de veredicto decide `escalate | close | needs_more_info`; la escalación siempre pasa por una compuerta de [revisión humana](/es-419/human-review). Sin el humano, un MSSP de alto volumen aún necesitaría analistas para manejar las decisiones que SocTalk les enruta.
 
-El valor está en la compresión — el mismo equipo de analistas puede manejar 5–10× el volumen de alertas porque los casos rutinarios se cierran automáticamente y solo los poco claros llegan a la revisión humana.
+El valor está en la compresión, el mismo equipo de analistas puede manejar 5–10× el volumen de alertas porque los casos rutinarios se cierran automáticamente y solo los poco claros llegan a la revisión humana.
 
 ## ¿Funciona sin Wazuh?
 
@@ -83,15 +83,15 @@ Consulta [Modelo de seguridad](/es-419/reference/security-model) para la postura
 
 ## ¿Puedo ejecutarlo en EKS / AKS / GKE?
 
-Sí — el chart apunta a Kubernetes 1.30+ estándar. Conecta la StorageClass, el controlador de ingress y el solucionador DNS-01 de cert-manager de tu nube. La [guía de instalación](/es-419/install) se enfoca en K3s porque esa es la distribución por defecto; al chart en sí le da igual.
+Sí, el chart apunta a Kubernetes 1.30+ estándar. Conecta la StorageClass, el controlador de ingress y el solucionador DNS-01 de cert-manager de tu nube. La [guía de instalación](/es-419/install) se enfoca en K3s porque esa es la distribución por defecto; al chart en sí le da igual.
 
 ## ¿Escala a N clientes?
 
-Probado hasta ~50 tenants en un clúster de 3 nodos (16 vCPU / 64 GB / nodo). El cuello de botella suele ser el indexer de Wazuh por tenant (cada indexer es un proceso Java con su propio heap) más que el plano de control de SocTalk. Planifica ~6–8 GB de RAM y ~1.5 vCPU por tenant con perfil `persistent` — consulta [Dimensionamiento](/es-419/reference/sizing).
+Probado hasta ~50 tenants en un clúster de 3 nodos (16 vCPU / 64 GB / nodo). El cuello de botella suele ser el indexer de Wazuh por tenant (cada indexer es un proceso Java con su propio heap) más que el plano de control de SocTalk. Planifica ~6–8 GB de RAM y ~1.5 vCPU por tenant con perfil `persistent`: consulta [Dimensionamiento](/es-419/reference/sizing).
 
 ## ¿Y el cumplimiento (SOC 2, HIPAA, PCI)?
 
-La postura de la plataforma soporta auditorías al estilo SOC 2 — audit-log de solo anexado, RBAC, cifrado en reposo (Postgres + indexer de Wazuh), cifrado en tránsito. **No** se entrega con una atestación de SOC 2; esa es responsabilidad del MSSP para su hosting.
+La postura de la plataforma soporta auditorías al estilo SOC 2, audit-log de solo anexado, RBAC, cifrado en reposo (Postgres + indexer de Wazuh), cifrado en tránsito. **No** se entrega con una atestación de SOC 2; esa es responsabilidad del MSSP para su hosting.
 
 Para HIPAA / PCI, el plano de datos (Wazuh) suele contener datos dentro del alcance. Trata ese PVC como dentro del alcance y respáldalo en consecuencia (consulta [Copia de seguridad y restauración](/es-419/backup-restore)).
 

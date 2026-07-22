@@ -2,8 +2,8 @@
 
 El runtime ([`src/soctalk/llm.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/llm.py)) admite dos proveedores, seleccionados mediante `SOCTALK_LLM_PROVIDER`:
 
-- `anthropic` — a través de `langchain-anthropic` (modelos Claude)
-- `openai` — a través de `langchain-openai` (OpenAI o cualquier endpoint compatible con OpenAI que respete `Authorization: Bearer <key>` contra `POST /v1/chat/completions`: Azure OpenAI, vLLM, Ollama, LiteLLM, etc.)
+- `anthropic`: a través de `langchain-anthropic` (modelos Claude)
+- `openai`: a través de `langchain-openai` (OpenAI o cualquier endpoint compatible con OpenAI que respete `Authorization: Bearer <key>` contra `POST /v1/chat/completions`: Azure OpenAI, vLLM, Ollama, LiteLLM, etc.)
 
 En V1, la variable de entorno del proveedor (`SOCTALK_LLM_PROVIDER`) **solo es respetada por los pods del runs-worker por tenant**. El propio pod de la API usa valores predeterminados de proveedor codificados de forma fija. El proveedor por tenant se puede establecer mediante `PATCH /api/mssp/tenants/{tenant_id}/llm` (consulta [Anulaciones por tenant](#per-tenant-overrides)).
 
@@ -102,7 +102,7 @@ Flujo de rotación del LLM por tenant: consulta [Operaciones diarias → Rotar l
 ## Notas sobre costos
 
 - El runtime hace muchas llamadas pequeñas al LLM por investigación (supervisor + workers + cierre) y una llamada grande de razonamiento (veredicto). La separación entre rápido y razonamiento ahora es configurable por nivel (tier): SocTalk resuelve cada rol, un nivel más ligero de router/supervisor y un nivel más fuerte de veredicto/razonamiento, a su propio tier, cada uno apuntando a su propio proveedor, modelo y endpoint. El ajuste `defaults.llm.fastTier` en los valores del chart `soctalk-system` y el renderizado por nivel en la capa de aprovisionamiento te permiten apuntar el nivel rápido a un modelo económico mientras conservas un modelo más fuerte para el veredicto, de modo que ya no sacrificas la calidad del veredicto para reducir el costo por llamada. El nivel rápido está desactivado de forma predeterminada (`fastTier: {}`); establece su `provider`, `baseUrl` y `model` para habilitarlo. Inicializa la configuración por nivel de los tenants recién incorporados, de modo que los tenants existentes conservan su configuración actual hasta que se les aplique un patch.
-- El uso de tokens por tenant se mide mediante la métrica de Prometheus `soctalk_tenant_llm_tokens_total{direction="input|output"}` — consulta [Observabilidad](/es-419/observability#per-tenant-cost).
+- El uso de tokens por tenant se mide mediante la métrica de Prometheus `soctalk_tenant_llm_tokens_total{direction="input|output"}`: consulta [Observabilidad](/es-419/observability#per-tenant-cost).
 - El autoalojamiento solo compensa si mantienes la GPU ocupada. El ajuste `runsWorker.concurrency` (predeterminado `1`) establece cuántas investigaciones procesa en paralelo un runs-worker; súbelo para llenar un batch continuo autoalojado y amortizar una GPU siempre activa entre más trabajo. Consulta [Mantener baja la factura de inferencia del triaje con AI](/es-419/guides/inference-cost-optimization) para saber cómo dimensionarlo frente a un backend dado.
 
 ## Prueba de sanidad

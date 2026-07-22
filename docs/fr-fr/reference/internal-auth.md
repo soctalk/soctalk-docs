@@ -63,8 +63,8 @@ Index : `(user_id, revoked_at)`.
 
 ### Réutilisation
 
-- `users` (`src/soctalk/core/tenancy/models.py:156`) — inchangé.
-- `audit_log` (`src/soctalk/core/tenancy/models.py:291`) — reçoit les
+- `users` (`src/soctalk/core/tenancy/models.py:156`), inchangé.
+- `audit_log` (`src/soctalk/core/tenancy/models.py:291`), reçoit les
   actions `auth.*` (voir §9).
 
 Pas de nouvelle table d'audit. Pas de table de clés de signature (les
@@ -173,7 +173,7 @@ Par requête :
 1. Lire le cookie `soctalk_session`.
 2. Rechercher la ligne de session. Rejeter si absente, révoquée,
    au-delà de `absolute_expiry` ou au-delà d'`idle_expiry`.
-3. Mettre à jour `last_seen_at` (throttlé — écriture au plus toutes les
+3. Mettre à jour `last_seen_at` (throttlé, écriture au plus toutes les
    60s).
 4. Charger l'utilisateur et construire la même structure `UserIdentity`
    produite par le chemin. Définir `request.state.user_identity`
@@ -219,7 +219,7 @@ Les deux applications gagnent `/login` :
 Lorsque la connexion réussit avec un identifiant portant
 `must_change=true`, la réponse du serveur signale le changement comme
 étape suivante. L'interface navigue directement vers
-`/account/password` — sans affichage furtif du tableau de bord.
+`/account/password`: sans affichage furtif du tableau de bord.
 
 Tant que `must_change` est défini, toute route autre que
 `/account/password` et `POST /api/auth/logout` redirige vers
@@ -248,7 +248,7 @@ Dans l'en-tête des deux applications, visible une fois authentifié :
 - Libellé du rôle (« MSSP admin », « Analyste », « Lecteur client »,
   etc.).
 - Lien vers « Changer le mot de passe ».
-- « Se déconnecter » — `POST /api/auth/logout`, puis navigation vers
+- « Se déconnecter », `POST /api/auth/logout`, puis navigation vers
   `/login` avec un message flash « Vous avez été déconnecté. »
 
 ### Réinitialisation admin (console MSSP)
@@ -263,7 +263,7 @@ Sur la page de détail de l'utilisateur dans la console MSSP :
 - À la confirmation, le serveur renvoie une fois le mot de passe
   généré. L'interface l'affiche dans un champ copier-vers-le-presse-papiers
   avec « Copier et fermer ». Après la fermeture de la fenêtre modale, le
-  mot de passe n'est plus récupérable — l'admin le partage hors bande.
+  mot de passe n'est plus récupérable, l'admin le partage hors bande.
 
 ### Expiration de session
 
@@ -371,7 +371,7 @@ Suite de tests de fumée Playwright pour chaque interface :
 Ne fait pas partie de cette spécification. Ordonné par probabilité de
 réintégration :
 
-1. `password_reset_tokens` — réinitialisation de mot de passe en
+1. `password_reset_tokens`: réinitialisation de mot de passe en
    libre-service par e-mail.
 2. MFA (TOTP + codes de récupération), avec les étapes d'interface
    correspondantes dans les flux de connexion et de compte.

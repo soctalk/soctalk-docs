@@ -40,13 +40,13 @@ MSSP UI → Settings → Slack:
 | Webhook URL | `https://hooks.slack.com/services/T…/B…/…` |
 | Channel | Anulación opcional de canal; de lo contrario, el webhook publica en su canal predeterminado |
 | Notify on escalation | Activado por defecto. Publica cuando un veredicto se cierra como `escalate` |
-| Notify on verdict | Desactivado por defecto. Publica también cada disposición `close` — volumen alto |
+| Notify on verdict | Desactivado por defecto. Publica también cada disposición `close`: volumen alto |
 
-**No existe una API para modificar la configuración de la integración con Slack en V1** — el chart V1 no monta la ruta heredada `PUT /api/settings`. La configuración de Slack es solo por entorno: proporciona `SLACK_WEBHOOK_URL`, `SLACK_CHANNEL`, `SLACK_NOTIFY_ON_ESCALATION` y `SLACK_NOTIFY_ON_VERDICT` como variables de entorno en el Deployment `soctalk-system-api`.
+**No existe una API para modificar la configuración de la integración con Slack en V1**: el chart V1 no monta la ruta heredada `PUT /api/settings`. La configuración de Slack es solo por entorno: proporciona `SLACK_WEBHOOK_URL`, `SLACK_CHANNEL`, `SLACK_NOTIFY_ON_ESCALATION` y `SLACK_NOTIFY_ON_VERDICT` como variables de entorno en el Deployment `soctalk-system-api`.
 
 Las notificaciones de Slack cubren únicamente eventos de escalación y de veredicto (no existe un interruptor `notify_on_capacity`).
 
-Los tokens (webhook URL, bot token, app token) **no** se pueden escribir a través de este endpoint — proporciónalos como variables de entorno en el Deployment del orquestador (`SLACK_WEBHOOK_URL`, `SLACK_BOT_TOKEN`, `SLACK_APP_TOKEN`) o mediante env montado desde un Secret. Rótalos aplicando un parche al Secret y reiniciando el orquestador.
+Los tokens (webhook URL, bot token, app token) **no** se pueden escribir a través de este endpoint, proporciónalos como variables de entorno en el Deployment del orquestador (`SLACK_WEBHOOK_URL`, `SLACK_BOT_TOKEN`, `SLACK_APP_TOKEN`) o mediante env montado desde un Secret. Rótalos aplicando un parche al Secret y reiniciando el orquestador.
 
 ### Formato de mensaje
 
@@ -65,7 +65,7 @@ Block Kit mínimo; sin botones (esos son tarea del backend HIL).
 
 > **Estado:** el backend HIL bidireccional de Slack existe en el código (`src/soctalk/hil/backends/slack.py`) pero **no está cableado al runtime del chart V1 en esta versión**. La cola de revisión del dashboard en `/review` es la única superficie HIL funcional. Trata la configuración de HIL de Slack a continuación como el diseño previsto.
 
-Para el flujo de revisión del analista. La misma app de Slack, más el App-Level Token. El backend HIL de SocTalk abre un WebSocket saliente hacia Slack — no se necesita un endpoint público; funciona detrás de NAT.
+Para el flujo de revisión del analista. La misma app de Slack, más el App-Level Token. El backend HIL de SocTalk abre un WebSocket saliente hacia Slack, no se necesita un endpoint público; funciona detrás de NAT.
 
 ### Configura
 
@@ -79,7 +79,7 @@ env:
     valueFrom: { secretKeyRef: { name: soctalk-slack-creds, key: app_token } }
 ```
 
-El enrutamiento de canal de Slack por tenant **no está implementado en esta versión** — el `slack_channel` configurado a nivel de instalación recibe todas las revisiones y notificaciones sin importar a qué tenant pertenezca el caso. El enrutamiento por tenant está en el roadmap.
+El enrutamiento de canal de Slack por tenant **no está implementado en esta versión**: el `slack_channel` configurado a nivel de instalación recibe todas las revisiones y notificaciones sin importar a qué tenant pertenezca el caso. El enrutamiento por tenant está en el roadmap.
 
 ### Qué se publica
 
@@ -100,7 +100,7 @@ Observables:
 
 Los botones disparan eventos `block_actions`; el backend HIL de SocTalk los procesa y escribe la decisión de vuelta en el estado del caso. Reject y Needs-more-info abren un modal para la justificación (obligatoria).
 
-Una versión futura cableará el dashboard y Slack para que compartan el estado de revisión. En V1 los dos backends aún no comparten estado — si HIL de Slack estuviera habilitado, la acción en Slack no descartaría la tarjeta del dashboard ni viceversa.
+Una versión futura cableará el dashboard y Slack para que compartan el estado de revisión. En V1 los dos backends aún no comparten estado, si HIL de Slack estuviera habilitado, la acción en Slack no descartaría la tarjeta del dashboard ni viceversa.
 
 ## Rota los tokens
 

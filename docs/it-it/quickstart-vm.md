@@ -2,7 +2,7 @@
 
 Il modo più rapido per provare SocTalk end-to-end: scarica un'immagine VM pre-costruita, avviala, apri la procedura guidata di configurazione nel browser e prosegui con i clic. Cinque minuti per un'installazione multi-tenant funzionante con un tenant demo già onboardato.
 
-Questo percorso è pensato per **valutatori e demo** — per un'installazione di produzione sul tuo cluster consulta [Installazione](/it-it/install).
+Questo percorso è pensato per **valutatori e demo**: per un'installazione di produzione sul tuo cluster consulta [Installazione](/it-it/install).
 
 ## Cosa contiene l'immagine
 
@@ -58,7 +58,7 @@ Converti `soctalk-demo.vmdk` in VDI e collegalo a una nuova VM. Procedura comple
 
 ### Hyper-V
 
-Usa `soctalk-demo.vhdx` come disco del sistema operativo su una VM di **Generazione 1** (l'immagine si avvia tramite firmware BIOS; la Generazione 2 / UEFI non è testata). Per iniettare una chiave SSH, collega un `seed.iso` NoCloud come unità DVD — consulta [Opzionale: seed cloud-init](#opzionale-seed-cloud-init).
+Usa `soctalk-demo.vhdx` come disco del sistema operativo su una VM di **Generazione 1** (l'immagine si avvia tramite firmware BIOS; la Generazione 2 / UEFI non è testata). Per iniettare una chiave SSH, collega un `seed.iso` NoCloud come unità DVD, consulta [Opzionale: seed cloud-init](#opzionale-seed-cloud-init).
 
 ### AWS
 
@@ -83,18 +83,18 @@ ssh ops@<vm-ip>
 sudo cat /var/log/soctalk-setup-token
 ```
 
-Il login consigliato è l'**utente `ops` con la tua chiave SSH**, creato dal seed cloud-init in [§ Opzionale: seed cloud-init](#opzionale-seed-cloud-init) più avanti. Se avvii senza un seed, consulta [§ Accesso SSH + credenziali](#accesso-ssh-credenziali) per il fallback disponibile in fase di build — e leggi la nota di sicurezza lì presente prima di esporre la VM a una rete di cui non ti fidi.
+Il login consigliato è l'**utente `ops` con la tua chiave SSH**, creato dal seed cloud-init in [§ Opzionale: seed cloud-init](#opzionale-seed-cloud-init) più avanti. Se avvii senza un seed, consulta [§ Accesso SSH + credenziali](#accesso-ssh-credenziali) per il fallback disponibile in fase di build, e leggi la nota di sicurezza lì presente prima di esporre la VM a una rete di cui non ti fidi.
 
 ## 4. Apri la procedura guidata
 
 Vai su `https://<vm-ip>:8443/`. Accetta il certificato self-signed. Arriverai alla pagina di inserimento del token:
 
-![Procedura guidata di configurazione — inserimento token](/screenshots/setup-wizard-token.png)
+![Procedura guidata di configurazione, inserimento token](/screenshots/setup-wizard-token.png)
 
 Incolla il token, poi compila:
 
 - Nome MSSP / organizzazione
-- Hostname (opzionale — lascia vuoto per usare l'IP della macchina)
+- Hostname (opzionale, lascia vuoto per usare l'IP della macchina)
 - Email + password amministratore (min 12 caratteri)
 - Provider LLM + API key
 
@@ -111,7 +111,7 @@ Tempo totale dall'invio: circa 2 minuti perché i pod di `soctalk-system` siano 
 
 ## 5. Accedi
 
-Vai su `https://<vm-ip>/` (nota: porta 443, non 8443 — la procedura guidata si lega specificamente alla 8443 per evitare conflitti con Traefik). La dashboard MSSP richiede un nome DNS; se hai usato un hostname vuoto aggiungi una voce `/etc/hosts` che punti `soctalk.local` all'IP della VM e vai su `https://soctalk.local/`.
+Vai su `https://<vm-ip>/` (nota: porta 443, non 8443, la procedura guidata si lega specificamente alla 8443 per evitare conflitti con Traefik). La dashboard MSSP richiede un nome DNS; se hai usato un hostname vuoto aggiungi una voce `/etc/hosts` che punti `soctalk.local` all'IP della VM e vai su `https://soctalk.local/`.
 
 Accedi con l'email + password amministratore impostate nella procedura guidata. Arriverai alla dashboard MSSP. Prosegui con il [Tour della UI MSSP](/it-it/mssp-ui).
 
@@ -142,7 +142,7 @@ Le immagini disco scaricabili (qcow2 / vmdk / vhdx / vhd / raw) includono tutte 
 
 ### Produzione: utente `ops` (consigliato)
 
-Il seed cloud-init in [§ Opzionale: seed cloud-init](#opzionale-seed-cloud-init) crea un utente `ops` con la tua chiave SSH. Solo autenticazione con chiave SSH — nessuna password impostata.
+Il seed cloud-init in [§ Opzionale: seed cloud-init](#opzionale-seed-cloud-init) crea un utente `ops` con la tua chiave SSH. Solo autenticazione con chiave SSH, nessuna password impostata.
 
 ```bash
 ssh -i ~/.ssh/<your-private-key> ops@<vm-ip>
@@ -188,11 +188,11 @@ sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' \
 sudo systemctl reload ssh
 ```
 
-L'AMI AWS è costruita da una sorgente Packer separata (`amazon-ebs`) che non include il seed e usa invece l'iniezione della keypair di EC2 — non porta con sé la credenziale `ubuntu:packer`. La checklist di hardening si applica comunque ad essa per l'utente standard `ubuntu` dell'immagine cloud AMI.
+L'AMI AWS è costruita da una sorgente Packer separata (`amazon-ebs`) che non include il seed e usa invece l'iniezione della keypair di EC2, non porta con sé la credenziale `ubuntu:packer`. La checklist di hardening si applica comunque ad essa per l'utente standard `ubuntu` dell'immagine cloud AMI.
 
 ## Passo successivo: onboarda i clienti con Launchpad
 
-Hai appena eseguito SocTalk end-to-end su una singola macchina co-locata. Il passo naturale successivo è un vero pilot — un control plane MSSP più uno o più ambienti tenant sulla tua infrastruttura. [**Launchpad**](/it-it/launchpad) fa esattamente questo con un solo comando: avvia le VM, le unisce alla tua tailnet, installa SocTalk da sorgenti pubbliche e ti consegna una URL. (Preferisci eseguire ogni passo a mano? Consulta il [pilot MSSP fai-da-te](/it-it/mssp-pilot).)
+Hai appena eseguito SocTalk end-to-end su una singola macchina co-locata. Il passo naturale successivo è un vero pilot, un control plane MSSP più uno o più ambienti tenant sulla tua infrastruttura. [**Launchpad**](/it-it/launchpad) fa esattamente questo con un solo comando: avvia le VM, le unisce alla tua tailnet, installa SocTalk da sorgenti pubbliche e ti consegna una URL. (Preferisci eseguire ogni passo a mano? Consulta il [pilot MSSP fai-da-te](/it-it/mssp-pilot).)
 
 ## Risoluzione dei problemi
 

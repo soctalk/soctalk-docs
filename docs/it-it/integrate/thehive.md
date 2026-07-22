@@ -8,8 +8,8 @@ Per il modello concettuale vedi [Pipeline AI → Chiusura](/it-it/ai-pipeline). 
 
 In V1 la chart `soctalk-tenant` non ha una subchart TheHive (`dependencies: []`). Le scelte sono:
 
-- **TheHive gestito dal cliente** — il cliente esegue il proprio TheHive altrove; l'MSSP fornisce l'URL e una chiave API per singolo tenant.
-- **Nessun TheHive** — le escalation restano solo nella UI di SocTalk. Predefinito.
+- **TheHive gestito dal cliente**: il cliente esegue il proprio TheHive altrove; l'MSSP fornisce l'URL e una chiave API per singolo tenant.
+- **Nessun TheHive**: le escalation restano solo nella UI di SocTalk. Predefinito.
 
 Un percorso con "subchart TheHive integrata" è stato descritto nelle bozze precedenti di questa pagina come opzione pianificata, ma **non è implementato in questa release**. Non esiste alcun StatefulSet Cassandra o Deployment TheHive gestito da SocTalk per il tenant.
 
@@ -29,7 +29,7 @@ Dettaglio tenant → Impostazioni → TheHive. Campi:
 
 ## Cosa viene esportato
 
-In V1, l'esportazione verso TheHive avviene **in modo sincrono al momento del nodo del grafo** tramite il nodo `thehive_worker` che chiama l'API di TheHive attraverso MCP. Attualmente questo crea il caso (titolo + severità rispecchiati dal verdetto di SocTalk) e gli observable. La superficie più ricca — task derivati da `next_actions`, mirroring nella timeline delle motivazioni dei worker / delle decisioni di revisione umana, **outbox asincrono + retry** — è descritta nelle bozze precedenti come obiettivo di progettazione ma **non è implementata in questa release**. Se TheHive non è raggiungibile, il nodo worker registra l'errore e il caso prosegue in SocTalk senza una controparte esportata. Non esiste un ciclo di retry, né un outbox, né un campo persistito di "ultimo errore", né una superficie dashboard per le esportazioni fallite: i fallimenti sono visibili solo nei log strutturati dell'orchestratore.
+In V1, l'esportazione verso TheHive avviene **in modo sincrono al momento del nodo del grafo** tramite il nodo `thehive_worker` che chiama l'API di TheHive attraverso MCP. Attualmente questo crea il caso (titolo + severità rispecchiati dal verdetto di SocTalk) e gli observable. La superficie più ricca, task derivati da `next_actions`, mirroring nella timeline delle motivazioni dei worker / delle decisioni di revisione umana, **outbox asincrono + retry**: è descritta nelle bozze precedenti come obiettivo di progettazione ma **non è implementata in questa release**. Se TheHive non è raggiungibile, il nodo worker registra l'errore e il caso prosegue in SocTalk senza una controparte esportata. Non esiste un ciclo di retry, né un outbox, né un campo persistito di "ultimo errore", né una superficie dashboard per le esportazioni fallite: i fallimenti sono visibili solo nei log strutturati dell'orchestratore.
 
 Mappatura dei tipi di observable (secondo l'implementazione V1):
 
@@ -47,7 +47,7 @@ Mappatura dei tipi di observable (secondo l'implementazione V1):
 
 ## TheHive integrata: non in questa release
 
-La chart `soctalk-tenant` in V1 non integra TheHive come subchart — `Chart.yaml` elenca `dependencies: []`. Gli operatori che desiderano un'istanza TheHive per singolo tenant la eseguono autonomamente (`helm install` manuale nel namespace del tenant, oppure gestita dal cliente altrove). Una subchart integrata con secret di amministrazione gestiti dalla chart è descritta nelle bozze precedenti come obiettivo di progettazione, ma è nella roadmap.
+La chart `soctalk-tenant` in V1 non integra TheHive come subchart, `Chart.yaml` elenca `dependencies: []`. Gli operatori che desiderano un'istanza TheHive per singolo tenant la eseguono autonomamente (`helm install` manuale nel namespace del tenant, oppure gestita dal cliente altrove). Una subchart integrata con secret di amministrazione gestiti dalla chart è descritta nelle bozze precedenti come obiettivo di progettazione, ma è nella roadmap.
 
 ## TheHive gestito dal cliente: note
 

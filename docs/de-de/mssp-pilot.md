@@ -1,7 +1,7 @@
 # MSSP-Pilot: Selbst durchführen
 
 ::: tip Die meisten Piloten sollten Launchpad verwenden
-[**Launchpad**](/de-de/launchpad) automatisiert diesen gesamten Rollout — gleiche Installation, gleiche Charts, gleicher Tailscale-Ablauf — in einem einzigen Befehl (~15-25 Min., größtenteils Warten auf Downloads, statt ~2 Stunden von Hand). **Fang dort an.** Greife zu dieser Selbst-durchführen-Anleitung, wenn du jeden Schritt verstehen willst, einen Launchpad-Lauf debuggst oder deine Umgebung Launchpad nicht ausführen kann — air-gapped, on-prem Split-Horizon-DNS, ein nicht unterstützter Unterbau oder ein bestehender Cluster.
+[**Launchpad**](/de-de/launchpad) automatisiert diesen gesamten Rollout, gleiche Installation, gleiche Charts, gleicher Tailscale-Ablauf, in einem einzigen Befehl (~15-25 Min., größtenteils Warten auf Downloads, statt ~2 Stunden von Hand). **Fang dort an.** Greife zu dieser Selbst-durchführen-Anleitung, wenn du jeden Schritt verstehen willst, einen Launchpad-Lauf debuggst oder deine Umgebung Launchpad nicht ausführen kann, air-gapped, on-prem Split-Horizon-DNS, ein nicht unterstützter Unterbau oder ein bestehender Cluster.
 :::
 
 Ein praktischer Weg für MSSPs, die SocTalk mit 1-3 ihrer Kunden evaluieren. Zwei On-Premise-Umgebungen (eine MSSP-Control-Plane, eine pro Mandant), verbunden über ein firewallfreundliches Mesh-VPN. Endzustand: eine funktionierende mandantenfähige SocTalk-Installation, der AI-SOC-Analyst, der Fragen zu den echten Wazuh-Daten jedes Mandanten beantwortet, und ein Screenshot, den du deinen Stakeholdern zeigen kannst.
@@ -26,7 +26,7 @@ Ein praktischer Weg für MSSPs, die SocTalk mit 1-3 ihrer Kunden evaluieren. Zwe
 - Die L1-SocTalk-Control-Plane des MSSP + der L2-SocTalk-Cloud-Agent auf jedem Mandanten
 - Wazuh **bereits installiert** ODER **per Chart installiert** pro Mandant; beides wird unterstützt
 
-<!-- screenshot: arch-overview.svg — architecture diagram (MSSP VM left, tenant VMs right, tailnet wrapping both, cloud-agent shown on each tenant, optional dotted-line to existing Wazuh) -->
+<!-- screenshot: arch-overview.svg, architecture diagram (MSSP VM left, tenant VMs right, tailnet wrapping both, cloud-agent shown on each tenant, optional dotted-line to existing Wazuh) -->
 
 ## 0. Bevor du beginnst
 
@@ -85,7 +85,7 @@ Die erste Regel lässt **deine Operator-Geräte** (deinen Laptop, jeden admin-ei
 
 Überprüfe es im ACL-Preview-Bereich, bevor du speicherst. Bestätige, dass `tag:tenant-acme` `tag:tenant-globex` auf keinem Port erreichen kann.
 
-<!-- screenshot: tailscale-acl-preview.png — ACL preview showing tenant-to-tenant denied, MSSP→tenant + tenant→MSSP allowed -->
+<!-- screenshot: tailscale-acl-preview.png, ACL preview showing tenant-to-tenant denied, MSSP→tenant + tenant→MSSP allowed -->
 
 ### 1.3 Auth-Schlüssel
 
@@ -121,7 +121,7 @@ Tenants → demo → Decommission
 
 Beides ist in Ordnung; sei dir dessen nur bewusst, damit du nicht verwirrt bist, wenn `list all tenants` in §5 mehr als deine Pilotanzahl zurückgibt.
 
-<!-- screenshot: mssp-dashboard-after-install.png — MSSP dashboard immediately after wizard install, showing the auto-onboarded demo tenant -->
+<!-- screenshot: mssp-dashboard-after-install.png, MSSP dashboard immediately after wizard install, showing the auto-onboarded demo tenant -->
 
 ### 2.2 Die Box härten
 

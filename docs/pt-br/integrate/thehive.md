@@ -8,8 +8,8 @@ Para o modelo mental, consulte [Pipeline de AI → Encerramento](/pt-br/ai-pipel
 
 No V1, o chart `soctalk-tenant` não possui um subchart do TheHive (`dependencies: []`). As opções são:
 
-- **TheHive gerenciado pelo cliente** — o cliente executa seu próprio TheHive em outro lugar; o MSSP fornece a URL e uma chave de API por tenant.
-- **Sem TheHive** — as escalações permanecem apenas na UI do SocTalk. Padrão.
+- **TheHive gerenciado pelo cliente**: o cliente executa seu próprio TheHive em outro lugar; o MSSP fornece a URL e uma chave de API por tenant.
+- **Sem TheHive**: as escalações permanecem apenas na UI do SocTalk. Padrão.
 
 Um caminho de "subchart do TheHive incorporado" foi descrito em rascunhos anteriores desta página como uma opção planejada, mas **não está implementado nesta versão**. Não há StatefulSet do Cassandra nem Deployment do TheHive gerenciados pelo SocTalk para o tenant.
 
@@ -29,7 +29,7 @@ Detalhe do tenant → Settings → TheHive. Campos:
 
 ## O que é exportado
 
-No V1, a exportação para o TheHive acontece **de forma síncrona no momento do nó do grafo**, por meio do nó `thehive_worker` que chama a API do TheHive através de MCP. Hoje isso cria o caso (título + severidade espelhados a partir do veredito do SocTalk) e os observáveis. A superfície mais rica — tarefas derivadas de `next_actions`, espelhamento na linha do tempo das justificativas dos workers / decisões de revisão humana, **outbox assíncrono + retry** — é descrita em rascunhos anteriores como o alvo de design, mas **não está implementada nesta versão**. Se o TheHive estiver inacessível, o nó do worker registra a falha e o caso prossegue no SocTalk sem uma contraparte exportada. Não há loop de retry, não há outbox, não há campo persistido de "último erro" e não há superfície de dashboard para exportações que falharam — as falhas são visíveis apenas nos logs estruturados do orquestrador.
+No V1, a exportação para o TheHive acontece **de forma síncrona no momento do nó do grafo**, por meio do nó `thehive_worker` que chama a API do TheHive através de MCP. Hoje isso cria o caso (título + severidade espelhados a partir do veredito do SocTalk) e os observáveis. A superfície mais rica, tarefas derivadas de `next_actions`, espelhamento na linha do tempo das justificativas dos workers / decisões de revisão humana, **outbox assíncrono + retry**: é descrita em rascunhos anteriores como o alvo de design, mas **não está implementada nesta versão**. Se o TheHive estiver inacessível, o nó do worker registra a falha e o caso prossegue no SocTalk sem uma contraparte exportada. Não há loop de retry, não há outbox, não há campo persistido de "último erro" e não há superfície de dashboard para exportações que falharam, as falhas são visíveis apenas nos logs estruturados do orquestrador.
 
 Mapeamento de tipos de observável (conforme a implementação do V1):
 
@@ -47,7 +47,7 @@ Mapeamento de tipos de observável (conforme a implementação do V1):
 
 ## TheHive incorporado: não nesta versão
 
-O chart `soctalk-tenant` no V1 não incorpora o TheHive como subchart — o `Chart.yaml` lista `dependencies: []`. Operadores que desejam uma instância do TheHive por tenant a executam por conta própria (`helm install` manual no namespace do tenant, ou gerenciada pelo cliente em outro lugar). Um subchart incorporado com segredos de admin gerenciados pelo chart é descrito em rascunhos anteriores como o alvo de design, mas está no roadmap.
+O chart `soctalk-tenant` no V1 não incorpora o TheHive como subchart, o `Chart.yaml` lista `dependencies: []`. Operadores que desejam uma instância do TheHive por tenant a executam por conta própria (`helm install` manual no namespace do tenant, ou gerenciada pelo cliente em outro lugar). Um subchart incorporado com segredos de admin gerenciados pelo chart é descrito em rascunhos anteriores como o alvo de design, mas está no roadmap.
 
 ## TheHive gerenciado pelo cliente: notas
 
@@ -57,9 +57,9 @@ O chart `soctalk-tenant` no V1 não incorpora o TheHive como subchart — o `Cha
 
 ## Status / integridade
 
-Nesta versão **não há loop de health-ping em segundo plano** para o TheHive — o SocTalk só toca o TheHive quando uma investigação tem algo a exportar. Falhas durante essa chamada são registradas apenas na saída estruturada do orquestrador; não há campo de erro persistido e não há retry baseado em outbox. A UI do MSSP não exibe um indicador separado de "TheHive acessível".
+Nesta versão **não há loop de health-ping em segundo plano** para o TheHive, o SocTalk só toca o TheHive quando uma investigação tem algo a exportar. Falhas durante essa chamada são registradas apenas na saída estruturada do orquestrador; não há campo de erro persistido e não há retry baseado em outbox. A UI do MSSP não exibe um indicador separado de "TheHive acessível".
 
-Para monitorar a integridade do TheHive, use sua sonda externa habitual (Prometheus blackbox exporter contra o `/api/status` do TheHive, etc.) — isso é responsabilidade do lado do MSSP, não faz parte do SocTalk nesta versão.
+Para monitorar a integridade do TheHive, use sua sonda externa habitual (Prometheus blackbox exporter contra o `/api/status` do TheHive, etc.), isso é responsabilidade do lado do MSSP, não faz parte do SocTalk nesta versão.
 
 ## Rotacionar a chave de API
 

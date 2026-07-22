@@ -1,6 +1,6 @@
 # Täglicher Betrieb
 
-Aufgaben, die MSSP-Betreiber gegen eine laufende SocTalk-Installation ausführen. Falls noch nicht geschehen, lesen Sie zuerst die [MSSP-UI-Tour](/de-de/mssp-ui) — sie katalogisiert jede unten referenzierte Seite.
+Aufgaben, die MSSP-Betreiber gegen eine laufende SocTalk-Installation ausführen. Falls noch nicht geschehen, lesen Sie zuerst die [MSSP-UI-Tour](/de-de/mssp-ui), sie katalogisiert jede unten referenzierte Seite.
 
 ## Untersuchungs-Warteschlange
 
@@ -10,7 +10,7 @@ Aufgaben, die MSSP-Betreiber gegen eine laufende SocTalk-Installation ausführen
 
 ## Vorschlags-Prüfungs-Warteschlange
 
-**Reviews** ist die mandantenübergreifende Warteschlange von KI-Vorschlägen, die auf einen Menschen warten. Genehmigen / Ablehnen / Mehr-Infos aktualisieren jeweils die Prüfungszeile in der Datenbank (und dem Audit-Log). Es gibt **keine Outbox** in V1 — die Executor- / nachgelagerte Benachrichtigungs-Pipeline steht auf der Roadmap.
+**Reviews** ist die mandantenübergreifende Warteschlange von KI-Vorschlägen, die auf einen Menschen warten. Genehmigen / Ablehnen / Mehr-Infos aktualisieren jeweils die Prüfungszeile in der Datenbank (und dem Audit-Log). Es gibt **keine Outbox** in V1, die Executor- / nachgelagerte Benachrichtigungs-Pipeline steht auf der Roadmap.
 
 ![Review queue](/screenshots/review-queue.png)
 
@@ -66,7 +66,7 @@ Wenn die Data Plane gesund ist, der Adapter aber `soctalk-system` immer noch nic
 
 ## Data-Plane-Bootstrap-Secrets rotieren
 
-Es gibt in diesem Release kein `soctalk-cli rotate-*`-Kommando — dieser Weg war in früheren Entwürfen dokumentiert. Heute:
+Es gibt in diesem Release kein `soctalk-cli rotate-*`-Kommando, dieser Weg war in früheren Entwürfen dokumentiert. Heute:
 
 - **Wazuh-Admin-Passwort:** patchen Sie das relevante Secret im Mandanten-Namespace und starten Sie dann den betroffenen Pod neu. Der Bootstrap-Rerun der Chart beim Pod-Start übernimmt die neue Zugangsinformation. TheHive und Cortex sind externe Integrationen, keine gebündelten Subcharts, daher werden ihre Zugangsdaten in jenen Systemen rotiert und über die Integrationskonfiguration aktualisiert (siehe /de-de/integrate/thehive, /de-de/integrate/cortex).
 - **Wazuh-`authd`-Shared-Secret:** patchen Sie `Secret/wazuh-authd-secret` in `tenant-<slug>`, starten Sie den Wazuh-Manager neu. Alle bestehenden Agenten müssen sich mit dem neuen Secret neu registrieren; verteilen Sie es über Ihren üblichen sicheren Kanal.
@@ -97,7 +97,7 @@ Backups werden extern MSSP-verwaltet (Velero, Cluster-Snapshots, externes `pg_du
    ```bash
    kubectl -n soctalk-system scale deploy soctalk-system-api --replicas=0
    ```
-   (Die V1-Chart bündelt den Orchestrator in den API-Pod — kein separates `soctalk-system-orchestrator`-Deployment.)
+   (Die V1-Chart bündelt den Orchestrator in den API-Pod, kein separates `soctalk-system-orchestrator`-Deployment.)
 2. Stellen Sie die Postgres-Daten aus Ihrem Backup wieder her.
 3. Starten Sie die API neu: `kubectl -n soctalk-system scale deploy soctalk-system-api --replicas=2` (oder Ihre übliche Replica-Anzahl).
 
@@ -105,7 +105,7 @@ Die PVCs der Mandanten-Data-Plane folgen demselben Muster: pro Namespace wiederh
 
 ## Notfall: einen Mandanten sofort deaktivieren
 
-Die UI-**Suspend**-Aktion setzt in diesem Release den Mandantenzustand auf `suspended` und hindert den Orchestrator daran, neue Untersuchungen zu planen — **aber sie skaliert keine Workloads**. Für eine tatsächliche Abschaltung führen Sie die untenstehenden Schritte aus (alle Deployments skalieren + eine Deny-All-NetworkPolicy zur doppelten Absicherung anwenden):
+Die UI-**Suspend**-Aktion setzt in diesem Release den Mandantenzustand auf `suspended` und hindert den Orchestrator daran, neue Untersuchungen zu planen, **aber sie skaliert keine Workloads**. Für eine tatsächliche Abschaltung führen Sie die untenstehenden Schritte aus (alle Deployments skalieren + eine Deny-All-NetworkPolicy zur doppelten Absicherung anwenden):
 
 ```bash
 # 1. Alle Workloads im Mandanten-Namespace auf null skalieren. Dies ist der
@@ -125,7 +125,7 @@ spec:
 EOF
 ```
 
-Kehren Sie den Vorgang um, indem Sie die NetworkPolicy löschen, die Workloads wieder auf ihre ursprünglichen Replica-Anzahlen hochskalieren und in der UI **Resume** aufrufen. **Resume** aktualisiert in diesem Release ebenfalls nur den DB-Zustand — es stellt die Replica-Anzahlen nicht für Sie wieder her.
+Kehren Sie den Vorgang um, indem Sie die NetworkPolicy löschen, die Workloads wieder auf ihre ursprünglichen Replica-Anzahlen hochskalieren und in der UI **Resume** aufrufen. **Resume** aktualisiert in diesem Release ebenfalls nur den DB-Zustand, es stellt die Replica-Anzahlen nicht für Sie wieder her.
 
 ## Verdacht auf mandantenübergreifendes Datenleck
 

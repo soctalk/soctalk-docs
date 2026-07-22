@@ -40,13 +40,13 @@ MSSP UI → Settings → Slack :
 | Webhook URL | `https://hooks.slack.com/services/T…/B…/…` |
 | Channel | Remplacement de canal facultatif ; sinon le webhook publie dans son canal par défaut |
 | Notify on escalation | Activé par défaut. Publie lorsqu'un verdict se clôture sur `escalate` |
-| Notify on verdict | Désactivé par défaut. Publie également chaque disposition `close` — volume élevé |
+| Notify on verdict | Désactivé par défaut. Publie également chaque disposition `close`: volume élevé |
 
-**Il n'existe aucune API pour modifier les paramètres d'intégration Slack dans V1** — le chart V1 ne monte pas la route héritée `PUT /api/settings`. La configuration Slack se fait uniquement par variables d'environnement : fournissez `SLACK_WEBHOOK_URL`, `SLACK_CHANNEL`, `SLACK_NOTIFY_ON_ESCALATION` et `SLACK_NOTIFY_ON_VERDICT` comme variables d'environnement sur le Deployment `soctalk-system-api`.
+**Il n'existe aucune API pour modifier les paramètres d'intégration Slack dans V1**: le chart V1 ne monte pas la route héritée `PUT /api/settings`. La configuration Slack se fait uniquement par variables d'environnement : fournissez `SLACK_WEBHOOK_URL`, `SLACK_CHANNEL`, `SLACK_NOTIFY_ON_ESCALATION` et `SLACK_NOTIFY_ON_VERDICT` comme variables d'environnement sur le Deployment `soctalk-system-api`.
 
 Les notifications Slack couvrent uniquement les événements d'escalade et de verdict (aucun bouton `notify_on_capacity` n'existe).
 
-Les jetons (URL de webhook, jeton de bot, jeton d'application) ne sont **pas** modifiables via ce point de terminaison — fournissez-les comme variables d'environnement sur le Deployment de l'orchestrateur (`SLACK_WEBHOOK_URL`, `SLACK_BOT_TOKEN`, `SLACK_APP_TOKEN`) ou via des variables d'environnement montées depuis un Secret. Effectuez la rotation en corrigeant le Secret et en redémarrant l'orchestrateur.
+Les jetons (URL de webhook, jeton de bot, jeton d'application) ne sont **pas** modifiables via ce point de terminaison, fournissez-les comme variables d'environnement sur le Deployment de l'orchestrateur (`SLACK_WEBHOOK_URL`, `SLACK_BOT_TOKEN`, `SLACK_APP_TOKEN`) ou via des variables d'environnement montées depuis un Secret. Effectuez la rotation en corrigeant le Secret et en redémarrant l'orchestrateur.
 
 ### Format des messages
 
@@ -65,7 +65,7 @@ Block Kit minimal ; pas de boutons (c'est le rôle du backend HIL).
 
 > **Statut :** le backend HIL bidirectionnel Slack existe dans le code (`src/soctalk/hil/backends/slack.py`) mais n'est **pas câblé dans le runtime du chart V1 dans cette version**. La file d'examen du tableau de bord à `/review` est la seule surface HIL fonctionnelle. Considérez la configuration HIL Slack ci-dessous comme la conception prévue.
 
-Pour le flux d'examen des analystes. La même application Slack, plus l'App-Level Token. Le backend HIL de SocTalk ouvre un WebSocket sortant vers Slack — aucun point de terminaison public requis ; fonctionne derrière un NAT.
+Pour le flux d'examen des analystes. La même application Slack, plus l'App-Level Token. Le backend HIL de SocTalk ouvre un WebSocket sortant vers Slack, aucun point de terminaison public requis ; fonctionne derrière un NAT.
 
 ### Configurer
 
@@ -79,7 +79,7 @@ env:
     valueFrom: { secretKeyRef: { name: soctalk-slack-creds, key: app_token } }
 ```
 
-Le routage par canal Slack propre à chaque tenant n'est **pas implémenté dans cette version** — le `slack_channel` configuré à l'échelle de l'installation reçoit chaque examen et notification, quel que soit le tenant auquel le cas appartient. Le routage par tenant figure dans la feuille de route.
+Le routage par canal Slack propre à chaque tenant n'est **pas implémenté dans cette version**: le `slack_channel` configuré à l'échelle de l'installation reçoit chaque examen et notification, quel que soit le tenant auquel le cas appartient. Le routage par tenant figure dans la feuille de route.
 
 ### Ce qui est publié
 
@@ -100,7 +100,7 @@ Observables:
 
 Les boutons déclenchent des événements `block_actions` ; le backend HIL de SocTalk les traite et réécrit la décision dans l'état du cas. Reject et Needs-more-info ouvrent une fenêtre modale pour la justification (obligatoire).
 
-Une version future câblera le tableau de bord et Slack pour qu'ils partagent l'état d'examen. Dans V1, les deux backends ne partagent pas encore l'état — si le HIL Slack était activé, l'action Slack ne fermerait pas la carte du tableau de bord et inversement.
+Une version future câblera le tableau de bord et Slack pour qu'ils partagent l'état d'examen. Dans V1, les deux backends ne partagent pas encore l'état, si le HIL Slack était activé, l'action Slack ne fermerait pas la carte du tableau de bord et inversement.
 
 ## Faire la rotation des jetons
 

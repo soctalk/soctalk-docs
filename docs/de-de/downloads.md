@@ -6,16 +6,16 @@ Alle Images stammen vom selben Build aus Ubuntu 24.04 + K3s + Setup-Assistent, l
 
 ## Aktuelles Release
 
-Aktuelle Version: **v0.2.0** — [Release-Seite](https://github.com/soctalk/soctalk/releases/tag/v0.2.0) · [alle Releases](https://github.com/soctalk/soctalk/releases)
+Aktuelle Version: **v0.2.0**: [Release-Seite](https://github.com/soctalk/soctalk/releases/tag/v0.2.0) · [alle Releases](https://github.com/soctalk/soctalk/releases)
 
 Das Release umfasst:
 
-- [`soctalk-demo-0.2.0.qcow2.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.qcow2.xz) — KVM, QEMU, libvirt, Proxmox
-- [`soctalk-demo-0.2.0.vmdk.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.vmdk.xz) — VMware ESXi, Workstation, Fusion, VirtualBox
-- [`soctalk-demo-0.2.0.vhdx.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.vhdx.xz) — Microsoft Hyper-V (Generation 1)
-- [`soctalk-demo-0.2.0.vhd.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.vhd.xz) — Microsoft Azure (feste Größe, 1 MiB ausgerichtet)
-- [`soctalk-demo-0.2.0.raw.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.raw.xz) — generischer Cloud-Import (GCP, OpenStack), `dd` auf physischen Datenträger
-- [`SHA256SUMS.txt`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/SHA256SUMS.txt) — Prüfsummen für alle oben genannten Dateien
+- [`soctalk-demo-0.2.0.qcow2.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.qcow2.xz), KVM, QEMU, libvirt, Proxmox
+- [`soctalk-demo-0.2.0.vmdk.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.vmdk.xz), VMware ESXi, Workstation, Fusion, VirtualBox
+- [`soctalk-demo-0.2.0.vhdx.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.vhdx.xz), Microsoft Hyper-V (Generation 1)
+- [`soctalk-demo-0.2.0.vhd.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.vhd.xz), Microsoft Azure (feste Größe, 1 MiB ausgerichtet)
+- [`soctalk-demo-0.2.0.raw.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.raw.xz), generischer Cloud-Import (GCP, OpenStack), `dd` auf physischen Datenträger
+- [`SHA256SUMS.txt`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/SHA256SUMS.txt), Prüfsummen für alle oben genannten Dateien
 
 Alle Artefakte sind mit `xz -9` komprimiert. Dekomprimieren Sie mit `xz -d <file>.xz`.
 
@@ -23,18 +23,18 @@ Alle Artefakte sind mit `xz -9` komprimiert. Dekomprimieren Sie mit `xz -d <file
 
 | Ihre Plattform | Download |
 |---|---|
-| **Proxmox VE** | qcow2 — `qm disk import`. Siehe [Auf Proxmox ausführen](/de-de/proxmox) |
+| **Proxmox VE** | qcow2, `qm disk import`. Siehe [Auf Proxmox ausführen](/de-de/proxmox) |
 | **libvirt / virt-manager / QEMU CLI** | qcow2 |
 | **KVM (RHEL/CentOS/Alma)** | qcow2 |
-| **VMware ESXi** | vmdk — siehe [Auf VMware ESXi ausführen](/de-de/vmware) |
+| **VMware ESXi** | vmdk, siehe [Auf VMware ESXi ausführen](/de-de/vmware) |
 | **VMware Workstation / Fusion** | vmdk |
-| **VirtualBox** | vmdk — in VDI konvertieren, dann anhängen. Siehe [Auf VirtualBox ausführen](/de-de/virtualbox) |
-| **Microsoft Hyper-V** | vhdx — Generation-1-VM (validiert; das Image bootet über BIOS-Firmware, Gen 2 / UEFI ist ungetestet) |
-| **Microsoft Azure** | vhd — direkter Upload auf einen Managed Disk → Image → VM. Siehe [Auf Azure ausführen](/de-de/azure) |
-| **Google Cloud** | raw — `tar czf disk.tar.gz disk.raw && gcloud compute images create` |
-| **OpenStack** | raw — `openstack image create --disk-format raw` |
-| **AWS** | vmdk — mit VM Import als AMI importieren oder mit Packer ein natives AMI erstellen. Siehe [Auf AWS ausführen](/de-de/aws) |
-| **Bare Metal** | raw — `dd if=disk.raw of=/dev/sdX bs=4M` |
+| **VirtualBox** | vmdk, in VDI konvertieren, dann anhängen. Siehe [Auf VirtualBox ausführen](/de-de/virtualbox) |
+| **Microsoft Hyper-V** | vhdx, Generation-1-VM (validiert; das Image bootet über BIOS-Firmware, Gen 2 / UEFI ist ungetestet) |
+| **Microsoft Azure** | vhd, direkter Upload auf einen Managed Disk → Image → VM. Siehe [Auf Azure ausführen](/de-de/azure) |
+| **Google Cloud** | raw, `tar czf disk.tar.gz disk.raw && gcloud compute images create` |
+| **OpenStack** | raw, `openstack image create --disk-format raw` |
+| **AWS** | vmdk, mit VM Import als AMI importieren oder mit Packer ein natives AMI erstellen. Siehe [Auf AWS ausführen](/de-de/aws) |
+| **Bare Metal** | raw, `dd if=disk.raw of=/dev/sdX bs=4M` |
 
 ## Download verifizieren
 
@@ -67,7 +67,7 @@ Baut in ~1 Minute auf einem modernen Host mit KVM-Beschleunigung. Die Ausgaben l
 
 ## CI-Workflow
 
-`build-packer-images.yml` ist ausschließlich `workflow_dispatch` — Packer-Builds werden nicht bei jedem Push ausgelöst, weil sie langsam sind und Runner-Minuten verbrauchen. Lösen Sie sie gezielt für ein neues Release aus:
+`build-packer-images.yml` ist ausschließlich `workflow_dispatch`: Packer-Builds werden nicht bei jedem Push ausgelöst, weil sie langsam sind und Runner-Minuten verbrauchen. Lösen Sie sie gezielt für ein neues Release aus:
 
 ```bash
 gh workflow run build-packer-images.yml -f version=0.2.0
@@ -75,6 +75,6 @@ gh workflow run build-packer-images.yml -f version=0.2.0
 
 Der Workflow führt aus:
 
-1. **build-wizard** — Go-Build der Binärdatei des Setup-Assistenten.
-2. **build-qcow2** — Packer-Build, der alle fünf Formate erzeugt; xz-komprimiert; lädt jedes als separates Workflow-Artefakt hoch; hängt es bei `v*`-Tags an das GitHub-Release an.
-3. **boot-test** — Bootet das qcow2 in einer frischen KVM-VM, wartet auf den Abschluss von `soctalk-firstboot`, führt einen Playwright-Validator aus. Lässt den Workflow fehlschlagen, wenn das Image defekt ist, damit niemals ein fehlerhaftes Release an ein Tag angehängt wird.
+1. **build-wizard**: Go-Build der Binärdatei des Setup-Assistenten.
+2. **build-qcow2**: Packer-Build, der alle fünf Formate erzeugt; xz-komprimiert; lädt jedes als separates Workflow-Artefakt hoch; hängt es bei `v*`-Tags an das GitHub-Release an.
+3. **boot-test**: Bootet das qcow2 in einer frischen KVM-VM, wartet auf den Abschluss von `soctalk-firstboot`, führt einen Playwright-Validator aus. Lässt den Workflow fehlschlagen, wenn das Image defekt ist, damit niemals ein fehlerhaftes Release an ein Tag angehängt wird.

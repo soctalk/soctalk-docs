@@ -4,11 +4,11 @@ Métricas y logs para un MSSP que ejecuta SocTalk. Dos consumidores en mente: da
 
 ## Endpoint de Prometheus
 
-`GET /metrics` en el Service `soctalk-system-api` expone las métricas de la instalación en formato de exposición de Prometheus. Sin autenticación por diseño — restríngelo mediante una NetworkPolicy o un Ingress con `auth-basic`/lista de IP permitidas si no quieres que sea legible por todo el mundo.
+`GET /metrics` en el Service `soctalk-system-api` expone las métricas de la instalación en formato de exposición de Prometheus. Sin autenticación por diseño, restríngelo mediante una NetworkPolicy o un Ingress con `auth-basic`/lista de IP permitidas si no quieres que sea legible por todo el mundo.
 
 ## Estado de la instrumentación en V1
 
-El catálogo de métricas a continuación describe la superficie de métricas **definida** (en `src/soctalk/core/observability/metrics.py`). En V1 solo `soctalk_tenant_adapter_heartbeat_age_seconds` es actualizada de forma visible por el código (en el manejador del heartbeat del adaptador). Las demás métricas están definidas pero **aún no instrumentadas en los puntos de llamada** — se exportarán como cero/vacías. Trata la tabla como el objetivo de diseño hasta que aterricen los hooks de runtime.
+El catálogo de métricas a continuación describe la superficie de métricas **definida** (en `src/soctalk/core/observability/metrics.py`). En V1 solo `soctalk_tenant_adapter_heartbeat_age_seconds` es actualizada de forma visible por el código (en el manejador del heartbeat del adaptador). Las demás métricas están definidas pero **aún no instrumentadas en los puntos de llamada**: se exportarán como cero/vacías. Trata la tabla como el objetivo de diseño hasta que aterricen los hooks de runtime.
 
 ## Contadores por tenant (superficie definida)
 
@@ -20,7 +20,7 @@ Todos etiquetados con `tenant_id`. La cardinalidad está acotada por el número 
 | `soctalk_tenant_investigations_opened_total` | counter | Investigaciones abiertas | todavía no |
 | `soctalk_tenant_investigations_closed_total{disposition}` | counter | Cerradas por disposición | todavía no |
 | `soctalk_tenant_pending_reviews` | gauge | Revisiones esperando en una compuerta humana | todavía no |
-| `soctalk_tenant_llm_tokens_total{direction}` | counter | Tokens de LLM de entrada/salida — el impulsor del costo | todavía no |
+| `soctalk_tenant_llm_tokens_total{direction}` | counter | Tokens de LLM de entrada/salida, el impulsor del costo | todavía no |
 | `soctalk_tenant_adapter_heartbeat_age_seconds` | gauge | Segundos desde el último heartbeat del adaptador | **sí** (actualizada por `/api/internal/adapter/heartbeat`). **La transición de degradación automática no está implementada**; úsala como tu propia entrada de alertas |
 
 ## Contadores a nivel de instalación (superficie definida)
@@ -39,20 +39,20 @@ Todos etiquetados con `tenant_id`. La cardinalidad está acotada por el número 
 
 - Disponibilidad de pods (estilo Wazuh: mosaicos verde/amarillo/rojo por Deployment)
 - `soctalk_api_request_duration_seconds` p50/p95/p99 por `path_template`
-- `soctalk_install_tenants_total` apilado por estado — salud de la flota de un vistazo
-- Mapa de calor de `soctalk_tenant_adapter_heartbeat_age_seconds` por tenant — detecta a un cliente que se está degradando antes de que llame
+- `soctalk_install_tenants_total` apilado por estado, salud de la flota de un vistazo
+- Mapa de calor de `soctalk_tenant_adapter_heartbeat_age_seconds` por tenant, detecta a un cliente que se está degradando antes de que llame
 
 ### Costo por tenant
 
-- `rate(soctalk_tenant_llm_tokens_total[1h])` apilado por tenant — los que más gastan esta hora
+- `rate(soctalk_tenant_llm_tokens_total[1h])` apilado por tenant, los que más gastan esta hora
 - Total diario de tokens × el $/Mtok de tu proveedor = proyección de costo
-- Consumo restante frente al presupuesto de tokens por ejecución (`case_runs.tokens_budget`, valor por defecto del modelo 200,000; el valor por defecto de respaldo de la variable de entorno `SOCTALK_CASE_RUN_TOKEN_BUDGET` de 15,000 solo aplica cuando la fila no tiene valor) — ¿con qué frecuencia una sola ejecución revienta el presupuesto?
+- Consumo restante frente al presupuesto de tokens por ejecución (`case_runs.tokens_budget`, valor por defecto del modelo 200,000; el valor por defecto de respaldo de la variable de entorno `SOCTALK_CASE_RUN_TOKEN_BUDGET` de 15,000 solo aplica cuando la fila no tiene valor), ¿con qué frecuencia una sola ejecución revienta el presupuesto?
 
 ### A nivel de servicio
 
-- `rate(soctalk_tenant_investigations_opened_total[5m])` — tasa de ingreso
-- `rate(soctalk_tenant_investigations_closed_total{disposition="escalate"}[1h])` — tasa de escalamiento (esto también vive en la página de [Analítica](/es-419/mssp-ui#analytics))
-- `soctalk_tenant_pending_reviews` — humanos por detrás / por delante de la cola
+- `rate(soctalk_tenant_investigations_opened_total[5m])`: tasa de ingreso
+- `rate(soctalk_tenant_investigations_closed_total{disposition="escalate"}[1h])`: tasa de escalamiento (esto también vive en la página de [Analítica](/es-419/mssp-ui#analytics))
+- `soctalk_tenant_pending_reviews`: humanos por detrás / por delante de la cola
 
 ## Logs
 
@@ -104,6 +104,6 @@ Ajusta el umbral a la tasa normal esperada de tu instalación. Un pico normalmen
 
 ## Lo que no está aquí
 
-- **Trazas distribuidas de decisiones HIL** — los humanos no están en las trazas de OTel; el log de auditoría es la fuente de verdad de quién decidió qué.
-- **SLOs de extremo a extremo por cliente** — Analítica hace esto en la UI; el PromQL para ellos está en el roadmap como dashboards canónicos (hoy son definidos por la instalación).
-- **Monitoreo sintético** — fuera del alcance de SocTalk en sí. Usa tu servicio de sondas externas habitual contra la URL del SOC del cliente.
+- **Trazas distribuidas de decisiones HIL**: los humanos no están en las trazas de OTel; el log de auditoría es la fuente de verdad de quién decidió qué.
+- **SLOs de extremo a extremo por cliente**: Analítica hace esto en la UI; el PromQL para ellos está en el roadmap como dashboards canónicos (hoy son definidos por la instalación).
+- **Monitoreo sintético**: fuera del alcance de SocTalk en sí. Usa tu servicio de sondas externas habitual contra la URL del SOC del cliente.

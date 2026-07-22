@@ -8,13 +8,13 @@ Une plateforme SOC multi-tenant conçue pour les MSP et les MSSP. Un plan de con
 
 ## Qu'est-ce qui est open source par rapport au commercial ?
 
-**Tout ce qui se trouve dans le dépôt [`soctalk/soctalk`](https://github.com/soctalk/soctalk) est sous licence Apache 2.0** — le plan de contrôle, le pipeline AI, l'intégration Wazuh, les charts, la VM de démonstration. Il n'existe aucune séparation de fonctionnalités « communauté vs entreprise ».
+**Tout ce qui se trouve dans le dépôt [`soctalk/soctalk`](https://github.com/soctalk/soctalk) est sous licence Apache 2.0**: le plan de contrôle, le pipeline AI, l'intégration Wazuh, les charts, la VM de démonstration. Il n'existe aucune séparation de fonctionnalités « communauté vs entreprise ».
 
 Un service d'hébergement géré (SocTalk Cloud) existe pour les MSP qui ne veulent pas exploiter la plateforme eux-mêmes. Le service hébergé utilise le même code que la distribution ouverte.
 
 ## Puis-je l'évaluer sans cluster Kubernetes ?
 
-Oui — l'[image de VM de démonstration](/fr-fr/quickstart-vm) est une installation mono-machine. Démarrez-la sur KVM, VMware, Hyper-V, Azure, ou convertissez-la depuis un format raw. Cinq minutes suffisent pour obtenir une installation multi-tenant fonctionnelle avec un tenant `demo` intégré.
+Oui, l'[image de VM de démonstration](/fr-fr/quickstart-vm) est une installation mono-machine. Démarrez-la sur KVM, VMware, Hyper-V, Azure, ou convertissez-la depuis un format raw. Cinq minutes suffisent pour obtenir une installation multi-tenant fonctionnelle avec un tenant `demo` intégré.
 
 ## Puis-je l'exécuter sur un seul nœud de façon permanente ?
 
@@ -47,25 +47,25 @@ Très variable, il dépend de :
 - La sélection du modèle (`fast_model` + `reasoning_model`)
 - La fréquence à laquelle le verdict indique `needs_more_info` (ce qui provoque une nouvelle exécution)
 
-Ordre de grandeur avec le budget par défaut de 200 000 tokens par exécution et un usage typique : 30 alertes/jour × ~60k tokens/enquête × 5 $/Mtok en entrée ≈ 9 $/jour par tenant sur une configuration compatible OpenAI à bas coût. Ce chiffre est divisé par 5 à 10 avec un fast model moins cher. Voir [Observabilité — Coût par tenant](/fr-fr/observability#per-tenant-cost) pour le mesurer.
+Ordre de grandeur avec le budget par défaut de 200 000 tokens par exécution et un usage typique : 30 alertes/jour × ~60k tokens/enquête × 5 $/Mtok en entrée ≈ 9 $/jour par tenant sur une configuration compatible OpenAI à bas coût. Ce chiffre est divisé par 5 à 10 avec un fast model moins cher. Voir [Observabilité, Coût par tenant](/fr-fr/observability#per-tenant-cost) pour le mesurer.
 
 ## Différents clients peuvent-ils utiliser des modèles LLM différents ?
 
-Oui — surcharge par tenant au moment de l'intégration. Le modèle défini à l'échelle de l'installation est la valeur par défaut ; les tenants s'en écartent en spécifiant le leur. Voir [Fournisseurs LLM — Surcharges par tenant](/fr-fr/integrate/llm-providers#per-tenant-overrides).
+Oui, surcharge par tenant au moment de l'intégration. Le modèle défini à l'échelle de l'installation est la valeur par défaut ; les tenants s'en écartent en spécifiant le leur. Voir [Fournisseurs LLM, Surcharges par tenant](/fr-fr/integrate/llm-providers#per-tenant-overrides).
 
 ## Un client peut-il apporter sa propre clé LLM ?
 
-Oui — la surcharge par tenant s'applique aussi à la clé API. Le magasin faisant autorité est `IntegrationConfig.llm_api_key_plain` dans Postgres ; le contrôleur la matérialise dans `Secret/tenant-llm-key` au sein du namespace **du tenant** (et non `soctalk-system`), que le runs-worker monte. Utile pour l'isolation de la facturation.
+Oui, la surcharge par tenant s'applique aussi à la clé API. Le magasin faisant autorité est `IntegrationConfig.llm_api_key_plain` dans Postgres ; le contrôleur la matérialise dans `Secret/tenant-llm-key` au sein du namespace **du tenant** (et non `soctalk-system`), que le runs-worker monte. Utile pour l'isolation de la facturation.
 
 ## SocTalk envoie-t-il les données des clients à Anthropic / OpenAI ?
 
-Uniquement ce sur quoi le pipeline AI raisonne : le corps de l'alerte, les observables extraits et les sorties des workers. Le runtime n'exfiltre pas les données au repos — seulement ce qui figure dans l'état de l'enquête en cours. Si vous avez besoin d'une posture plus stricte, utilisez un endpoint LLM on-prem (vLLM, Ollama). Voir [Fournisseurs LLM — Basculer vers Anthropic / réglages runtime](/fr-fr/integrate/llm-providers#runtime-only-knobs-env-not-chart).
+Uniquement ce sur quoi le pipeline AI raisonne : le corps de l'alerte, les observables extraits et les sorties des workers. Le runtime n'exfiltre pas les données au repos, seulement ce qui figure dans l'état de l'enquête en cours. Si vous avez besoin d'une posture plus stricte, utilisez un endpoint LLM on-prem (vLLM, Ollama). Voir [Fournisseurs LLM, Basculer vers Anthropic / réglages runtime](/fr-fr/integrate/llm-providers#runtime-only-knobs-env-not-chart).
 
 ## Remplace-t-il mes analystes ?
 
 Non. SocTalk est positionné comme un **copilote**, pas comme un remplacement. Le nœud de verdict décide `escalate | close | needs_more_info` ; une escalade passe toujours par une porte de [revue humaine](/fr-fr/human-review). Sans l'humain, un MSSP à fort volume aurait toujours besoin d'analystes pour traiter les décisions que SocTalk leur achemine.
 
-La valeur réside dans la compression — la même équipe d'analystes peut gérer 5 à 10 fois le volume d'alertes, car les cas de routine se clôturent automatiquement et seuls les cas ambigus atteignent la revue humaine.
+La valeur réside dans la compression, la même équipe d'analystes peut gérer 5 à 10 fois le volume d'alertes, car les cas de routine se clôturent automatiquement et seuls les cas ambigus atteignent la revue humaine.
 
 ## Fonctionne-t-il sans Wazuh ?
 
@@ -83,15 +83,15 @@ Voir [Modèle de sécurité](/fr-fr/reference/security-model) pour la posture co
 
 ## Puis-je l'exécuter sur EKS / AKS / GKE ?
 
-Oui — le chart cible un Kubernetes standard 1.30+. Branchez la StorageClass, le contrôleur d'ingress et le solveur DNS-01 cert-manager de votre cloud. Le [guide d'installation](/fr-fr/install) est centré sur K3s parce que c'est la distribution par défaut ; le chart lui-même n'y attache aucune importance.
+Oui, le chart cible un Kubernetes standard 1.30+. Branchez la StorageClass, le contrôleur d'ingress et le solveur DNS-01 cert-manager de votre cloud. Le [guide d'installation](/fr-fr/install) est centré sur K3s parce que c'est la distribution par défaut ; le chart lui-même n'y attache aucune importance.
 
 ## Passe-t-il à l'échelle de N clients ?
 
-Testé jusqu'à ~50 tenants sur un cluster à 3 nœuds (16 vCPU / 64 Go / nœud). Le goulot d'étranglement est généralement l'indexeur Wazuh par tenant (chaque indexeur est un processus Java avec son propre heap) plutôt que le plan de contrôle SocTalk. Prévoyez ~6 à 8 Go de RAM et ~1,5 vCPU par tenant en profil `persistent` — voir [Dimensionnement](/fr-fr/reference/sizing).
+Testé jusqu'à ~50 tenants sur un cluster à 3 nœuds (16 vCPU / 64 Go / nœud). Le goulot d'étranglement est généralement l'indexeur Wazuh par tenant (chaque indexeur est un processus Java avec son propre heap) plutôt que le plan de contrôle SocTalk. Prévoyez ~6 à 8 Go de RAM et ~1,5 vCPU par tenant en profil `persistent`: voir [Dimensionnement](/fr-fr/reference/sizing).
 
 ## Qu'en est-il de la conformité (SOC 2, HIPAA, PCI) ?
 
-La posture de la plateforme prend en charge les audits de type SOC 2 — journal d'audit en ajout seul, RBAC, chiffrement au repos (Postgres + indexeur Wazuh), chiffrement en transit. Elle n'est **pas** livrée avec une attestation SOC 2 ; c'est la responsabilité du MSSP pour son hébergement.
+La posture de la plateforme prend en charge les audits de type SOC 2, journal d'audit en ajout seul, RBAC, chiffrement au repos (Postgres + indexeur Wazuh), chiffrement en transit. Elle n'est **pas** livrée avec une attestation SOC 2 ; c'est la responsabilité du MSSP pour son hébergement.
 
 Pour HIPAA / PCI, le plan de données (Wazuh) contient souvent des données concernées par le périmètre. Traitez ce PVC comme faisant partie du périmètre et sauvegardez-le en conséquence (voir [Sauvegarde et restauration](/fr-fr/backup-restore)).
 

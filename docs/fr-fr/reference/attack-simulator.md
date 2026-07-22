@@ -1,11 +1,11 @@
 # Simulateur d'attaque et linux-ep
 
-Une paire d'outils de démonstration qui génèrent des alertes Wazuh réalistes afin qu'un opérateur MSSP puisse voir le [pipeline d'IA](/fr-fr/ai-pipeline) de SocTalk réellement à l'œuvre. Fortement recommandée pour les évaluations et les démonstrations en direct — sans alertes, l'agent n'a rien à trier.
+Une paire d'outils de démonstration qui génèrent des alertes Wazuh réalistes afin qu'un opérateur MSSP puisse voir le [pipeline d'IA](/fr-fr/ai-pipeline) de SocTalk réellement à l'œuvre. Fortement recommandée pour les évaluations et les démonstrations en direct, sans alertes, l'agent n'a rien à trier.
 
 Les deux sont livrés avec la distribution FOSS. Source :
 
-- [`attack-simulator/`](https://github.com/soctalk/soctalk/tree/main/attack-simulator) — scripts et pack de règles
-- [`charts/linux-ep/`](https://github.com/soctalk/soctalk/tree/main/charts/linux-ep) — chart Kubernetes qui exécute le simulateur
+- [`attack-simulator/`](https://github.com/soctalk/soctalk/tree/main/attack-simulator), scripts et pack de règles
+- [`charts/linux-ep/`](https://github.com/soctalk/soctalk/tree/main/charts/linux-ep), chart Kubernetes qui exécute le simulateur
 
 ## Chart linux-ep
 
@@ -40,7 +40,7 @@ Pour l'[image de VM de démonstration](/fr-fr/quickstart-vm), le simulateur est 
 | `wazuh.managerHost` | "" (requis) | Le nom d'hôte du Service Wazuh manager du tenant (par ex. `wazuh-demo-wazuh-manager`) |
 | `wazuh.credsSecret.name` | "" (requis) | Secret existant contenant le mot de passe d'enrôlement `authd` (généralement `wazuh-<slug>-wazuh-creds`) |
 | `wazuh.credsSecret.authdPasswordKey` | `AUTHD_PASS` | Clé du Secret pour le mot de passe `authd` |
-| `simulator.enabled` | `false` | Interrupteur principal. Désactivé par défaut — le laisser désactivé maintient les pods inactifs (aucune alerte synthétique) |
+| `simulator.enabled` | `false` | Interrupteur principal. Désactivé par défaut, le laisser désactivé maintient les pods inactifs (aucune alerte synthétique) |
 | `simulator.attackDelay` | 10 | Secondes après le démarrage du pod (agent enrôlé) avant le premier TTP |
 | `simulator.attackInterval` | 120 | Secondes entre les TTP suivants |
 | `simulator.dailyAlertCap` | 30 | Plafond par pod d'émissions `SOCTALK_ATTACK` par jour UTC. 0 désactive le plafond |
@@ -75,9 +75,9 @@ Chaque script émet une ligne syslog étiquetée `SOCTALK_ATTACK <TTP>: <descrip
 
 [`charts/wazuh/templates/manager-local-rules.yaml`](https://github.com/soctalk/soctalk/blob/main/charts/wazuh/templates/manager-local-rules.yaml) fournit des règles personnalisées dans la plage 100200-100299 :
 
-- **100200** — chain-root : correspond à toute ligne syslog `SOCTALK_ATTACK`
-- **100210 – 100225** — règles par TTP : attribuent une sévérité (niveau 10–14) et des tags par technique MITRE
-- **100299** — règle attrape-tout pour les TTP non mappés (sévérité 8)
+- **100200**: chain-root : correspond à toute ligne syslog `SOCTALK_ATTACK`
+- **100210 – 100225**: règles par TTP : attribuent une sévérité (niveau 10–14) et des tags par technique MITRE
+- **100299**: règle attrape-tout pour les TTP non mappés (sévérité 8)
 
 Les alertes produites portent les champs MITRE `attack.tactic`, `attack.technique` et une description lisible par un humain, de sorte que le [`wazuh_worker`](/fr-fr/ai-pipeline) de SocTalk dispose d'un contexte structuré pour raisonner.
 
@@ -91,7 +91,7 @@ sudo /opt/scripts/run-attack.sh T1110
 sudo /opt/scripts/run-attack.sh T1027.001
 ```
 
-`run-attack.sh` est le point d'entrée — il redirige vers les scripts propres à chaque TTP. Utile pour les démonstrations en direct où vous souhaitez déclencher une alerte spécifique sur commande.
+`run-attack.sh` est le point d'entrée, il redirige vers les scripts propres à chaque TTP. Utile pour les démonstrations en direct où vous souhaitez déclencher une alerte spécifique sur commande.
 
 ## Retirer le simulateur
 
@@ -105,7 +105,7 @@ Retire les pods d'endpoint. Le pack de règles Wazuh personnalisées reste en pl
 
 ## Ce qui n'est pas inclus ici
 
-- **Simulation d'endpoint Windows** — Linux uniquement dans cette version. Prévu à la feuille de route.
-- **Simulation d'endpoint macOS** — idem.
-- **Campagnes d'émulation d'adversaire** — TTP unique uniquement ; nous ne chaînons pas les TTP en scénarios multi-étapes.
-- **Intégration Atomic Red Team** — `attack-simulator` est artisanal ; il ne consomme pas directement le YAML d'Atomic. La compatibilité est prévue à la feuille de route.
+- **Simulation d'endpoint Windows**: Linux uniquement dans cette version. Prévu à la feuille de route.
+- **Simulation d'endpoint macOS**: idem.
+- **Campagnes d'émulation d'adversaire**: TTP unique uniquement ; nous ne chaînons pas les TTP en scénarios multi-étapes.
+- **Intégration Atomic Red Team**: `attack-simulator` est artisanal ; il ne consomme pas directement le YAML d'Atomic. La compatibilité est prévue à la feuille de route.

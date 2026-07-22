@@ -1,6 +1,6 @@
 # Operazioni quotidiane
 
-Attività che gli operatori MSSP eseguono su un'installazione SocTalk attiva. Se non l'hai ancora fatto, leggi prima il [Tour dell'interfaccia MSSP](/it-it/mssp-ui) — cataloga tutte le pagine referenziate di seguito.
+Attività che gli operatori MSSP eseguono su un'installazione SocTalk attiva. Se non l'hai ancora fatto, leggi prima il [Tour dell'interfaccia MSSP](/it-it/mssp-ui), cataloga tutte le pagine referenziate di seguito.
 
 ## Coda delle indagini
 
@@ -10,7 +10,7 @@ Apri **Investigations** per vedere in un'unica vista i casi attivi di ogni tenan
 
 ## Coda di revisione delle proposte
 
-**Reviews** è la coda cross-tenant delle proposte AI in attesa di un intervento umano. Approva / rifiuta / richiedi maggiori informazioni: ciascuna azione aggiorna la riga di revisione nel database (e nell'audit log). In V1 **non esiste alcuna outbox** — l'executor e la pipeline di notifica a valle sono in roadmap.
+**Reviews** è la coda cross-tenant delle proposte AI in attesa di un intervento umano. Approva / rifiuta / richiedi maggiori informazioni: ciascuna azione aggiorna la riga di revisione nel database (e nell'audit log). In V1 **non esiste alcuna outbox**: l'executor e la pipeline di notifica a valle sono in roadmap.
 
 ![Review queue](/screenshots/review-queue.png)
 
@@ -66,7 +66,7 @@ Se il data plane è integro ma l'adapter continua a non raggiungere `soctalk-sys
 
 ## Ruotare i secret di bootstrap del data plane
 
-In questa release non esiste alcun comando `soctalk-cli rotate-*` — quel percorso era documentato in bozze precedenti. Ad oggi:
+In questa release non esiste alcun comando `soctalk-cli rotate-*`: quel percorso era documentato in bozze precedenti. Ad oggi:
 
 - **Password admin di Wazuh:** applica una patch al Secret pertinente nel namespace del tenant, quindi riavvia il pod interessato. La riesecuzione del bootstrap del chart all'avvio del pod recupererà la nuova credenziale. TheHive e Cortex sono integrazioni esterne, non subchart bundle, quindi le loro credenziali si ruotano in quei sistemi e si aggiornano tramite la configurazione dell'integrazione (vedi /it-it/integrate/thehive, /it-it/integrate/cortex).
 - **Secret condiviso `authd` di Wazuh:** applica una patch a `Secret/wazuh-authd-secret` in `tenant-<slug>`, riavvia il manager Wazuh. Tutti gli agenti esistenti devono ri-effettuare l'enrollment con il nuovo secret; distribuiscilo tramite il tuo normale canale sicuro.
@@ -97,7 +97,7 @@ I backup sono gestiti esternamente dall'MSSP (Velero, snapshot del cluster, `pg_
    ```bash
    kubectl -n soctalk-system scale deploy soctalk-system-api --replicas=0
    ```
-   (Il chart V1 integra l'orchestrator nel pod dell'API — nessun Deployment `soctalk-system-orchestrator` separato.)
+   (Il chart V1 integra l'orchestrator nel pod dell'API, nessun Deployment `soctalk-system-orchestrator` separato.)
 2. Ripristina i dati Postgres dal tuo backup.
 3. Riavvia l'API: `kubectl -n soctalk-system scale deploy soctalk-system-api --replicas=2` (o il tuo normale conteggio di repliche).
 
@@ -105,7 +105,7 @@ I PVC del data plane del tenant seguono lo stesso schema: ripristina per singolo
 
 ## Emergenza: disabilitare immediatamente un tenant
 
-L'azione **Suspend** dell'interfaccia, in questa release, porta lo stato del tenant a `suspended` e impedisce all'orchestrator di pianificare nuove indagini — **ma non scala i workload**. Per un blocco effettivo, esegui i passaggi seguenti (scala tutti i deployment + applica una NetworkPolicy deny-all come ulteriore misura di sicurezza):
+L'azione **Suspend** dell'interfaccia, in questa release, porta lo stato del tenant a `suspended` e impedisce all'orchestrator di pianificare nuove indagini, **ma non scala i workload**. Per un blocco effettivo, esegui i passaggi seguenti (scala tutti i deployment + applica una NetworkPolicy deny-all come ulteriore misura di sicurezza):
 
 ```bash
 # 1. Scala a zero tutti i workload nel namespace del tenant. Questo è lo
@@ -125,7 +125,7 @@ spec:
 EOF
 ```
 
-Per invertire, elimina la NetworkPolicy, riporta i workload ai conteggi di repliche originali e chiama **Resume** nell'interfaccia. Anche **Resume**, in questa release, aggiorna soltanto lo stato nel DB — non ripristinerà i conteggi di repliche al posto tuo.
+Per invertire, elimina la NetworkPolicy, riporta i workload ai conteggi di repliche originali e chiama **Resume** nell'interfaccia. Anche **Resume**, in questa release, aggiorna soltanto lo stato nel DB, non ripristinerà i conteggi di repliche al posto tuo.
 
 ## Sospetto di data leak cross-tenant
 

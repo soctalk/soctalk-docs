@@ -362,7 +362,7 @@ Regole:
 3. I webhook in ingresso da TheHive sono accettati solo per case dashboard read-only
    (non in v1). Qualsiasi tentativo di accettare stato in ingresso viene
    esplicitamente rifiutato e loggato.
-4. Nessun loop di riconciliazione — TheHive è un mirror a valle, la sorgente
+4. Nessun loop di riconciliazione, TheHive è un mirror a valle, la sorgente
    di verità è SocTalk.
 5. Gli export falliti vengono ritentati con backoff esponenziale fino a un cap; il
    fallimento permanente emerge sul pannello di salute delle integrazioni.

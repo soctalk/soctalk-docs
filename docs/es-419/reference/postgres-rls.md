@@ -2,7 +2,7 @@
 
 El modelo de tres roles de Postgres, las plantillas de políticas RLS, la disciplina de `FORCE ROW LEVEL SECURITY` y las pruebas de aislamiento que SocTalk ejecuta en CI.
 
-> **Nota sobre el despliegue V1.** El texto siguiente se refiere a los "pods de API" y a los "pods de orquestador" como cargas de trabajo separadas — el modelo de roles y las reglas de acceso siguen siendo correctos. En el chart V1 están **co-ubicados en un único Deployment `soctalk-system-api`**, por lo que cada referencia a un "pod de orquestador" corresponde a ese único conjunto de pods en esta versión.
+> **Nota sobre el despliegue V1.** El texto siguiente se refiere a los "pods de API" y a los "pods de orquestador" como cargas de trabajo separadas, el modelo de roles y las reglas de acceso siguen siendo correctos. En el chart V1 están **co-ubicados en un único Deployment `soctalk-system-api`**, por lo que cada referencia a un "pod de orquestador" corresponde a ese único conjunto de pods en esta versión.
 
 ## Roles
 
@@ -11,7 +11,7 @@ Tres roles de Postgres. Ninguna aplicación se conecta jamás como el superusuar
 | Rol | Propósito | Usado por | ¿DDL? | ¿BYPASSRLS? |
 |---|---|---|---|---|
 | `soctalk_admin` | Propietario de las tablas; usado únicamente por Alembic en tiempo de migración | Alembic (ejecutado mediante un Job dedicado de Kubernetes en el despliegue) | Sí | No |
-| `soctalk_app` | Rol de aplicación en tiempo de ejecución | Pods de API de SocTalk, pods de orquestador, jobs de worker — todo el tráfico "normal" | No | No |
+| `soctalk_app` | Rol de aplicación en tiempo de ejecución | Pods de API de SocTalk, pods de orquestador, jobs de worker, todo el tráfico "normal" | No | No |
 | `soctalk_mssp` | Rol elevado entre tenants | Principal `System` solo mediante `system_context()` | No | **Sí** |
 
 Justificación de tres roles, no dos: `soctalk_admin` no puede ejecutarse en tiempo de aplicación (demasiado privilegio) ni omitir RLS de forma no intencionada. `soctalk_app` está sujeto a RLS, de modo que los errores de la aplicación no puedan filtrar datos entre tenants. `soctalk_mssp` es intencionalmente entre tenants, pero está segregado únicamente a rutas de código auditadas.
@@ -59,9 +59,9 @@ Las tablas de solo anexado (append-only) nunca aparecen en tales grants. Las pru
 
 Credenciales almacenadas en Secrets de K8s bajo `soctalk-system`:
 
-- `soctalk-postgres-admin-creds` — montado únicamente en el Job de Alembic
-- `soctalk-postgres-app-creds` — montado en los pods de API + orquestador de SocTalk
-- `soctalk-postgres-mssp-creds` — montado únicamente en el pod de API de SocTalk (leído por la factory `system_context()`)
+- `soctalk-postgres-admin-creds`: montado únicamente en el Job de Alembic
+- `soctalk-postgres-app-creds`: montado en los pods de API + orquestador de SocTalk
+- `soctalk-postgres-mssp-creds`: montado únicamente en el pod de API de SocTalk (leído por la factory `system_context()`)
 
 ## Por qué `FORCE ROW LEVEL SECURITY`
 
@@ -149,7 +149,7 @@ CREATE POLICY users_tenant_scoped ON users
   );
 ```
 
-El acceso a los usuarios del lado MSSP (CRUD sobre las filas donde `tenant_id IS NULL`) se alcanza únicamente bajo el rol `soctalk_mssp`, que tiene `BYPASSRLS` y al que se ingresa exclusivamente a través del gestor de contexto `System` en los handlers de la MSSP-API. Una sesión `soctalk_app` delimitada por tenant — incluso una que ejecute una consulta de users con filtrado laxo — no puede ver ni modificar filas de usuarios MSSP bajo esta política.
+El acceso a los usuarios del lado MSSP (CRUD sobre las filas donde `tenant_id IS NULL`) se alcanza únicamente bajo el rol `soctalk_mssp`, que tiene `BYPASSRLS` y al que se ingresa exclusivamente a través del gestor de contexto `System` en los handlers de la MSSP-API. Una sesión `soctalk_app` delimitada por tenant, incluso una que ejecute una consulta de users con filtrado laxo, no puede ver ni modificar filas de usuarios MSSP bajo esta política.
 
 Por qué esto importa: un borrador anterior de la política admitía `tenant_id IS NULL` en `USING`/`WITH CHECK` "para que los joins de MSSP funcionaran". Eso era inseguro; `soctalk_mssp` no necesita RLS para ver filas de MSSP (las omite), y otorgar la misma ventana a `soctalk_app` abre una vía para que los endpoints de tenant filtren datos de usuarios MSSP mediante una consulta insuficientemente filtrada.
 
@@ -178,7 +178,7 @@ Razón: sin esto, una colisión de ID de alerta externa entre dos tenants provoc
 
 ## Pruebas de aislamiento
 
-### Prueba 1 — Sondeo de endpoint de aplicación
+### Prueba 1, Sondeo de endpoint de aplicación
 
 Para cada endpoint en `/api/tenant/*` y `/api/mssp/*`:
 
@@ -192,7 +192,7 @@ async def test_no_cross_tenant_access(client, seed_two_tenants):
     assert not any(item["tenant_id"] == str(tenant_b.id) for item in data["items"])
 ```
 
-### Prueba 2 — SQL directo bajo `soctalk_app`
+### Prueba 2, SQL directo bajo `soctalk_app`
 
 ```python
 async def test_raw_sql_respects_rls():
@@ -210,7 +210,7 @@ async def test_raw_sql_respects_rls():
         assert result.scalar() == 0
 ```
 
-### Prueba 3 — Contexto por defecto del worker
+### Prueba 3, Contexto por defecto del worker
 
 ```python
 async def test_worker_without_context_sees_nothing():
@@ -222,7 +222,7 @@ async def test_worker_without_context_sees_nothing():
         await hostile_worker({})
 ```
 
-### Prueba 4 — FORCE RLS atrapa al propietario
+### Prueba 4, FORCE RLS atrapa al propietario
 
 ```python
 async def test_admin_role_is_rls_subject():
@@ -231,7 +231,7 @@ async def test_admin_role_is_rls_subject():
         assert result.scalar() == 0  # admin is NOT bypassing
 ```
 
-### Prueba 5 — El rol MSSP puede omitir intencionalmente
+### Prueba 5, El rol MSSP puede omitir intencionalmente
 
 ```python
 async def test_mssp_role_bypasses_for_rollup():
@@ -240,7 +240,7 @@ async def test_mssp_role_bypasses_for_rollup():
         assert result.scalar() == total_events_across_tenants
 ```
 
-### Prueba 6 — Aislamiento del stream SSE
+### Prueba 6, Aislamiento del stream SSE
 
 ```python
 async def test_sse_no_cross_tenant_delivery(ws_client):
@@ -251,7 +251,7 @@ async def test_sse_no_cross_tenant_delivery(ws_client):
         await asyncio.wait_for(sub_a.receive(), timeout=2.0)
 ```
 
-### Prueba 7 — Aislamiento de idempotencia
+### Prueba 7, Aislamiento de idempotencia
 
 ```python
 async def test_idempotency_key_per_tenant():

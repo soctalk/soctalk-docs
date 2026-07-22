@@ -4,15 +4,15 @@ Os operadores fazem a maior parte das tarefas pela [UI do MSSP](/pt-br/mssp-ui) 
 
 ## Pontos de entrada dentro do pod
 
-Estes rodam dentro do `soctalk-system-api` (ou de um Job de execução única). Eles usam as credenciais do Postgres montadas no pod e a configuração do chart — sem estado externo.
+Estes rodam dentro do `soctalk-system-api` (ou de um Job de execução única). Eles usam as credenciais do Postgres montadas no pod e a configuração do chart, sem estado externo.
 
 ### Bootstrap
 
-Não há uma CLI de bootstrap separada nesta versão — o comando de init do pod da API do chart executa o bootstrap inline (migrations, senhas de role, linha de organização, usuário admin opcional). Veja [Instalação — Migrations e bootstrap](/pt-br/install#migrations-and-bootstrap-run-automatically).
+Não há uma CLI de bootstrap separada nesta versão, o comando de init do pod da API do chart executa o bootstrap inline (migrations, senhas de role, linha de organização, usuário admin opcional). Veja [Instalação, Migrations e bootstrap](/pt-br/install#migrations-and-bootstrap-run-automatically).
 
 ### Teste de fumaça de LLM
 
-Não há uma CLI `soctalk.llm.smoke_test` nesta versão. Para verificar rapidamente se um LLM configurado está acessível, veja [Provedores de LLM — Teste de sanidade](/pt-br/integrate/llm-providers#sanity-test) para a expressão Python de uma linha.
+Não há uma CLI `soctalk.llm.smoke_test` nesta versão. Para verificar rapidamente se um LLM configurado está acessível, veja [Provedores de LLM, Teste de sanidade](/pt-br/integrate/llm-providers#sanity-test) para a expressão Python de uma linha.
 
 ### `soctalk-auth` (helper dentro do pod)
 
@@ -27,7 +27,7 @@ Solicita uma nova senha (ou lê de `SOCTALK_PASSWORD`), procura o usuário, defi
 
 ### `soctalk` (ponto de entrada do orquestrador)
 
-`soctalk` é o ponto de entrada do orquestrador — executa o supervisor LangGraph + workers. Na V1, o pod da API embute o orquestrador (sem um Deployment `soctalk-system-orchestrator` separado). Normalmente não é invocado manualmente fora do ambiente de desenvolvimento.
+`soctalk` é o ponto de entrada do orquestrador, executa o supervisor LangGraph + workers. Na V1, o pod da API embute o orquestrador (sem um Deployment `soctalk-system-orchestrator` separado). Normalmente não é invocado manualmente fora do ambiente de desenvolvimento.
 
 ### Ainda não há um `soctalk-cli` de uso geral
 

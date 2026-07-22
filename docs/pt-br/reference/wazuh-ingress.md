@@ -23,7 +23,7 @@ Cada tenant recebe um nome DNS dedicado (`acme.soc.mssp.example.com`) que resolv
 
 Duas implementações de endereçamento por tenant são suportadas:
 
-1. **Service LoadBalancer por tenant (padrão recomendado; ainda não integrado no chart).** O subchart `wazuh` atual cria o `Service` do Wazuh manager apenas como `ClusterIP` — **não há provisionamento automático de LoadBalancer ou DNS** neste release. Para tornar um tenant roteável a partir da internet pública hoje, você deve: adicionar você mesmo uma camada de Service LoadBalancer externo (`kubectl apply` manual), colocar cada tenant atrás de um HAProxy / NGINX de borda com SNI por tenant ou mapeamento de portas, ou usar a topologia de porta por tenant descrita abaixo. LB em nuvem + DNS por tenant é o destino documentado; chegar lá exige integração manual no lado do MSSP.
+1. **Service LoadBalancer por tenant (padrão recomendado; ainda não integrado no chart).** O subchart `wazuh` atual cria o `Service` do Wazuh manager apenas como `ClusterIP`: **não há provisionamento automático de LoadBalancer ou DNS** neste release. Para tornar um tenant roteável a partir da internet pública hoje, você deve: adicionar você mesmo uma camada de Service LoadBalancer externo (`kubectl apply` manual), colocar cada tenant atrás de um HAProxy / NGINX de borda com SNI por tenant ou mapeamento de portas, ou usar a topologia de porta por tenant descrita abaixo. LB em nuvem + DNS por tenant é o destino documentado; chegar lá exige integração manual no lado do MSSP.
 2. **Porta por tenant em um único IP de borda (fallback).** Quando IPs únicos são escassos, aloque uma faixa de portas em um único IP de borda e atribua offsets `(1514, 1515)` por tenant (por exemplo, acme → 15140/15141, beta → 15142/15143). O DNS usa registros `SRV` ou a configuração `manager_address:port` do agente para direcionar. Operacionalmente incômodo, mas funciona.
 
 ### Topologia
@@ -56,7 +56,7 @@ DNS resolves to the LoadBalancer IP for tenant-acme
 
 ### DNS
 
-Registro `A`/`AAAA` por tenant: `<slug>.soc.mssp.example.com → <tenant LB IP>` é o design pretendido. **No V1, o SocTalk NÃO emite registros DNS** — o operador gerencia o DNS manualmente (external-dns / console do provedor) uma vez que o LB por tenant tenha sido provisionado fora de banda. Um caminho de emissão de DNS conduzido pelo SocTalk (anotações external-dns ou integração direta com o provedor) está no roadmap.
+Registro `A`/`AAAA` por tenant: `<slug>.soc.mssp.example.com → <tenant LB IP>` é o design pretendido. **No V1, o SocTalk NÃO emite registros DNS**: o operador gerencia o DNS manualmente (external-dns / console do provedor) uma vez que o LB por tenant tenha sido provisionado fora de banda. Um caminho de emissão de DNS conduzido pelo SocTalk (anotações external-dns ou integração direta com o provedor) está no roadmap.
 
 DNS curinga não funciona para o padrão LoadBalancer porque cada tenant tem seu próprio IP. Ele só funciona na topologia de fallback (porta por tenant), em que todos os nomes resolvem para o mesmo IP de borda.
 
@@ -80,7 +80,7 @@ O MSSP executa um dos seguintes:
 | Bare-metal ou on-prem | MetalLB (modo L2 ou BGP) com um pool de endereços, ou kube-vip. |
 | Borda de IP único com mapeamento de portas | Execute um proxy L4 externo (HAProxy, Envoy, nginx-stream) que encaminha pares `(IP, port)` para o `Service` do tenant. Use isto apenas na topologia de fallback por porta. |
 
-O design pretendido é que o `Service` do chart `soctalk-tenant` seja anotado para que os controladores de nuvem e o MetalLB possam aplicar seleção de pool/classe de IP (por exemplo, `metallb.universe.tf/address-pool: wazuh-agents`), e o controlador do SocTalk registre o IP de LB resultante e escreva o registro DNS por tenant. **No V1, nenhum destes está integrado** — o Service do Wazuh manager é apenas `ClusterIP` e o controlador não faz polling para atribuição de IP de LB.
+O design pretendido é que o `Service` do chart `soctalk-tenant` seja anotado para que os controladores de nuvem e o MetalLB possam aplicar seleção de pool/classe de IP (por exemplo, `metallb.universe.tf/address-pool: wazuh-agents`), e o controlador do SocTalk registre o IP de LB resultante e escreva o registro DNS por tenant. **No V1, nenhum destes está integrado**: o Service do Wazuh manager é apenas `ClusterIP` e o controlador não faz polling para atribuição de IP de LB.
 
 Se você precisar usar um único IP de borda (fallback), um mapeamento HAProxy de referência é assim:
 
@@ -110,7 +110,7 @@ backend tenant-beta-events
     server wazuh wazuh-manager.tenant-beta.svc.cluster.local:1514
 ```
 
-Não ramifique com base em `req.ssl_sni` para a 1514 do Wazuh. O protocolo de agente do Wazuh não é TLS padrão e nunca produz um ClientHello ali. O SNI está disponível apenas na 1515 (enrollment), o que é insuficiente — os eventos ainda precisariam de um discriminador funcional.
+Não ramifique com base em `req.ssl_sni` para a 1514 do Wazuh. O protocolo de agente do Wazuh não é TLS padrão e nunca produz um ClientHello ali. O SNI está disponível apenas na 1515 (enrollment), o que é insuficiente, os eventos ainda precisariam de um discriminador funcional.
 
 ## Fluxo de enrollment do agente
 
@@ -131,7 +131,7 @@ O registro do `authd` do Wazuh na 1515/TCP requer um segredo compartilhado. Cada
 4. O agente se registra com o manager do tenant e recebe seu próprio certificado por agente.
 5. As conexões subsequentes na 1514 são mTLS por agente.
 
-O roteamento na 1515 usa o mesmo endereço por tenant que a 1514 (IP de LB ou porta de borda). O segredo compartilhado `authd` tem escopo por tenant: um agente que usa o segredo do `acme` só pode se registrar com o manager do `acme` — o endereçamento aplica isso, e o segredo é verificado pelo manager.
+O roteamento na 1515 usa o mesmo endereço por tenant que a 1514 (IP de LB ou porta de borda). O segredo compartilhado `authd` tem escopo por tenant: um agente que usa o segredo do `acme` só pode se registrar com o manager do `acme`: o endereçamento aplica isso, e o segredo é verificado pelo manager.
 
 ## Requisitos de firewall / rede
 
@@ -225,6 +225,6 @@ Validação pré-release:
 
 Validação do piloto (release posterior):
 - Um endpoint real de cliente pela internet pública faz enrollment sem problemas.
-- Sonda cross-tenant: faça enrollment de um agente `acme` com o segredo `authd` do `beta` contra o endereço do `beta` — espere rejeição. E vice-versa. Ambos falham.
+- Sonda cross-tenant: faça enrollment de um agente `acme` com o segredo `authd` do `beta` contra o endereço do `beta`: espere rejeição. E vice-versa. Ambos falham.
 
 Não há etapa de SNI em nenhuma dessas verificações: o protocolo de agente do Wazuh na 1514 não produz um ClientHello, portanto qualquer teste que "sobrescreve o SNI" está exercitando um caminho de roteamento que o ingress de produção não seguirá. Valide o discriminador de endereço/porta em vez disso.

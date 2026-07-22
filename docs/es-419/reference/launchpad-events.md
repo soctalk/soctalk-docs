@@ -72,7 +72,7 @@ tearing_down → torn_down → complete
 | `provider_unavailable` | El proveedor upstream (Tailscale, Hetzner, ...) es inalcanzable. | sí        |
 | `quota`             | Cuota del lado del proveedor agotada.                               | no        |
 | `timeout`           | La espera superó una fecha límite de política.                     | sí        |
-| `internal`          | Bug del plugin/orquestador — ruta de error inesperada.             | no        |
+| `internal`          | Bug del plugin/orquestador, ruta de error inesperada.             | no        |
 | `network`           | Red local / TLS / DNS.                                              | sí        |
 | `cancelled`         | Ctrl-C o SIGTERM.                                                   | no        |
 

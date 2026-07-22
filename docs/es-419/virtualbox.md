@@ -61,19 +61,19 @@ Abre **VirtualBox** y haz clic en **New**.
 
 ![VirtualBox Manager](/screenshots/virtualbox-manager.png)
 
-**Name and Operating System** — nómbrala `soctalk-demo`, establece **Type** en *Linux* y **Version** en *Ubuntu (64-bit)*. Deja el ISO vacío:
+**Name and Operating System**: nómbrala `soctalk-demo`, establece **Type** en *Linux* y **Version** en *Ubuntu (64-bit)*. Deja el ISO vacío:
 
 ![Name and OS](/screenshots/virtualbox-create-name.png)
 
-**Hardware** — asígnale **8192 MB** de memoria y **4 CPUs** (el mínimo de [dimensionamiento](/es-419/reference/sizing) es 4 vCPU / 8 GB; la pila de Wazuh necesita la RAM):
+**Hardware**: asígnale **8192 MB** de memoria y **4 CPUs** (el mínimo de [dimensionamiento](/es-419/reference/sizing) es 4 vCPU / 8 GB; la pila de Wazuh necesita la RAM):
 
 ![Hardware](/screenshots/virtualbox-create-hardware.png)
 
-**Virtual Hard disk** — elige **Use an Existing Virtual Hard Disk File** y selecciona el `soctalk-demo-0.2.0.vdi` que convertiste:
+**Virtual Hard disk**: elige **Use an Existing Virtual Hard Disk File** y selecciona el `soctalk-demo-0.2.0.vdi` que convertiste:
 
 ![Use existing disk](/screenshots/virtualbox-create-disk.png)
 
-**Summary** — confirma la configuración y haz clic en **Finish**:
+**Summary**: confirma la configuración y haz clic en **Finish**:
 
 ![Summary](/screenshots/virtualbox-create-summary.png)
 
@@ -85,13 +85,13 @@ La VM aparece en el Manager con el VDI en su controlador SATA:
 
 Selecciona la VM y haz clic en **Settings**.
 
-**Storage** — bajo el controlador IDE, haz clic en la unidad óptica y elige tu `soctalk-seed.iso` (haz clic en el icono del disco → *Choose a disk file*). El VDI ya está en SATA:
+**Storage**: bajo el controlador IDE, haz clic en la unidad óptica y elige tu `soctalk-seed.iso` (haz clic en el icono del disco → *Choose a disk file*). El VDI ya está en SATA:
 
 ![Storage](/screenshots/virtualbox-storage.png)
 
-**Network** — establece **Adapter 1 → Attached to: Bridged Adapter** para que la VM obtenga una IP en tu LAN y puedas alcanzar el asistente directamente:
+**Network**: establece **Adapter 1 → Attached to: Bridged Adapter** para que la VM obtenga una IP en tu LAN y puedas alcanzar el asistente directamente:
 
-![Network — bridged](/screenshots/virtualbox-network.png)
+![Network, bridged](/screenshots/virtualbox-network.png)
 
 Haz clic en **OK**.
 

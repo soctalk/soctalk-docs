@@ -2,7 +2,7 @@
 
 Cosa esegue in backup un MSSP, con quale frequenza e come ripristinare. SocTalk mantiene tre livelli di stato; ciascuno ha il proprio percorso di backup e ripristino.
 
-Questa pagina approfondisce [Operazioni quotidiane — Ripristino del database](/it-it/operations#database-restore-disaster-recovery), che è la stessa procedura documentata a livello di runbook. Usa questa pagina per pianificare la strategia; usa la sezione operativa per i comandi da digitare.
+Questa pagina approfondisce [Operazioni quotidiane, Ripristino del database](/it-it/operations#database-restore-disaster-recovery), che è la stessa procedura documentata a livello di runbook. Usa questa pagina per pianificare la strategia; usa la sezione operativa per i comandi da digitare.
 
 ## Cosa mettere in backup
 
@@ -47,7 +47,7 @@ Per ogni namespace `tenant-<slug>`:
 | `cortex-data` | Elasticsearch di Cortex (se Cortex è abilitato) |
 | `thehive-data` | Cassandra di TheHive (se TheHive è abilitato) |
 
-I tenant con profilo `poc` usano `local-path`, che **non offre alcuna reale garanzia di persistenza** — il riavvio di un nodo può causare la perdita dei dati. I tenant con profilo `persistent` usano qualunque StorageClass l'installazione contrassegni come default; esegui il backup secondo la documentazione di quel provisioner.
+I tenant con profilo `poc` usano `local-path`, che **non offre alcuna reale garanzia di persistenza**: il riavvio di un nodo può causare la perdita dei dati. I tenant con profilo `persistent` usano qualunque StorageClass l'installazione contrassegni come default; esegui il backup secondo la documentazione di quel provisioner.
 
 ## Cadenza
 
@@ -78,16 +78,16 @@ Invia tramite pipe al tuo consueto store offsite (S3, GCS, Azure Blob).
 
 **Non integrata nel chart in questa release.** Il chart `soctalk-system` non espone un value `postgres.archiveCommand`, quindi il PITR richiede un deployment Postgres esterno allo StatefulSet incluso nel chart. Due percorsi:
 
-1. **Eseguire Postgres esternamente** (RDS gestito / Cloud SQL / Azure Database for PostgreSQL). Configura l'archiviazione WAL / PITR secondo la documentazione del provider. **Puntare il chart a un Postgres esterno non è integrato tramite values in V1** — il chart codifica in modo fisso i dettagli di connessione dello StatefulSet incluso nei Secrets delle credenziali di ruolo. Oggi questo significa o eseguire un proprio overlay helm che modifica la variabile env `DATABASE_URL` del Deployment dell'API, oppure modificare `soctalk-system-postgres-app-creds` / `-mssp-creds` / `-admin-creds` dopo l'installazione. Un value `postgres.external` è in roadmap.
+1. **Eseguire Postgres esternamente** (RDS gestito / Cloud SQL / Azure Database for PostgreSQL). Configura l'archiviazione WAL / PITR secondo la documentazione del provider. **Puntare il chart a un Postgres esterno non è integrato tramite values in V1**: il chart codifica in modo fisso i dettagli di connessione dello StatefulSet incluso nei Secrets delle credenziali di ruolo. Oggi questo significa o eseguire un proprio overlay helm che modifica la variabile env `DATABASE_URL` del Deployment dell'API, oppure modificare `soctalk-system-postgres-app-creds` / `-mssp-creds` / `-admin-creds` dopo l'installazione. Un value `postgres.external` è in roadmap.
 2. **Sidecar archiver** nel tuo overlay helm (ad esempio, [`spilo`](https://github.com/zalando/spilo) o [`wal-g`](https://github.com/wal-g/wal-g) come sidecar). Fuori dallo scope del chart; viene eseguito come Deployment separato che invia in streaming i WAL verso l'object storage.
 
-In entrambi i casi il lato SocTalk resta invariato — il data plane tratta Postgres come una dipendenza esterna. L'integrazione di un `archiveCommand` lato chart è pianificata per una release futura.
+In entrambi i casi il lato SocTalk resta invariato, il data plane tratta Postgres come una dipendenza esterna. L'integrazione di un `archiveCommand` lato chart è pianificata per una release futura.
 
 ## Ripristino (Postgres)
 
 Consulta il [runbook](/it-it/operations#database-restore-disaster-recovery). Riepilogo:
 
-1. Scala l'API a zero così che nulla stia scrivendo (il chart V1 integra l'orchestrator nel pod dell'API — un unico Deployment).
+1. Scala l'API a zero così che nulla stia scrivendo (il chart V1 integra l'orchestrator nel pod dell'API, un unico Deployment).
 2. Esegui `pg_restore` del dump (pulendo prima il DB).
 3. Se usi i WAL: riproduci i WAL fino al point-in-time desiderato.
 4. Riporta l'API in alto (scale up).
@@ -129,9 +129,9 @@ Per chi usa Velero, `velero backup create tenant-<slug>-daily --include-namespac
 
 ## Ripristino per-tenant
 
-1. Dismetti il tenant esistente (se presente) — questo elimina il namespace.
+1. Dismetti il tenant esistente (se presente), questo elimina il namespace.
 2. Ripristina i PVC in un namespace nuovo a partire dallo snapshot.
-3. Effettua l'onboarding di un tenant con lo stesso slug e profilo tramite `POST /api/mssp/tenants/onboard` — il provisioning è idempotente sul namespace, quindi l'installazione Helm adotterà i PVC ripristinati.
+3. Effettua l'onboarding di un tenant con lo stesso slug e profilo tramite `POST /api/mssp/tenants/onboard`: il provisioning è idempotente sul namespace, quindi l'installazione Helm adotterà i PVC ripristinati.
 4. Verifica che Wazuh veda gli agent esistenti (nessuna re-enrollment necessaria se il ripristino dei PVC è stato pulito).
 
 Se è corrotto solo il data plane (non il control plane di SocTalk), il percorso più semplice è `helm rollback tenant-<slug>` seguito dal ripristino dei PVC in-place.
@@ -149,6 +149,6 @@ Errori comuni che l'esercitazione intercetta:
 
 ## Cosa non è coperto qui
 
-- Disaster recovery a livello di cluster (perdita di un nodo del control plane, ecc.) — sono operazioni Kubernetes, non specifiche di SocTalk. Consulta la documentazione della tua distribuzione.
-- Recupero delle credenziali del provider LLM — fuori scope; gestiscilo con il tuo consueto runbook di rotazione dei segreti.
-- Backup degli endpoint lato cliente — responsabilità del cliente, non dell'MSSP.
+- Disaster recovery a livello di cluster (perdita di un nodo del control plane, ecc.), sono operazioni Kubernetes, non specifiche di SocTalk. Consulta la documentazione della tua distribuzione.
+- Recupero delle credenziali del provider LLM, fuori scope; gestiscilo con il tuo consueto runbook di rotazione dei segreti.
+- Backup degli endpoint lato cliente, responsabilità del cliente, non dell'MSSP.

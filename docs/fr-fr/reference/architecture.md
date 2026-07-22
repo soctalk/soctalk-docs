@@ -369,7 +369,7 @@ Règles :
 3. Les webhooks entrants de TheHive ne sont acceptés que pour les cases de
    tableau de bord en lecture seule (pas en v1). Toute tentative d'accepter un
    état entrant est explicitement rejetée et journalisée.
-4. Aucune boucle de réconciliation — TheHive est un miroir en aval, la source
+4. Aucune boucle de réconciliation, TheHive est un miroir en aval, la source
    de vérité est SocTalk.
 5. Les exports en échec réessaient avec un backoff exponentiel jusqu'à un
    plafond ; l'échec permanent remonte sur le panneau de santé des

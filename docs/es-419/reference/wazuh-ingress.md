@@ -131,7 +131,7 @@ El registro de `authd` de Wazuh en 1515/TCP requiere un secreto compartido. Cada
 4. El agente se registra con el manager del tenant y recibe su propio certificado por agente.
 5. Las conexiones posteriores en 1514 son mTLS por agente.
 
-El enrutamiento en 1515 usa la misma dirección por tenant que 1514 (IP de LB o puerto de borde). El secreto compartido de `authd` está acotado por tenant: un agente que usa el secreto de `acme` solo puede registrarse con el manager de `acme` — el direccionamiento lo impone y el manager verifica el secreto.
+El enrutamiento en 1515 usa la misma dirección por tenant que 1514 (IP de LB o puerto de borde). El secreto compartido de `authd` está acotado por tenant: un agente que usa el secreto de `acme` solo puede registrarse con el manager de `acme`: el direccionamiento lo impone y el manager verifica el secreto.
 
 ## Requisitos de firewall / red
 
@@ -225,6 +225,6 @@ Validación previa al lanzamiento:
 
 Validación del piloto (lanzamiento posterior):
 - Un endpoint de cliente real sobre internet público se inscribe sin problemas.
-- Sonda entre tenants: inscribe un agente de `acme` con el secreto de `authd` de `beta` contra la dirección de `beta` — se espera rechazo. Y viceversa. Ambos fallan.
+- Sonda entre tenants: inscribe un agente de `acme` con el secreto de `authd` de `beta` contra la dirección de `beta`: se espera rechazo. Y viceversa. Ambos fallan.
 
 No hay ningún paso de SNI en ninguna de estas comprobaciones: el protocolo de agente de Wazuh en 1514 no produce un ClientHello, así que cualquier prueba que "sobrescriba el SNI" está ejercitando una ruta de enrutamiento que el ingreso de producción no tomará. Valida en su lugar el discriminador de dirección/puerto.

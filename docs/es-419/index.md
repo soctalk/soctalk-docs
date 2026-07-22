@@ -30,18 +30,18 @@ features:
 
 ## Tres pasos para empezar
 
-**1. Evalúa — [VM de demostración](/es-419/quickstart-vm).** Una sola imagen, asistente en el navegador, 5 minutos hasta una instalación en funcionamiento con un tenant de demostración. Disponible como QCOW2, VMDK, VHDX, VHD y raw en la [página de descargas](/es-419/downloads). La mejor forma de ver al analista SOC con AI respondiendo consultas reales de Wazuh de extremo a extremo en una laptop.
+**1. Evalúa, [VM de demostración](/es-419/quickstart-vm).** Una sola imagen, asistente en el navegador, 5 minutos hasta una instalación en funcionamiento con un tenant de demostración. Disponible como QCOW2, VMDK, VHDX, VHD y raw en la [página de descargas](/es-419/downloads). La mejor forma de ver al analista SOC con AI respondiendo consultas reales de Wazuh de extremo a extremo en una laptop.
 
-**2. Piloto — [despliegue piloto MSSP](/es-419/mssp-pilot).** El siguiente paso recomendado: dos entornos on-premise (plano de control MSSP + 1-3 tenants), conectados por una malla VPN compatible con firewalls, ejecutando el flujo multi-tenant completo con datos reales de clientes. Estado final: un analista SOC con AI respondiendo preguntas a través de tus primeros clientes piloto, y una captura de pantalla lista para presentar a stakeholders.
+**2. Piloto, [despliegue piloto MSSP](/es-419/mssp-pilot).** El siguiente paso recomendado: dos entornos on-premise (plano de control MSSP + 1-3 tenants), conectados por una malla VPN compatible con firewalls, ejecutando el flujo multi-tenant completo con datos reales de clientes. Estado final: un analista SOC con AI respondiendo preguntas a través de tus primeros clientes piloto, y una captura de pantalla lista para presentar a stakeholders.
 
-**3. Producción — [guía de instalación](/es-419/install).** K3s + Cilium + cert-manager + Helm. Tómate una hora y termina con una instalación multi-tenant endurecida lista para tu base de clientes.
+**3. Producción, [guía de instalación](/es-419/install).** K3s + Cilium + cert-manager + Helm. Tómate una hora y termina con una instalación multi-tenant endurecida lista para tu base de clientes.
 
 ## Qué encontrarás aquí
 
-- [Comenzar](/es-419/install) — rutas de instalación (VM de demostración + producción), recorrido por la UI de MSSP.
-- [Operar](/es-419/operations) — operaciones diarias, ciclo de vida del tenant, actualizaciones, resolución de problemas.
-- [Integrar](/es-419/integrate/llm-providers) — proveedores de LLM, TheHive, Cortex, Slack.
-- [Referencia](/es-419/reference/architecture) — arquitectura, modelo de seguridad, RLS, contrato de chart, REST API.
-- [Contribuir](/es-419/contribute) — entorno de desarrollo, expectativas de los PR, proceso de release.
+- [Comenzar](/es-419/install), rutas de instalación (VM de demostración + producción), recorrido por la UI de MSSP.
+- [Operar](/es-419/operations), operaciones diarias, ciclo de vida del tenant, actualizaciones, resolución de problemas.
+- [Integrar](/es-419/integrate/llm-providers), proveedores de LLM, TheHive, Cortex, Slack.
+- [Referencia](/es-419/reference/architecture), arquitectura, modelo de seguridad, RLS, contrato de chart, REST API.
+- [Contribuir](/es-419/contribute), entorno de desarrollo, expectativas de los PR, proceso de release.
 
 Fuente: [github.com/soctalk/soctalk](https://github.com/soctalk/soctalk). Apache 2.0.

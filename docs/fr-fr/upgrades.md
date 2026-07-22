@@ -19,7 +19,7 @@ Avant toute mise à niveau :
 
 Le fichier `soctalk-system-values.yaml` issu de l'installation épingle `image.tag` à la version d'origine. Surchargez-le à chaque mise à niveau afin que le nouveau chart rende la nouvelle image. Modifiez le fichier dans le contrôle de version, ou passez `--set image.tag=<new-version>` sur chacune des commandes ci-dessous.
 
-Les migrations s'exécutent dans la commande d'initialisation du pod API (voir [Installation → Migrations et bootstrap](/fr-fr/install#migrations-and-bootstrap-run-automatically)). Un `helm upgrade` fait tourner le pod API ; la commande d'initialisation exécute `alembic upgrade head` avant le démarrage de la nouvelle application. Alembic est idempotent — le réexécuter sur un schéma à jour n'a aucun effet.
+Les migrations s'exécutent dans la commande d'initialisation du pod API (voir [Installation → Migrations et bootstrap](/fr-fr/install#migrations-and-bootstrap-run-automatically)). Un `helm upgrade` fait tourner le pod API ; la commande d'initialisation exécute `alembic upgrade head` avant le démarrage de la nouvelle application. Alembic est idempotent, le réexécuter sur un schéma à jour n'a aucun effet.
 
 ```bash
 helm upgrade soctalk-system oci://ghcr.io/soctalk/charts/soctalk-system \
@@ -36,7 +36,7 @@ Surveillez la migration :
 kubectl -n soctalk-system logs deploy/soctalk-system-api -c db-init --follow
 ```
 
-Si `--wait` reste bloqué, la cause la plus fréquente est un échec de migration — lisez les journaux d'initialisation.
+Si `--wait` reste bloqué, la cause la plus fréquente est un échec de migration, lisez les journaux d'initialisation.
 
 ### Rollback
 
@@ -62,7 +62,7 @@ helm upgrade tenant-<slug> oci://ghcr.io/soctalk/charts/soctalk-tenant \
 helm get values tenant-<slug> -n tenant-<slug> -a > /tmp/tenant-<slug>-values.yaml
 ```
 
-Une commande `soctalk-cli render-values` a été mentionnée précédemment dans ce guide, mais elle n'existe pas — le seul outil CLI disponible aujourd'hui est `soctalk-auth`.
+Une commande `soctalk-cli render-values` a été mentionnée précédemment dans ce guide, mais elle n'existe pas, le seul outil CLI disponible aujourd'hui est `soctalk-auth`.
 
 ### Rollback par tenant
 

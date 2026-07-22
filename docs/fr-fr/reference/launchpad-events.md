@@ -72,7 +72,7 @@ tearing_down → torn_down → complete
 | `provider_unavailable` | Le fournisseur en amont (Tailscale, Hetzner, ...) est injoignable. | oui       |
 | `quota`             | Quota épuisé côté fournisseur.                                      | non       |
 | `timeout`           | L'attente a dépassé un délai limite défini par la politique.        | oui       |
-| `internal`          | Bug du plugin/orchestrateur — chemin d'erreur inattendu.            | non       |
+| `internal`          | Bug du plugin/orchestrateur, chemin d'erreur inattendu.            | non       |
 | `network`           | Réseau local / TLS / DNS.                                           | oui       |
 | `cancelled`         | Ctrl-C ou SIGTERM.                                                  | non       |
 

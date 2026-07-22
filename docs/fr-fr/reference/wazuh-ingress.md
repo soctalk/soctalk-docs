@@ -23,7 +23,7 @@ Chaque tenant obtient un nom DNS dédié (`acme.soc.mssp.example.com`) qui se r�
 
 Deux implémentations de l'adressage par tenant sont prises en charge :
 
-1. **Service LoadBalancer par tenant (modèle recommandé ; pas encore câblé dans le chart).** Le sous-chart `wazuh` actuel crée le `Service` du manager Wazuh uniquement en `ClusterIP` — il n'y a **aucun provisionnement automatique de LoadBalancer ou de DNS** dans cette version. Pour rendre aujourd'hui un tenant routable depuis l'internet public, vous devez soit : superposer vous-même un Service LoadBalancer externe (`kubectl apply` manuel), placer chaque tenant derrière un HAProxy / NGINX de périphérie avec un SNI ou un mappage de ports par tenant, soit utiliser la topologie port-par-tenant décrite ci-dessous. Le LB cloud + DNS par tenant constitue la destination documentée ; y parvenir nécessite un câblage manuel côté MSSP.
+1. **Service LoadBalancer par tenant (modèle recommandé ; pas encore câblé dans le chart).** Le sous-chart `wazuh` actuel crée le `Service` du manager Wazuh uniquement en `ClusterIP`: il n'y a **aucun provisionnement automatique de LoadBalancer ou de DNS** dans cette version. Pour rendre aujourd'hui un tenant routable depuis l'internet public, vous devez soit : superposer vous-même un Service LoadBalancer externe (`kubectl apply` manuel), placer chaque tenant derrière un HAProxy / NGINX de périphérie avec un SNI ou un mappage de ports par tenant, soit utiliser la topologie port-par-tenant décrite ci-dessous. Le LB cloud + DNS par tenant constitue la destination documentée ; y parvenir nécessite un câblage manuel côté MSSP.
 2. **Port par tenant sur une seule IP de périphérie (solution de repli).** Lorsque les IPs uniques sont rares, allouez une plage de ports sur une IP de périphérie et affectez des décalages `(1514, 1515)` par tenant (par ex. acme → 15140/15141, beta → 15142/15143). Le DNS utilise des enregistrements `SRV` ou la configuration `manager_address:port` de l'agent pour l'aiguillage. Peu pratique sur le plan opérationnel, mais fonctionnel.
 
 ### Topologie
@@ -56,7 +56,7 @@ DNS resolves to the LoadBalancer IP for tenant-acme
 
 ### DNS
 
-Un enregistrement `A`/`AAAA` par tenant : `<slug>.soc.mssp.example.com → <tenant LB IP>` est la conception cible. **En V1, SocTalk N'ÉMET PAS d'enregistrements DNS** — l'opérateur gère le DNS manuellement (external-dns / console du fournisseur) une fois que le LB par tenant a été provisionné hors bande. Un chemin d'émission DNS piloté par SocTalk (annotations external-dns ou intégration directe au fournisseur) figure sur la feuille de route.
+Un enregistrement `A`/`AAAA` par tenant : `<slug>.soc.mssp.example.com → <tenant LB IP>` est la conception cible. **En V1, SocTalk N'ÉMET PAS d'enregistrements DNS**: l'opérateur gère le DNS manuellement (external-dns / console du fournisseur) une fois que le LB par tenant a été provisionné hors bande. Un chemin d'émission DNS piloté par SocTalk (annotations external-dns ou intégration directe au fournisseur) figure sur la feuille de route.
 
 Le DNS wildcard ne fonctionne pas pour le modèle LoadBalancer, car chaque tenant possède sa propre IP. Il ne fonctionne que dans la topologie de repli (port par tenant), où chaque nom se résout vers la même IP de périphérie.
 
@@ -80,7 +80,7 @@ Le MSSP exécute l'un des éléments suivants :
 | Bare-metal ou on-prem | MetalLB (mode L2 ou BGP) avec un pool d'adresses, ou kube-vip. |
 | Périphérie à IP unique avec mappage de ports | Exécutez un proxy L4 externe (HAProxy, Envoy, nginx-stream) qui transfère les paires `(IP, port)` vers le `Service` du tenant. À n'utiliser que dans la topologie de repli port-par-tenant. |
 
-La conception cible est que le `Service` du chart `soctalk-tenant` soit annoté afin que les contrôleurs cloud et MetalLB puissent appliquer une sélection de pool/classe d'IP (par ex. `metallb.universe.tf/address-pool: wazuh-agents`), et que le contrôleur SocTalk enregistre l'IP LB résultante et écrive l'enregistrement DNS par tenant. **En V1, aucun de ces éléments n'est câblé** — le Service du manager Wazuh est uniquement en `ClusterIP` et le contrôleur n'interroge pas pour l'attribution d'IP LB.
+La conception cible est que le `Service` du chart `soctalk-tenant` soit annoté afin que les contrôleurs cloud et MetalLB puissent appliquer une sélection de pool/classe d'IP (par ex. `metallb.universe.tf/address-pool: wazuh-agents`), et que le contrôleur SocTalk enregistre l'IP LB résultante et écrive l'enregistrement DNS par tenant. **En V1, aucun de ces éléments n'est câblé**: le Service du manager Wazuh est uniquement en `ClusterIP` et le contrôleur n'interroge pas pour l'attribution d'IP LB.
 
 Si vous devez utiliser une seule IP de périphérie (repli), un mappage HAProxy de référence ressemble à ceci :
 
@@ -110,7 +110,7 @@ backend tenant-beta-events
     server wazuh wazuh-manager.tenant-beta.svc.cluster.local:1514
 ```
 
-N'aiguillez pas sur `req.ssl_sni` pour Wazuh 1514. Le protocole d'agent de Wazuh n'est pas du TLS standard et ne produit jamais de ClientHello à cet endroit. Le SNI n'est disponible que sur 1515 (enrôlement), ce qui est insuffisant — les événements auraient toujours besoin d'un discriminateur fonctionnel.
+N'aiguillez pas sur `req.ssl_sni` pour Wazuh 1514. Le protocole d'agent de Wazuh n'est pas du TLS standard et ne produit jamais de ClientHello à cet endroit. Le SNI n'est disponible que sur 1515 (enrôlement), ce qui est insuffisant, les événements auraient toujours besoin d'un discriminateur fonctionnel.
 
 ## Flux d'enrôlement des agents
 
@@ -131,7 +131,7 @@ L'enregistrement `authd` de Wazuh sur 1515/TCP requiert un secret partagé. Chaq
 4. L'agent s'enregistre auprès du manager du tenant et reçoit son propre certificat par agent.
 5. Les connexions suivantes sur 1514 se font en mTLS par agent.
 
-Le routage sur 1515 utilise la même adresse par tenant que 1514 (IP LB ou port de périphérie). Le secret partagé `authd` est délimité par tenant : un agent utilisant le secret d'`acme` ne peut s'enregistrer qu'auprès du manager d'`acme` — l'adressage l'impose, et le secret est vérifié par le manager.
+Le routage sur 1515 utilise la même adresse par tenant que 1514 (IP LB ou port de périphérie). Le secret partagé `authd` est délimité par tenant : un agent utilisant le secret d'`acme` ne peut s'enregistrer qu'auprès du manager d'`acme`: l'adressage l'impose, et le secret est vérifié par le manager.
 
 ## Exigences en matière de pare-feu / réseau
 
@@ -225,6 +225,6 @@ Validation pré-version :
 
 Validation du pilote (version ultérieure) :
 - Un véritable endpoint client sur l'internet public s'enrôle proprement.
-- Sonde inter-tenant : enrôlez un agent `acme` avec le secret `authd` de `beta` contre l'adresse de `beta` — rejet attendu. Vice versa. Les deux échouent.
+- Sonde inter-tenant : enrôlez un agent `acme` avec le secret `authd` de `beta` contre l'adresse de `beta`: rejet attendu. Vice versa. Les deux échouent.
 
 Aucune de ces vérifications ne comporte d'étape SNI : le protocole d'agent de Wazuh sur 1514 ne produit pas de ClientHello, donc tout test qui « surcharge le SNI » exerce un chemin de routage que l'ingress de production n'empruntera pas. Validez plutôt le discriminateur adresse/port.

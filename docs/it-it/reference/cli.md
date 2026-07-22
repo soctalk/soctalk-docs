@@ -8,11 +8,11 @@ Questi vengono eseguiti all'interno di `soctalk-system-api` (o di un Job una tan
 
 ### Bootstrap
 
-In questa release non esiste una CLI di bootstrap separata: il comando di init del pod API del chart esegue il bootstrap in linea (migrazioni, password dei ruoli, riga dell'organizzazione, utente admin opzionale). Vedi [Installazione — Migrazioni e bootstrap](/it-it/install#migrations-and-bootstrap-run-automatically).
+In questa release non esiste una CLI di bootstrap separata: il comando di init del pod API del chart esegue il bootstrap in linea (migrazioni, password dei ruoli, riga dell'organizzazione, utente admin opzionale). Vedi [Installazione, Migrazioni e bootstrap](/it-it/install#migrations-and-bootstrap-run-automatically).
 
 ### Smoke test dell'LLM
 
-In questa release non esiste una CLI `soctalk.llm.smoke_test`. Per verificare che un LLM configurato sia raggiungibile, vedi [Provider LLM — Test di sanità](/it-it/integrate/llm-providers#sanity-test) per l'espressione Python in una riga.
+In questa release non esiste una CLI `soctalk.llm.smoke_test`. Per verificare che un LLM configurato sia raggiungibile, vedi [Provider LLM, Test di sanità](/it-it/integrate/llm-providers#sanity-test) per l'espressione Python in una riga.
 
 ### `soctalk-auth` (helper in-pod)
 

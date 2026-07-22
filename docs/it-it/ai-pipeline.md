@@ -1,6 +1,6 @@
 # Pipeline AI
 
-Cosa succede tra "arriva un alert" e "viene scritto un verdetto". Il livello di triage di SocTalk è una macchina a stati LangGraph — un supervisor che instrada il lavoro verso nodi worker specializzati, seguito da un nodo di verdetto che decide se il caso richiede una revisione umana.
+Cosa succede tra "arriva un alert" e "viene scritto un verdetto". Il livello di triage di SocTalk è una macchina a stati LangGraph, un supervisor che instrada il lavoro verso nodi worker specializzati, seguito da un nodo di verdetto che decide se il caso richiede una revisione umana.
 
 Questa pagina è il modello mentale. Il codice si trova in [`src/soctalk/graph/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/graph), [`src/soctalk/supervisor/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/supervisor) e [`src/soctalk/workers/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/workers).
 
@@ -26,12 +26,12 @@ flowchart LR
 
 | Nodo | Scopo | Modello usato |
 |---|---|---|
-| **supervisor** | Decide cosa fare in seguito. Puro instradamento — non svolge esso stesso alcun lavoro di dominio. | modello veloce |
+| **supervisor** | Decide cosa fare in seguito. Puro instradamento, non svolge esso stesso alcun lavoro di dominio. | modello veloce |
 | **wazuh_worker** | Recupera l'alert nel suo contesto, estrae gli observable (IP, hash, utenti, processi), correla con gli alert recenti nello stesso tenant. | modello veloce |
 | **cortex_worker** | Invia gli observable agli analyzer di Cortex (VirusTotal, AbuseIPDB, ecc.) per reputazione/arricchimento. | modello veloce |
 | **misp_worker** | Cerca gli observable nei feed di threat-intel di MISP per il contesto di campagne / attori noti. | modello veloce |
 | **verdict** | Ragiona su tutto ciò che i worker hanno raccolto. Produce `escalate | close | needs_more_info` + confidenza + una breve motivazione. | **modello di reasoning** |
-| **human_review** | Mette in pausa l'esecuzione; emette una richiesta di revisione verso la coda della dashboard e/o Slack. Attende una `HumanDecision` (`approve | reject | more_info`). | — (esseri umani) |
+| **human_review** | Mette in pausa l'esecuzione; emette una richiesta di revisione verso la coda della dashboard e/o Slack. Attende una `HumanDecision` (`approve | reject | more_info`). |, (esseri umani) |
 | **close** | Genera il report di chiusura e scrive la disposizione (`close_fp | escalate | leave_open`). **In V1 il nodo close non pubblica verso le integrazioni in uscita.** Nessun nodo del grafo pubblica attualmente su TheHive in V1 (il nodo `thehive_worker` citato in bozze precedenti non è collegato al graph builder V1). Anche la pubblicazione tramite webhook Slack da close non è collegata. L'integrazione in uscita dal nodo close è nella roadmap. | modello veloce |
 
 ## Instradamento del supervisor
@@ -50,7 +50,7 @@ Il supervisor non invoca mai strumenti esterni direttamente. Legge lo `SecOpsSta
 
 ## Nodo di verdetto
 
-Il modello di reasoning riceve l'intero stato accumulato — l'alert originale, i risultati di ogni worker, tutti gli observable con il loro arricchimento, i tentativi di verdetto precedenti (se ha ciclato su `NEEDS_MORE_INFO`). Produce:
+Il modello di reasoning riceve l'intero stato accumulato, l'alert originale, i risultati di ogni worker, tutti gli observable con il loro arricchimento, i tentativi di verdetto precedenti (se ha ciclato su `NEEDS_MORE_INFO`). Produce:
 
 | Campo | Tipo |
 |---|---|
@@ -70,7 +70,7 @@ Il modello di reasoning riceve l'intero stato accumulato — l'alert originale, 
 | Decisione | Effetto sul caso |
 |---|---|
 | `approve` | Revisione pendente contrassegnata come completata + feedback registrato nell'audit. **Non** ripresa automaticamente; segue l'intervento dell'analista. |
-| `reject` | Il caso si chiude come `auto_closed_fp`. Terminale — il grafo non viene reinvocato. |
+| `reject` | Il caso si chiude come `auto_closed_fp`. Terminale, il grafo non viene reinvocato. |
 | `more_info` | Revisione contrassegnata `info_requested` con l'elenco delle domande. **Non** ripresa automaticamente; segue l'intervento dell'analista. |
 
 L'identità dell'operatore umano, il timestamp e la motivazione vengono aggiunti al log append-only `case_events` del caso.
@@ -99,7 +99,7 @@ Ogni tenant ha il proprio pod `runs-worker` (nel namespace `tenant-<slug>`) che 
 3. `ainvoke()` sul grafo, pubblicando `POST /api/internal/worker/runs/{run_id}/heartbeat` ogni 20 s.
 4. Al completamento, pubblica lo stato finale e la disposizione su `POST /api/internal/worker/runs/{run_id}/complete`.
 
-Il runs-worker è l'unico pod di calcolo per tenant — tenerlo nel namespace del tenant significa che un tenant fuori budget non può privare il resto dell'installazione delle risorse di calcolo. La logica del supervisor + worker + verdetto è di per sé stateless; il grosso del lavoro sono le chiamate LLM (fuori dal cluster, addebitate al provider configurato del tenant).
+Il runs-worker è l'unico pod di calcolo per tenant, tenerlo nel namespace del tenant significa che un tenant fuori budget non può privare il resto dell'installazione delle risorse di calcolo. La logica del supervisor + worker + verdetto è di per sé stateless; il grosso del lavoro sono le chiamate LLM (fuori dal cluster, addebitate al provider configurato del tenant).
 
 ## Riferimenti al codice sorgente
 

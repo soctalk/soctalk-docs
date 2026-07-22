@@ -19,7 +19,7 @@ Prima di qualsiasi aggiornamento:
 
 `soctalk-system-values.yaml` dall'installazione fissa `image.tag` alla release originale. Sovrascrivilo a ogni aggiornamento in modo che il nuovo chart renderizzi la nuova immagine. Puoi incrementare il file nel version control oppure passare `--set image.tag=<new-version>` su ogni comando qui sotto.
 
-Le migrazioni vengono eseguite all'interno del comando di init del pod API (vedi [Install → Migrations and bootstrap](/it-it/install#migrations-and-bootstrap-run-automatically)). Un `helm upgrade` fa ripartire il pod API; il comando di init esegue `alembic upgrade head` prima che la nuova app si avvii. Alembic è idempotente — rieseguirlo su uno schema aggiornato è un no-op.
+Le migrazioni vengono eseguite all'interno del comando di init del pod API (vedi [Install → Migrations and bootstrap](/it-it/install#migrations-and-bootstrap-run-automatically)). Un `helm upgrade` fa ripartire il pod API; il comando di init esegue `alembic upgrade head` prima che la nuova app si avvii. Alembic è idempotente, rieseguirlo su uno schema aggiornato è un no-op.
 
 ```bash
 helm upgrade soctalk-system oci://ghcr.io/soctalk/charts/soctalk-system \
@@ -36,7 +36,7 @@ Osserva la migrazione:
 kubectl -n soctalk-system logs deploy/soctalk-system-api -c db-init --follow
 ```
 
-Se `--wait` si blocca, la causa più comune è un fallimento della migrazione — leggi i log di init.
+Se `--wait` si blocca, la causa più comune è un fallimento della migrazione, leggi i log di init.
 
 ### Rollback
 
@@ -62,7 +62,7 @@ helm upgrade tenant-<slug> oci://ghcr.io/soctalk/charts/soctalk-tenant \
 helm get values tenant-<slug> -n tenant-<slug> -a > /tmp/tenant-<slug>-values.yaml
 ```
 
-Un comando `soctalk-cli render-values` era stato menzionato in precedenza in questa guida ma non esiste — l'unico strumento CLI oggi è `soctalk-auth`.
+Un comando `soctalk-cli render-values` era stato menzionato in precedenza in questa guida ma non esiste, l'unico strumento CLI oggi è `soctalk-auth`.
 
 ### Rollback per singolo tenant
 

@@ -1,8 +1,8 @@
 # Launchpad: MSSP-Pilot mit einem einzigen Befehl
 
-Sobald du SocTalk end-to-end auf einer einzelnen, gemeinsam untergebrachten Maschine gesehen hast ([Quickstart](/de-de/quickstart-vm)), ist **Launchpad der nächste Schritt**: Er bringt dich von dieser lokalen Demo zu einem echten Pilot — eine MSSP-Control-Plane plus eine oder mehrere Mandantenumgebungen auf deiner eigenen Infrastruktur. Steuere ihn über eine **Web-Konsole** (empfohlen) oder, später, einen einzigen kopflosen Befehl: Er bootet die VMs, verbindet sie mit deinem Tailnet, installiert SocTalk aus öffentlichen Quellen und übergibt dir eine URL.
+Sobald du SocTalk end-to-end auf einer einzelnen, gemeinsam untergebrachten Maschine gesehen hast ([Quickstart](/de-de/quickstart-vm)), ist **Launchpad der nächste Schritt**: Er bringt dich von dieser lokalen Demo zu einem echten Pilot, eine MSSP-Control-Plane plus eine oder mehrere Mandantenumgebungen auf deiner eigenen Infrastruktur. Steuere ihn über eine **Web-Konsole** (empfohlen) oder, später, einen einzigen kopflosen Befehl: Er bootet die VMs, verbindet sie mit deinem Tailnet, installiert SocTalk aus öffentlichen Quellen und übergibt dir eine URL.
 
-Möchtest du lieber jeden Schritt verstehen, bevor ein Tool ihn ausführt? Der [MSSP-Pilot zum Selbermachen](/de-de/mssp-pilot) führt dieselbe Installation von Hand durch — dieselben Charts, derselbe Tailscale-Ablauf. Launchpad übernimmt nur das Kopieren und Einfügen für dich.
+Möchtest du lieber jeden Schritt verstehen, bevor ein Tool ihn ausführt? Der [MSSP-Pilot zum Selbermachen](/de-de/mssp-pilot) führt dieselbe Installation von Hand durch, dieselben Charts, derselbe Tailscale-Ablauf. Launchpad übernimmt nur das Kopieren und Einfügen für dich.
 
 ::: tip Praktischer Zeitaufwand
 | Weg | Praktischer Aufwand | Reale Zeit |
@@ -16,7 +16,7 @@ Möchtest du lieber jeden Schritt verstehen, bevor ein Tool ihn ausführt? Der [
 Ausgehend von deinen MSSP-Admin-Zugangsdaten und einer Liste von Mandanten führt Launchpad Folgendes aus:
 
 1. Lädt das Ubuntu-Noble-Cloud-Image auf deinem VM-Host herunter (bei späteren Läufen aus dem Cache)
-2. Stellt QEMU-VMs bereit — eine für den MSSP, eine pro Mandant — mit cloud-init + Tailscale
+2. Stellt QEMU-VMs bereit, eine für den MSSP, eine pro Mandant, mit cloud-init + Tailscale
 3. Wartet, bis jede VM deinem Tailnet mit dem von ihr angekündigten Tag beitritt
 4. Führt [`install.sh`](https://github.com/soctalk/soctalk/blob/main/install.sh) auf dem MSSP im `--demo`-Modus aus
 5. Bindet jeden Mandanten über die MSSP-API ein (Onboarding)
@@ -24,7 +24,7 @@ Ausgehend von deinen MSSP-Admin-Zugangsdaten und einer Liste von Mandanten führ
 7. Installiert k3s + Helm + `soctalk-cloud-agent` auf jeder Mandanten-VM
 8. Der MSSP versendet den Job `install_helm_release` → der cloud-agent zieht und wendet den `soctalk-tenant`-Chart an (Wazuh manager + indexer + dashboard, adapter, runs-worker)
 
-Am Ende hast du ein funktionierendes MSSP-Dashboard, registrierte und `active` gesetzte Mandanten sowie Wazuh, das pro Mandant läuft. Alles aus öffentlichen Quellen heruntergeladen — keine vorab bereitgestellten Images, keine gebündelten Charts.
+Am Ende hast du ein funktionierendes MSSP-Dashboard, registrierte und `active` gesetzte Mandanten sowie Wazuh, das pro Mandant läuft. Alles aus öffentlichen Quellen heruntergeladen, keine vorab bereitgestellten Images, keine gebündelten Charts.
 
 ## Was er nicht ist
 
@@ -43,8 +43,8 @@ Beschaffe dir zuerst Folgendes:
       - Passwortloses SSH von deiner Workstation als Benutzer in der `kvm`-Gruppe
 - [ ] **Ein Tailscale-Tailnet.** Der kostenlose Tarif genügt. Du benötigst:
       - Den Tailnet-Namen (z. B. `taila1b2c3.ts.net`)
-      - Ein [Tailscale-API-Zugriffstoken](https://login.tailscale.com/admin/settings/keys) mit `keys:write`-Scope — der Launchpad nutzt es, um pro VM kurzlebige Geräte-Auth-Keys zu erzeugen
-      - Tag-Ownership für die Tags, die du verwenden wirst — füge diese zu deiner ACL hinzu:
+      - Ein [Tailscale-API-Zugriffstoken](https://login.tailscale.com/admin/settings/keys) mit `keys:write`-Scope, der Launchpad nutzt es, um pro VM kurzlebige Geräte-Auth-Keys zu erzeugen
+      - Tag-Ownership für die Tags, die du verwenden wirst, füge diese zu deiner ACL hinzu:
         ```json
         "tagOwners": {
           "tag:mssp":        ["autogroup:admin"],
@@ -81,25 +81,25 @@ installierten Satz an; `launchpad plugin sync` holt den Store erneut oder repari
 
 ## 2. Den Pilot in der Web-Konsole ausführen
 
-`launchpad ui` startet eine lokale Web-Konsole und öffnet sie in deinem Browser — die primäre Art, einen Pilot zu steuern. Du registrierst deine Infrastruktur einmal als wiederverwendbare, testbare **Hosts** und **Networks** und startest und beobachtest dann.
+`launchpad ui` startet eine lokale Web-Konsole und öffnet sie in deinem Browser, die primäre Art, einen Pilot zu steuern. Du registrierst deine Infrastruktur einmal als wiederverwendbare, testbare **Hosts** und **Networks** und startest und beobachtest dann.
 
 ```bash
 launchpad ui
 ```
 
-Beim ersten Lauf lädt die CLI den Plugin-Satz herunter und verifiziert ihn nach `~/.launchpad/plugins`, dann bedient sie die Konsole aus demselben Binary — nichts weiter zu installieren. Arbeite dich im Browser durch drei Bildschirme:
+Beim ersten Lauf lädt die CLI den Plugin-Satz herunter und verifiziert ihn nach `~/.launchpad/plugins`, dann bedient sie die Konsole aus demselben Binary, nichts weiter zu installieren. Arbeite dich im Browser durch drei Bildschirme:
 
-1. **Networks** — füge dein Tailnet hinzu: den Overlay-Namen (z. B. `taila1b2c3.ts.net`) und deinen Tailscale-API-Schlüssel. Drücke **Test**, um zu bestätigen, dass der Schlüssel funktioniert, bevor du dich darauf verlässt. Ein Lauf bindet sich an ein Netzwerk, und jede Maschine tritt ihm bei.
-2. **Hosts** — füge den Ort hinzu, an dem du bereitstellen wirst. Für diese Anleitung ist das deine KVM-Maschine: das SSH-Ziel und ein beschreibbares Arbeitsverzeichnis. Neue Hosts füllen die von ihrer Plattform erwarteten Felder vor, und **Test** validiert die Verbindung und die Zugangsdaten. Zugangsdaten werden beim Host gespeichert und verlassen niemals die Maschine, auf der Launchpad läuft.
-3. **Runs** — erstelle einen Lauf: weise den **Control-Node** (deinen MSSP) und jeden **Mandanten** einem Host zu, wähle das Netzwerk, trage die MSSP-Admin-Zugangsdaten und den LLM-Schlüssel ein und drücke **Launch**.
+1. **Networks**: füge dein Tailnet hinzu: den Overlay-Namen (z. B. `taila1b2c3.ts.net`) und deinen Tailscale-API-Schlüssel. Drücke **Test**, um zu bestätigen, dass der Schlüssel funktioniert, bevor du dich darauf verlässt. Ein Lauf bindet sich an ein Netzwerk, und jede Maschine tritt ihm bei.
+2. **Hosts**: füge den Ort hinzu, an dem du bereitstellen wirst. Für diese Anleitung ist das deine KVM-Maschine: das SSH-Ziel und ein beschreibbares Arbeitsverzeichnis. Neue Hosts füllen die von ihrer Plattform erwarteten Felder vor, und **Test** validiert die Verbindung und die Zugangsdaten. Zugangsdaten werden beim Host gespeichert und verlassen niemals die Maschine, auf der Launchpad läuft.
+3. **Runs**: erstelle einen Lauf: weise den **Control-Node** (deinen MSSP) und jeden **Mandanten** einem Host zu, wähle das Netzwerk, trage die MSSP-Admin-Zugangsdaten und den LLM-Schlüssel ein und drücke **Launch**.
 
-![Networks — das Overlay, dem jede Maschine in einem Lauf beitritt, einmalig registriert](/screenshots/launchpad-ui-networks.png)
+![Networks, das Overlay, dem jede Maschine in einem Lauf beitritt, einmalig registriert](/screenshots/launchpad-ui-networks.png)
 
-![Hosts — die Substrate, auf denen du bereitstellst, einmalig registriert](/screenshots/launchpad-ui-hosts.png)
+![Hosts, die Substrate, auf denen du bereitstellst, einmalig registriert](/screenshots/launchpad-ui-hosts.png)
 
-Die Konsole streamt den Fortschritt live — jede VM-Bereitstellung, den Tailnet-Beitritt und die SocTalk-Installation — und gibt dir am Ende die MSSP-URL. Läufe sind idempotent (ein erneuter Start gleicht gegen bereits existierende Maschinen ab, statt sie zu duplizieren), und die Aktion **Down** baut die Maschinen eines Laufs wieder ab.
+Die Konsole streamt den Fortschritt live, jede VM-Bereitstellung, den Tailnet-Beitritt und die SocTalk-Installation, und gibt dir am Ende die MSSP-URL. Läufe sind idempotent (ein erneuter Start gleicht gegen bereits existierende Maschinen ab, statt sie zu duplizieren), und die Aktion **Down** baut die Maschinen eines Laufs wieder ab.
 
-![Ein laufender Lauf — die MSSP- und Mandanten-VMs bei der Bereitstellung, mit dem Phasen-Tracker und einem Live-Event-Stream](/screenshots/launchpad-ui-run.png)
+![Ein laufender Lauf, die MSSP- und Mandanten-VMs bei der Bereitstellung, mit dem Phasen-Tracker und einem Live-Event-Stream](/screenshots/launchpad-ui-run.png)
 
 ::: tip Compliance-Prüfung
 Bevor du ein Plugin auf echte Infrastruktur richtest, kannst du es über die CLI auf Plausibilität prüfen:
@@ -113,11 +113,11 @@ Dies führt die Protokoll-Compliance-Suite aus (checksum, handshake, `plan`, ide
 
 Wenn der Lauf abgeschlossen ist (die Konsole markiert ihn als erledigt, oder `launchpad up` beendet sich mit `0`), prüfe die beiden Systeme auf Plausibilität:
 
-**MSSP-Dashboard** — öffne die URL, die der Lauf am Ende ausgegeben hat (oder `https://lp-mssp.<your-tailnet>.ts.net/`). Melde dich mit den Admin-Zugangsdaten an, die du für den Lauf festgelegt hast. Dein Mandant sollte aufgeführt sein und innerhalb von 1-2 Minuten auf **Online** umschalten.
+**MSSP-Dashboard**: öffne die URL, die der Lauf am Ende ausgegeben hat (oder `https://lp-mssp.<your-tailnet>.ts.net/`). Melde dich mit den Admin-Zugangsdaten an, die du für den Lauf festgelegt hast. Dein Mandant sollte aufgeführt sein und innerhalb von 1-2 Minuten auf **Online** umschalten.
 
 ![Von Launchpad bereitgestelltes MSSP-Dashboard](/screenshots/launchpad-mssp-dashboard.png)
 
-**Wazuh auf dem Mandanten** — verbinde dich per SSH mit der Mandanten-VM (`ssh ops@lp-tenant-acme.<your-tailnet>.ts.net`) und prüfe die Pods:
+**Wazuh auf dem Mandanten**: verbinde dich per SSH mit der Mandanten-VM (`ssh ops@lp-tenant-acme.<your-tailnet>.ts.net`) und prüfe die Pods:
 
 ```bash
 sudo k3s kubectl -n tenant-acme get pods
@@ -135,7 +135,7 @@ soctalk-adapter-<hash>                        1/1     Running
 soctalk-runs-worker-<hash>                    1/1     Running
 ```
 
-Das `linuxep-0`-StatefulSet ist ein Demo-Linux-Endpoint mit installiertem Wazuh-Agent — ein Ort, um Warnungen zu simulieren. Siehe [Angriffssimulator](/de-de/mssp-pilot#5-3-generate-alerts) für Details.
+Das `linuxep-0`-StatefulSet ist ein Demo-Linux-Endpoint mit installiertem Wazuh-Agent, ein Ort, um Warnungen zu simulieren. Siehe [Angriffssimulator](/de-de/mssp-pilot#5-3-generate-alerts) für Details.
 
 ### Per SSH auf die VMs zugreifen
 
@@ -156,16 +156,16 @@ Wenn MagicDNS in deinem Tailnet deaktiviert ist, wird `lp-<key>.<tailnet>.ts.net
 
 ## 4. Deinen Pilot nutzen: Kunden einbinden und die AI befragen
 
-Launchpad übergibt dir einen funktionierenden MSSP mit deinem bereits eingebundenen ersten Mandanten — von hier an steuerst du ihn genau so, wie es ein MSSP tun würde. Das **Dashboard** ist eine mandantenübergreifende Flottenansicht: ausstehende Prüfungen, festhängende Fälle, beeinträchtigte Mandanten und der Zustand pro Mandant.
+Launchpad übergibt dir einen funktionierenden MSSP mit deinem bereits eingebundenen ersten Mandanten, von hier an steuerst du ihn genau so, wie es ein MSSP tun würde. Das **Dashboard** ist eine mandantenübergreifende Flottenansicht: ausstehende Prüfungen, festhängende Fälle, beeinträchtigte Mandanten und der Zustand pro Mandant.
 
-![Das MSSP-Dashboard — mandantenübergreifende Flottenansicht](/screenshots/pilot-final-dashboard.png)
+![Das MSSP-Dashboard, mandantenübergreifende Flottenansicht](/screenshots/pilot-final-dashboard.png)
 
 **Einen weiteren Kunden einbinden.** **Tenants → Create customer** startet einen kurzen vierstufigen Assistenten:
 
-![Create customer — 1. Identity](/screenshots/pilot-add-tenant-step1.png)
-![Create customer — 2. Profile](/screenshots/pilot-add-tenant-step2.png)
-![Create customer — 3. Branding](/screenshots/pilot-add-tenant-step3.png)
-![Create customer — 4. Review](/screenshots/pilot-add-tenant-step4.png)
+![Create customer, 1. Identity](/screenshots/pilot-add-tenant-step1.png)
+![Create customer, 2. Profile](/screenshots/pilot-add-tenant-step2.png)
+![Create customer, 3. Branding](/screenshots/pilot-add-tenant-step3.png)
+![Create customer, 4. Review](/screenshots/pilot-add-tenant-step4.png)
 
 Der neue Kunde tritt der Flotte bei, und der cloud-agent stellt seinen Wazuh- + Adapter-Stack auf dieselbe Weise bereit, wie Launchpad es für den ersten Mandanten getan hat:
 
@@ -177,19 +177,19 @@ Tauche in einen Mandanten ein, um seine offenen Untersuchungen, Prüfungen und d
 
 **Den AI-SOC-Analysten befragen.** Die **Chat**-Ansicht beantwortet Fragen über die gesamte Flotte hinweg oder auf einen einzelnen Mandanten begrenzt, ruft Tools gegen Live-Daten auf und fasst zusammen, was sie findet:
 
-![Ask AI — eine flottenweite Zusammenfassung, mit dem ausgeführten Tool-Aufruf](/screenshots/pilot-chat-mssp-reply.png)
-![Ask AI — auf einen einzelnen Mandanten begrenzt](/screenshots/pilot-chat-tenant-reply.png)
+![Ask AI, eine flottenweite Zusammenfassung, mit dem ausgeführten Tool-Aufruf](/screenshots/pilot-chat-mssp-reply.png)
+![Ask AI, auf einen einzelnen Mandanten begrenzt](/screenshots/pilot-chat-tenant-reply.png)
 
 ::: tip
-Die AI benötigt einen echten konfigurierten [LLM-Anbieter](/de-de/integrate/llm-providers) — der Smoke-Test-Platzhalter-Schlüssel beantwortet keine Fragen.
+Die AI benötigt einen echten konfigurierten [LLM-Anbieter](/de-de/integrate/llm-providers), der Smoke-Test-Platzhalter-Schlüssel beantwortet keine Fragen.
 :::
 
 ## 5. Mit einer Konfigurationsdatei feinjustieren
 
-Sobald ein Pilot aus der Konsole heraus funktioniert, kannst du dasselbe Setup als YAML-Konfiguration erfassen und es kopflos mit `launchpad up` steuern — ohne Konsole. Greife dazu, wenn du Folgendes möchtest:
+Sobald ein Pilot aus der Konsole heraus funktioniert, kannst du dasselbe Setup als YAML-Konfiguration erfassen und es kopflos mit `launchpad up` steuern, ohne Konsole. Greife dazu, wenn du Folgendes möchtest:
 
-- **Wiederholbare, skriptbare Läufe** — checke die Konfiguration in git ein, führe sie in CI aus und prüfe den JSON-Event-Stream mit Assertions.
-- **Feinsteuerung, die das Formular nicht anbietet** — fixiere ein Basis-Image oder dessen SHA, verweise auf ein bestimmtes `install.sh`-Release-Tag, skripte viele Mandanten auf einmal oder justiere CPU / Speicher / Festplatte pro VM.
+- **Wiederholbare, skriptbare Läufe**: checke die Konfiguration in git ein, führe sie in CI aus und prüfe den JSON-Event-Stream mit Assertions.
+- **Feinsteuerung, die das Formular nicht anbietet**: fixiere ein Basis-Image oder dessen SHA, verweise auf ein bestimmtes `install.sh`-Release-Tag, skripte viele Mandanten auf einmal oder justiere CPU / Speicher / Festplatte pro VM.
 
 Die Konsole und die Konfiguration teilen sich dieselben Hosts und Networks unter `~/.launchpad`, sodass ein Konfigurationslauf genau das wiederverwendet, was du bereits getestet hast.
 
@@ -275,9 +275,9 @@ Grobe Phasen-Zeiten bei einem ersten Lauf (frischer Cache, ordentliches Heim-Int
 
 Nachfolgende Läufe sind deutlich schneller, weil das Basis-Image auf dem VM-Host gecacht ist.
 
-## 6. Iterieren — fortsetzen, abbauen, neu starten
+## 6. Iterieren, fortsetzen, abbauen, neu starten
 
-Der Launchpad ist idempotent. Ein erneuter Start eines Laufs — erneut die Konsolen-**Launch**-Aktion oder `launchpad up` — macht dort weiter, wo er aufgehört hat:
+Der Launchpad ist idempotent. Ein erneuter Start eines Laufs, erneut die Konsolen-**Launch**-Aktion oder `launchpad up`: macht dort weiter, wo er aufgehört hat:
 
 - VMs, die bereits existieren, werden wiederverwendet (kein doppeltes Provisioning)
 - Der MSSP-Installationsschritt wird übersprungen, wenn die API bereits antwortet
@@ -299,7 +299,7 @@ Um einen Mandanten zu einem laufenden Pilot hinzuzufügen, füge ihn in der Kons
 Die VM ist gebootet, aber nie dem Tailnet beigetreten. Cloud-init auf der VM konnte die Tailscale-Koordinationsserver nicht erreichen.
 
 - Bestätige, dass dein VM-Host Internet hat
-- Verbinde dich per SSH mit dem VM-Host und inspiziere das QEMU-Serial-Log unter `<work_dir>/<run_id>/<vm_key>/serial.log` — es erfasst die cloud-init-Ausgabe einschließlich tailscale-up
+- Verbinde dich per SSH mit dem VM-Host und inspiziere das QEMU-Serial-Log unter `<work_dir>/<run_id>/<vm_key>/serial.log`: es erfasst die cloud-init-Ausgabe einschließlich tailscale-up
 - Häufige Ursache: Der kurzlebige Auth-Key wurde widerrufen, bevor die VM ihn verwendete (prüfe Tailscale-Admin → Machines-Log)
 
 ### MSSP-Installation läuft bei `helm upgrade` in einen Timeout
@@ -307,7 +307,7 @@ Die VM ist gebootet, aber nie dem Tailnet beigetreten. Cloud-init auf der VM kon
 Die Chart-Installation lief, aber die Pods konvergierten nicht innerhalb von 15 Minuten. Meist Image-Pulls über langsame Verbindungen.
 
 - Verbinde dich per SSH mit der MSSP-VM: `sudo k3s kubectl -n soctalk-system get pods` und prüfe auf `ImagePullBackOff` oder `CrashLoopBackOff`
-- Wenn Pods noch ziehen, warte und starte erneut — der zweite Versuch überspringt den Installationsschritt, sobald die API antwortet
+- Wenn Pods noch ziehen, warte und starte erneut, der zweite Versuch überspringt den Installationsschritt, sobald die API antwortet
 
 ### Mandanten-Agent loggt `no such host` bei `/api/agent/register`
 
@@ -326,7 +326,7 @@ Prüfe diese Events aus deinem CI heraus mit Assertions. Siehe [Launchpad-Event-
 
 ## Wie geht es weiter
 
-- **Einen echten Mandanten hinzufügen.** Binde ihn über das MSSP-Dashboard ein — siehe [Pilot zum Selbermachen §3](/de-de/mssp-pilot#3-onboard-tenants) für die Assistenten-Anleitung.
+- **Einen echten Mandanten hinzufügen.** Binde ihn über das MSSP-Dashboard ein, siehe [Pilot zum Selbermachen §3](/de-de/mssp-pilot#3-onboard-tenants) für die Assistenten-Anleitung.
 - **Ein paar Warnungen erzeugen.** [Angriffssimulator](/de-de/mssp-pilot#5-3-generate-alerts) enthält das Runbook.
 - **Die AI auf echte Daten richten.** Konfiguriere deinen [LLM-Anbieter](/de-de/integrate/llm-providers) ordentlich (der Smoke-Test-Platzhalter-Schlüssel beantwortet keine Fragen).
 - **In Produktion gehen.** [Install](/de-de/install) ist der Nicht-Launchpad-Pfad mit HA-Fähigkeit.

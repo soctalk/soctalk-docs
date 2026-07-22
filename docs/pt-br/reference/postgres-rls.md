@@ -2,7 +2,7 @@
 
 O modelo de três papéis do Postgres, os templates de política RLS, a disciplina `FORCE ROW LEVEL SECURITY` e os testes de isolamento que o SocTalk executa em CI.
 
-> **Nota de implantação V1.** O texto abaixo refere-se a "pods de API" e "pods de orquestrador" como cargas de trabalho separadas — o modelo de papéis e as regras de acesso permanecem corretos. No chart V1 eles estão **co-localizados em um único Deployment `soctalk-system-api`**, portanto toda referência a "pod de orquestrador" mapeia para esse mesmo conjunto de pods nesta versão.
+> **Nota de implantação V1.** O texto abaixo refere-se a "pods de API" e "pods de orquestrador" como cargas de trabalho separadas, o modelo de papéis e as regras de acesso permanecem corretos. No chart V1 eles estão **co-localizados em um único Deployment `soctalk-system-api`**, portanto toda referência a "pod de orquestrador" mapeia para esse mesmo conjunto de pods nesta versão.
 
 ## Papéis
 
@@ -11,7 +11,7 @@ Três papéis do Postgres. Nenhuma aplicação jamais se conecta como o superusu
 | Papel | Finalidade | Usado por | DDL? | BYPASSRLS? |
 |---|---|---|---|---|
 | `soctalk_admin` | Proprietário das tabelas; usado apenas pelo Alembic no momento da migração | Alembic (executado via um Kubernetes Job dedicado no deploy) | Sim | Não |
-| `soctalk_app` | Papel de aplicação em runtime | Pods de API do SocTalk, pods de orquestrador, jobs de worker — todo o tráfego "normal" | Não | Não |
+| `soctalk_app` | Papel de aplicação em runtime | Pods de API do SocTalk, pods de orquestrador, jobs de worker, todo o tráfego "normal" | Não | Não |
 | `soctalk_mssp` | Papel elevado entre tenants | Principal `System` via `system_context()` apenas | Não | **Sim** |
 
 Justificativa para três papéis, e não dois: `soctalk_admin` não pode executar em tempo de aplicação (privilégio excessivo) nem contornar o RLS de forma não intencional. `soctalk_app` está sujeito ao RLS, de modo que bugs da aplicação não podem vazar entre tenants. `soctalk_mssp` é intencionalmente entre tenants, mas segregado exclusivamente a caminhos de código auditados.
@@ -59,9 +59,9 @@ Tabelas append-only nunca aparecem em tais concessões. Os testes em §9 assegur
 
 Credenciais armazenadas em K8s Secrets sob `soctalk-system`:
 
-- `soctalk-postgres-admin-creds` — montado apenas no Alembic Job
-- `soctalk-postgres-app-creds` — montado nos pods de API + orquestrador do SocTalk
-- `soctalk-postgres-mssp-creds` — montado apenas no pod de API do SocTalk (lido pela factory `system_context()`)
+- `soctalk-postgres-admin-creds`: montado apenas no Alembic Job
+- `soctalk-postgres-app-creds`: montado nos pods de API + orquestrador do SocTalk
+- `soctalk-postgres-mssp-creds`: montado apenas no pod de API do SocTalk (lido pela factory `system_context()`)
 
 ## Por que `FORCE ROW LEVEL SECURITY`
 
@@ -149,7 +149,7 @@ CREATE POLICY users_tenant_scoped ON users
   );
 ```
 
-O acesso a usuários do lado MSSP (CRUD em linhas onde `tenant_id IS NULL`) é alcançado somente sob o papel `soctalk_mssp`, que possui `BYPASSRLS` e é acessado exclusivamente através do gerenciador de contexto `System` nos handlers da MSSP-API. Uma sessão `soctalk_app` com escopo de tenant — mesmo uma executando uma consulta de users com filtro frouxo — não pode ver nem modificar linhas de usuários MSSP sob esta política.
+O acesso a usuários do lado MSSP (CRUD em linhas onde `tenant_id IS NULL`) é alcançado somente sob o papel `soctalk_mssp`, que possui `BYPASSRLS` e é acessado exclusivamente através do gerenciador de contexto `System` nos handlers da MSSP-API. Uma sessão `soctalk_app` com escopo de tenant, mesmo uma executando uma consulta de users com filtro frouxo, não pode ver nem modificar linhas de usuários MSSP sob esta política.
 
 Por que isso importa: um rascunho anterior da política admitia `tenant_id IS NULL` em `USING`/`WITH CHECK` "para que os joins de MSSP funcionassem". Isso era inseguro; `soctalk_mssp` não precisa de RLS para ver linhas de MSSP (ele contorna o RLS), e conceder a mesma janela a `soctalk_app` abre um caminho para que endpoints de tenant vazem dados de usuários MSSP por meio de uma consulta com filtro insuficiente.
 
@@ -178,7 +178,7 @@ Razão: sem isso, uma colisão de ID de alerta externo entre dois tenants causar
 
 ## Testes de isolamento
 
-### Teste 1 — Sondagem de endpoint da aplicação
+### Teste 1, Sondagem de endpoint da aplicação
 
 Para cada endpoint em `/api/tenant/*` e `/api/mssp/*`:
 
@@ -192,7 +192,7 @@ async def test_no_cross_tenant_access(client, seed_two_tenants):
     assert not any(item["tenant_id"] == str(tenant_b.id) for item in data["items"])
 ```
 
-### Teste 2 — SQL bruto sob `soctalk_app`
+### Teste 2, SQL bruto sob `soctalk_app`
 
 ```python
 async def test_raw_sql_respects_rls():
@@ -210,7 +210,7 @@ async def test_raw_sql_respects_rls():
         assert result.scalar() == 0
 ```
 
-### Teste 3 — Contexto padrão do worker
+### Teste 3, Contexto padrão do worker
 
 ```python
 async def test_worker_without_context_sees_nothing():
@@ -222,7 +222,7 @@ async def test_worker_without_context_sees_nothing():
         await hostile_worker({})
 ```
 
-### Teste 4 — FORCE RLS captura o proprietário
+### Teste 4, FORCE RLS captura o proprietário
 
 ```python
 async def test_admin_role_is_rls_subject():
@@ -231,7 +231,7 @@ async def test_admin_role_is_rls_subject():
         assert result.scalar() == 0  # admin is NOT bypassing
 ```
 
-### Teste 5 — Papel MSSP pode contornar intencionalmente
+### Teste 5, Papel MSSP pode contornar intencionalmente
 
 ```python
 async def test_mssp_role_bypasses_for_rollup():
@@ -240,7 +240,7 @@ async def test_mssp_role_bypasses_for_rollup():
         assert result.scalar() == total_events_across_tenants
 ```
 
-### Teste 6 — Isolamento de stream SSE
+### Teste 6, Isolamento de stream SSE
 
 ```python
 async def test_sse_no_cross_tenant_delivery(ws_client):
@@ -251,7 +251,7 @@ async def test_sse_no_cross_tenant_delivery(ws_client):
         await asyncio.wait_for(sub_a.receive(), timeout=2.0)
 ```
 
-### Teste 7 — Isolamento de idempotência
+### Teste 7, Isolamento de idempotência
 
 ```python
 async def test_idempotency_key_per_tenant():

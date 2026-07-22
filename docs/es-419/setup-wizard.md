@@ -37,13 +37,13 @@ El token se rota en cada reinicio del asistente. No hay una API para recuperar u
 
 La página de ingreso del token envía a `POST /auth`; la página de configuración envía a `POST /submit`. Ambas usan cookies CSRF vinculadas con HMAC (`SameSite=Strict`, `HttpOnly`, `Secure`).
 
-### Etapa 1 — Autenticar
+### Etapa 1, Autenticar
 
-![Asistente de configuración — ingreso del token](/screenshots/setup-wizard-token.png)
+![Asistente de configuración, ingreso del token](/screenshots/setup-wizard-token.png)
 
-### Etapa 2 — Configurar
+### Etapa 2, Configurar
 
-![Asistente de configuración — formulario de configuración, completado](/screenshots/setup-wizard-config-filled.png)
+![Asistente de configuración, formulario de configuración, completado](/screenshots/setup-wizard-config-filled.png)
 
 ### Identidad
 

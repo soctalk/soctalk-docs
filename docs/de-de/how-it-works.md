@@ -105,11 +105,11 @@ Zusammengenommen heben ein paar Eigenschaften dies davon ab, ein Modell auf jede
 
 Jede Stufe hat ihre eigene Seite und ihren Code:
 
-- [Autorisierung](/de-de/authorization) — Schlussfolgern über den Organisationszustand und das Einmal-Fragen-Gedächtnis.
-- [Triage-Policies](/de-de/triage-policies) — die deterministischen Guardrails auf dem Lauf.
-- [Response-Playbooks](/de-de/response-playbooks) — ein Verdikt in gesteuertes Handeln verwandeln.
-- [Menschliche Prüfung](/de-de/human-review) — die Prüfungs-Queue und der Entscheidungspfad des Analysten.
-- [AI-Pipeline](/de-de/ai-pipeline) — der agentische Graph im Detail.
-- [Architektur](/de-de/reference/architecture) — das Deployment und das Datenmodell.
+- [Autorisierung](/de-de/authorization), Schlussfolgern über den Organisationszustand und das Einmal-Fragen-Gedächtnis.
+- [Triage-Policies](/de-de/triage-policies), die deterministischen Guardrails auf dem Lauf.
+- [Response-Playbooks](/de-de/response-playbooks), ein Verdikt in gesteuertes Handeln verwandeln.
+- [Menschliche Prüfung](/de-de/human-review), die Prüfungs-Queue und der Entscheidungspfad des Analysten.
+- [AI-Pipeline](/de-de/ai-pipeline), der agentische Graph im Detail.
+- [Architektur](/de-de/reference/architecture), das Deployment und das Datenmodell.
 
 Der Pipeline-Code liegt unter [`src/soctalk/core/ir/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/core/ir) (Ingest-Ebene), [`src/soctalk/graph/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/graph) und [`src/soctalk/supervisor/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/supervisor) (Graph-Ebene) und [`src/soctalk/response/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/response) (Response).

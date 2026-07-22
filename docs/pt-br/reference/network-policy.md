@@ -248,7 +248,7 @@ spec:
       toPorts: [{ ports: [{ port: "443", protocol: TCP }] }]
 ```
 
-O Cilium combina todas as políticas que selecionam os pods do orquestrador, de modo que a união de todos os FQDNs permitidos de cada tenant é alcançável a partir desses pods na camada de rede. **Não há isolamento de FQDN por tenant no nível da requisição** — isso é responsabilidade da aplicação (config de LLM por tenant, chaves de cache com escopo de tenant). A política de rede reduz o raio de impacto (a allow-list de hostnames de LLM como um todo, não egress arbitrário), mas por si só não restringe com qual tenant o orquestrador pode conversar.
+O Cilium combina todas as políticas que selecionam os pods do orquestrador, de modo que a união de todos os FQDNs permitidos de cada tenant é alcançável a partir desses pods na camada de rede. **Não há isolamento de FQDN por tenant no nível da requisição**: isso é responsabilidade da aplicação (config de LLM por tenant, chaves de cache com escopo de tenant). A política de rede reduz o raio de impacto (a allow-list de hostnames de LLM como um todo, não egress arbitrário), mas por si só não restringe com qual tenant o orquestrador pode conversar.
 
 ### Políticas do namespace de tenant
 
@@ -350,7 +350,7 @@ spec:
 
 **4.3.5 Permitir ingress de agente Wazuh para o gerenciador do tenant**
 
-A telemetria de agente nas portas 1514/1515 chega pelo caminho documentado em [Ingress do Wazuh](/pt-br/reference/wazuh-ingress). A implantação de referência é um Service LoadBalancer por tenant (LB de nuvem ou MetalLB), com um Deployment HAProxy in-cluster em `soctalk-system` como fallback de IP único. A NetworkPolicy deve permitir qualquer que seja o caminho que a instalação realmente executa — o `ingress-system` **não** é a origem correta para nenhum deles, portanto não use o template padrão do chart sem editá-lo.
+A telemetria de agente nas portas 1514/1515 chega pelo caminho documentado em [Ingress do Wazuh](/pt-br/reference/wazuh-ingress). A implantação de referência é um Service LoadBalancer por tenant (LB de nuvem ou MetalLB), com um Deployment HAProxy in-cluster em `soctalk-system` como fallback de IP único. A NetworkPolicy deve permitir qualquer que seja o caminho que a instalação realmente executa, o `ingress-system` **não** é a origem correta para nenhum deles, portanto não use o template padrão do chart sem editá-lo.
 
 Escolha um bloco com base na instalação:
 

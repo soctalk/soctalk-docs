@@ -361,7 +361,7 @@ Regeln:
 3. Eingehende Webhooks von TheHive werden nur für schreibgeschützte
    Dashboard-Cases akzeptiert (nicht v1). Jeder Versuch, eingehenden Zustand zu akzeptieren, wird
    explizit abgelehnt und protokolliert.
-4. Keine Reconciliation-Schleife — TheHive ist ein nachgelagerter Spiegel, die Quelle
+4. Keine Reconciliation-Schleife, TheHive ist ein nachgelagerter Spiegel, die Quelle
    der Wahrheit ist SocTalk.
 5. Fehlgeschlagene Exporte werden mit exponentiellem Backoff bis zu einer Obergrenze erneut versucht; ein permanenter
    Fehlschlag erscheint im Health-Panel der Integrationen.

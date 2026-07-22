@@ -2,7 +2,7 @@
 
 Der schnellste Weg, SocTalk end-to-end auszuprobieren: Ein vorgefertigtes VM-Image herunterladen, booten, den Einrichtungsassistenten im Browser öffnen und durchklicken. Fünf Minuten bis zu einer laufenden mandantenfähigen Installation mit einem onboardeten Demo-Mandanten.
 
-Dieser Weg richtet sich an **Evaluierende und Demos** — für eine Produktivinstallation auf Ihrem eigenen Cluster siehe [Installation](/de-de/install).
+Dieser Weg richtet sich an **Evaluierende und Demos**: für eine Produktivinstallation auf Ihrem eigenen Cluster siehe [Installation](/de-de/install).
 
 ## Was im Image enthalten ist
 
@@ -58,7 +58,7 @@ Konvertieren Sie `soctalk-demo.vmdk` nach VDI und hängen Sie es an eine neue VM
 
 ### Hyper-V
 
-Verwenden Sie `soctalk-demo.vhdx` als Betriebssystemfestplatte auf einer VM der **Generation 1** (das Image bootet über BIOS-Firmware; Generation 2 / UEFI ist ungetestet). Um einen SSH-Schlüssel einzuschleusen, hängen Sie eine NoCloud-`seed.iso` als DVD-Laufwerk an — siehe [Optional: cloud-init-Seed](#optional-cloud-init-seed).
+Verwenden Sie `soctalk-demo.vhdx` als Betriebssystemfestplatte auf einer VM der **Generation 1** (das Image bootet über BIOS-Firmware; Generation 2 / UEFI ist ungetestet). Um einen SSH-Schlüssel einzuschleusen, hängen Sie eine NoCloud-`seed.iso` als DVD-Laufwerk an, siehe [Optional: cloud-init-Seed](#optional-cloud-init-seed).
 
 ### AWS
 
@@ -83,18 +83,18 @@ ssh ops@<vm-ip>
 sudo cat /var/log/soctalk-setup-token
 ```
 
-Der empfohlene Login ist der **`ops`-Benutzer mit Ihrem SSH-Schlüssel**, der durch den cloud-init-Seed in [§ Optional: cloud-init-Seed](#optional-cloud-init-seed) weiter unten erstellt wird. Wenn Sie ohne Seed booten, siehe [§ SSH-Zugang + Anmeldedaten](#ssh-access-credentials) für den Build-Time-Fallback — und lesen Sie den dortigen Sicherheitshinweis, bevor Sie die VM einem Netzwerk aussetzen, dem Sie nicht vertrauen.
+Der empfohlene Login ist der **`ops`-Benutzer mit Ihrem SSH-Schlüssel**, der durch den cloud-init-Seed in [§ Optional: cloud-init-Seed](#optional-cloud-init-seed) weiter unten erstellt wird. Wenn Sie ohne Seed booten, siehe [§ SSH-Zugang + Anmeldedaten](#ssh-access-credentials) für den Build-Time-Fallback, und lesen Sie den dortigen Sicherheitshinweis, bevor Sie die VM einem Netzwerk aussetzen, dem Sie nicht vertrauen.
 
 ## 4. Assistenten öffnen
 
 Rufen Sie `https://<vm-ip>:8443/` auf. Akzeptieren Sie das selbstsignierte Zertifikat. Sie landen auf der Seite zur Token-Eingabe:
 
-![Einrichtungsassistent — Token-Eingabe](/screenshots/setup-wizard-token.png)
+![Einrichtungsassistent, Token-Eingabe](/screenshots/setup-wizard-token.png)
 
 Fügen Sie das Token ein und füllen Sie dann aus:
 
 - MSSP- / Organisationsname
-- Hostname (optional — leer lassen, um die IP der Maschine zu verwenden)
+- Hostname (optional, leer lassen, um die IP der Maschine zu verwenden)
 - Admin-E-Mail + Passwort (mind. 12 Zeichen)
 - LLM-Anbieter + API-Schlüssel
 
@@ -111,7 +111,7 @@ Gesamte Wanduhrzeit ab dem Absenden: etwa 2 Minuten, bis die `soctalk-system`-Po
 
 ## 5. Anmelden
 
-Rufen Sie `https://<vm-ip>/` auf (Hinweis: Port 443, nicht 8443 — der Assistent bindet gezielt 8443, um Konflikte mit Traefik zu vermeiden). Das MSSP-Dashboard erwartet einen DNS-Namen; wenn Sie einen leeren Hostnamen verwendet haben, fügen Sie einen `/etc/hosts`-Eintrag hinzu, der `soctalk.local` auf die VM-IP verweist, und rufen Sie `https://soctalk.local/` auf.
+Rufen Sie `https://<vm-ip>/` auf (Hinweis: Port 443, nicht 8443, der Assistent bindet gezielt 8443, um Konflikte mit Traefik zu vermeiden). Das MSSP-Dashboard erwartet einen DNS-Namen; wenn Sie einen leeren Hostnamen verwendet haben, fügen Sie einen `/etc/hosts`-Eintrag hinzu, der `soctalk.local` auf die VM-IP verweist, und rufen Sie `https://soctalk.local/` auf.
 
 Melden Sie sich mit der Admin-E-Mail + dem Passwort an, die Sie im Assistenten festgelegt haben. Sie landen auf dem MSSP-Dashboard. Fahren Sie mit der [MSSP-UI-Tour](/de-de/mssp-ui) fort.
 
@@ -142,7 +142,7 @@ Die herunterladbaren Festplatten-Images (qcow2 / vmdk / vhdx / vhd / raw) werden
 
 ### Produktion: `ops`-Benutzer (empfohlen)
 
-Der cloud-init-Seed in [§ Optional: cloud-init-Seed](#optional-cloud-init-seed) erstellt einen `ops`-Benutzer mit Ihrem SSH-Schlüssel. Nur SSH-Schlüssel-Authentifizierung — es ist kein Passwort gesetzt.
+Der cloud-init-Seed in [§ Optional: cloud-init-Seed](#optional-cloud-init-seed) erstellt einen `ops`-Benutzer mit Ihrem SSH-Schlüssel. Nur SSH-Schlüssel-Authentifizierung, es ist kein Passwort gesetzt.
 
 ```bash
 ssh -i ~/.ssh/<your-private-key> ops@<vm-ip>
@@ -188,11 +188,11 @@ sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' \
 sudo systemctl reload ssh
 ```
 
-Die AWS-AMI wird aus einer separaten Packer-Quelle (`amazon-ebs`) erstellt, die den Seed nicht enthält und stattdessen die Keypair-Injektion von EC2 verwendet — sie trägt die Anmeldedaten `ubuntu:packer` nicht. Die Härtungs-Checkliste gilt dennoch für sie, für den Standard-AMI-`ubuntu`-Cloud-Image-Benutzer.
+Die AWS-AMI wird aus einer separaten Packer-Quelle (`amazon-ebs`) erstellt, die den Seed nicht enthält und stattdessen die Keypair-Injektion von EC2 verwendet, sie trägt die Anmeldedaten `ubuntu:packer` nicht. Die Härtungs-Checkliste gilt dennoch für sie, für den Standard-AMI-`ubuntu`-Cloud-Image-Benutzer.
 
 ## Nächster Schritt: Kunden mit Launchpad onboarden
 
-Sie haben SocTalk gerade end-to-end auf einer einzelnen kolokierten Maschine ausgeführt. Der natürliche nächste Schritt ist ein echter Pilot — eine MSSP-Control-Plane plus eine oder mehrere Mandanten-Umgebungen auf Ihrer eigenen Infrastruktur. [**Launchpad**](/de-de/launchpad) macht genau das mit einem einzigen Befehl: Es bootet die VMs, verbindet sie mit Ihrem Tailnet, installiert SocTalk aus öffentlichen Quellen und übergibt Ihnen eine URL. (Möchten Sie lieber jeden Schritt von Hand ausführen? Siehe [MSSP-Pilot in Eigenregie](/de-de/mssp-pilot).)
+Sie haben SocTalk gerade end-to-end auf einer einzelnen kolokierten Maschine ausgeführt. Der natürliche nächste Schritt ist ein echter Pilot, eine MSSP-Control-Plane plus eine oder mehrere Mandanten-Umgebungen auf Ihrer eigenen Infrastruktur. [**Launchpad**](/de-de/launchpad) macht genau das mit einem einzigen Befehl: Es bootet die VMs, verbindet sie mit Ihrem Tailnet, installiert SocTalk aus öffentlichen Quellen und übergibt Ihnen eine URL. (Möchten Sie lieber jeden Schritt von Hand ausführen? Siehe [MSSP-Pilot in Eigenregie](/de-de/mssp-pilot).)
 
 ## Fehlerbehebung
 

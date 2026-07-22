@@ -23,7 +23,7 @@ Jeder Mandant erhält einen dedizierten DNS-Namen (`acme.soc.mssp.example.com`),
 
 Zwei Implementierungen der mandantenspezifischen Adressierung werden unterstützt:
 
-1. **LoadBalancer-Service pro Mandant (empfohlenes Muster; im Chart noch nicht verdrahtet).** Der aktuelle `wazuh`-Subchart erstellt den `Service` des Wazuh-Managers nur als `ClusterIP` — in diesem Release gibt es **keine automatische LoadBalancer- oder DNS-Bereitstellung**. Um einen Mandanten heute aus dem öffentlichen Internet routbar zu machen, müssen Sie entweder: selbst einen externen LoadBalancer-Service darüberlegen (manuelles `kubectl apply`), jeden Mandanten hinter ein Edge-HAProxy / NGINX mit mandantenspezifischem SNI oder Port-Mapping stellen oder die weiter unten beschriebene Topologie mit mandantenspezifischem Port verwenden. Cloud-LB + DNS pro Mandant ist das dokumentierte Ziel; dorthin zu gelangen erfordert manuelle Verdrahtung auf MSSP-Seite.
+1. **LoadBalancer-Service pro Mandant (empfohlenes Muster; im Chart noch nicht verdrahtet).** Der aktuelle `wazuh`-Subchart erstellt den `Service` des Wazuh-Managers nur als `ClusterIP`: in diesem Release gibt es **keine automatische LoadBalancer- oder DNS-Bereitstellung**. Um einen Mandanten heute aus dem öffentlichen Internet routbar zu machen, müssen Sie entweder: selbst einen externen LoadBalancer-Service darüberlegen (manuelles `kubectl apply`), jeden Mandanten hinter ein Edge-HAProxy / NGINX mit mandantenspezifischem SNI oder Port-Mapping stellen oder die weiter unten beschriebene Topologie mit mandantenspezifischem Port verwenden. Cloud-LB + DNS pro Mandant ist das dokumentierte Ziel; dorthin zu gelangen erfordert manuelle Verdrahtung auf MSSP-Seite.
 2. **Mandantenspezifischer Port an einer einzelnen Edge-IP (Rückfalloption).** Wenn eindeutige IPs knapp sind, allozieren Sie einen Portbereich an einer Edge-IP und weisen Sie `(1514, 1515)`-Offsets pro Mandant zu (z. B. acme → 15140/15141, beta → 15142/15143). DNS verwendet `SRV`-Records oder die `manager_address:port`-Konfiguration des Agents zur Verteilung. Betrieblich unhandlich, funktioniert aber.
 
 ### Topologie
@@ -56,7 +56,7 @@ DNS resolves to the LoadBalancer IP for tenant-acme
 
 ### DNS
 
-Ein `A`/`AAAA`-Record pro Mandant: `<slug>.soc.mssp.example.com → <tenant LB IP>` ist das Zieldesign. **In V1 gibt SocTalk KEINE DNS-Records aus** — der Betreiber verwaltet DNS manuell (external-dns / Provider-Konsole), sobald der mandantenspezifische LB außerhalb des Systems bereitgestellt wurde. Ein von SocTalk gesteuerter DNS-Emissionspfad (external-dns-Annotationen oder direkte Provider-Integration) steht auf der Roadmap.
+Ein `A`/`AAAA`-Record pro Mandant: `<slug>.soc.mssp.example.com → <tenant LB IP>` ist das Zieldesign. **In V1 gibt SocTalk KEINE DNS-Records aus**: der Betreiber verwaltet DNS manuell (external-dns / Provider-Konsole), sobald der mandantenspezifische LB außerhalb des Systems bereitgestellt wurde. Ein von SocTalk gesteuerter DNS-Emissionspfad (external-dns-Annotationen oder direkte Provider-Integration) steht auf der Roadmap.
 
 Wildcard-DNS funktioniert für das LoadBalancer-Muster nicht, weil jeder Mandant seine eigene IP hat. Es funktioniert nur unter der Rückfall-Topologie (mandantenspezifischer Port), bei der jeder Name auf dieselbe Edge-IP aufgelöst wird.
 
@@ -80,7 +80,7 @@ Der MSSP betreibt eine der folgenden Optionen:
 | Bare-Metal oder On-Prem | MetalLB (L2- oder BGP-Modus) mit einem Adresspool oder kube-vip. |
 | Single-IP-Edge mit Port-Mapping | Betreiben Sie einen externen L4-Proxy (HAProxy, Envoy, nginx-stream), der `(IP, port)`-Paare an den Mandanten-`Service` weiterleitet. Verwenden Sie dies nur unter der Rückfall-Topologie mit mandantenspezifischem Port. |
 
-Das Zieldesign sieht vor, dass der `Service` des `soctalk-tenant`-Charts so annotiert wird, dass Cloud-Controller und MetalLB eine Pool-/IP-Klassen-Auswahl anwenden können (z. B. `metallb.universe.tf/address-pool: wazuh-agents`), und der SocTalk-Controller die resultierende LB-IP festhält und den mandantenspezifischen DNS-Record schreibt. **In V1 ist keines davon verdrahtet** — der Wazuh-Manager-Service ist nur `ClusterIP`, und der Controller pollt nicht auf die Zuweisung der LB-IP.
+Das Zieldesign sieht vor, dass der `Service` des `soctalk-tenant`-Charts so annotiert wird, dass Cloud-Controller und MetalLB eine Pool-/IP-Klassen-Auswahl anwenden können (z. B. `metallb.universe.tf/address-pool: wazuh-agents`), und der SocTalk-Controller die resultierende LB-IP festhält und den mandantenspezifischen DNS-Record schreibt. **In V1 ist keines davon verdrahtet**: der Wazuh-Manager-Service ist nur `ClusterIP`, und der Controller pollt nicht auf die Zuweisung der LB-IP.
 
 Wenn Sie eine einzelne Edge-IP verwenden müssen (Rückfalloption), sieht ein HAProxy-Referenz-Mapping so aus:
 
@@ -110,7 +110,7 @@ backend tenant-beta-events
     server wazuh wazuh-manager.tenant-beta.svc.cluster.local:1514
 ```
 
-Verzweigen Sie für Wazuh 1514 nicht auf `req.ssl_sni`. Wazuhs Agent-Protokoll ist kein Standard-TLS und erzeugt dort niemals ein ClientHello. SNI ist nur auf 1515 (Anmeldung) verfügbar, was unzureichend ist — Events würden weiterhin einen funktionierenden Diskriminator benötigen.
+Verzweigen Sie für Wazuh 1514 nicht auf `req.ssl_sni`. Wazuhs Agent-Protokoll ist kein Standard-TLS und erzeugt dort niemals ein ClientHello. SNI ist nur auf 1515 (Anmeldung) verfügbar, was unzureichend ist, Events würden weiterhin einen funktionierenden Diskriminator benötigen.
 
 ## Ablauf der Agent-Anmeldung
 
@@ -131,7 +131,7 @@ Wazuhs `authd`-Registrierung auf 1515/TCP erfordert ein gemeinsames Geheimnis. J
 4. Der Agent registriert sich beim Manager des Mandanten und erhält sein eigenes Zertifikat pro Agent.
 5. Nachfolgende Verbindungen auf 1514 sind mTLS pro Agent.
 
-Das Routing auf 1515 verwendet dieselbe mandantenspezifische Adresse wie 1514 (LB-IP oder Edge-Port). Das gemeinsame `authd`-Geheimnis ist mandantengebunden: ein Agent, der das Geheimnis von `acme` verwendet, kann sich nur beim Manager von `acme` registrieren — die Adressierung setzt dies durch, und das Geheimnis wird vom Manager verifiziert.
+Das Routing auf 1515 verwendet dieselbe mandantenspezifische Adresse wie 1514 (LB-IP oder Edge-Port). Das gemeinsame `authd`-Geheimnis ist mandantengebunden: ein Agent, der das Geheimnis von `acme` verwendet, kann sich nur beim Manager von `acme` registrieren, die Adressierung setzt dies durch, und das Geheimnis wird vom Manager verifiziert.
 
 ## Firewall-/Netzwerkanforderungen
 
@@ -225,6 +225,6 @@ Vorabvalidierung:
 
 Pilot-Validierung (späteres Release):
 - Ein echter Kundenendpunkt meldet sich über das öffentliche Internet sauber an.
-- Cross-Tenant-Test: melden Sie einen `acme`-Agent mit dem `authd`-Geheimnis von `beta` gegen die Adresse von `beta` an — erwarten Sie eine Ablehnung. Umgekehrt ebenso. Beide schlagen fehl.
+- Cross-Tenant-Test: melden Sie einen `acme`-Agent mit dem `authd`-Geheimnis von `beta` gegen die Adresse von `beta` an, erwarten Sie eine Ablehnung. Umgekehrt ebenso. Beide schlagen fehl.
 
 In keiner dieser Prüfungen gibt es einen SNI-Schritt: Wazuhs Agent-Protokoll auf 1514 erzeugt kein ClientHello, sodass jeder Test, der „SNI überschreibt", einen Routing-Pfad ausübt, den der produktive Ingress nicht nehmen wird. Validieren Sie stattdessen den Adress-/Port-Diskriminator.

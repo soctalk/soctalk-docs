@@ -28,13 +28,13 @@ Les transitions vers `degraded` ne se produisent **que via le chemin d'échec du
 | État | Ce que cela signifie | Ce qui tourne |
 |---|---|---|
 | `pending` | Onboarding accepté, le contrôleur n'a pas encore démarré le provisioning. | rien dans `tenant-<slug>` |
-| `provisioning` | Le contrôleur crée le namespace, les secrets, et installe via helm le chart du tenant. | partiel — les pods apparaissent |
+| `provisioning` | Le contrôleur crée le namespace, les secrets, et installe via helm le chart du tenant. | partiel, les pods apparaissent |
 | `active` | Le tenant est passé à `active` après que le contrôleur de provisioning a constaté que les pods du plan de données ont atteint l'état Ready. | Wazuh manager + indexer + dashboard + soctalk-adapter + runs-worker |
 | `degraded` | Le contrôleur de provisioning a marqué le tenant `degraded` après un échec de provisioning (ou un opérateur a effectué une transition manuelle). **La plateforme n'effectue pas actuellement de transition automatique active→degraded fondée sur l'ancienneté du heartbeat de l'adaptateur** ; la jauge `soctalk_tenant_adapter_heartbeat_age_seconds` est destinée à votre alerting | indéterminé ; vérifiez les pods |
-| `suspended` | L'administrateur MSSP a marqué le tenant comme suspendu dans la base de données. **Les charges de travail ne sont PAS mises à l'échelle par l'action de suspension elle-même dans cette version** — cela nécessite la procédure manuelle de désactivation d'urgence (voir [Opérations quotidiennes → Désactivation d'urgence](/fr-fr/operations#emergency-disable-a-tenant-immediately)). Le drapeau d'état empêche la planification de nouvelles enquêtes. | inchangé — les pods continuent de tourner à moins que l'opérateur ne les mette à l'échelle vers le bas |
+| `suspended` | L'administrateur MSSP a marqué le tenant comme suspendu dans la base de données. **Les charges de travail ne sont PAS mises à l'échelle par l'action de suspension elle-même dans cette version**: cela nécessite la procédure manuelle de désactivation d'urgence (voir [Opérations quotidiennes → Désactivation d'urgence](/fr-fr/operations#emergency-disable-a-tenant-immediately)). Le drapeau d'état empêche la planification de nouvelles enquêtes. | inchangé, les pods continuent de tourner à moins que l'opérateur ne les mette à l'échelle vers le bas |
 | `decommissioning` | Démantèlement en cours. La release Helm est en cours de désinstallation, les PVC sont en cours de suppression. | en réduction |
 | `archived` | Release Helm supprimée ; PVC supprimés ; la ligne du tenant subsiste pour l'audit. | rien |
-| `purged` | Ligne du tenant supprimée définitivement. | rien — seules les entrées du journal d'audit subsistent |
+| `purged` | Ligne du tenant supprimée définitivement. | rien, seules les entrées du journal d'audit subsistent |
 
 Les transitions autorisées sont appliquées dans `TenantController.VALID_TRANSITIONS`. Tenter de suspendre un tenant en `decommissioning` renvoie un HTTP 409 accompagné de la liste des états suivants valides.
 
@@ -54,7 +54,7 @@ La méthode `provision()` du contrôleur s'exécute en neuf phases ordonnées. C
 | 8 | `integration_config_written` | Écriture des configurations d'intégration par tenant (LLM, URLs TheHive, etc.) dans la base de données. |
 | 9 | `active` | Transition d'état vers `active`. |
 
-Un échec à n'importe quelle phase fait passer le tenant en `degraded`, l'erreur étant consignée dans la ligne d'événement. **Retry Provisioning** (`POST /api/mssp/tenants/{id}:retry`) est une transition valide depuis `degraded` vers `provisioning` (et n'est **pas** autorisée depuis `pending` — `pending → provisioning` ne se produit automatiquement que lorsque le contrôleur démarre la première tentative). `provision()` est idempotent à chaque phase.
+Un échec à n'importe quelle phase fait passer le tenant en `degraded`, l'erreur étant consignée dans la ligne d'événement. **Retry Provisioning** (`POST /api/mssp/tenants/{id}:retry`) est une transition valide depuis `degraded` vers `provisioning` (et n'est **pas** autorisée depuis `pending`: `pending → provisioning` ne se produit automatiquement que lorsque le contrôleur démarre la première tentative). `provision()` est idempotent à chaque phase.
 
 ## Profils
 
@@ -86,7 +86,7 @@ Choisissez `persistent` pour tout ce qui est destiné au client. La valeur par d
 
 Pour les tenants qui apportent leur propre stack Wazuh déployée en externe (« BYO-SIEM »). Le chart du tenant installe uniquement l'adaptateur SocTalk + runs-worker ; aucun Wazuh/TheHive/Cortex ne tourne au sein du namespace du tenant.
 
-- StorageClass : sans objet — seul le PVC de checkpoint de l'adaptateur est provisionné
+- StorageClass : sans objet, seul le PVC de checkpoint de l'adaptateur est provisionné
 - Wazuh : déploiement propre au tenant, atteint sur le réseau via les URLs de l'indexer (:9200) et de l'API Manager (:55000) fournies au moment de l'onboarding
 - Le matériel de connexion au SIEM externe (`wazuh_indexer_url`, `wazuh_api_url`, identifiants basic-auth) est **requis** à l'onboarding et validé côté serveur (422 si incomplet)
 - Les identifiants LLM par tenant sont également **requis** à l'onboarding (aucun repli partagé au niveau de l'installation pour `provided`)
@@ -106,25 +106,25 @@ Chaque namespace `tenant-<slug>` reçoit un `ResourceQuota` et un `LimitRange` a
 
 (Les chiffres exacts figurent dans `_profile_tenant_overrides` dans [`render.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/core/provisioning/render.py).)
 
-Si une charge de travail réelle dépasse le budget du profil (par exemple, l'indexer Wazuh ralentit lors d'une ingestion intense), augmentez le ResourceQuota via `helm upgrade` avec des valeurs surchargées. Ne modifiez pas l'objet ResourceQuota directement — la prochaine mise à niveau du chart l'écrasera.
+Si une charge de travail réelle dépasse le budget du profil (par exemple, l'indexer Wazuh ralentit lors d'une ingestion intense), augmentez le ResourceQuota via `helm upgrade` avec des valeurs surchargées. Ne modifiez pas l'objet ResourceQuota directement, la prochaine mise à niveau du chart l'écrasera.
 
 ## Chemins de récupération
 
 ### Tenant bloqué en `pending` après l'onboarding
 
-Le contrôleur a planté ou a été replanifié en plein provisioning avant l'exécution de la première phase. Le retry n'est pas autorisé directement depuis `pending` — attendez d'abord que la tentative de provisioning passe à `degraded` (visible dans les événements de cycle de vie), puis cliquez sur **Retry Provisioning** sur la page de détail du tenant (ou `POST /api/mssp/tenants/{id}:retry`). Le provisioning reprend à partir de la phase 1 ; chaque phase est idempotente.
+Le contrôleur a planté ou a été replanifié en plein provisioning avant l'exécution de la première phase. Le retry n'est pas autorisé directement depuis `pending`: attendez d'abord que la tentative de provisioning passe à `degraded` (visible dans les événements de cycle de vie), puis cliquez sur **Retry Provisioning** sur la page de détail du tenant (ou `POST /api/mssp/tenants/{id}:retry`). Le provisioning reprend à partir de la phase 1 ; chaque phase est idempotente.
 
 ### Tenant en `provisioning` depuis plus de 15 minutes
 
-Il s'agit généralement d'un pod bloqué (ImagePullBackOff, PVC `Pending`, ResourceQuota trop petit). Voir [Opérations quotidiennes — Tenant bloqué en provisioning](/fr-fr/operations#tenant-stuck-in-provisioning).
+Il s'agit généralement d'un pod bloqué (ImagePullBackOff, PVC `Pending`, ResourceQuota trop petit). Voir [Opérations quotidiennes, Tenant bloqué en provisioning](/fr-fr/operations#tenant-stuck-in-provisioning).
 
 ### Tenant en `degraded`
 
-En V1, `degraded` n'est atteint qu'après un **échec de provisioning**, et non une perte de heartbeat. Si un tenant est en `degraded`, c'est que le contrôleur de provisioning a échoué à l'une des 9 étapes ci-dessus — lisez la ligne d'événement de cycle de vie pour voir laquelle. Le plan de données (Wazuh) peut toujours être en cours d'exécution selon l'étape ayant échoué. Voir [Opérations quotidiennes — Tenant en état degraded](/fr-fr/operations#tenant-in-degraded-state).
+En V1, `degraded` n'est atteint qu'après un **échec de provisioning**, et non une perte de heartbeat. Si un tenant est en `degraded`, c'est que le contrôleur de provisioning a échoué à l'une des 9 étapes ci-dessus, lisez la ligne d'événement de cycle de vie pour voir laquelle. Le plan de données (Wazuh) peut toujours être en cours d'exécution selon l'étape ayant échoué. Voir [Opérations quotidiennes, Tenant en état degraded](/fr-fr/operations#tenant-in-degraded-state).
 
 ### Tenant en `suspended`
 
-Vous l'avez fait délibérément. Reprenez depuis l'interface ou via `POST /api/mssp/tenants/<id>:resume` — mais notez que dans cette version, **le resume ne met à jour que l'état en base de données**, il ne restaure pas le nombre de réplicas. Si vous avez mis les charges de travail à l'échelle zéro pendant la suspension (via le flux de désactivation d'urgence), vous devez les remettre à l'échelle à la main.
+Vous l'avez fait délibérément. Reprenez depuis l'interface ou via `POST /api/mssp/tenants/<id>:resume`: mais notez que dans cette version, **le resume ne met à jour que l'état en base de données**, il ne restaure pas le nombre de réplicas. Si vous avez mis les charges de travail à l'échelle zéro pendant la suspension (via le flux de désactivation d'urgence), vous devez les remettre à l'échelle à la main.
 
 ### Tenant en `decommissioning` depuis plus de 30 minutes
 
@@ -139,7 +139,7 @@ Puis relancez le decommission. Documentez-le dans le journal d'audit afin que la
 
 ## Decommission ou purge
 
-`decommission` démantèle le plan de données et fait passer le tenant à `archived` — la ligne du tenant et l'historique d'audit subsistent. `purged` est l'état terminal de la machine à états (`archived → purged`), mais il n'existe **aucun point de terminaison d'API `:purge` dans cette version**. Aujourd'hui, la transition vers `purged` nécessite une mise à jour au niveau de la base de données ; un `POST /api/mssp/tenants/{id}:purge` restreint aux administrateurs est prévu dans la feuille de route. Jusqu'à sa livraison, laissez les tenants décommissionnés en `archived` et considérez les lignes archivées comme la surface de rétention à long terme.
+`decommission` démantèle le plan de données et fait passer le tenant à `archived`: la ligne du tenant et l'historique d'audit subsistent. `purged` est l'état terminal de la machine à états (`archived → purged`), mais il n'existe **aucun point de terminaison d'API `:purge` dans cette version**. Aujourd'hui, la transition vers `purged` nécessite une mise à jour au niveau de la base de données ; un `POST /api/mssp/tenants/{id}:purge` restreint aux administrateurs est prévu dans la feuille de route. Jusqu'à sa livraison, laissez les tenants décommissionnés en `archived` et considérez les lignes archivées comme la surface de rétention à long terme.
 
 ## Pointeurs vers les sources
 

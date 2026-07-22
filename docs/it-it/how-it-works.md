@@ -105,11 +105,11 @@ Messe insieme, alcune proprietà distinguono tutto questo dal puntare un modello
 
 Ogni fase ha la propria pagina e il proprio codice:
 
-- [Authorization](/it-it/authorization) — il ragionamento sullo stato dell'organizzazione e la memoria "chiedi una volta sola".
-- [Triage Policies](/it-it/triage-policies) — i guardrail deterministici sulla run.
-- [Response Playbooks](/it-it/response-playbooks) — trasformare un verdetto in azione governata.
-- [Revisione umana](/it-it/human-review) — la coda di revisione e il percorso decisionale dell'analista.
-- [AI pipeline](/it-it/ai-pipeline) — il grafo agentico più in dettaglio.
-- [Architettura](/it-it/reference/architecture) — il deployment e il modello dati.
+- [Authorization](/it-it/authorization), il ragionamento sullo stato dell'organizzazione e la memoria "chiedi una volta sola".
+- [Triage Policies](/it-it/triage-policies), i guardrail deterministici sulla run.
+- [Response Playbooks](/it-it/response-playbooks), trasformare un verdetto in azione governata.
+- [Revisione umana](/it-it/human-review), la coda di revisione e il percorso decisionale dell'analista.
+- [AI pipeline](/it-it/ai-pipeline), il grafo agentico più in dettaglio.
+- [Architettura](/it-it/reference/architecture), il deployment e il modello dati.
 
 Il codice della pipeline si trova sotto [`src/soctalk/core/ir/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/core/ir) (ingest plane), [`src/soctalk/graph/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/graph) e [`src/soctalk/supervisor/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/supervisor) (graph plane), e [`src/soctalk/response/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/response) (response).

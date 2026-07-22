@@ -1,6 +1,6 @@
 # Operações diárias
 
-Tarefas que operadores de MSSP executam contra uma instalação SocTalk ativa. Se ainda não fez isso, leia primeiro o [Tour pela UI do MSSP](/pt-br/mssp-ui) — ele cataloga todas as páginas referenciadas abaixo.
+Tarefas que operadores de MSSP executam contra uma instalação SocTalk ativa. Se ainda não fez isso, leia primeiro o [Tour pela UI do MSSP](/pt-br/mssp-ui), ele cataloga todas as páginas referenciadas abaixo.
 
 ## Fila de investigações
 
@@ -10,7 +10,7 @@ Abra **Investigações** para ver os casos ativos de todos os tenants em uma ún
 
 ## Fila de revisão de propostas
 
-**Revisões** é a fila cross-tenant de propostas de AI aguardando um humano. Aprovar / rejeitar / pedir mais informações atualiza a linha de revisão no banco de dados (e no log de auditoria). Não há **outbox** na V1 — o pipeline de executor / notificação downstream está no roadmap.
+**Revisões** é a fila cross-tenant de propostas de AI aguardando um humano. Aprovar / rejeitar / pedir mais informações atualiza a linha de revisão no banco de dados (e no log de auditoria). Não há **outbox** na V1, o pipeline de executor / notificação downstream está no roadmap.
 
 ![Fila de revisão](/screenshots/review-queue.png)
 
@@ -66,7 +66,7 @@ Se o data plane estiver saudável mas o adaptador ainda não conseguir alcançar
 
 ## Rotacionar segredos de bootstrap do data plane
 
-Não há comando `soctalk-cli rotate-*` neste release — esse caminho foi documentado em rascunhos anteriores. Hoje:
+Não há comando `soctalk-cli rotate-*` neste release, esse caminho foi documentado em rascunhos anteriores. Hoje:
 
 - **Senha de admin do Wazuh:** faça o patch do Secret correspondente no namespace do tenant e depois reinicie o pod afetado. A reexecução do bootstrap do chart na inicialização do pod captará a nova credencial. TheHive e Cortex são integrações externas, não subcharts agrupados, então suas credenciais são rotacionadas nesses sistemas e atualizadas via a configuração de integração (veja /pt-br/integrate/thehive, /pt-br/integrate/cortex).
 - **Segredo compartilhado do `authd` do Wazuh:** faça o patch de `Secret/wazuh-authd-secret` em `tenant-<slug>` e reinicie o manager do Wazuh. Todos os agentes existentes precisam se reinscrever com o novo segredo; distribua-o pelo seu canal seguro habitual.
@@ -97,7 +97,7 @@ Os backups são gerenciados externamente pelo MSSP (Velero, snapshots de cluster
    ```bash
    kubectl -n soctalk-system scale deploy soctalk-system-api --replicas=0
    ```
-   (O chart V1 embute o orquestrador no pod da API — não há Deployment `soctalk-system-orchestrator` separado.)
+   (O chart V1 embute o orquestrador no pod da API, não há Deployment `soctalk-system-orchestrator` separado.)
 2. Restaure os dados do Postgres a partir do seu backup.
 3. Reinicie a API: `kubectl -n soctalk-system scale deploy soctalk-system-api --replicas=2` (ou a sua contagem de réplicas habitual).
 
@@ -105,7 +105,7 @@ Os PVCs do data plane do tenant seguem o mesmo padrão: restaure por namespace e
 
 ## Emergência: desabilitar um tenant imediatamente
 
-A ação **Suspend** da UI neste release muda o estado do tenant para `suspended` e impede que o orquestrador agende novas investigações — **mas não escala as cargas de trabalho**. Para um corte efetivo, execute os passos abaixo (escale todos os deployments para zero + aplique uma NetworkPolicy deny-all como redundância):
+A ação **Suspend** da UI neste release muda o estado do tenant para `suspended` e impede que o orquestrador agende novas investigações, **mas não escala as cargas de trabalho**. Para um corte efetivo, execute os passos abaixo (escale todos os deployments para zero + aplique uma NetworkPolicy deny-all como redundância):
 
 ```bash
 # 1. Escale todas as cargas de trabalho no namespace do tenant para zero. Esta é
@@ -125,7 +125,7 @@ spec:
 EOF
 ```
 
-Reverta excluindo a NetworkPolicy, escalando as cargas de trabalho de volta às suas contagens de réplicas originais e chamando **Resume** na UI. **Resume** também apenas atualiza o estado no banco neste release — ele não restaurará as contagens de réplicas para você.
+Reverta excluindo a NetworkPolicy, escalando as cargas de trabalho de volta às suas contagens de réplicas originais e chamando **Resume** na UI. **Resume** também apenas atualiza o estado no banco neste release, ele não restaurará as contagens de réplicas para você.
 
 ## Suspeita de vazamento de dados cross-tenant
 

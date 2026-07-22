@@ -63,8 +63,8 @@ opaco; la fila de la base de datos es la fuente de verdad.
 
 ### Reutilización
 
-- `users` (`src/soctalk/core/tenancy/models.py:156`) — sin cambios.
-- `audit_log` (`src/soctalk/core/tenancy/models.py:291`) — recibe
+- `users` (`src/soctalk/core/tenancy/models.py:156`), sin cambios.
+- `audit_log` (`src/soctalk/core/tenancy/models.py:291`), recibe
   acciones `auth.*` (ver §9).
 
 Sin nueva tabla de auditoría. Sin tabla de claves de firma (las sesiones
@@ -209,7 +209,7 @@ Ambas aplicaciones ganan `/login`:
 
 Cuando el inicio de sesión tiene éxito contra una credencial con
 `must_change=true`, la respuesta del servidor señala el cambio como el
-siguiente paso. La UI navega directamente a `/account/password` — sin
+siguiente paso. La UI navega directamente a `/account/password`: sin
 destello del dashboard.
 
 Mientras `must_change` esté activo, cualquier ruta excepto
@@ -238,7 +238,7 @@ autenticado:
 - Email del usuario.
 - Etiqueta de rol ("MSSP admin", "Analyst", "Customer viewer", etc.).
 - Enlace a "Cambiar contraseña".
-- "Cerrar sesión" — `POST /api/auth/logout`, luego navegar a `/login` con
+- "Cerrar sesión", `POST /api/auth/logout`, luego navegar a `/login` con
   un mensaje flash "Se ha cerrado tu sesión."
 
 ### Reinicio por el admin (consola MSSP)
@@ -253,7 +253,7 @@ En la página de detalle del usuario en la consola MSSP:
 - Al confirmar, el servidor devuelve la contraseña generada una sola vez.
   La UI la muestra en un campo con copiado al portapapeles con "Copiar y
   cerrar". Después de que el modal se cierra, la contraseña ya no se puede
-  recuperar — el admin la comparte por un canal alterno.
+  recuperar, el admin la comparte por un canal alterno.
 
 ### Expiración de la sesión
 
@@ -357,7 +357,7 @@ Suite de humo de Playwright para cada UI:
 No forma parte de esta especificación. Ordenado por probabilidad de
 reincorporación:
 
-1. `password_reset_tokens` — reinicio de contraseña de autoservicio
+1. `password_reset_tokens`: reinicio de contraseña de autoservicio
    basado en email.
 2. MFA (TOTP + códigos de recuperación), con los pasos de UI
    correspondientes en los flujos de inicio de sesión y de cuenta.

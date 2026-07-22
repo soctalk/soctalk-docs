@@ -32,18 +32,18 @@ Il token viene ruotato a ogni riavvio del wizard. Non esiste alcuna API per recu
 
 ## Modulo a due fasi
 
-1. **Autenticazione** — incolla il token di setup.
-2. **Configurazione** — compila i campi seguenti.
+1. **Autenticazione**: incolla il token di setup.
+2. **Configurazione**: compila i campi seguenti.
 
 La pagina di inserimento del token invia i dati a `POST /auth`; la pagina di configurazione invia i dati a `POST /submit`. Entrambe usano cookie CSRF vincolati tramite HMAC (`SameSite=Strict`, `HttpOnly`, `Secure`).
 
-### Fase 1 — Autenticazione
+### Fase 1, Autenticazione
 
-![Setup wizard — inserimento del token](/screenshots/setup-wizard-token.png)
+![Setup wizard, inserimento del token](/screenshots/setup-wizard-token.png)
 
-### Fase 2 — Configurazione
+### Fase 2, Configurazione
 
-![Setup wizard — modulo di configurazione, compilato](/screenshots/setup-wizard-config-filled.png)
+![Setup wizard, modulo di configurazione, compilato](/screenshots/setup-wizard-config-filled.png)
 
 ### Identità
 
@@ -59,7 +59,7 @@ La pagina di inserimento del token invia i dati a `POST /auth`; la pagina di con
 | Campo | Tipo | Note |
 |---|---|---|
 | Provider | select (`anthropic`, `openai`) | **Solo visualizzazione in questa release.** Il wizard raccoglie il valore ma non lo scrive nei valori del chart; si applica il valore predefinito del chart (`openai-compatible`). Per fissare un provider specifico, modifica `/etc/soctalk/values.yaml` impostando `defaults.llm.provider` prima che venga eseguito `soctalk-firstboot.service`, oppure esegui `helm upgrade` dopo l'installazione. Il collegamento attraverso il wizard è pianificato per una release futura |
-| API key | password | scritta in `/etc/soctalk/llm.key` (modo `0600`) — NON nel file dei valori. L'installer crea da essa un Secret Kubernetes (`soctalk-system-llm-api-key`) con entrambi i campi dati `anthropic-api-key` e `openai-api-key`, così il runtime del chart può usare qualunque provider indicato dai valori |
+| API key | password | scritta in `/etc/soctalk/llm.key` (modo `0600`), NON nel file dei valori. L'installer crea da essa un Secret Kubernetes (`soctalk-system-llm-api-key`) con entrambi i campi dati `anthropic-api-key` e `openai-api-key`, così il runtime del chart può usare qualunque provider indicato dai valori |
 
 ### Onboarding del tenant demo
 
@@ -82,7 +82,7 @@ TENANT_NAME='<org name> — Demo'
 | `/etc/soctalk/values.yaml` | 0640 | Valori del chart renderizzati (`install.*`, `ingress.*`, `postgres.*`) |
 | `/etc/soctalk/llm.key` | 0600 | API key LLM, singola riga |
 | `/etc/soctalk/onboard.env` | 0600 | Env-file di onboarding del tenant demo |
-| `/var/lib/soctalk-wizard.done` | 0644 | Sentinella — impedisce che il wizard si riavvii ai boot successivi |
+| `/var/lib/soctalk-wizard.done` | 0644 | Sentinella, impedisce che il wizard si riavvii ai boot successivi |
 
 ## Unità systemd
 
@@ -97,7 +97,7 @@ ConditionPathExists=!/etc/soctalk/values.yaml
 WantedBy=cloud-init.target
 ```
 
-Si aggancia a `cloud-init.target` (non a `multi-user.target`) per evitare un ciclo di ordinamento attraverso `After=cloud-final.service`. Al user-data di cloud-init è consentito depositare direttamente `/etc/soctalk/values.yaml` — se lo fa, il wizard non parte mai e `soctalk-firstboot.service` procede direttamente a `helm install`.
+Si aggancia a `cloud-init.target` (non a `multi-user.target`) per evitare un ciclo di ordinamento attraverso `After=cloud-final.service`. Al user-data di cloud-init è consentito depositare direttamente `/etc/soctalk/values.yaml`: se lo fa, il wizard non parte mai e `soctalk-firstboot.service` procede direttamente a `helm install`.
 
 ## Hardening
 
@@ -109,7 +109,7 @@ Dopo un invio riuscito, il wizard scrive la sentinella ed esce. Il `ConditionPat
 
 - **Gate del token** su ogni endpoint autenticato. Confronto a tempo costante.
 - **CSRF** tramite cookie double-submit vincolati con HMAC su ogni POST che modifica lo stato.
-- **Rate limit**: minimo 30 s tra i tentativi di autenticazione per IP di origine; 10 fallimenti entro un'ora bloccano l'IP per un'ora. (Codex ha segnalato questo come un banale vettore di DoS dietro NAT — gli operatori dietro un NAT condiviso potrebbero vedere bloccato un setup legittimo. Riavvia l'unità per sbloccare.)
+- **Rate limit**: minimo 30 s tra i tentativi di autenticazione per IP di origine; 10 fallimenti entro un'ora bloccano l'IP per un'ora. (Codex ha segnalato questo come un banale vettore di DoS dietro NAT, gli operatori dietro un NAT condiviso potrebbero vedere bloccato un setup legittimo. Riavvia l'unità per sbloccare.)
 - **Solo TLS autofirmato**. Il wizard non serve mai HTTP in chiaro. I clienti accettano il certificato autofirmato una volta; gli utenti di produzione non dovrebbero mai raggiungere il wizard.
 
 ## Cosa succede dopo l'invio
@@ -136,4 +136,4 @@ sudo rm /var/lib/soctalk-firstboot.done /var/lib/soctalk-wizard.done /etc/soctal
 sudo systemctl restart soctalk-setup-wizard
 ```
 
-Questa operazione è distruttiva — il release helm esistente possiede ancora il namespace `soctalk-system`. Per un reset pulito, esegui prima `helm uninstall soctalk-system -n soctalk-system`.
+Questa operazione è distruttiva, il release helm esistente possiede ancora il namespace `soctalk-system`. Per un reset pulito, esegui prima `helm uninstall soctalk-system -n soctalk-system`.

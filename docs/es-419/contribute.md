@@ -19,7 +19,7 @@ cd soctalk
 - cert-manager instalado
 - k3d local-path como el StorageClass predeterminado
 
-**No** compila las imágenes de SocTalk, ni instala el chart de SocTalk, ni incorpora tenants, ni carga datos iniciales — versiones anteriores de esta página afirmaban que sí lo hacía. Ejecuta los siguientes pasos tú mismo. Secuencia típica después de `dev-up.sh`:
+**No** compila las imágenes de SocTalk, ni instala el chart de SocTalk, ni incorpora tenants, ni carga datos iniciales, versiones anteriores de esta página afirmaban que sí lo hacía. Ejecuta los siguientes pasos tú mismo. Secuencia típica después de `dev-up.sh`:
 
 ```bash
 just build-api build-frontend  # api image embeds the orchestrator in V1
@@ -66,14 +66,14 @@ El sitio de documentación (este sitio) vive en un repositorio aparte, [`soctalk
 
 ## Pruebas
 
-En esta versión no existen las recetas `just test` / `just test-rls` / `just e2e-l1-l2` — esa es la forma planificada. Hoy, ejecuta las pruebas directamente con pytest:
+En esta versión no existen las recetas `just test` / `just test-rls` / `just e2e-l1-l2`: esa es la forma planificada. Hoy, ejecuta las pruebas directamente con pytest:
 
 ```bash
 pytest tests/                          # full suite
 pytest tests/v1/test_rls_isolation.py  # Postgres Row-Level Security suite
 ```
 
-Las pruebas de RLS son innegociables — verifican el aislamiento de datos entre tenants que promete el [Modelo de seguridad](/es-419/reference/security-model). CI ejecuta la suite completa de pytest en cada PR.
+Las pruebas de RLS son innegociables, verifican el aislamiento de datos entre tenants que promete el [Modelo de seguridad](/es-419/reference/security-model). CI ejecuta la suite completa de pytest en cada PR.
 
 ## Estilo
 
@@ -105,7 +105,7 @@ Los releases se etiquetan desde `main`. Hoy el flujo tiene más pasos manuales d
 
 1. Incrementa manualmente las versiones en `Chart.yaml` + `pyproject.toml`, haz commit y push.
 2. Etiqueta el commit y haz push del tag (`git tag v0.1.x && git push --tags`).
-3. `just release` — ejecuta `just build-all push-all`. Esto **solo compila y publica imágenes de contenedor**; no etiqueta, ni publica charts, ni crea un Release en GitHub.
+3. `just release`: ejecuta `just build-all push-all`. Esto **solo compila y publica imágenes de contenedor**; no etiqueta, ni publica charts, ni crea un Release en GitHub.
 4. El workflow de GH `publish-images.yml` gestiona la publicación de la imagen en ghcr.io cuando se dispara.
 5. La publicación del chart en `ghcr.io/soctalk/charts/` se hace manualmente hoy con `helm push`.
 6. `gh release create` para lanzar el Release en GitHub.

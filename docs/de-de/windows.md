@@ -1,9 +1,9 @@
 # Unter Windows ausführen (WSL2)
 
-SocTalk ist Kubernetes-nativ. Unter Windows läuft es als **k3s (leichtgewichtiges Kubernetes) innerhalb von WSL2** — für dich installiert und eingerichtet durch einen einzigen PowerShell-Befehl. Kein Docker Desktop erforderlich.
+SocTalk ist Kubernetes-nativ. Unter Windows läuft es als **k3s (leichtgewichtiges Kubernetes) innerhalb von WSL2**: für dich installiert und eingerichtet durch einen einzigen PowerShell-Befehl. Kein Docker Desktop erforderlich.
 
 ::: tip Nur zum Ausprobieren?
-Die **[VM-Appliance](/de-de/downloads)** (Hyper-V `vhdx` oder [VirtualBox](/de-de/virtualbox)) ist der einfachste und robusteste Weg, SocTalk unter Windows zu testen — sie ist eine eigenständige Linux-VM, an der nichts zu konfigurieren ist. Der WSL2-Weg auf dieser Seite ist die Komfortoption für ein lokales Cluster, gedacht für Entwickler, die lieber keine vollständige VM betreiben möchten.
+Die **[VM-Appliance](/de-de/downloads)** (Hyper-V `vhdx` oder [VirtualBox](/de-de/virtualbox)) ist der einfachste und robusteste Weg, SocTalk unter Windows zu testen, sie ist eine eigenständige Linux-VM, an der nichts zu konfigurieren ist. Der WSL2-Weg auf dieser Seite ist die Komfortoption für ein lokales Cluster, gedacht für Entwickler, die lieber keine vollständige VM betreiben möchten.
 :::
 
 ::: warning Architektur
@@ -12,11 +12,11 @@ SocTalk-Images sind **ausschließlich amd64**, daher funktioniert dies unter **W
 
 ## Voraussetzungen
 
-- **Windows 10 2004 (Build 19041) oder neuer, oder Windows 11** — x64
+- **Windows 10 2004 (Build 19041) oder neuer, oder Windows 11**: x64
 - **Administrator**-PowerShell (das Installationsprogramm aktiviert Windows-Features und konfiguriert WSL2)
 - **CPU-Virtualisierung aktiviert** in der Firmware (WSL2 benötigt sie; in einer VM aktiviere geschachtelte Virtualisierung)
 
-Du musst WSL2, Ubuntu oder Docker **nicht** vorab installieren — das Installationsprogramm erledigt all das.
+Du musst WSL2, Ubuntu oder Docker **nicht** vorab installieren, das Installationsprogramm erledigt all das.
 
 ## Installation mit einem Klick
 
@@ -28,7 +28,7 @@ irm https://raw.githubusercontent.com/soctalk/soctalk/main/install.ps1 | iex
 
 Was passiert:
 
-1. **Aktiviert WSL2** (ein Neustart — melde dich wieder an, und die Installation **wird automatisch fortgesetzt** bei deiner nächsten Anmeldung; WSL2 kann nicht unter dem SYSTEM-Konto laufen, daher läuft die Fortsetzung in deiner Sitzung).
+1. **Aktiviert WSL2** (ein Neustart, melde dich wieder an, und die Installation **wird automatisch fortgesetzt** bei deiner nächsten Anmeldung; WSL2 kann nicht unter dem SYSTEM-Konto laufen, daher läuft die Fortsetzung in deiner Sitzung).
 2. **Importiert eine Ubuntu**-Distribution und aktiviert systemd darin.
 3. **Installiert k3s** als systemd-Dienst innerhalb von WSL2, stellt dann SocTalk bereit und richtet einen **`demo`-Mandanten** ein.
 4. **Macht die UI für Windows verfügbar** unter **`https://localhost/`** (ein `netsh portproxy` leitet an das Cluster innerhalb von WSL2 weiter; eine Anmeldeaufgabe frischt sie nach Neustarts wieder auf).
@@ -58,8 +58,8 @@ Der Ingress-Host ist `localhost`, und ein Windows-`netsh portproxy` (`localhost:
 ## Hinweise
 
 - **Ein Neustart** ist erforderlich, um die Aktivierung von WSL2 abzuschließen; melde dich danach wieder an, und die Installation läuft von selbst weiter.
-- **Halte die WSL-Distribution des Clusters am Laufen** — k3s lebt darin. Das Installationsprogramm setzt `vmIdleTimeout=-1`, damit WSL2 nicht in den Leerlauf geht, und eine Anmeldeaufgabe startet WSL neu und frischt die `localhost`-Weiterleitung nach einem Windows-Neustart wieder auf.
-- Der WSL2-Weg ist die **Komfortoption für ein lokales Cluster**. Für eine immer aktive / produktionsnahe Installation unter Windows bevorzuge die **[VM-Appliance](/de-de/downloads)** (Hyper-V/VirtualBox) — eine einzelne Linux-VM ohne bewegliche Teile in der WSL2-Vernetzung.
+- **Halte die WSL-Distribution des Clusters am Laufen**: k3s lebt darin. Das Installationsprogramm setzt `vmIdleTimeout=-1`, damit WSL2 nicht in den Leerlauf geht, und eine Anmeldeaufgabe startet WSL neu und frischt die `localhost`-Weiterleitung nach einem Windows-Neustart wieder auf.
+- Der WSL2-Weg ist die **Komfortoption für ein lokales Cluster**. Für eine immer aktive / produktionsnahe Installation unter Windows bevorzuge die **[VM-Appliance](/de-de/downloads)** (Hyper-V/VirtualBox), eine einzelne Linux-VM ohne bewegliche Teile in der WSL2-Vernetzung.
 - amd64-Images → nur Windows **x64**.
 
 ## Abbau
@@ -78,8 +78,8 @@ wsl --unregister Ubuntu      # optional: remove the distro entirely
 
 | Symptom | Prüfung |
 |---|---|
-| Installation wurde nach dem Neustart nicht fortgesetzt | melde dich als **derselbe Benutzer** wieder an — die Fortsetzung läuft bei deiner Anmeldung. Ein erneutes Ausführen von `install.ps1` ist unbedenklich (abgeschlossene Schritte werden übersprungen). |
-| `https://localhost/` lädt nicht | die WSL2-IP hat sich möglicherweise geändert; die geplante Aufgabe `SocTalkExpose` frischt die Weiterleitung wieder auf — führe sie aus (`Start-ScheduledTask SocTalkExpose`) oder starte erneut und versuche es dann erneut. |
-| `503` von `https://localhost/` | die Weiterleitung funktioniert, aber die Pods sind noch nicht bereit — `wsl -d Ubuntu -u root -- k3s kubectl -n soctalk-system get pods` und warte auf `Running`. |
+| Installation wurde nach dem Neustart nicht fortgesetzt | melde dich als **derselbe Benutzer** wieder an, die Fortsetzung läuft bei deiner Anmeldung. Ein erneutes Ausführen von `install.ps1` ist unbedenklich (abgeschlossene Schritte werden übersprungen). |
+| `https://localhost/` lädt nicht | die WSL2-IP hat sich möglicherweise geändert; die geplante Aufgabe `SocTalkExpose` frischt die Weiterleitung wieder auf, führe sie aus (`Start-ScheduledTask SocTalkExpose`) oder starte erneut und versuche es dann erneut. |
+| `503` von `https://localhost/` | die Weiterleitung funktioniert, aber die Pods sind noch nicht bereit, `wsl -d Ubuntu -u root -- k3s kubectl -n soctalk-system get pods` und warte auf `Running`. |
 | WSL2 startet nicht | aktiviere die CPU-Virtualisierung (VT-x/AMD-V) in der Firmware; in einer VM aktiviere geschachtelte Virtualisierung. |
-| Alles nach dem Assistenten | wie bei jeder Plattform — siehe die [Tabelle zur Fehlerbehebung im Quickstart](/de-de/quickstart-vm#troubleshooting). |
+| Alles nach dem Assistenten | wie bei jeder Plattform, siehe die [Tabelle zur Fehlerbehebung im Quickstart](/de-de/quickstart-vm#troubleshooting). |

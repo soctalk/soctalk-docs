@@ -248,7 +248,7 @@ spec:
       toPorts: [{ ports: [{ port: "443", protocol: TCP }] }]
 ```
 
-Cilium kombiniert alle Policies, die die Orchestrator-Pods selektieren, sodass die Vereinigung der erlaubten FQDNs jedes Mandanten von diesen Pods auf Netzwerkebene erreichbar ist. **Es gibt keine mandantenspezifische FQDN-Isolation auf Request-Ebene** — das ist Aufgabe der Anwendung (mandantenspezifische LLM-Konfiguration, mandantengebundene Cache-Schlüssel). Die Netzwerk-Policy verkleinert den Explosionsradius (die LLM-Hostname-Allowlist als Ganzes, nicht beliebiger Egress), schränkt aber für sich genommen nicht ein, mit welchem Mandanten der Orchestrator sprechen kann.
+Cilium kombiniert alle Policies, die die Orchestrator-Pods selektieren, sodass die Vereinigung der erlaubten FQDNs jedes Mandanten von diesen Pods auf Netzwerkebene erreichbar ist. **Es gibt keine mandantenspezifische FQDN-Isolation auf Request-Ebene**: das ist Aufgabe der Anwendung (mandantenspezifische LLM-Konfiguration, mandantengebundene Cache-Schlüssel). Die Netzwerk-Policy verkleinert den Explosionsradius (die LLM-Hostname-Allowlist als Ganzes, nicht beliebiger Egress), schränkt aber für sich genommen nicht ein, mit welchem Mandanten der Orchestrator sprechen kann.
 
 ### Policies im Mandanten-Namespace
 
@@ -350,7 +350,7 @@ spec:
 
 **4.3.5 Wazuh-Agent-Ingress zum Mandanten-Manager erlauben**
 
-Agent-Telemetrie auf 1514/1515 trifft über den in [Wazuh Ingress](/de-de/reference/wazuh-ingress) dokumentierten Pfad ein. Die Referenzbereitstellung ist ein mandantenspezifischer LoadBalancer-Service (Cloud-LB oder MetalLB) mit einem clusterinternen HAProxy-Deployment in `soctalk-system` als Single-IP-Fallback. Die NetworkPolicy muss denjenigen dieser Pfade erlauben, den die Installation tatsächlich betreibt — `ingress-system` ist für keinen von beiden die richtige Quelle, verwende das Stock-Template des Charts also nicht ohne Bearbeitung.
+Agent-Telemetrie auf 1514/1515 trifft über den in [Wazuh Ingress](/de-de/reference/wazuh-ingress) dokumentierten Pfad ein. Die Referenzbereitstellung ist ein mandantenspezifischer LoadBalancer-Service (Cloud-LB oder MetalLB) mit einem clusterinternen HAProxy-Deployment in `soctalk-system` als Single-IP-Fallback. Die NetworkPolicy muss denjenigen dieser Pfade erlauben, den die Installation tatsächlich betreibt, `ingress-system` ist für keinen von beiden die richtige Quelle, verwende das Stock-Template des Charts also nicht ohne Bearbeitung.
 
 Wähle je nach Installation einen Block:
 

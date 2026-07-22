@@ -1,8 +1,8 @@
 # Esegui la VM demo su VirtualBox
 
-VirtualBox è il modo cross-platform più semplice per provare SocTalk su un desktop — gratuito, guidato da GUI e disponibile su Windows, Linux e macOS Intel. Questa guida importa l'immagine demo pubblicata e la avvia. Validata su VirtualBox 7.0.
+VirtualBox è il modo cross-platform più semplice per provare SocTalk su un desktop, gratuito, guidato da GUI e disponibile su Windows, Linux e macOS Intel. Questa guida importa l'immagine demo pubblicata e la avvia. Validata su VirtualBox 7.0.
 
-Questo percorso è pensato per **valutatori e demo** — per un'installazione di produzione sul tuo cluster consulta [Install](/it-it/install).
+Questo percorso è pensato per **valutatori e demo**: per un'installazione di produzione sul tuo cluster consulta [Install](/it-it/install).
 
 ::: warning Mac Apple Silicon (serie M)
 L'immagine demo è **x86-64**, che VirtualBox non può eseguire su Apple Silicon. Su un Mac serie M, usa un [lancio cloud](/it-it/aws) o un altro host. Qui VirtualBox significa Windows, Linux o un Mac **Intel**.
@@ -34,11 +34,11 @@ Il vmdk rilasciato è **streamOptimized** (un layout VMware/OVA di sola lettura)
 VBoxManage clonemedium disk soctalk-demo-0.2.0.vmdk soctalk-demo-0.2.0.vdi --format VDI
 ```
 
-Questo produce un `soctalk-demo-0.2.0.vdi` scrivibile e dimensionato dinamicamente (pochi GB su disco). `VBoxManage` è incluso con VirtualBox — su Windows si trova in `C:\Program Files\Oracle\VirtualBox\`.
+Questo produce un `soctalk-demo-0.2.0.vdi` scrivibile e dimensionato dinamicamente (pochi GB su disco). `VBoxManage` è incluso con VirtualBox, su Windows si trova in `C:\Program Files\Oracle\VirtualBox\`.
 
 ## 3. Crea un ISO seed cloud-init
 
-Un piccolo ISO seed NoCloud crea un utente `ops` con la tua chiave SSH così puoi leggere il token di setup generato a ogni avvio. Se lo salti puoi comunque accedere come l'utente `ubuntu:packer` definito al momento della build (vedi [Accesso SSH](/it-it/quickstart-vm#ssh-access-credentials)) — ma quella credenziale è presente nell'albero sorgente pubblico, quindi metti in sicurezza la VM prima di esporla. Su Linux/macOS:
+Un piccolo ISO seed NoCloud crea un utente `ops` con la tua chiave SSH così puoi leggere il token di setup generato a ogni avvio. Se lo salti puoi comunque accedere come l'utente `ubuntu:packer` definito al momento della build (vedi [Accesso SSH](/it-it/quickstart-vm#ssh-access-credentials)), ma quella credenziale è presente nell'albero sorgente pubblico, quindi metti in sicurezza la VM prima di esporla. Su Linux/macOS:
 
 ```bash
 cat > user-data <<EOF
@@ -61,19 +61,19 @@ Apri **VirtualBox** e fai clic su **New**.
 
 ![VirtualBox Manager](/screenshots/virtualbox-manager.png)
 
-**Name and Operating System** — assegna il nome `soctalk-demo`, imposta **Type** su *Linux* e **Version** su *Ubuntu (64-bit)*. Lascia l'ISO vuoto:
+**Name and Operating System**: assegna il nome `soctalk-demo`, imposta **Type** su *Linux* e **Version** su *Ubuntu (64-bit)*. Lascia l'ISO vuoto:
 
 ![Name and OS](/screenshots/virtualbox-create-name.png)
 
-**Hardware** — assegna **8192 MB** di memoria e **4 CPUs** (il minimo di [dimensionamento](/it-it/reference/sizing) è 4 vCPU / 8 GB; lo stack Wazuh ha bisogno della RAM):
+**Hardware**: assegna **8192 MB** di memoria e **4 CPUs** (il minimo di [dimensionamento](/it-it/reference/sizing) è 4 vCPU / 8 GB; lo stack Wazuh ha bisogno della RAM):
 
 ![Hardware](/screenshots/virtualbox-create-hardware.png)
 
-**Virtual Hard disk** — scegli **Use an Existing Virtual Hard Disk File** e seleziona il `soctalk-demo-0.2.0.vdi` che hai convertito:
+**Virtual Hard disk**: scegli **Use an Existing Virtual Hard Disk File** e seleziona il `soctalk-demo-0.2.0.vdi` che hai convertito:
 
 ![Use existing disk](/screenshots/virtualbox-create-disk.png)
 
-**Summary** — conferma le impostazioni e fai clic su **Finish**:
+**Summary**: conferma le impostazioni e fai clic su **Finish**:
 
 ![Summary](/screenshots/virtualbox-create-summary.png)
 
@@ -85,13 +85,13 @@ La VM compare nel Manager con il VDI sul suo controller SATA:
 
 Seleziona la VM e fai clic su **Settings**.
 
-**Storage** — sotto il controller IDE, fai clic sull'unità ottica e scegli il tuo `soctalk-seed.iso` (fai clic sull'icona del disco → *Choose a disk file*). Il VDI è già su SATA:
+**Storage**: sotto il controller IDE, fai clic sull'unità ottica e scegli il tuo `soctalk-seed.iso` (fai clic sull'icona del disco → *Choose a disk file*). Il VDI è già su SATA:
 
 ![Storage](/screenshots/virtualbox-storage.png)
 
-**Network** — imposta **Adapter 1 → Attached to: Bridged Adapter** così la VM ottiene un IP sulla tua LAN e puoi raggiungere direttamente il wizard:
+**Network**: imposta **Adapter 1 → Attached to: Bridged Adapter** così la VM ottiene un IP sulla tua LAN e puoi raggiungere direttamente il wizard:
 
-![Network — bridged](/screenshots/virtualbox-network.png)
+![Network, bridged](/screenshots/virtualbox-network.png)
 
 Fai clic su **OK**.
 
@@ -105,7 +105,7 @@ Fai clic su **Start**. La console si avvia fino a un prompt di login:
 
 ![Console](/screenshots/virtualbox-console.png)
 
-Individua l'IP bridged della VM — dalle lease DHCP del tuo router, oppure abbinando il MAC della VM:
+Individua l'IP bridged della VM, dalle lease DHCP del tuo router, oppure abbinando il MAC della VM:
 
 ```bash
 VBoxManage showvminfo soctalk-demo | grep "MAC"      # note the MAC
@@ -120,7 +120,7 @@ Leggi il token di setup generato a ogni avvio via SSH, poi esegui il wizard:
 ssh ops@<vm-ip> sudo cat /var/log/soctalk-setup-token
 ```
 
-Vai su `https://<vm-ip>:8443/`, accetta il certificato self-signed, incolla il token e compila il wizard ([riferimento dei campi](/it-it/setup-wizard)). Dopo l'invio, l'installer di primo avvio esegue `helm install` e onboarda il tenant `demo` — circa 2 minuti per i pod `soctalk-system`, poi qualche minuto in più per lo stack Wazuh del tenant demo:
+Vai su `https://<vm-ip>:8443/`, accetta il certificato self-signed, incolla il token e compila il wizard ([riferimento dei campi](/it-it/setup-wizard)). Dopo l'invio, l'installer di primo avvio esegue `helm install` e onboarda il tenant `demo`: circa 2 minuti per i pod `soctalk-system`, poi qualche minuto in più per lo stack Wazuh del tenant demo:
 
 ```bash
 ssh ops@<vm-ip>
@@ -143,8 +143,8 @@ VBoxManage closemedium disk soctalk-demo-0.2.0.vdi --delete
 | Sintomo | Verifica |
 |---|---|
 | La VM non si avvia: "cannot open … streamOptimized" / disco di sola lettura | Hai collegato il `.vmdk` grezzo. Usa il `.vdi` convertito nel passo 2 |
-| Non si avvia su un Mac Apple Silicon | Previsto — l'immagine è x86-64; usa invece un [lancio cloud](/it-it/aws) |
-| La console mostra errori `vmwgfx … unsupported hypervisor` | Innocui — è la GPU emulata di VirtualBox; l'appliance è headless e si avvia correttamente |
+| Non si avvia su un Mac Apple Silicon | Previsto, l'immagine è x86-64; usa invece un [lancio cloud](/it-it/aws) |
+| La console mostra errori `vmwgfx … unsupported hypervisor` | Innocui, è la GPU emulata di VirtualBox; l'appliance è headless e si avvia correttamente |
 | La VM non ha un IP in bridged | Scegli la NIC host corretta in Network → Name; verifica che la tua LAN abbia il DHCP. Oppure usa l'opzione NAT + port-forwarding indicata sopra |
 | Impossibile leggere il token (nessun SSH) | L'ISO seed non è collegato (Storage → IDE) o la sua chiave è errata; ricontrolla i passi 3/5 |
-| Qualsiasi cosa dopo il wizard | Come su ogni piattaforma — vedi la [tabella di risoluzione dei problemi del Quickstart](/it-it/quickstart-vm#troubleshooting) |
+| Qualsiasi cosa dopo il wizard | Come su ogni piattaforma, vedi la [tabella di risoluzione dei problemi del Quickstart](/it-it/quickstart-vm#troubleshooting) |

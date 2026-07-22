@@ -2,17 +2,17 @@
 
 Importa l'immagine `soctalk-demo-<ver>.vhd` pubblicata in Azure come disco gestito, trasformala in un'immagine VM e avviala. Le VM di Azure girano su Hyper-V, quindi questo è anche il modo più rapido per convalidare l'immagine su un hypervisor Hyper-V senza dover predisporre un host Windows Server.
 
-Questo percorso è pensato per **valutatori e demo** — per un'installazione di produzione sul tuo cluster consulta [Installazione](/it-it/install).
+Questo percorso è pensato per **valutatori e demo**: per un'installazione di produzione sul tuo cluster consulta [Installazione](/it-it/install).
 
 ## Perché il `.vhd` (e perché la Generazione 1)
 
-- Azure accetta solo dischi **VHD a dimensione fissa, allineati a 1 MiB** (non VHDX, non VHD dinamici). Il file `soctalk-demo-<ver>.vhd` pubblicato viene generato dalla pipeline di rilascio esattamente in quel modo (`qemu-img convert -O vpc -o subformat=fixed,force_size`), quindi si importa così com'è — nessun passaggio di conversione locale.
+- Azure accetta solo dischi **VHD a dimensione fissa, allineati a 1 MiB** (non VHDX, non VHD dinamici). Il file `soctalk-demo-<ver>.vhd` pubblicato viene generato dalla pipeline di rilascio esattamente in quel modo (`qemu-img convert -O vpc -o subformat=fixed,force_size`), quindi si importa così com'è, nessun passaggio di conversione locale.
 - L'immagine è costruita e testata all'avvio con firmware BIOS, che corrisponde alle VM di **Generazione 1** di Azure. Crea il disco e l'immagine con `--hyper-v-generation V1`.
 - Un VHD fisso da 60 GB può sembrare pesante, ma è quasi interamente composto da zeri. `azcopy` carica su un page blob e **salta le pagine di zeri**, quindi il trasferimento effettivo corrisponde all'incirca ai ~3 GB di dati reali.
 
 ## Prerequisiti
 
-- Una sottoscrizione Azure (`az account list` deve mostrarne una — l'accesso alla directory a livello di tenant non è sufficiente).
+- Una sottoscrizione Azure (`az account list` deve mostrarne una, l'accesso alla directory a livello di tenant non è sufficiente).
 - [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) (`az`) e [AzCopy](https://learn.microsoft.com/azure/storage/common/storage-use-azcopy-v10) (`azcopy`). Su macOS: `brew install azure-cli azcopy`.
 - ~61 GB di spazio libero su disco locale per il VHD decompresso.
 - Una coppia di chiavi SSH (`~/.ssh/id_ed25519.pub` negli esempi seguenti).
@@ -46,7 +46,7 @@ az group create -n $RG -l $LOC
 
 ## 3. Carica il VHD direttamente su un disco gestito
 
-Non serve alcun account di archiviazione — Azure supporta il caricamento diretto su un disco gestito. Crea un disco vuoto dimensionato esattamente al numero di byte del file VHD, ottieni un SAS di scrittura a breve durata, carica con `azcopy`, poi revoca il SAS:
+Non serve alcun account di archiviazione, Azure supporta il caricamento diretto su un disco gestito. Crea un disco vuoto dimensionato esattamente al numero di byte del file VHD, ottieni un SAS di scrittura a breve durata, carica con `azcopy`, poi revoca il SAS:
 
 ```bash
 VHD=soctalk-demo-$VER.vhd
@@ -78,7 +78,7 @@ az image create -g $RG -n soctalk-demo-image \
 
 ## 5. Avvia una VM
 
-Limita il gruppo di sicurezza di rete al tuo IP — la macchina espone SSH (22), la UI di SocTalk (443) e la procedura guidata di configurazione (8443), nessuna delle quali dovrebbe essere aperta a internet:
+Limita il gruppo di sicurezza di rete al tuo IP, la macchina espone SSH (22), la UI di SocTalk (443) e la procedura guidata di configurazione (8443), nessuna delle quali dovrebbe essere aperta a internet:
 
 ```bash
 MYIP=$(curl -s https://ifconfig.me)
@@ -119,9 +119,9 @@ Da qui in poi il flusso è lo stesso di qualsiasi altro hypervisor. Concedi alla
 ssh ops@$IP sudo cat /var/log/soctalk-setup-token
 ```
 
-Vai su `https://<IP>:8443/`, accetta il certificato autofirmato, incolla il token e compila la procedura guidata — nome MSSP, credenziali admin, provider LLM + chiave API. Consulta [Procedura guidata di configurazione](/it-it/setup-wizard) per il riferimento dei campi.
+Vai su `https://<IP>:8443/`, accetta il certificato autofirmato, incolla il token e compila la procedura guidata, nome MSSP, credenziali admin, provider LLM + chiave API. Consulta [Procedura guidata di configurazione](/it-it/setup-wizard) per il riferimento dei campi.
 
-Dopo l'invio, l'installer del primo avvio esegue `helm install` e onboarda il tenant `demo` — circa 2 minuti per i pod `soctalk-system`, poi qualche altro minuto per lo stack Wazuh del tenant demo. Puoi seguire l'avanzamento da SSH:
+Dopo l'invio, l'installer del primo avvio esegue `helm install` e onboarda il tenant `demo`: circa 2 minuti per i pod `soctalk-system`, poi qualche altro minuto per lo stack Wazuh del tenant demo. Puoi seguire l'avanzamento da SSH:
 
 ```bash
 ssh ops@$IP
@@ -147,8 +147,8 @@ Questo rimuove in un colpo solo la VM, la NIC, l'IP pubblico, l'NSG, il disco ge
 
 | Sintomo | Verifica |
 |---|---|
-| `az disk create --for-upload` rifiutato | `--upload-size-bytes` deve essere la dimensione **esatta** del file in byte del `.vhd` decompresso, footer incluso — riesegui il comando `stat` |
-| `azcopy` fallisce con 403 | Il SAS di scrittura è scaduto (24 h nell'esempio) o è già stato revocato — riesegui `az disk grant-access` |
+| `az disk create --for-upload` rifiutato | `--upload-size-bytes` deve essere la dimensione **esatta** del file in byte del `.vhd` decompresso, footer incluso, riesegui il comando `stat` |
+| `azcopy` fallisce con 403 | Il SAS di scrittura è scaduto (24 h nell'esempio) o è già stato revocato, riesegui `az disk grant-access` |
 | La VM non riceve mai la chiave SSH | Verifica che l'immagine e il disco siano stati creati con `--hyper-v-generation V1`; un'immagine V2 da questo VHD non si avvia, e un avvio fallito non raggiunge mai cloud-init |
 | L'URL della procedura guidata non si carica mai | Regola NSG per la 8443 mancante o il tuo IP pubblico è cambiato (`curl ifconfig.me` e confronta); poi `systemctl status soctalk-setup-wizard` via SSH |
-| Qualsiasi problema oltre la procedura guidata | Come su ogni piattaforma — consulta la [tabella di risoluzione dei problemi del Quickstart](/it-it/quickstart-vm#troubleshooting) |
+| Qualsiasi problema oltre la procedura guidata | Come su ogni piattaforma, consulta la [tabella di risoluzione dei problemi del Quickstart](/it-it/quickstart-vm#troubleshooting) |

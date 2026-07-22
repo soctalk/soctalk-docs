@@ -72,7 +72,7 @@ tearing_down → torn_down → complete
 | `provider_unavailable` | Il provider upstream (Tailscale, Hetzner, ...) è irraggiungibile. | sì        |
 | `quota`             | Quota lato provider esaurita.                                       | no        |
 | `timeout`           | L'attesa ha superato una scadenza di policy.                        | sì        |
-| `internal`          | Bug del plugin/orchestratore — percorso di errore inatteso.        | no        |
+| `internal`          | Bug del plugin/orchestratore, percorso di errore inatteso.        | no        |
 | `network`           | Rete locale / TLS / DNS.                                            | sì        |
 | `cancelled`         | Ctrl-C o SIGTERM.                                                   | no        |
 

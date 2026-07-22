@@ -19,7 +19,7 @@ Vor jedem Upgrade:
 
 `soctalk-system-values.yaml` aus der Installation pinnt `image.tag` auf das ursprüngliche Release. Überschreibe dies bei jedem Upgrade, damit der neue Chart das neue Image rendert. Aktualisiere entweder die Datei in der Versionskontrolle oder übergib `--set image.tag=<new-version>` bei jedem der folgenden Befehle.
 
-Migrationen laufen innerhalb des Init-Befehls des API-Pods (siehe [Install → Migrations and bootstrap](/de-de/install#migrations-and-bootstrap-run-automatically)). Ein `helm upgrade` rollt den API-Pod neu aus; der Init-Befehl führt `alembic upgrade head` aus, bevor die neue App startet. Alembic ist idempotent — ein erneuter Lauf auf einem aktuellen Schema ist ein No-Op.
+Migrationen laufen innerhalb des Init-Befehls des API-Pods (siehe [Install → Migrations and bootstrap](/de-de/install#migrations-and-bootstrap-run-automatically)). Ein `helm upgrade` rollt den API-Pod neu aus; der Init-Befehl führt `alembic upgrade head` aus, bevor die neue App startet. Alembic ist idempotent, ein erneuter Lauf auf einem aktuellen Schema ist ein No-Op.
 
 ```bash
 helm upgrade soctalk-system oci://ghcr.io/soctalk/charts/soctalk-system \
@@ -36,7 +36,7 @@ Beobachte die Migration:
 kubectl -n soctalk-system logs deploy/soctalk-system-api -c db-init --follow
 ```
 
-Wenn `--wait` hängt, ist die häufigste Ursache ein Migrationsfehler — lies die Init-Logs.
+Wenn `--wait` hängt, ist die häufigste Ursache ein Migrationsfehler, lies die Init-Logs.
 
 ### Rollback
 
@@ -62,7 +62,7 @@ helm upgrade tenant-<slug> oci://ghcr.io/soctalk/charts/soctalk-tenant \
 helm get values tenant-<slug> -n tenant-<slug> -a > /tmp/tenant-<slug>-values.yaml
 ```
 
-Ein `soctalk-cli render-values`-Befehl wurde in diesem Leitfaden zuvor erwähnt, existiert aber nicht — das einzige CLI-Tool heute ist `soctalk-auth`.
+Ein `soctalk-cli render-values`-Befehl wurde in diesem Leitfaden zuvor erwähnt, existiert aber nicht, das einzige CLI-Tool heute ist `soctalk-auth`.
 
 ### Rollback pro Mandant
 

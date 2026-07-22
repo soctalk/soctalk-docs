@@ -2,7 +2,7 @@
 
 Pour les administrateurs de cluster MSSP. Couvre les prérequis du cluster, l'installation du chart `soctalk-system` et l'onboarding du premier client.
 
-**Vous l'essayez pour la première fois ? Utilisez plutôt la [VM de démonstration](/fr-fr/quickstart-vm).** C'est une installation à image unique avec un assistant basé sur navigateur — un chemin bien plus rapide vers un système fonctionnel. Cette page décrit le chemin de production : K3s + Cilium + cert-manager + votre propre contrôleur d'ingress.
+**Vous l'essayez pour la première fois ? Utilisez plutôt la [VM de démonstration](/fr-fr/quickstart-vm).** C'est une installation à image unique avec un assistant basé sur navigateur, un chemin bien plus rapide vers un système fonctionnel. Cette page décrit le chemin de production : K3s + Cilium + cert-manager + votre propre contrôleur d'ingress.
 
 **Vous évaluez avec 1 à 3 tenants ?** [Launchpad](/fr-fr/launchpad) automatise le pilote multi-tenant de bout en bout (VMs + Tailscale + cet installateur + onboarding des tenants). Revenez ici quand vous construirez la vraie chose.
 
@@ -10,7 +10,7 @@ Pour les administrateurs de cluster MSSP. Couvre les prérequis du cluster, l'in
 
 Pour un plan de contrôle MSSP mononœud sur une VM Ubuntu 24.04 vierge (cloud ou on-prem), le même `install.sh` que la [VM de démonstration](/fr-fr/quickstart-vm) intègre est accessible sous forme d'installateur en une commande. Il amorce k3s + Helm, récupère le chart OCI soctalk-system depuis GHCR et initialise les secrets admin / LLM en une seule étape.
 
-Définissez la configuration d'installation via l'environnement (n'importe quel sous-ensemble ; le reste est demandé) — lorsque **les trois** variables `SOCTALK_MSSP_NAME`, `SOCTALK_ADMIN_EMAIL`, `SOCTALK_ADMIN_PASSWORD` sont présentes, l'installateur saute son invite de consentement afin que les flux `curl | bash` sans intervention fonctionnent sans `-y` :
+Définissez la configuration d'installation via l'environnement (n'importe quel sous-ensemble ; le reste est demandé), lorsque **les trois** variables `SOCTALK_MSSP_NAME`, `SOCTALK_ADMIN_EMAIL`, `SOCTALK_ADMIN_PASSWORD` sont présentes, l'installateur saute son invite de consentement afin que les flux `curl | bash` sans intervention fonctionnent sans `-y` :
 
 ```bash
 export SOCTALK_MSSP_NAME="Acme MSSP"
@@ -23,11 +23,11 @@ export SOCTALK_LLM_API_KEY="sk-..."                 # OR --llm-key-file <path>
 curl -sfL https://raw.githubusercontent.com/soctalk/soctalk/main/install.sh | bash
 ```
 
-Options utiles à connaître : `--yes` / `-y` (assume-yes lorsque l'environnement est partiel), `--demo` (mot de passe admin aléatoire + onboarding automatique d'un tenant de démonstration — le chemin « montre-moi juste » le plus rapide ; aucun environnement requis), `--chart-version <v>` (épingle une version de chart spécifique), `--chart-dir <path>` / `--values-file <path>` (hors ligne / air-gapped). Référence complète : `install.sh --help`.
+Options utiles à connaître : `--yes` / `-y` (assume-yes lorsque l'environnement est partiel), `--demo` (mot de passe admin aléatoire + onboarding automatique d'un tenant de démonstration, le chemin « montre-moi juste » le plus rapide ; aucun environnement requis), `--chart-version <v>` (épingle une version de chart spécifique), `--chart-dir <path>` / `--values-file <path>` (hors ligne / air-gapped). Référence complète : `install.sh --help`.
 
 Le script propage `SOCTALK_HOSTNAME` dans le `ingress.hostnames.mssp` du chart, et le chart en dérive à son tour `SOCTALK_PUBLIC_ORIGIN` (CSRF) et `SOCTALK_L1_PUBLIC_URL` (l'URL que le cloud-agent du tenant utilise pour `/register`). Aucun réglage manuel de variable d'environnement n'est requis sur le Deployment api.
 
-Si vous avez besoin d'un contrôle plus fin — contrôleur d'ingress non par défaut, nom d'hôte client distinct, `ClusterIssuer` cert-manager, etc. — utilisez plutôt le chemin Helm ci-dessous.
+Si vous avez besoin d'un contrôle plus fin, contrôleur d'ingress non par défaut, nom d'hôte client distinct, `ClusterIssuer` cert-manager, etc., utilisez plutôt le chemin Helm ci-dessous.
 
 ## Prérequis du cluster
 
@@ -124,7 +124,7 @@ kubectl label namespace ingress-system managed-by=ingress
 
 L'API lit `SOCTALK_AUTH_MODE` (`internal | proxy`) au démarrage. Le chart `soctalk-system` se déploie en mode `internal` : SocTalk possède la connexion, les sessions et le stockage des mots de passe, et le Job de bootstrap initialise un admin initial dans un Secret (voir [Exécuter le bootstrap](#run-the-bootstrap)).
 
-Le mode `proxy` — placer SocTalk derrière OAuth2-Proxy / Keycloak / Dex et faire confiance aux en-têtes d'identité en amont — est pris en charge par le runtime mais n'est pas encore exposé comme réglage de valeurs du chart. Considérez-le comme un élément d'une future version ; si vous exploitez un SSO central et souhaitez le piloter dès maintenant, définissez la variable d'environnement directement sur le Deployment api après l'installation.
+Le mode `proxy`: placer SocTalk derrière OAuth2-Proxy / Keycloak / Dex et faire confiance aux en-têtes d'identité en amont, est pris en charge par le runtime mais n'est pas encore exposé comme réglage de valeurs du chart. Considérez-le comme un élément d'une future version ; si vous exploitez un SSO central et souhaitez le piloter dès maintenant, définissez la variable d'environnement directement sur le Deployment api après l'installation.
 
 Détails complets : [Authentification interne](/fr-fr/reference/internal-auth).
 
@@ -214,7 +214,7 @@ Les deux se produisent à l'intérieur de la commande d'init du pod API avant le
 4. Initialiser la ligne Organization à partir de `install.msspId` / `install.msspName`.
 5. Si `install.bootstrapAdmin.email` et `install.bootstrapAdmin.password` sont définis dans les valeurs, faire un upsert de l'utilisateur en `mssp_admin` avec `must_change=false` et le mot de passe fourni.
 
-Ainsi, si vous placez les identifiants de l'admin de bootstrap dans les valeurs, **l'API démarre avec l'admin déjà créé** — aucun Job supplémentaire à exécuter.
+Ainsi, si vous placez les identifiants de l'admin de bootstrap dans les valeurs, **l'API démarre avec l'admin déjà créé**: aucun Job supplémentaire à exécuter.
 
 Le chart **ne** livre **pas** de Job Alembic séparé ; l'édition précédente de cette page en décrivait un qui n'existait pas. Les migrations sont liées au cycle de vie du pod API. Pour les observer :
 
@@ -231,7 +231,7 @@ kubectl -n soctalk-system exec -it deploy/soctalk-system-api -- \
   soctalk-auth set-password <admin-email>
 ```
 
-En mode d'authentification `proxy`, les endpoints de mot de passe ne sont pas montés. **Le provisionnement JIT des utilisateurs à la première requête authentifiée n'est pas implémenté en V1** — vous devez initialiser manuellement le premier utilisateur MSSP (par exemple, via `kubectl exec` sur le pod API et un `INSERT` SQL direct dans la table `users`) avant que toute requête authentifiée par proxy puisse aboutir. Un vrai chemin JIT est sur la feuille de route.
+En mode d'authentification `proxy`, les endpoints de mot de passe ne sont pas montés. **Le provisionnement JIT des utilisateurs à la première requête authentifiée n'est pas implémenté en V1**: vous devez initialiser manuellement le premier utilisateur MSSP (par exemple, via `kubectl exec` sur le pod API et un `INSERT` SQL direct dans la table `users`) avant que toute requête authentifiée par proxy puisse aboutir. Un vrai chemin JIT est sur la feuille de route.
 
 ## Vérifier l'installation
 
@@ -250,7 +250,7 @@ Pour une visite de chaque écran que vous verrez à partir d'ici, lisez la [Visi
 
 ## Onboarder le premier client
 
-Dans l'UI MSSP, allez dans **Tenants → Nouveau tenant**. Le formulaire d'onboarding collecte : slug, nom d'affichage, profil (`poc` | `persistent` | `provided`), e-mail de contact, branding, et éventuellement l'URL de base LLM + surcharges de modèle. Les invitations customer-viewer ne sont **pas** dans le formulaire — cela se configure après que le tenant a atteint l'état `active`. Le provisionnement s'exécute de manière asynchrone ; rafraîchissez la page de détail pour voir apparaître de nouveaux événements de cycle de vie dans la table des événements. (Un flux d'événements en direct est sur la feuille de route ; `/api/events/stream` existe mais n'émet que des pings dans cette version.) Si vous choisissez `provided` (BYO Wazuh), le formulaire exige en plus les URLs de l'indexeur externe + de la Manager API et les identifiants, ainsi qu'une clé LLM par tenant — voir [cycle de vie du tenant / provided](/fr-fr/tenant-lifecycle#provided).
+Dans l'UI MSSP, allez dans **Tenants → Nouveau tenant**. Le formulaire d'onboarding collecte : slug, nom d'affichage, profil (`poc` | `persistent` | `provided`), e-mail de contact, branding, et éventuellement l'URL de base LLM + surcharges de modèle. Les invitations customer-viewer ne sont **pas** dans le formulaire, cela se configure après que le tenant a atteint l'état `active`. Le provisionnement s'exécute de manière asynchrone ; rafraîchissez la page de détail pour voir apparaître de nouveaux événements de cycle de vie dans la table des événements. (Un flux d'événements en direct est sur la feuille de route ; `/api/events/stream` existe mais n'émet que des pings dans cette version.) Si vous choisissez `provided` (BYO Wazuh), le formulaire exige en plus les URLs de l'indexeur externe + de la Manager API et les identifiants, ainsi qu'une clé LLM par tenant, voir [cycle de vie du tenant / provided](/fr-fr/tenant-lifecycle#provided).
 
 ![Tenants list](/screenshots/tenants-list.png)
 

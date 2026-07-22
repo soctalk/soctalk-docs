@@ -89,7 +89,7 @@ El inicio de sesión recomendado es el **usuario `ops` con tu clave SSH**, cread
 
 Navega a `https://<vm-ip>:8443/`. Acepta el certificado autofirmado. Llegarás a la página de ingreso del token:
 
-![Asistente de configuración — ingreso del token](/screenshots/setup-wizard-token.png)
+![Asistente de configuración, ingreso del token](/screenshots/setup-wizard-token.png)
 
 Pega el token y luego completa:
 

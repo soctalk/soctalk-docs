@@ -2,7 +2,7 @@
 
 Le modèle Postgres à trois rôles, les modèles de politiques RLS, la discipline `FORCE ROW LEVEL SECURITY` et les tests d'isolation que SocTalk exécute en CI.
 
-> **Note de déploiement V1.** Le texte ci-dessous fait référence aux « pods API » et aux « pods orchestrateur » en tant que charges de travail distinctes — le modèle de rôles et les règles d'accès restent corrects. Dans le chart V1, ils sont **co-localisés dans un unique Deployment `soctalk-system-api`**, de sorte que chaque référence à un « pod orchestrateur » correspond à cet unique jeu de pods dans cette version.
+> **Note de déploiement V1.** Le texte ci-dessous fait référence aux « pods API » et aux « pods orchestrateur » en tant que charges de travail distinctes, le modèle de rôles et les règles d'accès restent corrects. Dans le chart V1, ils sont **co-localisés dans un unique Deployment `soctalk-system-api`**, de sorte que chaque référence à un « pod orchestrateur » correspond à cet unique jeu de pods dans cette version.
 
 ## Rôles
 
@@ -11,7 +11,7 @@ Trois rôles Postgres. Aucune application ne se connecte jamais en tant que supe
 | Rôle | Objectif | Utilisé par | DDL ? | BYPASSRLS ? |
 |---|---|---|---|---|
 | `soctalk_admin` | Propriétaire des tables ; utilisé uniquement par Alembic au moment des migrations | Alembic (exécuté via un Job Kubernetes dédié au déploiement) | Oui | Non |
-| `soctalk_app` | Rôle applicatif d'exécution | Pods API SocTalk, pods orchestrateur, jobs worker — tout le trafic « normal » | Non | Non |
+| `soctalk_app` | Rôle applicatif d'exécution | Pods API SocTalk, pods orchestrateur, jobs worker, tout le trafic « normal » | Non | Non |
 | `soctalk_mssp` | Rôle élevé inter-tenant | Principal `System` via `system_context()` uniquement | Non | **Oui** |
 
 Justification de trois rôles plutôt que deux : `soctalk_admin` ne peut ni s'exécuter au moment de l'application (trop de privilèges) ni contourner involontairement la RLS. `soctalk_app` est soumis à la RLS afin que les bugs applicatifs ne puissent pas fuiter entre tenants. `soctalk_mssp` est intentionnellement inter-tenant mais cantonné à des chemins de code audités uniquement.
@@ -59,9 +59,9 @@ Les tables en ajout seul (append-only) n'apparaissent jamais dans de tels grants
 
 Identifiants stockés dans des Secrets K8s sous `soctalk-system` :
 
-- `soctalk-postgres-admin-creds` — monté uniquement sur le Job Alembic
-- `soctalk-postgres-app-creds` — monté sur les pods API SocTalk + orchestrateur
-- `soctalk-postgres-mssp-creds` — monté uniquement sur le pod API SocTalk (lu par la fabrique `system_context()`)
+- `soctalk-postgres-admin-creds`: monté uniquement sur le Job Alembic
+- `soctalk-postgres-app-creds`: monté sur les pods API SocTalk + orchestrateur
+- `soctalk-postgres-mssp-creds`: monté uniquement sur le pod API SocTalk (lu par la fabrique `system_context()`)
 
 ## Pourquoi `FORCE ROW LEVEL SECURITY`
 
@@ -149,7 +149,7 @@ CREATE POLICY users_tenant_scoped ON users
   );
 ```
 
-L'accès aux utilisateurs côté MSSP (CRUD sur les lignes où `tenant_id IS NULL`) n'est atteint que sous le rôle `soctalk_mssp`, qui possède `BYPASSRLS` et n'est emprunté qu'exclusivement via le gestionnaire de contexte `System` dans les handlers de la MSSP-API. Une session `soctalk_app` à portée tenant — même une exécutant une requête users faiblement filtrée — ne peut ni voir ni modifier les lignes d'utilisateurs MSSP sous cette politique.
+L'accès aux utilisateurs côté MSSP (CRUD sur les lignes où `tenant_id IS NULL`) n'est atteint que sous le rôle `soctalk_mssp`, qui possède `BYPASSRLS` et n'est emprunté qu'exclusivement via le gestionnaire de contexte `System` dans les handlers de la MSSP-API. Une session `soctalk_app` à portée tenant, même une exécutant une requête users faiblement filtrée, ne peut ni voir ni modifier les lignes d'utilisateurs MSSP sous cette politique.
 
 Pourquoi c'est important : une version antérieure de la politique admettait `tenant_id IS NULL` dans `USING`/`WITH CHECK` « pour que les jointures MSSP fonctionnent ». C'était dangereux ; `soctalk_mssp` n'a pas besoin de la RLS pour voir les lignes MSSP (il contourne la RLS), et accorder la même fenêtre à `soctalk_app` ouvre une voie pour que les endpoints tenant fuitent des données d'utilisateurs MSSP via une requête insuffisamment filtrée.
 
@@ -178,7 +178,7 @@ Raison : en son absence, une collision d'ID d'alerte externe entre deux tenants 
 
 ## Tests d'isolation
 
-### Test 1 — Sonde d'endpoint applicatif
+### Test 1, Sonde d'endpoint applicatif
 
 Pour chaque endpoint de `/api/tenant/*` et `/api/mssp/*` :
 
@@ -192,7 +192,7 @@ async def test_no_cross_tenant_access(client, seed_two_tenants):
     assert not any(item["tenant_id"] == str(tenant_b.id) for item in data["items"])
 ```
 
-### Test 2 — SQL brut sous `soctalk_app`
+### Test 2, SQL brut sous `soctalk_app`
 
 ```python
 async def test_raw_sql_respects_rls():
@@ -210,7 +210,7 @@ async def test_raw_sql_respects_rls():
         assert result.scalar() == 0
 ```
 
-### Test 3 — Contexte worker par défaut
+### Test 3, Contexte worker par défaut
 
 ```python
 async def test_worker_without_context_sees_nothing():
@@ -222,7 +222,7 @@ async def test_worker_without_context_sees_nothing():
         await hostile_worker({})
 ```
 
-### Test 4 — FORCE RLS attrape le propriétaire
+### Test 4, FORCE RLS attrape le propriétaire
 
 ```python
 async def test_admin_role_is_rls_subject():
@@ -231,7 +231,7 @@ async def test_admin_role_is_rls_subject():
         assert result.scalar() == 0  # admin is NOT bypassing
 ```
 
-### Test 5 — Le rôle MSSP peut contourner intentionnellement
+### Test 5, Le rôle MSSP peut contourner intentionnellement
 
 ```python
 async def test_mssp_role_bypasses_for_rollup():
@@ -240,7 +240,7 @@ async def test_mssp_role_bypasses_for_rollup():
         assert result.scalar() == total_events_across_tenants
 ```
 
-### Test 6 — Isolation du flux SSE
+### Test 6, Isolation du flux SSE
 
 ```python
 async def test_sse_no_cross_tenant_delivery(ws_client):
@@ -251,7 +251,7 @@ async def test_sse_no_cross_tenant_delivery(ws_client):
         await asyncio.wait_for(sub_a.receive(), timeout=2.0)
 ```
 
-### Test 7 — Isolation de l'idempotence
+### Test 7, Isolation de l'idempotence
 
 ```python
 async def test_idempotency_key_per_tenant():

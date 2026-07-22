@@ -1,6 +1,6 @@
 # Gerenciando usuários: um passo a passo
 
-Este guia percorre o provisionamento de um login e a execução de todo o seu ciclo de vida a partir da UI, nos dois lados do negócio: a equipe MSSP a partir do painel **Staff Users**, e o pessoal do próprio cliente a partir do painel **Users** do tenant. Os dois painéis espelham um ao outro, então, depois de fazer um, o outro já parece familiar. Para o modelo por trás de tudo isso — quais funções existem e o que cada uma pode fazer — consulte [Usuários e funções](/pt-br/users-and-roles); esta página é o passo a passo clicável.
+Este guia percorre o provisionamento de um login e a execução de todo o seu ciclo de vida a partir da UI, nos dois lados do negócio: a equipe MSSP a partir do painel **Staff Users**, e o pessoal do próprio cliente a partir do painel **Users** do tenant. Os dois painéis espelham um ao outro, então, depois de fazer um, o outro já parece familiar. Para o modelo por trás de tudo isso, quais funções existem e o que cada uma pode fazer, consulte [Usuários e funções](/pt-br/users-and-roles); esta página é o passo a passo clicável.
 
 Tudo aqui é feito por um administrador. No lado MSSP, isso é um `mssp_admin` ou `platform_admin`. No lado do tenant, é o próprio `tenant_admin` daquele cliente, atuando apenas dentro de sua organização. Nenhum dos dois consegue atravessar a barreira de audiência: um administrador MSSP nunca atribui uma função de tenant, e um administrador de tenant nunca atribui uma de MSSP.
 

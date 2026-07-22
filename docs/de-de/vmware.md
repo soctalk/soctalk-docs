@@ -32,7 +32,7 @@ Du hast jetzt `soctalk-demo-<ver>.vmdk`, eine **streamOptimized** (hosted) VMwar
 
 ## 2. Ein cloud-init-Seed-ISO erstellen
 
-Ein kleines NoCloud-Seed-ISO erzeugt einen `ops`-Benutzer mit deinem SSH-Schlüssel, damit du das Setup-Token pro Boot auslesen kannst. Wenn du es überspringst, kannst du dich trotzdem als der zur Build-Zeit angelegte `ubuntu:packer`-Benutzer anmelden (siehe [SSH-Zugriff](/de-de/quickstart-vm#ssh-access-credentials)) — aber diese Zugangsdaten liegen im öffentlichen Quellcode-Baum, härte die VM also ab, bevor du sie exponierst. Unter Linux/macOS:
+Ein kleines NoCloud-Seed-ISO erzeugt einen `ops`-Benutzer mit deinem SSH-Schlüssel, damit du das Setup-Token pro Boot auslesen kannst. Wenn du es überspringst, kannst du dich trotzdem als der zur Build-Zeit angelegte `ubuntu:packer`-Benutzer anmelden (siehe [SSH-Zugriff](/de-de/quickstart-vm#ssh-access-credentials)), aber diese Zugangsdaten liegen im öffentlichen Quellcode-Baum, härte die VM also ab, bevor du sie exponierst. Unter Linux/macOS:
 
 ```bash
 cat > user-data <<EOF
@@ -55,26 +55,26 @@ genisoimage -output soctalk-seed.iso -volid cidata -joliet -rock user-data meta-
 
 Melde dich am Host Client an und gehe zu **Storage** → **Datastores**. Eine Installation, der noch keine Daten-Disk zugewiesen wurde, sieht so aus:
 
-![ESXi Host Client — Storage-Tab ohne Datastores](/screenshots/esxi-storage-empty.png)
+![ESXi Host Client, Storage-Tab ohne Datastores](/screenshots/esxi-storage-empty.png)
 
 Klicke auf **New datastore**, um den 5-Schritte-Assistenten zu öffnen.
 
-**Schritt 1 — Select creation type.** Wähle **Create new VMFS datastore**. Next.
+**Schritt 1, Select creation type.** Wähle **Create new VMFS datastore**. Next.
 
-![Neuer Datastore Schritt 1 — Erstellungstyp](/screenshots/esxi-new-datastore-01-type.png)
+![Neuer Datastore Schritt 1, Erstellungstyp](/screenshots/esxi-new-datastore-01-type.png)
 
-**Schritt 2 — Name and select device.** Gib einen Namen ein (`datastore1` ist üblich) und wähle die zu formatierende Disk. Hier erscheinen nur nicht beanspruchte Disks.
+**Schritt 2, Name and select device.** Gib einen Namen ein (`datastore1` ist üblich) und wähle die zu formatierende Disk. Hier erscheinen nur nicht beanspruchte Disks.
 
-![Neuer Datastore Schritt 2 — Name](/screenshots/esxi-new-datastore-02-name.png)
-![Neuer Datastore Schritt 3 — Geräteauswahl](/screenshots/esxi-new-datastore-03-device.png)
+![Neuer Datastore Schritt 2, Name](/screenshots/esxi-new-datastore-02-name.png)
+![Neuer Datastore Schritt 3, Geräteauswahl](/screenshots/esxi-new-datastore-03-device.png)
 
-**Schritt 3 — Select partitioning options.** Standard: **Use full disk, VMFS 6**. Bestätige und klicke auf Next.
+**Schritt 3, Select partitioning options.** Standard: **Use full disk, VMFS 6**. Bestätige und klicke auf Next.
 
-![Neuer Datastore Schritt 4 — Partitionierung](/screenshots/esxi-new-datastore-04-partition.png)
+![Neuer Datastore Schritt 4, Partitionierung](/screenshots/esxi-new-datastore-04-partition.png)
 
-**Schritt 4 — Ready to complete.** Prüfe die Zusammenfassung und klicke auf **Finish**. ESXi warnt, dass die Disk neu partitioniert wird; bestätige.
+**Schritt 4, Ready to complete.** Prüfe die Zusammenfassung und klicke auf **Finish**. ESXi warnt, dass die Disk neu partitioniert wird; bestätige.
 
-![Neuer Datastore Schritt 5 — Prüfung](/screenshots/esxi-new-datastore-05-review.png)
+![Neuer Datastore Schritt 5, Prüfung](/screenshots/esxi-new-datastore-05-review.png)
 
 **Ergebnis.** Storage → Datastores zeigt nun den neuen VMFS6-Datastore. Recent tasks meldet, dass sowohl **Create Vmfs Datastore** als auch **Rescan Vmfs** erfolgreich abgeschlossen wurden.
 
@@ -126,20 +126,20 @@ Gehe im Host Client zu **Virtual Machines** und klicke auf **Create / Register V
 
 Durchlaufe den Assistenten:
 
-- **Select creation type** — **Register an existing virtual machine** (wir haben die vmdk bereits in Schritt 4 platziert).
+- **Select creation type**: **Register an existing virtual machine** (wir haben die vmdk bereits in Schritt 4 platziert).
 
 Falls dein ESXi-Build diese Option ausblendet oder du lieber alles über den Assistenten konfigurierst, wähle stattdessen **Create a new virtual machine** und verwende diese Einstellungen:
 
-- **Select a name and guest OS** — Name `SocTalk-Demo`. Compatibility `ESXi 8.0 virtual machine`. Guest OS family `Linux`. Guest OS version `Ubuntu Linux (64-bit)`.
-- **Select storage** — `datastore1`.
-- **Customize settings** — setze:
+- **Select a name and guest OS**: Name `SocTalk-Demo`. Compatibility `ESXi 8.0 virtual machine`. Guest OS family `Linux`. Guest OS version `Ubuntu Linux (64-bit)`.
+- **Select storage**: `datastore1`.
+- **Customize settings**: setze:
   - **CPU** 4
   - **Memory** 8 GB
-  - **Hard disk 1** — klicke auf die Disk-Zeile → **Existing hard disk**, navigiere zu `[datastore1] SocTalk-Demo/SocTalk-Demo.vmdk`
-  - **Network adapter 1** — Network `VM Network`, Adapter type `VMXNET3` (VMwares empfohlene paravirtualisierte NIC; verwende sie auf Bare-Metal-ESXi für beste Performance)
-  - **CD/DVD drive 1** — Datastore ISO file, navigiere zu `soctalk-seed.iso` — aktiviere **Connect at power on**
+  - **Hard disk 1**: klicke auf die Disk-Zeile → **Existing hard disk**, navigiere zu `[datastore1] SocTalk-Demo/SocTalk-Demo.vmdk`
+  - **Network adapter 1**: Network `VM Network`, Adapter type `VMXNET3` (VMwares empfohlene paravirtualisierte NIC; verwende sie auf Bare-Metal-ESXi für beste Performance)
+  - **CD/DVD drive 1**: Datastore ISO file, navigiere zu `soctalk-seed.iso`: aktiviere **Connect at power on**
   - Belasse USB controller und Floppy auf ihren Standardwerten.
-- **Ready to complete** — Finish.
+- **Ready to complete**: Finish.
 
 Die VM erscheint in der Virtual-Machines-Liste mit `Register VM`, markiert als erfolgreich abgeschlossen.
 
@@ -157,7 +157,7 @@ Klicke auf **Console** → **Open browser console** (der eigenständige Tab läs
 
 Die Konsole zeigt Ubuntu 24.04, das durch cloud-init bootet und zu einer Login-Aufforderung gelangt:
 
-![VM-Konsole — Ubuntu-Boot bis zum Login](/screenshots/esxi-vm-console-boot.png)
+![VM-Konsole, Ubuntu-Boot bis zum Login](/screenshots/esxi-vm-console-boot.png)
 
 ## 7. An der VM anmelden
 
@@ -223,9 +223,9 @@ Sobald die Installation abgeschlossen ist, befindest du dich im MSSP-Dashboard:
 
 Die folgenden Einträge gelten für echte Bare-Metal-ESXi-Hosts, sofern sie nicht mit einem Tag **(nur verschachteltes Labor)** versehen sind. Die getaggten tauchten beim Validieren dieser Anleitung auf verschachteltem ESXi auf (ESXi 8.0.3 als KVM-Gast unter Ubuntu 24.04) und betreffen keine Produktionshardware.
 
-**`msg.vmx.poweron.failed: not on NAS or VMFS version 3 datastore`** — die VM-Dateien liegen unter `/vmfs/volumes/OSDATA-*` statt auf einem echten Benutzer-Datastore. Verschiebe sie: `vmkfstools -i` die vmdk in einen echten VMFS-Datastore (§3 + §4), kopiere die `.vmx` daneben, deregistriere die alte VM (`vim-cmd vmsvc/unregister <id>`) und registriere die neue (`vim-cmd solo/registervm /vmfs/volumes/datastore1/SocTalk-Demo/SocTalk-Demo.vmx SocTalk-Demo`).
+**`msg.vmx.poweron.failed: not on NAS or VMFS version 3 datastore`**: die VM-Dateien liegen unter `/vmfs/volumes/OSDATA-*` statt auf einem echten Benutzer-Datastore. Verschiebe sie: `vmkfstools -i` die vmdk in einen echten VMFS-Datastore (§3 + §4), kopiere die `.vmx` daneben, deregistriere die alte VM (`vim-cmd vmsvc/unregister <id>`) und registriere die neue (`vim-cmd solo/registervm /vmfs/volumes/datastore1/SocTalk-Demo/SocTalk-Demo.vmx SocTalk-Demo`).
 
-**VM bootet, aber die Netzwerkschnittstelle ist DOWN und bekommt nie eine IP** — das packer-Image liefert eine netplan-Konfiguration, die per MAC matched. Wenn ESXi der vNIC eine neue MAC zuweist, schlägt der Match fehl und DHCP läuft nie. Behebe es, indem du `/etc/netplan/50-cloud-init.yaml` so bearbeitest, dass stattdessen per Schnittstellenname gematcht wird:
+**VM bootet, aber die Netzwerkschnittstelle ist DOWN und bekommt nie eine IP**: das packer-Image liefert eine netplan-Konfiguration, die per MAC matched. Wenn ESXi der vNIC eine neue MAC zuweist, schlägt der Match fehl und DHCP läuft nie. Behebe es, indem du `/etc/netplan/50-cloud-init.yaml` so bearbeitest, dass stattdessen per Schnittstellenname gematcht wird:
 
 ```yaml
 network:
@@ -239,14 +239,14 @@ network:
 
 Dann `netplan apply`.
 
-**`ovftool: error while loading shared libraries: libssl.so.1.1`** — installiere eine kompatible OpenSSL-1.1-Runtime oder verwende stattdessen den Weg über SSH + `vmkfstools`.
+**`ovftool: error while loading shared libraries: libssl.so.1.1`**: installiere eine kompatible OpenSSL-1.1-Runtime oder verwende stattdessen den Weg über SSH + `vmkfstools`.
 
-**Der Host Client zeigt ein rotes Banner darüber, dass die ESXi Shell / SSH aktiviert ist** — in Evaluierungs-Setups zu erwarten. Es ist eine Härtungserinnerung, kein Fehler. Deaktiviere SSH, wenn du fertig bist, falls der Host exponiert ist.
+**Der Host Client zeigt ein rotes Banner darüber, dass die ESXi Shell / SSH aktiviert ist**: in Evaluierungs-Setups zu erwarten. Es ist eine Härtungserinnerung, kein Fehler. Deaktiviere SSH, wenn du fertig bist, falls der Host exponiert ist.
 
 ### Nur verschachteltes Labor
 
 Diese tauchen auf, wenn ESXi selbst als Gast innerhalb eines anderen Hypervisors läuft (KVM, VirtualBox, Fusion, Workstation oder eine „Bare-Metal-Lite"-Cloud-Instanz). Auf echtem Bare-Metal-ESXi wirst du keinen davon sehen; die Standardwerte aus §5 (VMXNET3-NIC, Hardware-Version 20, USB + Floppy aktiviert) funktionieren unverändert.
 
-**Einschalten schlägt fehl mit `E1000PCI: failed to register e1000e device` oder `Vmxnet3 PCI: failed to reserve slot` (nur verschachteltes Labor)** — der äußere Hypervisor emuliert nicht genug PCIe-Topologie, damit ESXi einen Slot für die paravirtualisierte NIC zuweisen kann. Bearbeite `SocTalk-Demo.vmx` und setze `ethernet0.virtualDev = "e1000"` (die klassische emulierte NIC, die weniger benötigt), dann `vim-cmd vmsvc/reload <id>` und schalte erneut ein. Auf echter Hardware behalte VMXNET3.
+**Einschalten schlägt fehl mit `E1000PCI: failed to register e1000e device` oder `Vmxnet3 PCI: failed to reserve slot` (nur verschachteltes Labor)**: der äußere Hypervisor emuliert nicht genug PCIe-Topologie, damit ESXi einen Slot für die paravirtualisierte NIC zuweisen kann. Bearbeite `SocTalk-Demo.vmx` und setze `ethernet0.virtualDev = "e1000"` (die klassische emulierte NIC, die weniger benötigt), dann `vim-cmd vmsvc/reload <id>` und schalte erneut ein. Auf echter Hardware behalte VMXNET3.
 
-**vmx stürzt mit Signal 11 / `msg.vmx.poweron.failed` auf Hardware-Version 20 ab (nur verschachteltes Labor)** — manche äußeren Hypervisoren geben die neueren PCIe-/EPT-Funktionen nicht bekannt, die vmx-20 voraussetzt. Bearbeite `SocTalk-Demo.vmx` und gehe zurück auf `virtualHW.version = "15"`, entferne `usb.present = "TRUE"` und `floppy0.present = "TRUE"` (oder setze beide auf `"FALSE"`), dann `vim-cmd vmsvc/reload <id>` und versuche es erneut. Echtes Bare-Metal-ESXi führt vmx-20 problemlos aus.
+**vmx stürzt mit Signal 11 / `msg.vmx.poweron.failed` auf Hardware-Version 20 ab (nur verschachteltes Labor)**: manche äußeren Hypervisoren geben die neueren PCIe-/EPT-Funktionen nicht bekannt, die vmx-20 voraussetzt. Bearbeite `SocTalk-Demo.vmx` und gehe zurück auf `virtualHW.version = "15"`, entferne `usb.present = "TRUE"` und `floppy0.present = "TRUE"` (oder setze beide auf `"FALSE"`), dann `vim-cmd vmsvc/reload <id>` und versuche es erneut. Echtes Bare-Metal-ESXi führt vmx-20 problemlos aus.

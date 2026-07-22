@@ -4,11 +4,11 @@ Metriche e log per un MSSP che esegue SocTalk. Due destinatari in mente: dashboa
 
 ## Endpoint Prometheus
 
-`GET /metrics` sul Service `soctalk-system-api` espone le metriche dell'installazione nel formato di esposizione Prometheus. Non autenticato per scelta progettuale — limitalo tramite NetworkPolicy oppure un Ingress con `auth-basic`/allowlist di IP se non vuoi che sia leggibile da chiunque.
+`GET /metrics` sul Service `soctalk-system-api` espone le metriche dell'installazione nel formato di esposizione Prometheus. Non autenticato per scelta progettuale, limitalo tramite NetworkPolicy oppure un Ingress con `auth-basic`/allowlist di IP se non vuoi che sia leggibile da chiunque.
 
 ## Stato dell'strumentazione in V1
 
-Il catalogo delle metriche qui sotto descrive la superficie di metriche **definita** (in `src/soctalk/core/observability/metrics.py`). In V1 solo `soctalk_tenant_adapter_heartbeat_age_seconds` viene aggiornata in modo visibile dal codice (nel gestore dell'heartbeat dell'adapter). Le altre metriche sono definite ma **non ancora strumentate nei punti di chiamata** — verranno esportate come zero/vuote. Considera la tabella come l'obiettivo di progettazione finché non arrivano gli hook a runtime.
+Il catalogo delle metriche qui sotto descrive la superficie di metriche **definita** (in `src/soctalk/core/observability/metrics.py`). In V1 solo `soctalk_tenant_adapter_heartbeat_age_seconds` viene aggiornata in modo visibile dal codice (nel gestore dell'heartbeat dell'adapter). Le altre metriche sono definite ma **non ancora strumentate nei punti di chiamata**: verranno esportate come zero/vuote. Considera la tabella come l'obiettivo di progettazione finché non arrivano gli hook a runtime.
 
 ## Contatori per singolo tenant (superficie definita)
 
@@ -20,7 +20,7 @@ Tutti etichettati con `tenant_id`. La cardinalità è limitata dal numero di ten
 | `soctalk_tenant_investigations_opened_total` | counter | Indagini aperte | non ancora |
 | `soctalk_tenant_investigations_closed_total{disposition}` | counter | Chiuse per disposizione | non ancora |
 | `soctalk_tenant_pending_reviews` | gauge | Revisioni in attesa di un gate umano | non ancora |
-| `soctalk_tenant_llm_tokens_total{direction}` | counter | Token LLM in ingresso/uscita — il driver di costo | non ancora |
+| `soctalk_tenant_llm_tokens_total{direction}` | counter | Token LLM in ingresso/uscita, il driver di costo | non ancora |
 | `soctalk_tenant_adapter_heartbeat_age_seconds` | gauge | Secondi trascorsi dall'ultimo heartbeat dell'adapter | **sì** (aggiornata da `/api/internal/adapter/heartbeat`). **La transizione auto-degraded non è implementata**; usala come input per il tuo alerting |
 
 ## Contatori a livello di installazione (superficie definita)
@@ -39,20 +39,20 @@ Tutti etichettati con `tenant_id`. La cardinalità è limitata dal numero di ten
 
 - Prontezza dei pod (stile Wazuh: tile verde/giallo/rosso per ogni Deployment)
 - `soctalk_api_request_duration_seconds` p50/p95/p99 per `path_template`
-- `soctalk_install_tenants_total` impilato per stato — salute della flotta a colpo d'occhio
-- Heatmap di `soctalk_tenant_adapter_heartbeat_age_seconds` per singolo tenant — individua un cliente in degrado prima che chiami
+- `soctalk_install_tenants_total` impilato per stato, salute della flotta a colpo d'occhio
+- Heatmap di `soctalk_tenant_adapter_heartbeat_age_seconds` per singolo tenant, individua un cliente in degrado prima che chiami
 
 ### Costo per singolo tenant
 
-- `rate(soctalk_tenant_llm_tokens_total[1h])` impilato per tenant — chi spende di più in questa ora
+- `rate(soctalk_tenant_llm_tokens_total[1h])` impilato per tenant, chi spende di più in questa ora
 - Token totali giornalieri × il $/Mtok del tuo provider = proiezione di costo
-- Burn-down rispetto al budget di token per esecuzione (`case_runs.tokens_budget`, default del modello 200.000; il fallback dell'env `SOCTALK_CASE_RUN_TOKEN_BUDGET` con default 15.000 si applica solo quando la riga non ha valore) — quanto spesso una singola esecuzione sfora il budget?
+- Burn-down rispetto al budget di token per esecuzione (`case_runs.tokens_budget`, default del modello 200.000; il fallback dell'env `SOCTALK_CASE_RUN_TOKEN_BUDGET` con default 15.000 si applica solo quando la riga non ha valore), quanto spesso una singola esecuzione sfora il budget?
 
 ### A livello di servizio
 
-- `rate(soctalk_tenant_investigations_opened_total[5m])` — tasso di ingresso
-- `rate(soctalk_tenant_investigations_closed_total{disposition="escalate"}[1h])` — tasso di escalation (presente anche nella pagina [Analytics](/it-it/mssp-ui#analytics))
-- `soctalk_tenant_pending_reviews` — umani indietro / avanti rispetto alla coda
+- `rate(soctalk_tenant_investigations_opened_total[5m])`: tasso di ingresso
+- `rate(soctalk_tenant_investigations_closed_total{disposition="escalate"}[1h])`: tasso di escalation (presente anche nella pagina [Analytics](/it-it/mssp-ui#analytics))
+- `soctalk_tenant_pending_reviews`: umani indietro / avanti rispetto alla coda
 
 ## Logs
 
@@ -104,6 +104,6 @@ Adatta la soglia al tasso normale atteso della tua installazione. Un picco di so
 
 ## Cosa non è incluso qui
 
-- **Trace distribuite delle decisioni HIL** — gli umani non sono nelle trace OTel; l'audit log è la fonte di verità su chi ha deciso cosa.
-- **SLO end-to-end per cliente** — Analytics lo fa nella UI; il PromQL relativo è nella roadmap come dashboard canoniche (oggi sono definite per installazione).
-- **Monitoraggio sintetico** — fuori ambito per SocTalk stesso. Usa il tuo consueto servizio di probe esterno contro l'URL del SOC del cliente.
+- **Trace distribuite delle decisioni HIL**: gli umani non sono nelle trace OTel; l'audit log è la fonte di verità su chi ha deciso cosa.
+- **SLO end-to-end per cliente**: Analytics lo fa nella UI; il PromQL relativo è nella roadmap come dashboard canoniche (oggi sono definite per installazione).
+- **Monitoraggio sintetico**: fuori ambito per SocTalk stesso. Usa il tuo consueto servizio di probe esterno contro l'URL del SOC del cliente.

@@ -6,16 +6,16 @@ Todas las imágenes corresponden a la misma compilación de Ubuntu 24.04 + K3s +
 
 ## Última versión
 
-Versión actual: **v0.2.0** — [página de la versión](https://github.com/soctalk/soctalk/releases/tag/v0.2.0) · [todas las versiones](https://github.com/soctalk/soctalk/releases)
+Versión actual: **v0.2.0**: [página de la versión](https://github.com/soctalk/soctalk/releases/tag/v0.2.0) · [todas las versiones](https://github.com/soctalk/soctalk/releases)
 
 La versión incluye:
 
-- [`soctalk-demo-0.2.0.qcow2.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.qcow2.xz) — KVM, QEMU, libvirt, Proxmox
-- [`soctalk-demo-0.2.0.vmdk.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.vmdk.xz) — VMware ESXi, Workstation, Fusion, VirtualBox
-- [`soctalk-demo-0.2.0.vhdx.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.vhdx.xz) — Microsoft Hyper-V (Generation 1)
-- [`soctalk-demo-0.2.0.vhd.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.vhd.xz) — Microsoft Azure (tamaño fijo, alineado a 1 MiB)
-- [`soctalk-demo-0.2.0.raw.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.raw.xz) — importación genérica a la nube (GCP, OpenStack), `dd` a disco físico
-- [`SHA256SUMS.txt`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/SHA256SUMS.txt) — sumas de verificación para todo lo anterior
+- [`soctalk-demo-0.2.0.qcow2.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.qcow2.xz), KVM, QEMU, libvirt, Proxmox
+- [`soctalk-demo-0.2.0.vmdk.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.vmdk.xz), VMware ESXi, Workstation, Fusion, VirtualBox
+- [`soctalk-demo-0.2.0.vhdx.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.vhdx.xz), Microsoft Hyper-V (Generation 1)
+- [`soctalk-demo-0.2.0.vhd.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.vhd.xz), Microsoft Azure (tamaño fijo, alineado a 1 MiB)
+- [`soctalk-demo-0.2.0.raw.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.raw.xz), importación genérica a la nube (GCP, OpenStack), `dd` a disco físico
+- [`SHA256SUMS.txt`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/SHA256SUMS.txt), sumas de verificación para todo lo anterior
 
 Todos los artefactos están comprimidos con `xz -9`. Descomprímelos con `xz -d <file>.xz`.
 
@@ -23,18 +23,18 @@ Todos los artefactos están comprimidos con `xz -9`. Descomprímelos con `xz -d 
 
 | Tu plataforma | Descarga |
 |---|---|
-| **Proxmox VE** | qcow2 — `qm disk import`. Consulta [Ejecutar en Proxmox](/es-419/proxmox) |
+| **Proxmox VE** | qcow2, `qm disk import`. Consulta [Ejecutar en Proxmox](/es-419/proxmox) |
 | **libvirt / virt-manager / QEMU CLI** | qcow2 |
 | **KVM (RHEL/CentOS/Alma)** | qcow2 |
-| **VMware ESXi** | vmdk — consulta [Ejecutar en VMware ESXi](/es-419/vmware) |
+| **VMware ESXi** | vmdk, consulta [Ejecutar en VMware ESXi](/es-419/vmware) |
 | **VMware Workstation / Fusion** | vmdk |
-| **VirtualBox** | vmdk — conviértelo a VDI y luego adjúntalo. Consulta [Ejecutar en VirtualBox](/es-419/virtualbox) |
-| **Microsoft Hyper-V** | vhdx — VM de Generation 1 (validada; la imagen arranca mediante firmware BIOS, Gen 2 / UEFI no está probado) |
-| **Microsoft Azure** | vhd — carga directa a un Managed Disk → Image → VM. Consulta [Ejecutar en Azure](/es-419/azure) |
-| **Google Cloud** | raw — `tar czf disk.tar.gz disk.raw && gcloud compute images create` |
-| **OpenStack** | raw — `openstack image create --disk-format raw` |
-| **AWS** | vmdk — impórtalo como una AMI con VM Import, o compila una AMI nativa con Packer. Consulta [Ejecutar en AWS](/es-419/aws) |
-| **Bare metal** | raw — `dd if=disk.raw of=/dev/sdX bs=4M` |
+| **VirtualBox** | vmdk, conviértelo a VDI y luego adjúntalo. Consulta [Ejecutar en VirtualBox](/es-419/virtualbox) |
+| **Microsoft Hyper-V** | vhdx, VM de Generation 1 (validada; la imagen arranca mediante firmware BIOS, Gen 2 / UEFI no está probado) |
+| **Microsoft Azure** | vhd, carga directa a un Managed Disk → Image → VM. Consulta [Ejecutar en Azure](/es-419/azure) |
+| **Google Cloud** | raw, `tar czf disk.tar.gz disk.raw && gcloud compute images create` |
+| **OpenStack** | raw, `openstack image create --disk-format raw` |
+| **AWS** | vmdk, impórtalo como una AMI con VM Import, o compila una AMI nativa con Packer. Consulta [Ejecutar en AWS](/es-419/aws) |
+| **Bare metal** | raw, `dd if=disk.raw of=/dev/sdX bs=4M` |
 
 ## Verifica la descarga
 
@@ -75,6 +75,6 @@ gh workflow run build-packer-images.yml -f version=0.2.0
 
 El flujo de trabajo ejecuta:
 
-1. **build-wizard** — compilación en Go del binario del asistente de configuración.
-2. **build-qcow2** — compilación de Packer que produce los cinco formatos; los comprime con xz; sube cada uno como un artefacto de flujo de trabajo independiente; los adjunta a la GitHub Release en las etiquetas `v*`.
-3. **boot-test** — arranca el qcow2 en una VM de KVM nueva, espera a que `soctalk-firstboot` finalice y ejecuta un validador de Playwright. Hace fallar el flujo de trabajo si la imagen está rota, de modo que una versión defectuosa nunca se adjunte a una etiqueta.
+1. **build-wizard**: compilación en Go del binario del asistente de configuración.
+2. **build-qcow2**: compilación de Packer que produce los cinco formatos; los comprime con xz; sube cada uno como un artefacto de flujo de trabajo independiente; los adjunta a la GitHub Release en las etiquetas `v*`.
+3. **boot-test**: arranca el qcow2 en una VM de KVM nueva, espera a que `soctalk-firstboot` finalice y ejecuta un validador de Playwright. Hace fallar el flujo de trabajo si la imagen está rota, de modo que una versión defectuosa nunca se adjunte a una etiqueta.

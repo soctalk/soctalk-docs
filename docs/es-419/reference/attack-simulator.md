@@ -4,8 +4,8 @@ Un par de herramientas de demostración que generan alertas realistas de Wazuh p
 
 Ambas se incluyen en la distribución FOSS. Código fuente:
 
-- [`attack-simulator/`](https://github.com/soctalk/soctalk/tree/main/attack-simulator) — scripts y paquete de reglas
-- [`charts/linux-ep/`](https://github.com/soctalk/soctalk/tree/main/charts/linux-ep) — chart de Kubernetes que ejecuta el simulador
+- [`attack-simulator/`](https://github.com/soctalk/soctalk/tree/main/attack-simulator), scripts y paquete de reglas
+- [`charts/linux-ep/`](https://github.com/soctalk/soctalk/tree/main/charts/linux-ep), chart de Kubernetes que ejecuta el simulador
 
 ## Chart linux-ep
 
@@ -75,9 +75,9 @@ Cada script emite una línea de syslog etiquetada `SOCTALK_ATTACK <TTP>: <descri
 
 [`charts/wazuh/templates/manager-local-rules.yaml`](https://github.com/soctalk/soctalk/blob/main/charts/wazuh/templates/manager-local-rules.yaml) incluye reglas personalizadas en el rango 100200-100299:
 
-- **100200** — chain-root: coincide con cualquier línea de syslog `SOCTALK_ATTACK`
-- **100210 – 100225** — reglas por TTP: asignan severidad (nivel 10–14) y etiquetas según la técnica de MITRE
-- **100299** — regla comodín para TTPs no mapeadas (severidad 8)
+- **100200**: chain-root: coincide con cualquier línea de syslog `SOCTALK_ATTACK`
+- **100210 – 100225**: reglas por TTP: asignan severidad (nivel 10–14) y etiquetas según la técnica de MITRE
+- **100299**: regla comodín para TTPs no mapeadas (severidad 8)
 
 Las alertas producidas llevan `attack.tactic`, `attack.technique` de MITRE y una descripción legible por humanos, de modo que el [`wazuh_worker`](/es-419/ai-pipeline) de SocTalk tiene contexto estructurado sobre el cual razonar.
 
@@ -105,7 +105,7 @@ Elimina los pods de endpoint. El paquete de reglas personalizadas de Wazuh perma
 
 ## Qué no está incluido aquí
 
-- **Simulación de endpoint Windows** — solo Linux en esta versión. En el roadmap.
-- **Simulación de endpoint macOS** — igual.
-- **Campañas de emulación de adversarios** — solo TTP único; no encadenamos TTPs en escenarios multietapa.
-- **Integración con Atomic Red Team** — `attack-simulator` está hecho a mano; no consume el YAML de Atomic directamente. La compatibilidad está en el roadmap.
+- **Simulación de endpoint Windows**: solo Linux en esta versión. En el roadmap.
+- **Simulación de endpoint macOS**: igual.
+- **Campañas de emulación de adversarios**: solo TTP único; no encadenamos TTPs en escenarios multietapa.
+- **Integración con Atomic Red Team**: `attack-simulator` está hecho a mano; no consume el YAML de Atomic directamente. La compatibilidad está en el roadmap.

@@ -248,7 +248,7 @@ spec:
       toPorts: [{ ports: [{ port: "443", protocol: TCP }] }]
 ```
 
-Cilium combina todas las políticas que seleccionan los pods del orquestador, de modo que la unión de los FQDN permitidos de cada tenant es alcanzable desde esos pods en la capa de red. **No hay aislamiento de FQDN por tenant a nivel de solicitud** — eso es responsabilidad de la aplicación (configuración de LLM por tenant, claves de caché con alcance por tenant). La política de red reduce el radio de impacto (la lista de nombres de host de LLM permitidos como un todo, no salida arbitraria), pero por sí sola no restringe con qué tenant puede hablar el orquestador.
+Cilium combina todas las políticas que seleccionan los pods del orquestador, de modo que la unión de los FQDN permitidos de cada tenant es alcanzable desde esos pods en la capa de red. **No hay aislamiento de FQDN por tenant a nivel de solicitud**: eso es responsabilidad de la aplicación (configuración de LLM por tenant, claves de caché con alcance por tenant). La política de red reduce el radio de impacto (la lista de nombres de host de LLM permitidos como un todo, no salida arbitraria), pero por sí sola no restringe con qué tenant puede hablar el orquestador.
 
 ### Políticas del namespace del tenant
 
@@ -350,7 +350,7 @@ spec:
 
 **4.3.5 Permitir entrada del agente Wazuh hacia el gestor del tenant**
 
-La telemetría del agente en 1514/1515 llega vía la ruta documentada en [Wazuh Ingress](/es-419/reference/wazuh-ingress). El despliegue de referencia es un Service LoadBalancer por tenant (LB de nube o MetalLB), con un Deployment de HAProxy en clúster en `soctalk-system` como respaldo de IP única. La NetworkPolicy debe permitir cualquiera de esas rutas que la instalación realmente ejecute — `ingress-system` **no** es el origen correcto para ninguna de ellas, así que no uses la plantilla estándar del chart sin editarla.
+La telemetría del agente en 1514/1515 llega vía la ruta documentada en [Wazuh Ingress](/es-419/reference/wazuh-ingress). El despliegue de referencia es un Service LoadBalancer por tenant (LB de nube o MetalLB), con un Deployment de HAProxy en clúster en `soctalk-system` como respaldo de IP única. La NetworkPolicy debe permitir cualquiera de esas rutas que la instalación realmente ejecute, `ingress-system` **no** es el origen correcto para ninguna de ellas, así que no uses la plantilla estándar del chart sin editarla.
 
 Elige un bloque según la instalación:
 

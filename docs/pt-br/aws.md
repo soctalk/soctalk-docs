@@ -2,13 +2,13 @@
 
 Coloque o appliance de demonstração do SocTalk em execução como uma instância EC2. Há dois caminhos validados:
 
-- **Opção A — construa uma AMI nativa com Packer.** A especificação Packer do repositório inclui uma fonte `amazon-ebs` que constrói a AMI diretamente na sua conta AWS. Resultado mais limpo, requer o Packer localmente.
-- **Opção B — importe o `.vmdk` publicado com o VM Import.** Não precisa do Packer: envie o artefato de release para o S3 e deixe a AWS convertê-lo em uma AMI. Mais lento (a conversão leva ~30–45 minutos), mas usa apenas o AWS CLI.
+- **Opção A, construa uma AMI nativa com Packer.** A especificação Packer do repositório inclui uma fonte `amazon-ebs` que constrói a AMI diretamente na sua conta AWS. Resultado mais limpo, requer o Packer localmente.
+- **Opção B, importe o `.vmdk` publicado com o VM Import.** Não precisa do Packer: envie o artefato de release para o S3 e deixe a AWS convertê-lo em uma AMI. Mais lento (a conversão leva ~30–45 minutos), mas usa apenas o AWS CLI.
 
-Ambos terminam no mesmo ponto: uma AMI que você inicia e, em seguida, o fluxo padrão do [assistente de configuração](/pt-br/setup-wizard). Este caminho é para **avaliadores e demonstrações** — para uma instalação de produção no seu próprio cluster, consulte [Instalação](/pt-br/install).
+Ambos terminam no mesmo ponto: uma AMI que você inicia e, em seguida, o fluxo padrão do [assistente de configuração](/pt-br/setup-wizard). Este caminho é para **avaliadores e demonstrações**: para uma instalação de produção no seu próprio cluster, consulte [Instalação](/pt-br/install).
 
 ::: info Por que não há uma AMI pública pré-construída?
-As AMIs são recursos por conta e por região — diferentemente dos arquivos `.qcow2`/`.vhd`/`.vmdk`, elas não podem ser anexadas a um GitHub Release. Você constrói ou importa uma para a sua própria conta.
+As AMIs são recursos por conta e por região, diferentemente dos arquivos `.qcow2`/`.vhd`/`.vmdk`, elas não podem ser anexadas a um GitHub Release. Você constrói ou importa uma para a sua própria conta.
 :::
 
 ## Pré-requisitos
@@ -85,7 +85,7 @@ TASK=$(aws ec2 import-image --region $REGION \
 echo "import task: $TASK"
 ```
 
-Faça o polling até concluir (normalmente 30–45 minutos — a AWS converte o disco e registra a AMI):
+Faça o polling até concluir (normalmente 30–45 minutos, a AWS converte o disco e registra a AMI):
 
 ```bash
 watch -n 60 "aws ec2 describe-import-image-tasks --region $REGION \
@@ -97,7 +97,7 @@ Quando `Status` for `completed`, o último campo é o ID da sua AMI.
 
 ## Inicie uma instância
 
-Crie um par de chaves e um security group restrito ao seu próprio IP — a máquina expõe SSH (22), a UI do SocTalk (443) e o assistente de configuração (8443), nenhum dos quais deve ficar aberto à internet:
+Crie um par de chaves e um security group restrito ao seu próprio IP, a máquina expõe SSH (22), a UI do SocTalk (443) e o assistente de configuração (8443), nenhum dos quais deve ficar aberto à internet:
 
 ```bash
 AMI=<ami-id-from-A-or-B>
@@ -126,10 +126,10 @@ IP=$(aws ec2 describe-instances --region $REGION --instance-ids $IID \
 echo "instance at $IP"
 ```
 
-O `t3.xlarge` (4 vCPU / 16 GiB) cobre confortavelmente o [dimensionamento mínimo](/pt-br/reference/sizing) de 4 vCPU / 8 GB. Não reduza o volume raiz — o disco virtual da imagem tem 60 GB, então o EC2 exige pelo menos esse tamanho.
+O `t3.xlarge` (4 vCPU / 16 GiB) cobre confortavelmente o [dimensionamento mínimo](/pt-br/reference/sizing) de 4 vCPU / 8 GB. Não reduza o volume raiz, o disco virtual da imagem tem 60 GB, então o EC2 exige pelo menos esse tamanho.
 
 ::: tip Nenhum seed ISO necessário
-Em hypervisors, você anexa um `seed.iso` NoCloud para injetar uma chave SSH ([Quickstart](/pt-br/quickstart-vm#optional-cloud-init-seed)). No EC2 essa etapa desaparece: o cloud-init da imagem detecta o datasource de metadados do EC2 e injeta seu par de chaves automaticamente — isso funciona também para o `.vmdk` importado, mesmo tendo sido empacotado para VMware. O usuário padrão no EC2 é **`ubuntu`**.
+Em hypervisors, você anexa um `seed.iso` NoCloud para injetar uma chave SSH ([Quickstart](/pt-br/quickstart-vm#optional-cloud-init-seed)). No EC2 essa etapa desaparece: o cloud-init da imagem detecta o datasource de metadados do EC2 e injeta seu par de chaves automaticamente, isso funciona também para o `.vmdk` importado, mesmo tendo sido empacotado para VMware. O usuário padrão no EC2 é **`ubuntu`**.
 :::
 
 ## Execute o assistente e faça login
@@ -140,7 +140,7 @@ Mesmo fluxo de todas as outras plataformas. Dê à instância ~2 minutos após o
 ssh -i soctalk-demo.pem ubuntu@$IP sudo cat /var/log/soctalk-setup-token
 ```
 
-Acesse `https://<IP>:8443/`, aceite o certificado autoassinado, cole o token, preencha o assistente ([referência de campos](/pt-br/setup-wizard)) e envie. O instalador de primeiro boot executa `helm install` e integra o tenant `demo` — cerca de 2 minutos para os pods do `soctalk-system` e mais alguns para a stack Wazuh do tenant de demonstração:
+Acesse `https://<IP>:8443/`, aceite o certificado autoassinado, cole o token, preencha o assistente ([referência de campos](/pt-br/setup-wizard)) e envie. O instalador de primeiro boot executa `helm install` e integra o tenant `demo`: cerca de 2 minutos para os pods do `soctalk-system` e mais alguns para a stack Wazuh do tenant de demonstração:
 
 ```bash
 ssh -i soctalk-demo.pem ubuntu@$IP
@@ -152,7 +152,7 @@ Em seguida, acesse `https://<IP>/` (porta 443, não 8443), faça login com as cr
 
 ## Desmontagem
 
-Diferentemente do único resource group do Azure, os recursos do EC2 são individuais — exclua cada um:
+Diferentemente do único resource group do Azure, os recursos do EC2 são individuais, exclua cada um:
 
 ```bash
 aws ec2 terminate-instances --region $REGION --instance-ids $IID
@@ -188,7 +188,7 @@ aws ec2 describe-snapshots --region $REGION --owner-ids self --query 'length(Sna
 | Sintoma | Verificação |
 |---|---|
 | Packer ou `run-instances` falha com `VPCIdNotSpecified` | A conta/região não tem uma VPC padrão. `aws ec2 create-default-vpc --region $REGION` (exclua-a novamente na desmontagem se não a quiser) |
-| `import-image` travado em `validating` / falha com um erro de role | O role deve ter o nome exato `vmimport` e confiar em `vmie.amazonaws.com` com o external ID `vmimport` — verifique novamente a etapa 2 |
+| `import-image` travado em `validating` / falha com um erro de role | O role deve ter o nome exato `vmimport` e confiar em `vmie.amazonaws.com` com o external ID `vmimport`: verifique novamente a etapa 2 |
 | `run-instances` rejeita um volume raiz menor | O snapshot importado tem 60 GB; o volume raiz deve ser ≥ 60 GB. Omita `--block-device-mappings` para usar o padrão da AMI |
-| `SignatureDoesNotMatch` do CLI | Variáveis de ambiente `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` obsoletas sobrepondo `~/.aws/credentials` — use `unset` nelas |
-| Qualquer coisa após o assistente | Igual a todas as plataformas — veja a [tabela de solução de problemas do Quickstart](/pt-br/quickstart-vm#troubleshooting) |
+| `SignatureDoesNotMatch` do CLI | Variáveis de ambiente `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` obsoletas sobrepondo `~/.aws/credentials`: use `unset` nelas |
+| Qualquer coisa após o assistente | Igual a todas as plataformas, veja a [tabela de solução de problemas do Quickstart](/pt-br/quickstart-vm#troubleshooting) |

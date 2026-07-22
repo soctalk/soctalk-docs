@@ -248,7 +248,7 @@ spec:
       toPorts: [{ ports: [{ port: "443", protocol: TCP }] }]
 ```
 
-Cilium combine toutes les politiques qui sélectionnent les pods de l'orchestrateur, de sorte que l'union de tous les FQDN autorisés de chaque tenant est joignable depuis ces pods au niveau réseau. **Il n'y a pas d'isolation FQDN par tenant au niveau de la requête** — c'est la responsabilité de l'application (config LLM par tenant, clés de cache à portée tenant). La politique réseau réduit le rayon d'impact (l'allow-list de noms d'hôte LLM dans son ensemble, et non un egress arbitraire), mais elle ne contraint pas à elle seule le tenant avec lequel l'orchestrateur peut communiquer.
+Cilium combine toutes les politiques qui sélectionnent les pods de l'orchestrateur, de sorte que l'union de tous les FQDN autorisés de chaque tenant est joignable depuis ces pods au niveau réseau. **Il n'y a pas d'isolation FQDN par tenant au niveau de la requête**: c'est la responsabilité de l'application (config LLM par tenant, clés de cache à portée tenant). La politique réseau réduit le rayon d'impact (l'allow-list de noms d'hôte LLM dans son ensemble, et non un egress arbitraire), mais elle ne contraint pas à elle seule le tenant avec lequel l'orchestrateur peut communiquer.
 
 ### Politiques du namespace de tenant
 
@@ -350,7 +350,7 @@ spec:
 
 **4.3.5 Autoriser l'ingress d'agent Wazuh vers le gestionnaire du tenant**
 
-La télémétrie d'agent sur 1514/1515 arrive via le chemin documenté dans [Wazuh Ingress](/fr-fr/reference/wazuh-ingress). Le déploiement de référence est un Service LoadBalancer par tenant (LB cloud ou MetalLB), avec un Deployment HAProxy dans le cluster dans `soctalk-system` comme repli à IP unique. La NetworkPolicy doit autoriser celui de ces chemins que l'installation exécute réellement — `ingress-system` n'est **pas** la bonne source pour l'un ou l'autre, donc n'utilisez pas le modèle standard du chart sans le modifier.
+La télémétrie d'agent sur 1514/1515 arrive via le chemin documenté dans [Wazuh Ingress](/fr-fr/reference/wazuh-ingress). Le déploiement de référence est un Service LoadBalancer par tenant (LB cloud ou MetalLB), avec un Deployment HAProxy dans le cluster dans `soctalk-system` comme repli à IP unique. La NetworkPolicy doit autoriser celui de ces chemins que l'installation exécute réellement, `ingress-system` n'est **pas** la bonne source pour l'un ou l'autre, donc n'utilisez pas le modèle standard du chart sans le modifier.
 
 Choisissez un bloc en fonction de l'installation :
 

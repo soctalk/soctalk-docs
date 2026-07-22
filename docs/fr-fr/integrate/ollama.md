@@ -1,6 +1,6 @@
 # Ollama (LLM local)
 
-Exécutez le triage AI de SocTalk avec un modèle **local** grâce à [Ollama](https://ollama.com/) — pas de LLM cloud, pas de coût par token, les données restent sur votre infrastructure. Ollama expose une API **compatible OpenAI**, et le `runs-worker` par tenant de SocTalk (le composant qui appelle réellement le LLM) communique directement avec elle.
+Exécutez le triage AI de SocTalk avec un modèle **local** grâce à [Ollama](https://ollama.com/), pas de LLM cloud, pas de coût par token, les données restent sur votre infrastructure. Ollama expose une API **compatible OpenAI**, et le `runs-worker` par tenant de SocTalk (le composant qui appelle réellement le LLM) communique directement avec elle.
 
 Cette page décrit la configuration de bout en bout. Pour le modèle de fournisseur général, consultez [Fournisseurs LLM](/fr-fr/integrate/llm-providers).
 
@@ -51,7 +51,7 @@ curl -X PATCH https://<your-mssp-host>/api/mssp/tenants/<tenant-id>/llm \
       }'
 ```
 
-Cela persiste l'`IntegrationConfig` du tenant et met en file d'attente un re-provisionnement — le contrôleur effectue un `helm upgrade` du chart du tenant, le `runs-worker` redémarre avec l'environnement Ollama, **et la NetworkPolicy de sortie ouvre automatiquement le port d'Ollama** (voir les notes sur l'accessibilité). Les nouveaux runs de triage vont vers Ollama.
+Cela persiste l'`IntegrationConfig` du tenant et met en file d'attente un re-provisionnement, le contrôleur effectue un `helm upgrade` du chart du tenant, le `runs-worker` redémarre avec l'environnement Ollama, **et la NetworkPolicy de sortie ouvre automatiquement le port d'Ollama** (voir les notes sur l'accessibilité). Les nouveaux runs de triage vont vers Ollama.
 
 Pour faire d'Ollama la valeur par défaut de **chaque** nouveau tenant, définissez `defaults.llm` dans les values `soctalk-system` lors de l'installation :
 
@@ -72,9 +72,9 @@ Dans cette version, le panneau **Paramètres → LLM** de l'interface MSSP refl�
 
 ## 3. Liste de vérification de l'accessibilité (les pièges courants)
 
-- **Écoutez sur `0.0.0.0`.** Ollama écoute sur `127.0.0.1` par défaut — les pods ne peuvent pas l'atteindre. Définissez `OLLAMA_HOST=0.0.0.0:11434` (étape 1).
+- **Écoutez sur `0.0.0.0`.** Ollama écoute sur `127.0.0.1` par défaut, les pods ne peuvent pas l'atteindre. Définissez `OLLAMA_HOST=0.0.0.0:11434` (étape 1).
 - **N'utilisez pas `localhost`/`127.0.0.1` dans l'URL de base.** Il s'agit du *pod*, pas de l'hôte Ollama. Utilisez l'IP routable de l'hôte (ou exécutez Ollama dans le cluster en tant que Service). Les pods atteignent les IP de plages privées (`10.0.0.0/8`, `172.16.0.0/12`) via les autorisations de sortie par défaut.
-- **Port de sortie.** La NetworkPolicy de sortie du `runs-worker` du tenant ouvre le port LLM, **dérivé de l'URL de base** (donc `:11434` pour Ollama, `:8000` pour vLLM, etc.). C'est automatique sur le chart `soctalk-tenant` **≥ 0.1.2**. Sur les charts plus anciens, la policy n'autorisait que `:443` — soit vous effectuez une mise à niveau, soit vous autorisez le port manuellement, soit vous placez Ollama derrière un reverse proxy TLS sur `:443`.
+- **Port de sortie.** La NetworkPolicy de sortie du `runs-worker` du tenant ouvre le port LLM, **dérivé de l'URL de base** (donc `:11434` pour Ollama, `:8000` pour vLLM, etc.). C'est automatique sur le chart `soctalk-tenant` **≥ 0.1.2**. Sur les charts plus anciens, la policy n'autorisait que `:443`: soit vous effectuez une mise à niveau, soit vous autorisez le port manuellement, soit vous placez Ollama derrière un reverse proxy TLS sur `:443`.
 - **Clé API factice.** Si vous la laissez vide, le chart ignore le Secret → le worker démarre sans `OPENAI_API_KEY` et échoue. Utilisez n'importe quelle chaîne non vide.
 
 ## 4. Vérifier
@@ -95,14 +95,14 @@ ollama ps                                   # model loaded while triaging
 journalctl -u ollama | grep /v1/chat/completions   # 200s during a triage
 ```
 
-Lorsqu'une alerte arrive, l'enquête est triée par le modèle local — l'indicateur **Agent Run / Token Spend** de l'enquête reflète les tokens générés par Ollama :
+Lorsqu'une alerte arrive, l'enquête est triée par le modèle local, l'indicateur **Agent Run / Token Spend** de l'enquête reflète les tokens générés par Ollama :
 
 ![Enquête triée par Ollama](/screenshots/ollama-investigation.png)
 
 ## Choisir un modèle
 
-Le pipeline de SocTalk effectue du **tool-calling + des verdicts JSON structurés**, alors choisissez un modèle instruct doté d'un solide support des outils — `qwen2.5`, `llama3.1`, `mistral-nemo`. Les modèles petits ou anciens échouent souvent sur la sortie structurée. Le niveau de raisonnement bénéficie le plus d'un modèle plus puissant ; vous pouvez les séparer avec `fast_model` / `reasoning_model` (un petit routeur rapide + un modèle de verdict plus grand).
+Le pipeline de SocTalk effectue du **tool-calling + des verdicts JSON structurés**, alors choisissez un modèle instruct doté d'un solide support des outils, `qwen2.5`, `llama3.1`, `mistral-nemo`. Les modèles petits ou anciens échouent souvent sur la sortie structurée. Le niveau de raisonnement bénéficie le plus d'un modèle plus puissant ; vous pouvez les séparer avec `fast_model` / `reasoning_model` (un petit routeur rapide + un modèle de verdict plus grand).
 
 ::: tip Le CPU est lent
-Sur CPU, un modèle 7B tourne à quelques dizaines de tokens/sec, et un seul triage effectue plusieurs appels LLM — comptez des **minutes** par enquête. Utilisez un hôte GPU pour une latence exploitable, ou un modèle rapide plus petit.
+Sur CPU, un modèle 7B tourne à quelques dizaines de tokens/sec, et un seul triage effectue plusieurs appels LLM, comptez des **minutes** par enquête. Utilisez un hôte GPU pour une latence exploitable, ou un modèle rapide plus petit.
 :::

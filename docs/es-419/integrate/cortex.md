@@ -6,8 +6,8 @@
 
 El chart `soctalk-tenant` en V1 no tiene un subchart de Cortex (`dependencies: []`). Las opciones son:
 
-- **Cortex gestionado por el cliente** — el cliente ejecuta el suyo propio; el MSSP proporciona la URL + la clave de API.
-- **Sin Cortex** — la canalización de AI aún intenta la ruta `ENRICH` (el supervisor no sabe que Cortex falta); cada invocación de `cortex_worker` falla y el fallo queda registrado. No hay un campo de estado por observable en V1; el worker simplemente retorna sin enriquecimiento y el supervisor continúa.
+- **Cortex gestionado por el cliente**: el cliente ejecuta el suyo propio; el MSSP proporciona la URL + la clave de API.
+- **Sin Cortex**: la canalización de AI aún intenta la ruta `ENRICH` (el supervisor no sabe que Cortex falta); cada invocación de `cortex_worker` falla y el fallo queda registrado. No hay un campo de estado por observable en V1; el worker simplemente retorna sin enriquecimiento y el supervisor continúa.
 
 Un "subchart de Cortex incluido" se describió en borradores anteriores como una opción planificada, pero **no está implementado en esta versión**.
 
@@ -27,11 +27,11 @@ Detalle del tenant → Settings → Cortex.
 
 ## Selección de analyzer
 
-Para cada observable, el worker prueba el **primer nombre de analyzer** en un `ANALYZER_MAP` codificado de forma fija (en [`src/soctalk/workers/cortex.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/workers/cortex.py)) según el tipo del observable — sin comprobar si ese analyzer está realmente instalado en la instancia de Cortex. Si el analyzer no está instalado (o falla), el fallo queda registrado y el worker retorna sin el enriquecimiento. No hay respaldo a un segundo analyzer en V1; instala el analyzer canónico nombrado en `ANALYZER_MAP` para cada tipo de observable que te interese. Exponer el orden de preferencia de analyzers como un valor del chart está en la hoja de ruta.
+Para cada observable, el worker prueba el **primer nombre de analyzer** en un `ANALYZER_MAP` codificado de forma fija (en [`src/soctalk/workers/cortex.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/workers/cortex.py)) según el tipo del observable, sin comprobar si ese analyzer está realmente instalado en la instancia de Cortex. Si el analyzer no está instalado (o falla), el fallo queda registrado y el worker retorna sin el enriquecimiento. No hay respaldo a un segundo analyzer en V1; instala el analyzer canónico nombrado en `ANALYZER_MAP` para cada tipo de observable que te interese. Exponer el orden de preferencia de analyzers como un valor del chart está en la hoja de ruta.
 
 ## Costo
 
-Cortex en sí es gratuito; los proveedores de analyzers cobran por las consultas. SocTalk no mide las llamadas a Cortex directamente — mídelas en el proveedor:
+Cortex en sí es gratuito; los proveedores de analyzers cobran por las consultas. SocTalk no mide las llamadas a Cortex directamente, mídelas en el proveedor:
 
 - VirusTotal: cuota por clave
 - AbuseIPDB: cuota por clave
@@ -51,7 +51,7 @@ Secuencia:
 4. Sondea `/api/job/{id}/report` hasta que el job termina o se dispara un timeout por job.
 5. Añade el veredicto (`safe`, `info`, `suspicious`, `malicious`) y el cuerpo del reporte al estado del caso. Los jobs fallidos registran el error y continúan.
 
-Las llamadas a Cortex que fallan no hacen fallar la ejecución — el worker registra el fallo y retorna al supervisor sin enriquecimiento para ese observable. El nodo de veredicto razona sobre cualquier contexto que esté disponible.
+Las llamadas a Cortex que fallan no hacen fallar la ejecución, el worker registra el fallo y retorna al supervisor sin enriquecimiento para ese observable. El nodo de veredicto razona sobre cualquier contexto que esté disponible.
 
 ## Cortex incluido: no en esta versión
 
@@ -65,8 +65,8 @@ El chart `soctalk-tenant` no incluye Cortex como subchart. Ejecuta Cortex tú mi
 
 ## Lo que no está aquí
 
-- Desarrollo de analyzers personalizados — fuera de alcance; consulta [TheHive-Project/Cortex-Analyzers](https://github.com/TheHive-Project/Cortex-Analyzers).
-- Overrides de TLP/PAP por observable — planificado; hoy el valor por defecto del tenant se aplica a cada envío.
+- Desarrollo de analyzers personalizados, fuera de alcance; consulta [TheHive-Project/Cortex-Analyzers](https://github.com/TheHive-Project/Cortex-Analyzers).
+- Overrides de TLP/PAP por observable, planificado; hoy el valor por defecto del tenant se aplica a cada envío.
 
 ## Punteros al código fuente
 

@@ -4,15 +4,15 @@ Betreiber erledigen die meisten Aufgaben über die [MSSP-UI](/de-de/mssp-ui) ode
 
 ## In-Pod-Einstiegspunkte
 
-Diese laufen innerhalb von `soctalk-system-api` (oder einem einmaligen Job). Sie verwenden die im Pod eingebundenen Postgres-Zugangsdaten und die Chart-Konfiguration — kein externer Zustand.
+Diese laufen innerhalb von `soctalk-system-api` (oder einem einmaligen Job). Sie verwenden die im Pod eingebundenen Postgres-Zugangsdaten und die Chart-Konfiguration, kein externer Zustand.
 
 ### Bootstrap
 
-In diesem Release gibt es keine separate Bootstrap-CLI — der Init-Befehl des API-Pods des Charts führt den Bootstrap inline aus (Migrationen, Rollen-Passwörter, Organisationszeile, optionaler Admin-Benutzer). Siehe [Installation — Migrationen und Bootstrap](/de-de/install#migrations-and-bootstrap-run-automatically).
+In diesem Release gibt es keine separate Bootstrap-CLI, der Init-Befehl des API-Pods des Charts führt den Bootstrap inline aus (Migrationen, Rollen-Passwörter, Organisationszeile, optionaler Admin-Benutzer). Siehe [Installation, Migrationen und Bootstrap](/de-de/install#migrations-and-bootstrap-run-automatically).
 
 ### LLM-Smoke-Test
 
-In diesem Release gibt es keine `soctalk.llm.smoke_test`-CLI. Um zu überprüfen, ob ein konfiguriertes LLM erreichbar ist, siehe [LLM-Anbieter — Sanity-Test](/de-de/integrate/llm-providers#sanity-test) für den einzeiligen Python-Ausdruck.
+In diesem Release gibt es keine `soctalk.llm.smoke_test`-CLI. Um zu überprüfen, ob ein konfiguriertes LLM erreichbar ist, siehe [LLM-Anbieter, Sanity-Test](/de-de/integrate/llm-providers#sanity-test) für den einzeiligen Python-Ausdruck.
 
 ### `soctalk-auth` (In-Pod-Helfer)
 
@@ -27,7 +27,7 @@ Fordert ein neues Passwort an (oder liest es aus `SOCTALK_PASSWORD`), sucht den 
 
 ### `soctalk` (Orchestrator-Einstiegspunkt)
 
-`soctalk` ist der Orchestrator-Einstiegspunkt — er führt den LangGraph-Supervisor + Worker aus. In V1 bettet der API-Pod den Orchestrator ein (kein separates `soctalk-system-orchestrator`-Deployment). Wird außerhalb der Entwicklung normalerweise nicht von Hand aufgerufen.
+`soctalk` ist der Orchestrator-Einstiegspunkt, er führt den LangGraph-Supervisor + Worker aus. In V1 bettet der API-Pod den Orchestrator ein (kein separates `soctalk-system-orchestrator`-Deployment). Wird außerhalb der Entwicklung normalerweise nicht von Hand aufgerufen.
 
 ### Noch keine universelle `soctalk-cli`
 

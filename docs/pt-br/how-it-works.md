@@ -105,11 +105,11 @@ Reunidas, algumas propriedades diferenciam isso de apontar um modelo para cada a
 
 Cada estágio tem sua própria página e seu código:
 
-- [Autorização](/pt-br/authorization) — raciocínio de estado da organização e a memória de perguntar-uma-vez.
-- [Políticas de Triagem](/pt-br/triage-policies) — os guardrails determinísticos sobre a execução.
-- [Playbooks de Resposta](/pt-br/response-playbooks) — transformar um veredito em ação governada.
-- [Revisão humana](/pt-br/human-review) — a fila de revisão e o caminho de decisão do analista.
-- [Pipeline de AI](/pt-br/ai-pipeline) — o grafo agêntico em mais detalhe.
-- [Arquitetura](/pt-br/reference/architecture) — o modelo de implantação e de dados.
+- [Autorização](/pt-br/authorization), raciocínio de estado da organização e a memória de perguntar-uma-vez.
+- [Políticas de Triagem](/pt-br/triage-policies), os guardrails determinísticos sobre a execução.
+- [Playbooks de Resposta](/pt-br/response-playbooks), transformar um veredito em ação governada.
+- [Revisão humana](/pt-br/human-review), a fila de revisão e o caminho de decisão do analista.
+- [Pipeline de AI](/pt-br/ai-pipeline), o grafo agêntico em mais detalhe.
+- [Arquitetura](/pt-br/reference/architecture), o modelo de implantação e de dados.
 
 O código do pipeline vive em [`src/soctalk/core/ir/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/core/ir) (plano de ingestão), [`src/soctalk/graph/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/graph) e [`src/soctalk/supervisor/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/supervisor) (plano de grafo), e [`src/soctalk/response/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/response) (resposta).

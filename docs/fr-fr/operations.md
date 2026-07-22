@@ -1,6 +1,6 @@
 # Opérations quotidiennes
 
-Tâches que les opérateurs MSSP exécutent sur une installation SocTalk active. Si ce n'est pas déjà fait, lisez d'abord la [visite guidée de l'interface MSSP](/fr-fr/mssp-ui) — elle recense toutes les pages référencées ci-dessous.
+Tâches que les opérateurs MSSP exécutent sur une installation SocTalk active. Si ce n'est pas déjà fait, lisez d'abord la [visite guidée de l'interface MSSP](/fr-fr/mssp-ui), elle recense toutes les pages référencées ci-dessous.
 
 ## File d'attente des enquêtes
 
@@ -10,7 +10,7 @@ Ouvrez **Enquêtes** pour voir les cas actifs de chaque tenant sur une seule vue
 
 ## File d'attente d'examen des propositions
 
-**Examens** est la file inter-tenant des propositions de l'AI en attente d'un humain. Chaque action approuver / rejeter / demander plus d'informations met à jour la ligne d'examen dans la base de données (et le journal d'audit). Il n'y a **aucun outbox** en V1 — le pipeline d'exécution / de notification en aval figure dans la feuille de route.
+**Examens** est la file inter-tenant des propositions de l'AI en attente d'un humain. Chaque action approuver / rejeter / demander plus d'informations met à jour la ligne d'examen dans la base de données (et le journal d'audit). Il n'y a **aucun outbox** en V1, le pipeline d'exécution / de notification en aval figure dans la feuille de route.
 
 ![File d'examen](/screenshots/review-queue.png)
 
@@ -66,7 +66,7 @@ Si le plan de données est sain mais que l'adaptateur ne parvient toujours pas �
 
 ## Rotation des secrets de bootstrap du plan de données
 
-Il n'existe aucune commande `soctalk-cli rotate-*` dans cette release — cette voie était documentée dans des brouillons antérieurs. Aujourd'hui :
+Il n'existe aucune commande `soctalk-cli rotate-*` dans cette release, cette voie était documentée dans des brouillons antérieurs. Aujourd'hui :
 
 - **Mot de passe admin Wazuh :** patchez le Secret concerné dans le namespace du tenant, puis redémarrez le pod affecté. La réexécution du bootstrap du chart au démarrage du pod prendra en compte le nouvel identifiant. TheHive et Cortex sont des intégrations externes, pas des sous-charts fournis d'office, de sorte que leurs identifiants sont pivotés dans ces systèmes et mis à jour via la configuration d'intégration (voir /fr-fr/integrate/thehive, /fr-fr/integrate/cortex).
 - **Secret partagé `authd` de Wazuh :** patchez `Secret/wazuh-authd-secret` dans `tenant-<slug>`, redémarrez le manager Wazuh. Tous les agents existants doivent se réenrôler avec le nouveau secret ; distribuez-le via votre canal sécurisé habituel.
@@ -97,7 +97,7 @@ Les sauvegardes sont gérées en externe par le MSSP (Velero, snapshots de clust
    ```bash
    kubectl -n soctalk-system scale deploy soctalk-system-api --replicas=0
    ```
-   (Le chart V1 intègre l'orchestrateur dans le pod de l'API — pas de Deployment `soctalk-system-orchestrator` séparé.)
+   (Le chart V1 intègre l'orchestrateur dans le pod de l'API, pas de Deployment `soctalk-system-orchestrator` séparé.)
 2. Restaurez les données Postgres depuis votre sauvegarde.
 3. Redémarrez l'API : `kubectl -n soctalk-system scale deploy soctalk-system-api --replicas=2` (ou votre nombre de réplicas habituel).
 
@@ -105,7 +105,7 @@ Les PVC du plan de données du tenant suivent le même schéma : restaurez par n
 
 ## Urgence : désactiver immédiatement un tenant
 
-L'action **Suspendre** de l'interface dans cette release fait passer l'état du tenant à `suspended` et empêche l'orchestrateur de planifier de nouvelles enquêtes — **mais elle ne réduit pas l'échelle des charges de travail**. Pour une coupure effective, exécutez les étapes ci-dessous (mise à l'échelle de tous les deployments + application d'une NetworkPolicy deny-all en ceinture et bretelles) :
+L'action **Suspendre** de l'interface dans cette release fait passer l'état du tenant à `suspended` et empêche l'orchestrateur de planifier de nouvelles enquêtes, **mais elle ne réduit pas l'échelle des charges de travail**. Pour une coupure effective, exécutez les étapes ci-dessous (mise à l'échelle de tous les deployments + application d'une NetworkPolicy deny-all en ceinture et bretelles) :
 
 ```bash
 # 1. Mettre à zéro toutes les charges de travail du namespace du tenant. C'est
@@ -125,7 +125,7 @@ spec:
 EOF
 ```
 
-Inversez en supprimant la NetworkPolicy, en remettant les charges de travail à l'échelle de leurs nombres de réplicas d'origine, et en appelant **Reprendre** dans l'interface. **Reprendre** ne met également à jour que l'état en base de données dans cette release — cela ne restaurera pas les nombres de réplicas à votre place.
+Inversez en supprimant la NetworkPolicy, en remettant les charges de travail à l'échelle de leurs nombres de réplicas d'origine, et en appelant **Reprendre** dans l'interface. **Reprendre** ne met également à jour que l'état en base de données dans cette release, cela ne restaurera pas les nombres de réplicas à votre place.
 
 ## Soupçon de fuite de données inter-tenant
 

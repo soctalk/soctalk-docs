@@ -4,8 +4,8 @@ Una coppia di strumenti dimostrativi che generano Alert Wazuh realistici, così 
 
 Entrambi vengono forniti con la distribuzione FOSS. Sorgenti:
 
-- [`attack-simulator/`](https://github.com/soctalk/soctalk/tree/main/attack-simulator) — script e pacchetto di regole
-- [`charts/linux-ep/`](https://github.com/soctalk/soctalk/tree/main/charts/linux-ep) — chart Kubernetes che esegue il simulatore
+- [`attack-simulator/`](https://github.com/soctalk/soctalk/tree/main/attack-simulator), script e pacchetto di regole
+- [`charts/linux-ep/`](https://github.com/soctalk/soctalk/tree/main/charts/linux-ep), chart Kubernetes che esegue il simulatore
 
 ## Chart linux-ep
 
@@ -75,9 +75,9 @@ Ogni script emette una riga syslog contrassegnata `SOCTALK_ATTACK <TTP>: <descri
 
 [`charts/wazuh/templates/manager-local-rules.yaml`](https://github.com/soctalk/soctalk/blob/main/charts/wazuh/templates/manager-local-rules.yaml) fornisce regole personalizzate nell'intervallo 100200-100299:
 
-- **100200** — chain-root: abbina qualsiasi riga syslog `SOCTALK_ATTACK`
-- **100210 – 100225** — regole per TTP: assegnano severità (livello 10–14) e tag per tecnica MITRE
-- **100299** — catch-all per TTP non mappate (severità 8)
+- **100200**: chain-root: abbina qualsiasi riga syslog `SOCTALK_ATTACK`
+- **100210 – 100225**: regole per TTP: assegnano severità (livello 10–14) e tag per tecnica MITRE
+- **100299**: catch-all per TTP non mappate (severità 8)
 
 Gli Alert prodotti trasportano `attack.tactic`, `attack.technique` MITRE e una descrizione leggibile, così il [`wazuh_worker`](/it-it/ai-pipeline) di SocTalk dispone di contesto strutturato su cui ragionare.
 
@@ -105,7 +105,7 @@ Rimuove i pod endpoint. Il pacchetto di regole Wazuh personalizzate resta al suo
 
 ## Cosa non è incluso
 
-- **Simulazione di endpoint Windows** — solo Linux in questa release. In roadmap.
-- **Simulazione di endpoint macOS** — idem.
-- **Campagne di emulazione dell'avversario** — solo TTP singole; non concateniamo le TTP in scenari multi-stadio.
-- **Integrazione con Atomic Red Team** — `attack-simulator` è realizzato a mano; non consuma direttamente lo YAML di Atomic. La compatibilità è in roadmap.
+- **Simulazione di endpoint Windows**: solo Linux in questa release. In roadmap.
+- **Simulazione di endpoint macOS**: idem.
+- **Campagne di emulazione dell'avversario**: solo TTP singole; non concateniamo le TTP in scenari multi-stadio.
+- **Integrazione con Atomic Red Team**: `attack-simulator` è realizzato a mano; non consuma direttamente lo YAML di Atomic. La compatibilità è in roadmap.

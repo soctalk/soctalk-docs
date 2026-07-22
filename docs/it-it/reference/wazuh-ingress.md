@@ -56,7 +56,7 @@ DNS resolves to the LoadBalancer IP for tenant-acme
 
 ### DNS
 
-Record `A`/`AAAA` per-tenant: `<slug>.soc.mssp.example.com → <tenant LB IP>` è il design di riferimento. **In V1, SocTalk NON emette record DNS** — l'operatore gestisce il DNS manualmente (external-dns / console del provider) una volta che l'LB per-tenant è stato provisionato out-of-band. Un percorso di emissione DNS pilotato da SocTalk (annotazioni external-dns o integrazione diretta con il provider) è in roadmap.
+Record `A`/`AAAA` per-tenant: `<slug>.soc.mssp.example.com → <tenant LB IP>` è il design di riferimento. **In V1, SocTalk NON emette record DNS**: l'operatore gestisce il DNS manualmente (external-dns / console del provider) una volta che l'LB per-tenant è stato provisionato out-of-band. Un percorso di emissione DNS pilotato da SocTalk (annotazioni external-dns o integrazione diretta con il provider) è in roadmap.
 
 Il DNS wildcard non funziona con il pattern LoadBalancer perché ogni tenant ha il proprio IP. Funziona solo con la topologia di fallback (porta per-tenant), in cui ogni nome risolve nello stesso IP di edge.
 
@@ -80,7 +80,7 @@ L'MSSP esegue una tra le seguenti opzioni:
 | Bare-metal o on-prem | MetalLB (modalità L2 o BGP) con un pool di indirizzi, oppure kube-vip. |
 | Edge a IP singolo con mappatura di porta | Esegui un proxy L4 esterno (HAProxy, Envoy, nginx-stream) che inoltra le coppie `(IP, port)` al `Service` del tenant. Usalo solo con la topologia per-porta di fallback. |
 
-Il design di riferimento prevede che il `Service` del chart `soctalk-tenant` sia annotato in modo che i controller cloud e MetalLB possano applicare la selezione di pool/classe di IP (ad es. `metallb.universe.tf/address-pool: wazuh-agents`), e che il controller SocTalk registri l'IP LB risultante e scriva il record DNS per-tenant. **In V1 nessuno di questi è integrato** — il Service del Wazuh manager è solo `ClusterIP` e il controller non effettua polling per l'assegnazione dell'IP LB.
+Il design di riferimento prevede che il `Service` del chart `soctalk-tenant` sia annotato in modo che i controller cloud e MetalLB possano applicare la selezione di pool/classe di IP (ad es. `metallb.universe.tf/address-pool: wazuh-agents`), e che il controller SocTalk registri l'IP LB risultante e scriva il record DNS per-tenant. **In V1 nessuno di questi è integrato**: il Service del Wazuh manager è solo `ClusterIP` e il controller non effettua polling per l'assegnazione dell'IP LB.
 
 Se devi usare un singolo IP di edge (fallback), una mappatura HAProxy di riferimento ha questo aspetto:
 
@@ -110,7 +110,7 @@ backend tenant-beta-events
     server wazuh wazuh-manager.tenant-beta.svc.cluster.local:1514
 ```
 
-Non diramare su `req.ssl_sni` per Wazuh 1514. Il protocollo agente di Wazuh non è TLS standard e non produce mai un ClientHello su quella porta. L'SNI è disponibile solo su 1515 (enrollment), il che è insufficiente — gli eventi avrebbero comunque bisogno di un discriminatore funzionante.
+Non diramare su `req.ssl_sni` per Wazuh 1514. Il protocollo agente di Wazuh non è TLS standard e non produce mai un ClientHello su quella porta. L'SNI è disponibile solo su 1515 (enrollment), il che è insufficiente, gli eventi avrebbero comunque bisogno di un discriminatore funzionante.
 
 ## Flusso di enrollment dell'agente
 
@@ -131,7 +131,7 @@ La registrazione `authd` di Wazuh su 1515/TCP richiede un segreto condiviso. Ogn
 4. L'agente si registra con il manager del tenant e riceve il proprio certificato per-agente.
 5. Le connessioni successive su 1514 sono mTLS per-agente.
 
-L'instradamento su 1515 usa lo stesso indirizzo per-tenant di 1514 (IP LB o porta di edge). Il segreto condiviso `authd` è limitato al tenant: un agente che usa il segreto di `acme` può registrarsi solo con il manager di `acme` — è l'indirizzamento a imporlo, e il segreto è verificato dal manager.
+L'instradamento su 1515 usa lo stesso indirizzo per-tenant di 1514 (IP LB o porta di edge). Il segreto condiviso `authd` è limitato al tenant: un agente che usa il segreto di `acme` può registrarsi solo con il manager di `acme`: è l'indirizzamento a imporlo, e il segreto è verificato dal manager.
 
 ## Requisiti di firewall / rete
 
@@ -225,6 +225,6 @@ Validazione pre-release:
 
 Validazione pilota (release successiva):
 - Un endpoint reale di cliente sull'internet pubblica effettua l'enrollment senza problemi.
-- Sonda cross-tenant: effettua l'enrollment di un agente `acme` con il segreto `authd` di `beta` contro l'indirizzo di `beta` — attendi il rifiuto. Viceversa. Entrambi falliscono.
+- Sonda cross-tenant: effettua l'enrollment di un agente `acme` con il segreto `authd` di `beta` contro l'indirizzo di `beta`: attendi il rifiuto. Viceversa. Entrambi falliscono.
 
 In nessuno di questi controlli è presente uno step SNI: il protocollo agente di Wazuh su 1514 non produce un ClientHello, quindi qualsiasi test che "sovrascrive l'SNI" sta esercitando un percorso di instradamento che l'ingress di produzione non prenderà. Valida invece il discriminatore di indirizzo/porta.

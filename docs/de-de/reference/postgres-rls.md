@@ -2,7 +2,7 @@
 
 Das Drei-Rollen-Modell von Postgres, RLS-Policy-Vorlagen, die Disziplin `FORCE ROW LEVEL SECURITY` und die Isolationstests, die SocTalk in CI ausführt.
 
-> **Hinweis zum V1-Deployment.** Der folgende Text bezieht sich auf „API-Pods“ und „Orchestrator-Pods“ als separate Workloads — das Rollenmodell und die Zugriffsregeln bleiben korrekt. Im V1-Chart sind sie **in einem einzigen `soctalk-system-api`-Deployment zusammengelegt**, sodass in diesem Release jede Erwähnung eines „Orchestrator-Pods“ auf diese eine Pod-Gruppe abbildet.
+> **Hinweis zum V1-Deployment.** Der folgende Text bezieht sich auf „API-Pods“ und „Orchestrator-Pods“ als separate Workloads, das Rollenmodell und die Zugriffsregeln bleiben korrekt. Im V1-Chart sind sie **in einem einzigen `soctalk-system-api`-Deployment zusammengelegt**, sodass in diesem Release jede Erwähnung eines „Orchestrator-Pods“ auf diese eine Pod-Gruppe abbildet.
 
 ## Rollen
 
@@ -11,7 +11,7 @@ Drei Postgres-Rollen. Keine Anwendung verbindet sich jemals als Superuser `postg
 | Rolle | Zweck | Verwendet von | DDL? | BYPASSRLS? |
 |---|---|---|---|---|
 | `soctalk_admin` | Tabelleneigentümer; ausschließlich von Alembic zur Migrationszeit verwendet | Alembic (ausgeführt über einen dedizierten Kubernetes-Job beim Deploy) | Ja | Nein |
-| `soctalk_app` | Laufzeit-Anwendungsrolle | SocTalk API-Pods, Orchestrator-Pods, Worker-Jobs — der gesamte „normale“ Verkehr | Nein | Nein |
+| `soctalk_app` | Laufzeit-Anwendungsrolle | SocTalk API-Pods, Orchestrator-Pods, Worker-Jobs, der gesamte „normale“ Verkehr | Nein | Nein |
 | `soctalk_mssp` | Mandantenübergreifende, erhöhte Rolle | `System`-Principal ausschließlich über `system_context()` | Nein | **Ja** |
 
 Begründung für drei statt zwei Rollen: `soctalk_admin` kann weder zur App-Laufzeit ausgeführt werden (zu viele Privilegien) noch unbeabsichtigt RLS umgehen. `soctalk_app` unterliegt RLS, sodass Anwendungsfehler nicht mandantenübergreifend leaken können. `soctalk_mssp` ist absichtlich mandantenübergreifend, aber ausschließlich auf auditierte Codepfade beschränkt.
@@ -59,9 +59,9 @@ Append-only-Tabellen tauchen in solchen Grants niemals auf. Die Tests in §9 ste
 
 In K8s-Secrets unter `soctalk-system` gespeicherte Anmeldedaten:
 
-- `soctalk-postgres-admin-creds` — ausschließlich in den Alembic-Job eingehängt
-- `soctalk-postgres-app-creds` — in SocTalk API- + Orchestrator-Pods eingehängt
-- `soctalk-postgres-mssp-creds` — ausschließlich in den SocTalk API-Pod eingehängt (gelesen von der `system_context()`-Factory)
+- `soctalk-postgres-admin-creds`: ausschließlich in den Alembic-Job eingehängt
+- `soctalk-postgres-app-creds`: in SocTalk API- + Orchestrator-Pods eingehängt
+- `soctalk-postgres-mssp-creds`: ausschließlich in den SocTalk API-Pod eingehängt (gelesen von der `system_context()`-Factory)
 
 ## Warum `FORCE ROW LEVEL SECURITY`
 
@@ -149,7 +149,7 @@ CREATE POLICY users_tenant_scoped ON users
   );
 ```
 
-Der Zugriff auf MSSP-seitige Benutzer (CRUD auf Zeilen mit `tenant_id IS NULL`) ist ausschließlich unter der Rolle `soctalk_mssp` erreichbar, die `BYPASSRLS` besitzt und ausschließlich über den `System`-Kontextmanager in MSSP-API-Handlern betreten wird. Eine mandantengebundene `soctalk_app`-Sitzung — selbst eine, die eine lose gefilterte users-Query ausführt — kann MSSP-Benutzerzeilen unter dieser Policy weder sehen noch verändern.
+Der Zugriff auf MSSP-seitige Benutzer (CRUD auf Zeilen mit `tenant_id IS NULL`) ist ausschließlich unter der Rolle `soctalk_mssp` erreichbar, die `BYPASSRLS` besitzt und ausschließlich über den `System`-Kontextmanager in MSSP-API-Handlern betreten wird. Eine mandantengebundene `soctalk_app`-Sitzung, selbst eine, die eine lose gefilterte users-Query ausführt, kann MSSP-Benutzerzeilen unter dieser Policy weder sehen noch verändern.
 
 Warum das wichtig ist: Ein früherer Entwurf der Policy ließ `tenant_id IS NULL` in `USING`/`WITH CHECK` zu, „damit MSSP-Joins funktionieren“. Das war unsicher; `soctalk_mssp` benötigt kein RLS, um MSSP-Zeilen zu sehen (es umgeht RLS), und dasselbe Fenster auch `soctalk_app` zu gewähren, öffnet einen Pfad, über den Mandanten-Endpunkte MSSP-Benutzerdaten via einer unzureichend gefilterten Query leaken könnten.
 
@@ -178,7 +178,7 @@ Grund: Ohne dies würde eine Kollision externer Alert-IDs zwischen zwei Mandante
 
 ## Isolationstests
 
-### Test 1 — Sondierung des Anwendungs-Endpunkts
+### Test 1, Sondierung des Anwendungs-Endpunkts
 
 Für jeden Endpunkt in `/api/tenant/*` und `/api/mssp/*`:
 
@@ -192,7 +192,7 @@ async def test_no_cross_tenant_access(client, seed_two_tenants):
     assert not any(item["tenant_id"] == str(tenant_b.id) for item in data["items"])
 ```
 
-### Test 2 — Rohes SQL unter `soctalk_app`
+### Test 2, Rohes SQL unter `soctalk_app`
 
 ```python
 async def test_raw_sql_respects_rls():
@@ -210,7 +210,7 @@ async def test_raw_sql_respects_rls():
         assert result.scalar() == 0
 ```
 
-### Test 3 — Standard-Worker-Kontext
+### Test 3, Standard-Worker-Kontext
 
 ```python
 async def test_worker_without_context_sees_nothing():
@@ -222,7 +222,7 @@ async def test_worker_without_context_sees_nothing():
         await hostile_worker({})
 ```
 
-### Test 4 — FORCE RLS erfasst den Eigentümer
+### Test 4, FORCE RLS erfasst den Eigentümer
 
 ```python
 async def test_admin_role_is_rls_subject():
@@ -231,7 +231,7 @@ async def test_admin_role_is_rls_subject():
         assert result.scalar() == 0  # admin is NOT bypassing
 ```
 
-### Test 5 — MSSP-Rolle kann absichtlich umgehen
+### Test 5, MSSP-Rolle kann absichtlich umgehen
 
 ```python
 async def test_mssp_role_bypasses_for_rollup():
@@ -240,7 +240,7 @@ async def test_mssp_role_bypasses_for_rollup():
         assert result.scalar() == total_events_across_tenants
 ```
 
-### Test 6 — Isolation des SSE-Streams
+### Test 6, Isolation des SSE-Streams
 
 ```python
 async def test_sse_no_cross_tenant_delivery(ws_client):
@@ -251,7 +251,7 @@ async def test_sse_no_cross_tenant_delivery(ws_client):
         await asyncio.wait_for(sub_a.receive(), timeout=2.0)
 ```
 
-### Test 7 — Isolation der Idempotenz
+### Test 7, Isolation der Idempotenz
 
 ```python
 async def test_idempotency_key_per_tenant():

@@ -57,24 +57,24 @@ Operações cross-tenant (rollups do MSSP, migrações, ferramental de admin) us
 
 Todos têm FK `tenant_id` e são sujeitos a RLS:
 
-- `Event` — event store, append-only
-- `InvestigationReadModel` — estado projetado da investigação
-- `MetricsHourly`, `IOCStats`, `RuleStats`, `AnalyzerStats` — projeções por tenant
-- `PendingReview` — fila HIL
-- `IntegrationConfig` — URLs de integração, endpoints e thresholds por tenant
-- `BrandingConfig` — nome do app, logo e cores por tenant
-- `TenantSecret` — referências (ns + name + version) a Secrets do K8s; sem material bruto
-- `TenantLifecycleEvent` — log append-only de transições de estado do tenant, revisões de configuração
-- `AuditLog` — log append-only de ações de mutação, com `mssp_user_id` quando executadas via impersonation
+- `Event`: event store, append-only
+- `InvestigationReadModel`: estado projetado da investigação
+- `MetricsHourly`, `IOCStats`, `RuleStats`, `AnalyzerStats`: projeções por tenant
+- `PendingReview`: fila HIL
+- `IntegrationConfig`: URLs de integração, endpoints e thresholds por tenant
+- `BrandingConfig`: nome do app, logo e cores por tenant
+- `TenantSecret`: referências (ns + name + version) a Secrets do K8s; sem material bruto
+- `TenantLifecycleEvent`: log append-only de transições de estado do tenant, revisões de configuração
+- `AuditLog`: log append-only de ações de mutação, com `mssp_user_id` quando executadas via impersonation
 
 ### Recursos de banco de dados (com escopo de instalação)
 
 Sem `tenant_id`; com escopo de Organization ou global:
 
-- `Organization` — abrangente à instalação (mssp_id, mssp_name, install_id, install_label, license_jwt reservado)
-- `User` — tanto usuários do lado MSSP (tenant_id anulável) quanto usuários de cliente (tenant_id obrigatório)
+- `Organization`: abrangente à instalação (mssp_id, mssp_name, install_id, install_label, license_jwt reservado)
+- `User`: tanto usuários do lado MSSP (tenant_id anulável) quanto usuários de cliente (tenant_id obrigatório)
 - Semântica de usuário MSSP / usuário Tenant derivada de role + presença de tenant_id; tabela única
-- `Release` — metadados de versão do SocTalk (abrangente à instalação)
+- `Release`: metadados de versão do SocTalk (abrangente à instalação)
 - Configurações de instalação (feature flags, toggles de todo o sistema)
 
 ### Recursos do Kubernetes
@@ -136,7 +136,7 @@ Escopo rígido. Contexto de tenant vindo do JWT; sem entrada de impersonation. T
 
 Exemplos: `GET /api/tenant/overview`, `GET /api/tenant/incidents`, `GET /api/tenant/reports`, `GET /api/tenant/audit`, `GET /api/tenant/branding`.
 
-### `/api/internal/*` — serviço-a-serviço (Worker JWT ou Adapter JWT)
+### `/api/internal/*`: serviço-a-serviço (Worker JWT ou Adapter JWT)
 
 Não voltado ao usuário. Service JWTs de curta duração com contexto de tenant explícito. Exemplos: `POST /api/internal/adapter/health`, `POST /api/internal/adapter/bootstrap`, `GET /api/internal/adapter/config`.
 

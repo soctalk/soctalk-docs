@@ -1,8 +1,8 @@
 # Ejecutar la VM de demostración en Proxmox VE
 
-Importa la imagen publicada `soctalk-demo-<ver>.qcow2` en Proxmox VE y arráncala. qcow2 es el formato de disco nativo de Proxmox, así que esta es una importación de un solo comando — sin paso de conversión.
+Importa la imagen publicada `soctalk-demo-<ver>.qcow2` en Proxmox VE y arráncala. qcow2 es el formato de disco nativo de Proxmox, así que esta es una importación de un solo comando, sin paso de conversión.
 
-Esta ruta es para **evaluadores y demostraciones** — para una instalación en producción sobre tu propio clúster consulta [Instalación](/es-419/install). Validado en Proxmox VE 8.4.
+Esta ruta es para **evaluadores y demostraciones**: para una instalación en producción sobre tu propio clúster consulta [Instalación](/es-419/install). Validado en Proxmox VE 8.4.
 
 ## Requisitos previos
 
@@ -24,7 +24,7 @@ xz -d soctalk-demo-$VER.qcow2.xz
 
 ## 2. Construye el ISO semilla de cloud-init
 
-Un ISO semilla NoCloud crea un usuario `ops` con tu clave SSH. Sin él aún puedes iniciar sesión como el usuario de tiempo de compilación `ubuntu:packer` (consulta [Acceso SSH](/es-419/quickstart-vm#ssh-access-credentials)), pero esa credencial está en el árbol de código público — proporciona la semilla antes de exponer la VM a una red en la que no confíes. En el nodo, o en cualquier equipo Linux:
+Un ISO semilla NoCloud crea un usuario `ops` con tu clave SSH. Sin él aún puedes iniciar sesión como el usuario de tiempo de compilación `ubuntu:packer` (consulta [Acceso SSH](/es-419/quickstart-vm#ssh-access-credentials)), pero esa credencial está en el árbol de código público, proporciona la semilla antes de exponer la VM a una red en la que no confíes. En el nodo, o en cualquier equipo Linux:
 
 ```bash
 cat > user-data <<'EOF'
@@ -48,40 +48,40 @@ mv soctalk-seed.iso /var/lib/vz/template/iso/
 Si construiste el ISO en otro lugar, súbelo en la interfaz en su lugar: selecciona el almacenamiento `local` → **ISO Images** → **Upload**.
 
 ::: tip
-Puedes omitir el asistente por completo añadiendo `/etc/soctalk/values.yaml` + `/etc/soctalk/llm.key` a la semilla mediante `write_files` — consulta [Opcional: semilla de cloud-init](/es-419/quickstart-vm#optional-cloud-init-seed).
+Puedes omitir el asistente por completo añadiendo `/etc/soctalk/values.yaml` + `/etc/soctalk/llm.key` a la semilla mediante `write_files`: consulta [Opcional: semilla de cloud-init](/es-419/quickstart-vm#optional-cloud-init-seed).
 :::
 
 ## 3. Crea la VM en la interfaz web
 
 Haz clic en **Create VM** (arriba a la derecha) y recorre el asistente:
 
-**General** — elige un ID y nombre para la VM:
+**General**: elige un ID y nombre para la VM:
 
-![Create VM — General](/screenshots/proxmox-create-general.png)
+![Create VM, General](/screenshots/proxmox-create-general.png)
 
-**OS** — selecciona **Do not use any media** (el sistema operativo ya está en el disco importado):
+**OS**: selecciona **Do not use any media** (el sistema operativo ya está en el disco importado):
 
-![Create VM — OS](/screenshots/proxmox-create-os.png)
+![Create VM, OS](/screenshots/proxmox-create-os.png)
 
-**System** — mantén los valores por defecto (SeaBIOS, i440fx — la imagen arranca vía firmware BIOS).
+**System**: mantén los valores por defecto (SeaBIOS, i440fx, la imagen arranca vía firmware BIOS).
 
-**Disks** — elimina el disco por defecto con el ícono de papelera junto a `scsi0`; el qcow2 importado lo reemplaza:
+**Disks**: elimina el disco por defecto con el ícono de papelera junto a `scsi0`; el qcow2 importado lo reemplaza:
 
-![Create VM — Disks](/screenshots/proxmox-create-disks.png)
+![Create VM, Disks](/screenshots/proxmox-create-disks.png)
 
-**CPU** — 4 núcleos, y establece **Type** en `host`:
+**CPU**: 4 núcleos, y establece **Type** en `host`:
 
-![Create VM — CPU](/screenshots/proxmox-create-cpu.png)
+![Create VM, CPU](/screenshots/proxmox-create-cpu.png)
 
-**Memory** — 8192 MiB:
+**Memory**: 8192 MiB:
 
-![Create VM — Memory](/screenshots/proxmox-create-memory.png)
+![Create VM, Memory](/screenshots/proxmox-create-memory.png)
 
-**Network** — tu puente LAN (típicamente `vmbr0`), modelo VirtIO:
+**Network**: tu puente LAN (típicamente `vmbr0`), modelo VirtIO:
 
-![Create VM — Network](/screenshots/proxmox-create-network.png)
+![Create VM, Network](/screenshots/proxmox-create-network.png)
 
-**Confirm** — Finaliza. Aún no inicies la VM.
+**Confirm**: Finaliza. Aún no inicies la VM.
 
 ## 4. Importa el disco
 
@@ -91,13 +91,13 @@ El único paso por CLI. En el nodo (ajusta el ID de la VM y el almacenamiento de
 qm disk import 100 soctalk-demo-<ver>.qcow2 local --format qcow2
 ```
 
-En almacenamiento LVM-thin (`local-lvm`) omite la opción `--format` — los almacenamientos de bloques guardan en raw. La importación aparece en la VM como **Unused Disk 0**.
+En almacenamiento LVM-thin (`local-lvm`) omite la opción `--format`: los almacenamientos de bloques guardan en raw. La importación aparece en la VM como **Unused Disk 0**.
 
 ## 5. Adjunta el disco, el ISO semilla y el orden de arranque
 
 De vuelta en la interfaz, abre el panel **Hardware** de la VM:
 
-![Hardware — unused disk](/screenshots/proxmox-hardware-unused.png)
+![Hardware, unused disk](/screenshots/proxmox-hardware-unused.png)
 
 - Haz doble clic en **Unused Disk 0** → deja Bus/Device en `SCSI 0` → **Add**:
 
@@ -111,7 +111,7 @@ De vuelta en la interfaz, abre el panel **Hardware** de la VM:
 
 El panel Hardware debería verse ahora así:
 
-![Hardware — final](/screenshots/proxmox-hardware-final.png)
+![Hardware, final](/screenshots/proxmox-hardware-final.png)
 
 ## 6. Inicia y encuentra la IP de la VM
 
@@ -121,9 +121,9 @@ Haz clic en **Start**. El panel Summary muestra la VM en ejecución:
 
 La **Console** muestra el appliance arrancando hasta un prompt de inicio de sesión:
 
-![Console — booted](/screenshots/proxmox-vm-console.png)
+![Console, booted](/screenshots/proxmox-vm-console.png)
 
-La VM toma una concesión DHCP de tu puente LAN. Encuentra su IP desde la consola (`login: ops` funciona solo con clave SSH — usa la salida de la consola o tu servidor/router DHCP), o desde el nodo:
+La VM toma una concesión DHCP de tu puente LAN. Encuentra su IP desde la consola (`login: ops` funciona solo con clave SSH, usa la salida de la consola o tu servidor/router DHCP), o desde el nodo:
 
 ```bash
 # the MAC is on the VM's Network Device (net0)
@@ -139,7 +139,7 @@ El mismo flujo que en cada plataforma a partir de aquí:
 ssh ops@<vm-ip> sudo cat /var/log/soctalk-setup-token
 ```
 
-Navega a `https://<vm-ip>:8443/`, acepta el certificado autofirmado, pega el token y completa el asistente ([referencia de campos](/es-419/setup-wizard)). Tras enviarlo, el instalador de primer arranque ejecuta `helm install` e incorpora el tenant `demo` — unos 2 minutos para los pods de `soctalk-system`, y luego unos minutos más para el stack de Wazuh del tenant de demostración.
+Navega a `https://<vm-ip>:8443/`, acepta el certificado autofirmado, pega el token y completa el asistente ([referencia de campos](/es-419/setup-wizard)). Tras enviarlo, el instalador de primer arranque ejecuta `helm install` e incorpora el tenant `demo`: unos 2 minutos para los pods de `soctalk-system`, y luego unos minutos más para el stack de Wazuh del tenant de demostración.
 
 Luego navega a `https://<vm-ip>/` (puerto 443, no 8443), inicia sesión con las credenciales de administrador del asistente y continúa con el [Recorrido por la interfaz MSSP](/es-419/mssp-ui). Si dejaste el nombre de host en blanco en el asistente, mapea `soctalk.local` a la IP de la VM en `/etc/hosts` y usa `https://soctalk.local/`.
 
@@ -148,8 +148,8 @@ Luego navega a `https://<vm-ip>/` (puerto 443, no 8443), inicia sesión con las 
 | Síntoma | Verificación |
 |---|---|
 | `qm disk import` falla con un error de almacenamiento | El almacenamiento de destino debe permitir contenido de **Disk image**: Datacenter → Storage → edit → Content |
-| La VM arranca en "No bootable device" | El orden de arranque aún apunta al disco por defecto eliminado — Options → Boot Order → `scsi0` primero |
+| La VM arranca en "No bootable device" | El orden de arranque aún apunta al disco por defecto eliminado, Options → Boot Order → `scsi0` primero |
 | El asistente aparece pero no hay SSH | El ISO semilla no está adjunto (Hardware → ide2) o la clave en `user-data` es incorrecta; puedes leer el token desde la Console en su lugar: `sudo cat /var/log/soctalk-setup-token` |
 | La VM no tiene IP | `ip a` desde la Console; verifica que el puente en Hardware → net0 coincida con un puente con DHCP en tu LAN |
 | La VM tiene IP pero no internet (configuraciones con puente NAT) | PVE establece `bridge-nf-call-iptables=1`, lo que puede hacer que el tráfico puenteado eluda una regla `MASQUERADE` acotada a la interfaz de enlace ascendente. `sysctl -w net.bridge.bridge-nf-call-iptables=0` (si no usas el firewall de PVE) o usa una regla independiente de la interfaz: `iptables -t nat -A POSTROUTING -s <subnet> ! -d <subnet> -j MASQUERADE`, luego vacía conntrack |
-| Cualquier cosa más allá del asistente | Igual que en cada plataforma — consulta la [tabla de solución de problemas del Quickstart](/es-419/quickstart-vm#troubleshooting) |
+| Cualquier cosa más allá del asistente | Igual que en cada plataforma, consulta la [tabla de solución de problemas del Quickstart](/es-419/quickstart-vm#troubleshooting) |

@@ -4,7 +4,7 @@ Wie ein MSSP-Analyst KI-vorgeschlagene Aktionen bearbeitet, die auf ein menschli
 
 Im Code existieren zwei Backends: die **Dashboard-Warteschlange** (immer aktiv) und **Slack Zwei-Wege** (opt-in). Das Dashboard-Backend ist in dieser Version das einzige, das in die Laufzeit des V1-Charts eingebunden ist; das Slack-Zwei-Wege-Backend existiert im Code, wird aber vom V1-Installationspfad noch nicht aktiviert.
 
-Zur Modellseite — wenn die KI an die menschliche Prüfung übergibt — siehe [KI-Pipeline → Gate für menschliche Prüfung](/de-de/ai-pipeline#human-review-gate).
+Zur Modellseite, wenn die KI an die menschliche Prüfung übergibt, siehe [KI-Pipeline → Gate für menschliche Prüfung](/de-de/ai-pipeline#human-review-gate).
 
 ## Entscheidungszustände
 
@@ -12,8 +12,8 @@ Jede Prüfung folgt unabhängig vom Backend demselben Drei-Entscheidungs-Vertrag
 
 | Entscheidung | Wirkung in dieser Version |
 |---|---|
-| `approve` | Die ausstehende Zeile der Prüfung wird als abgeschlossen markiert und der `feedback`-Text an den Audit-Trail angehängt. Der Fall wird durch approve **nicht** automatisch wieder aufgenommen oder geschlossen — das ist heute analystenseitige Nachverfolgung. |
-| `reject` | Der Fall wird als Falsch-Positiv geschlossen (`auto_closed_fp`). Terminal — der Graph wird nicht erneut mit dem `feedback` des Menschen aufgerufen. |
+| `approve` | Die ausstehende Zeile der Prüfung wird als abgeschlossen markiert und der `feedback`-Text an den Audit-Trail angehängt. Der Fall wird durch approve **nicht** automatisch wieder aufgenommen oder geschlossen, das ist heute analystenseitige Nachverfolgung. |
+| `reject` | Der Fall wird als Falsch-Positiv geschlossen (`auto_closed_fp`). Terminal, der Graph wird nicht erneut mit dem `feedback` des Menschen aufgerufen. |
 | `more_info` | Die Prüfungszeile wird mit der Fragenliste auf `info_requested` aktualisiert. Der Graph wird **nicht** automatisch erneut aufgerufen; der Analyst nimmt den Fall manuell wieder auf. |
 
 Entscheidungen schreiben reine Anhänge-Audit-Zeilen, die mit der Identität des Menschen, dem Zeitstempel und einer freitextlichen Begründung versehen sind. Nach dem Absenden sind sie nie mehr editierbar.
@@ -34,11 +34,11 @@ Ein Klick auf **Review** öffnet das Untersuchungsdetail, gescrollt zum Vorschla
 - Drei Schaltflächen: **Approve**, **Reject**, **Needs more info**
 - Ein Textfeld für die Begründung (erforderlich bei Reject / Needs more info)
 
-Beim Absenden wird die ausstehende Prüfungszeile in der Datenbank aktualisiert (`approve` / `reject` / `more_info` plus das `feedback` oder `questions` des Operators). **In V1 gibt es keinen Vorschlags-Outbox** — frühere Entwürfe beschrieben einen per Idempotenzschlüssel indizierten Outbox, der von nachgelagerten Executors (TheHive-Fallerstellung, Slack-Benachrichtigung) konsumiert wird, doch diese Pipeline ist in dieser Version nicht implementiert. Prüferentscheidungen enden bei der Prüfungszeile + dem Audit-Log; jede nachgelagerte Wirkung (z. B. TheHive-Fallerstellung) erfolgt nur, wenn der KI-Worker sie während des Graph-Laufs inline erstellt hat.
+Beim Absenden wird die ausstehende Prüfungszeile in der Datenbank aktualisiert (`approve` / `reject` / `more_info` plus das `feedback` oder `questions` des Operators). **In V1 gibt es keinen Vorschlags-Outbox**: frühere Entwürfe beschrieben einen per Idempotenzschlüssel indizierten Outbox, der von nachgelagerten Executors (TheHive-Fallerstellung, Slack-Benachrichtigung) konsumiert wird, doch diese Pipeline ist in dieser Version nicht implementiert. Prüferentscheidungen enden bei der Prüfungszeile + dem Audit-Log; jede nachgelagerte Wirkung (z. B. TheHive-Fallerstellung) erfolgt nur, wenn der KI-Worker sie während des Graph-Laufs inline erstellt hat.
 
 ## Slack-Zwei-Wege-Backend
 
-Slacks Socket Mode wird verwendet, damit SocTalk keinen öffentlichen Webhook-Endpunkt benötigt — die SocTalk-Installation initiiert einen ausgehenden WebSocket zu Slack.
+Slacks Socket Mode wird verwendet, damit SocTalk keinen öffentlichen Webhook-Endpunkt benötigt, die SocTalk-Installation initiiert einen ausgehenden WebSocket zu Slack.
 
 ### Voraussetzungen
 
@@ -58,7 +58,7 @@ In der MSSP-UI → Settings → Slack:
 - **Notify on escalation** → an (sendet jedes Escalate-Verdikt)
 - **Notify on verdict** → optional (sendet auch Close-Verdikte; hohes Volumen)
 
-Die gesamte Slack-Konfiguration (Tokens, Channel, Benachrichtigungs-Toggles) ist in V1 nur über die Umgebung möglich — die veraltete Route `PUT /api/settings` wird vom V1-Chart nicht eingebunden. Siehe [Slack — Konfigurieren](/de-de/integrate/slack#configure) für das Muster zur Einschleusung von Umgebungsvariablen.
+Die gesamte Slack-Konfiguration (Tokens, Channel, Benachrichtigungs-Toggles) ist in V1 nur über die Umgebung möglich, die veraltete Route `PUT /api/settings` wird vom V1-Chart nicht eingebunden. Siehe [Slack, Konfigurieren](/de-de/integrate/slack#configure) für das Muster zur Einschleusung von Umgebungsvariablen.
 
 ### Operator-Erfahrung
 
@@ -71,7 +71,7 @@ Observables: 198.51.100.7 (Cortex: malicious, 8/12), sshd, alice@linux-ep-1
 [Approve]  [Reject]  [Needs more info]  [View in UI →]
 ```
 
-Die Schaltflächen senden über Socket Mode zurück; die SocTalk-Installation zeichnet die Entscheidung anhand des Idempotenzschlüssels des Vorschlags auf. Derselbe Vorschlag in der Dashboard-Warteschlange wird in Echtzeit aktualisiert — eine Genehmigung in Slack schließt die Dashboard-Karte.
+Die Schaltflächen senden über Socket Mode zurück; die SocTalk-Installation zeichnet die Entscheidung anhand des Idempotenzschlüssels des Vorschlags auf. Derselbe Vorschlag in der Dashboard-Warteschlange wird in Echtzeit aktualisiert, eine Genehmigung in Slack schließt die Dashboard-Karte.
 
 Klickt der Analyst auf **Reject** oder **Needs more info**, öffnet sich ein Slack-Dialog für die Begründung (erforderlich).
 
@@ -87,11 +87,11 @@ Dieselben Slack-Anmeldeinformationen würden in einer künftigen Version Ein-Weg
 
 ## Ergebnisabrechnung
 
-Prüfungsentscheidungen schreiben eine Audit-Zeile. Die Metrik `soctalk_tenant_pending_reviews` ist im Observability-Code **definiert**, wird in V1 aber **nicht aktiv aktualisiert** — sie bleibt bei 0. Die Erfassung der tatsächlichen Tiefe der Prüfungs-Warteschlange steht auf der Roadmap. Ein geplanter Zähler `human_review_decisions_total` (pro Analyst) ist ebenfalls noch nicht instrumentiert.
+Prüfungsentscheidungen schreiben eine Audit-Zeile. Die Metrik `soctalk_tenant_pending_reviews` ist im Observability-Code **definiert**, wird in V1 aber **nicht aktiv aktualisiert**: sie bleibt bei 0. Die Erfassung der tatsächlichen Tiefe der Prüfungs-Warteschlange steht auf der Roadmap. Ein geplanter Zähler `human_review_decisions_total` (pro Analyst) ist ebenfalls noch nicht instrumentiert.
 
 ## Umgehung: KI-only-Modus
 
-Ein Modus ohne menschliches Gate im Sinne von „jedes Escalate automatisch genehmigen“ ist in dieser Version **nicht** implementiert. Der Verdikt-Knoten leitet `escalate` immer durch `human_review`. Das Entfernen des menschlichen Gates steht auf der Roadmap als expliziter Toggle, der ausschließlich auf `platform_admin` beschränkt ist und dessen Begründung auditiert wird — nicht als stiller Standard.
+Ein Modus ohne menschliches Gate im Sinne von „jedes Escalate automatisch genehmigen“ ist in dieser Version **nicht** implementiert. Der Verdikt-Knoten leitet `escalate` immer durch `human_review`. Das Entfernen des menschlichen Gates steht auf der Roadmap als expliziter Toggle, der ausschließlich auf `platform_admin` beschränkt ist und dessen Begründung auditiert wird, nicht als stiller Standard.
 
 ## Quellverweise
 

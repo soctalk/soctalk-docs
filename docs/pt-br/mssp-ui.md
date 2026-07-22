@@ -6,8 +6,8 @@ O que um operador de MSSP vê após o login. Leia isto uma vez antes de [Operaç
 
 Todo usuário do MSSP tem dois escopos de operação:
 
-- **Todos os tenants** — filas cross-tenant e visões agregadas. Este é o padrão para `mssp_admin`. O canto superior direito exibe um chip **Todos os tenants**.
-- **Tenant único** — o admin do MSSP abriu o SOC de um cliente (o chip mostra `Tenant: <name>`). Todas as visões ficam restritas a esse tenant; o botão **Clear** ao lado do chip volta para o escopo de MSSP inteiro.
+- **Todos os tenants**: filas cross-tenant e visões agregadas. Este é o padrão para `mssp_admin`. O canto superior direito exibe um chip **Todos os tenants**.
+- **Tenant único**: o admin do MSSP abriu o SOC de um cliente (o chip mostra `Tenant: <name>`). Todas as visões ficam restritas a esse tenant; o botão **Clear** ao lado do chip volta para o escopo de MSSP inteiro.
 
 O escopo também comanda a barra de navegação. No escopo de MSSP inteiro você vê Tenants na barra; no escopo de tenant ela fica oculta, porque as telas de detalhe do tenant tomam o seu lugar.
 
@@ -40,9 +40,9 @@ Blocos de KPI na linha superior (Open Investigations, Pending Reviews, Avg Time 
 
 Abaixo dos blocos:
 
-- **Investigation Throughput (24h)** — gráfico de barras+linha de criadas / fechadas manualmente / fechadas automaticamente / escaladas / backlog.
-- **Verdicts Today** — contagem corrente dos vereditos de AI do dia.
-- **Active Investigations** — lista curta de casos em andamento com link direto para cada um.
+- **Investigation Throughput (24h)**: gráfico de barras+linha de criadas / fechadas manualmente / fechadas automaticamente / escaladas / backlog.
+- **Verdicts Today**: contagem corrente dos vereditos de AI do dia.
+- **Active Investigations**: lista curta de casos em andamento com link direto para cada um.
 
 O gráfico é o widget mais observado para planejamento de capacidade; se o backlog (linha vermelha) tende a subir enquanto o throughput permanece estável, o MSSP está subprovisionado ou o modelo está deixando casos demais escaparem para a revisão humana.
 
@@ -62,9 +62,9 @@ O botão **+ New Tenant** abre o formulário de onboarding. O profile é fixado 
 
 Três seções:
 
-1. **Identity** — ID do tenant, profile, timestamps de criação / mudança de estado. O slug aparece abaixo do display name no cabeçalho.
-2. **Actions** — Suspend / Resume / Retry Provisioning / Decommission. **Suspend, nesta release, muda o estado do tenant para `suspended`** para que o orquestrador pare de agendar novas investigações; ele **não** escala os workloads. Para um corte definitivo, siga [Operações Diárias → Desabilitar em emergência](/pt-br/operations#emergency-disable-a-tenant-immediately). **Retry Provisioning** só funciona em tenants em `degraded` — a API rejeita `:retry` em tenants em `pending` (`pending → provisioning` é automático na primeira tentativa).
-3. **Lifecycle Events** — log cronológico da máquina de estados de provisionamento: `preflight_ok → secrets_minted → namespace_ready → secrets_applied → helm_applied (soctalk-tenant chart) → helm_applied (Wazuh chart) → workloads_ready → integration_config_written → active`. As duas linhas `helm_applied` se distinguem pelo payload do evento (identidade do chart). Quando um tenant fica travado, esta tabela mostra qual passo falhou.
+1. **Identity**: ID do tenant, profile, timestamps de criação / mudança de estado. O slug aparece abaixo do display name no cabeçalho.
+2. **Actions**: Suspend / Resume / Retry Provisioning / Decommission. **Suspend, nesta release, muda o estado do tenant para `suspended`** para que o orquestrador pare de agendar novas investigações; ele **não** escala os workloads. Para um corte definitivo, siga [Operações Diárias → Desabilitar em emergência](/pt-br/operations#emergency-disable-a-tenant-immediately). **Retry Provisioning** só funciona em tenants em `degraded`: a API rejeita `:retry` em tenants em `pending` (`pending → provisioning` é automático na primeira tentativa).
+3. **Lifecycle Events**: log cronológico da máquina de estados de provisionamento: `preflight_ok → secrets_minted → namespace_ready → secrets_applied → helm_applied (soctalk-tenant chart) → helm_applied (Wazuh chart) → workloads_ready → integration_config_written → active`. As duas linhas `helm_applied` se distinguem pelo payload do evento (identidade do chart). Quando um tenant fica travado, esta tabela mostra qual passo falhou.
 
 Fora isso, a página é somente leitura; o SOC por tenant abre em sua própria janela via a ação **Open SOC** na lista de tenants. O Wazuh é o data plane no namespace; TheHive e Cortex são integrações externas, não componentes agrupados por tenant.
 
@@ -84,12 +84,12 @@ Clique em **View** (ou no título) para abrir a página de detalhe.
 
 Layout:
 
-- **Header** — título, badges de status (Active/Closed, Phase atual, Severity).
-- **Blocos de KPI** — Alerts, Observables (total/malicious/suspicious), Time to Triage, Time to Verdict.
-- **Details** — ID, Created, Updated.
-- **Event Timeline** — inbox cronológico de eventos do caso (imutável, append-only).
-- **Agent Run** — gasto de tokens vs. o orçamento configurado por execução (`case_runs.tokens_budget`, padrão do modelo 200.000) e disposição (`pending | active | failed | completed`).
-- **Observable Summary** — totais discriminados como Malicious / Suspicious / Clean.
+- **Header**: título, badges de status (Active/Closed, Phase atual, Severity).
+- **Blocos de KPI**: Alerts, Observables (total/malicious/suspicious), Time to Triage, Time to Verdict.
+- **Details**: ID, Created, Updated.
+- **Event Timeline**: inbox cronológico de eventos do caso (imutável, append-only).
+- **Agent Run**: gasto de tokens vs. o orçamento configurado por execução (`case_runs.tokens_budget`, padrão do modelo 200.000) e disposição (`pending | active | failed | completed`).
+- **Observable Summary**: totais discriminados como Malicious / Suspicious / Clean.
 
 O botão flutuante **Ask AI** abre uma conversa lateral que opera sobre o contexto deste caso.
 
@@ -117,8 +117,8 @@ Visão cross-tenant em formato de tendências, agrupada por tempo (Window padrã
 - **p95 TTV** (time-to-verdict, AI)
 - **p95 TTR** (time-to-review, gate humano)
 - **Escalation Rate**
-- **Top worsening tenants** — ordenados pelo delta de p95 TTV em relação à janela anterior
-- **Activity heatmap** — dia-da-semana × hora-do-dia, alertas (alternável para outras dimensões)
+- **Top worsening tenants**: ordenados pelo delta de p95 TTV em relação à janela anterior
+- **Activity heatmap**: dia-da-semana × hora-do-dia, alertas (alternável para outras dimensões)
 
 Use isto para planejamento de capacidade, avaliação de versão de modelo e revisão de SLA.
 
@@ -126,9 +126,9 @@ Use isto para planejamento de capacidade, avaliação de versão de modelo e rev
 
 Fixar a página de Analytics em um único tenant troca as tendências entre tenants acima por um conjunto de superfícies focadas em decisão para aquele cliente:
 
-- **Confidence Distribution** — como a confiança das decisões da AI se distribui pelos alertas triados, agrupada por confiança.
-- **Decision Trends** — como a composição das decisões (fechar, escalar e assim por diante) se move ao longo do tempo.
-- **Average Confidence by Decision** — confiança média detalhada por tipo de decisão.
+- **Confidence Distribution**: como a confiança das decisões da AI se distribui pelos alertas triados, agrupada por confiança.
+- **Decision Trends**: como a composição das decisões (fechar, escalar e assim por diante) se move ao longo do tempo.
+- **Average Confidence by Decision**: confiança média detalhada por tipo de decisão.
 
 ## Log de auditoria
 
@@ -146,15 +146,15 @@ curl 'https://mssp.your-mssp.example/api/audit?since=2026-01-01&tenant=<id>' > a
 
 ![Settings](/screenshots/settings.png)
 
-Página de configurações de MSSP inteiro. **Na V1 esta página mostra valores stub fixos no código** — `GET /api/settings` retorna um payload estático somente leitura que não reflete a configuração real da instalação. A página é apenas informativa; ela **não** é uma janela para as configurações ativas da instalação, e o botão **Save Changes** é um no-op. Uma superfície de configurações real, que espelhe o estado derivado de env, está no roadmap. A mutação de LLM por tenant é a única superfície de configuração que de fato funciona na V1 — veja [Página de detalhe de LLM](#llm-detail-page).
+Página de configurações de MSSP inteiro. **Na V1 esta página mostra valores stub fixos no código**: `GET /api/settings` retorna um payload estático somente leitura que não reflete a configuração real da instalação. A página é apenas informativa; ela **não** é uma janela para as configurações ativas da instalação, e o botão **Save Changes** é um no-op. Uma superfície de configurações real, que espelhe o estado derivado de env, está no roadmap. A mutação de LLM por tenant é a única superfície de configuração que de fato funciona na V1, veja [Página de detalhe de LLM](#llm-detail-page).
 
 Seções:
 
-- **LLM** — Provider (`openai-compatible | anthropic`), Fast Model, Reasoning Model, Temperature, Max Tokens, Base URL opcional + Organization. As chaves de API ficam no ambiente / Kubernetes Secrets, nunca neste formulário.
-- **Wazuh SIEM** — chave de habilitação, URL, credenciais.
-- **Cortex** — chave de habilitação, URL, credenciais. Integração externa, não um subchart agrupado; a URL aponta para a instância Cortex do tenant (veja /pt-br/integrate/cortex).
-- **TheHive** — chave de habilitação, URL, organização, credenciais. Integração externa, não um subchart agrupado; a URL aponta para a instância TheHive do tenant (veja /pt-br/integrate/thehive).
-- **Slack** — webhook + configuração do backend interativo.
+- **LLM**: Provider (`openai-compatible | anthropic`), Fast Model, Reasoning Model, Temperature, Max Tokens, Base URL opcional + Organization. As chaves de API ficam no ambiente / Kubernetes Secrets, nunca neste formulário.
+- **Wazuh SIEM**: chave de habilitação, URL, credenciais.
+- **Cortex**: chave de habilitação, URL, credenciais. Integração externa, não um subchart agrupado; a URL aponta para a instância Cortex do tenant (veja /pt-br/integrate/cortex).
+- **TheHive**: chave de habilitação, URL, organização, credenciais. Integração externa, não um subchart agrupado; a URL aponta para a instância TheHive do tenant (veja /pt-br/integrate/thehive).
+- **Slack**: webhook + configuração do backend interativo.
 
 O link **Bring your own LLM key →** leva à rotação de chave de LLM por tenant (chaves de LLM por tenant sobrepõem a chave de instalação inteira).
 
@@ -162,10 +162,10 @@ O link **Bring your own LLM key →** leva à rotação de chave de LLM por tena
 
 ![Detalhe das configurações de LLM](/screenshots/settings-llm.png)
 
-Página independente acessível a partir de Settings → **Bring your own LLM key →**. Na V1 isto é **apenas entrada de chave BYOK por tenant** — o formulário recebe a chave de API do **tenant atualmente em escopo** e a envia via `PUT /api/tenant/llm/api-key` (o endpoint do lado do tenant; admins do MSSP também podem usar `PUT /api/mssp/tenants/{tenant_id}/llm/api-key`). Os demais campos de LLM (provider, model, temperature) exibidos na página Settings pai são valores stub; eles também não são editáveis aqui. Veja [Operações Diárias → Rotacionar chave de LLM por tenant](/pt-br/operations#rotate-per-tenant-llm-key) para o procedimento de rotação.
+Página independente acessível a partir de Settings → **Bring your own LLM key →**. Na V1 isto é **apenas entrada de chave BYOK por tenant**: o formulário recebe a chave de API do **tenant atualmente em escopo** e a envia via `PUT /api/tenant/llm/api-key` (o endpoint do lado do tenant; admins do MSSP também podem usar `PUT /api/mssp/tenants/{tenant_id}/llm/api-key`). Os demais campos de LLM (provider, model, temperature) exibidos na página Settings pai são valores stub; eles também não são editáveis aqui. Veja [Operações Diárias → Rotacionar chave de LLM por tenant](/pt-br/operations#rotate-per-tenant-llm-key) para o procedimento de rotação.
 
 ## Veja também
 
-- [Operações Diárias](/pt-br/operations) — o lado de runbook destas páginas (revisão, investigações, decommission, rotação).
-- [Wazuh Ingress](/pt-br/reference/wazuh-ingress) — o fluxo de onboarding de agentes a partir do detalhe do tenant.
-- [Modelo de Segurança](/pt-br/reference/security-model) — o que cada papel do MSSP (`platform_admin`, `mssp_admin`, `analyst`, `customer_viewer`) tem permissão para fazer.
+- [Operações Diárias](/pt-br/operations), o lado de runbook destas páginas (revisão, investigações, decommission, rotação).
+- [Wazuh Ingress](/pt-br/reference/wazuh-ingress), o fluxo de onboarding de agentes a partir do detalhe do tenant.
+- [Modelo de Segurança](/pt-br/reference/security-model), o que cada papel do MSSP (`platform_admin`, `mssp_admin`, `analyst`, `customer_viewer`) tem permissão para fazer.

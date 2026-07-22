@@ -1,14 +1,14 @@
 # Política de ubicación de secretos
 
-> **Nota de despliegue V1.** Varias entradas a continuación hacen referencia a los "pods del orquestador" como una carga de trabajo distinta — en el chart V1 el orquestador está co-ubicado en el Deployment `soctalk-system-api`, por lo que las referencias a "pod del orquestador" significan "pod de la API" en esta versión. Los nombres específicos de los Secret de K8s también pueden variar ligeramente respecto a los nombres renderizados por el chart (consulta [`charts/soctalk-system/templates/60-secrets.yaml`](https://github.com/soctalk/soctalk/blob/main/charts/soctalk-system/templates/60-secrets.yaml) como fuente de verdad).
+> **Nota de despliegue V1.** Varias entradas a continuación hacen referencia a los "pods del orquestador" como una carga de trabajo distinta, en el chart V1 el orquestador está co-ubicado en el Deployment `soctalk-system-api`, por lo que las referencias a "pod del orquestador" significan "pod de la API" en esta versión. Los nombres específicos de los Secret de K8s también pueden variar ligeramente respecto a los nombres renderizados por el chart (consulta [`charts/soctalk-system/templates/60-secrets.yaml`](https://github.com/soctalk/soctalk/blob/main/charts/soctalk-system/templates/60-secrets.yaml) como fuente de verdad).
 
 ## Invariante (aspiracional)
 
 **Objetivo:** ningún material de secreto en crudo en la base de datos de SocTalk. Las tablas de Postgres que rastrean secretos almacenan solo referencias: `(namespace, name, version_label)`. El material en sí está en un objeto `Secret` de Kubernetes, montado en el pod que lo necesita.
 
-**Hoy (V1):** hay **una excepción documentada** — `IntegrationConfig.llm_api_key_plain` en la base de datos almacena las claves de API de LLM por tenant en texto plano. Esto es necesario porque el runs-worker lee la clave desde su contexto de tenant en el momento de tomar la investigación y el chart V1 aún no cablea los Secret de LLM por tenant a través del pod spec. Trata las credenciales de Postgres como la protección de estas claves, y rota las claves del proveedor de LLM como si estuvieran expuestas si la credencial de la BD rota.
+**Hoy (V1):** hay **una excepción documentada**: `IntegrationConfig.llm_api_key_plain` en la base de datos almacena las claves de API de LLM por tenant en texto plano. Esto es necesario porque el runs-worker lee la clave desde su contexto de tenant en el momento de tomar la investigación y el chart V1 aún no cablea los Secret de LLM por tenant a través del pod spec. Trata las credenciales de Postgres como la protección de estas claves, y rota las claves del proveedor de LLM como si estuvieran expuestas si la credencial de la BD rota.
 
-Otras categorías de secretos — firma de JWT, roles de Postgres, credenciales de integración, authd de Wazuh — residen todas en Secret de K8s y se referencian por nombre desde la BD, no se almacenan en línea. Los objetivos de arquitectura (abajo) describen el estado de destino para todas las clases de secretos:
+Otras categorías de secretos, firma de JWT, roles de Postgres, credenciales de integración, authd de Wazuh, residen todas en Secret de K8s y se referencian por nombre desde la BD, no se almacenan en línea. Los objetivos de arquitectura (abajo) describen el estado de destino para todas las clases de secretos:
 
 - Limita el radio de impacto de un compromiso de la BD de SocTalk (no hay fuga de material).
 - Permite que funcionen los mecanismos de rotación nativos de K8s (actualización del Secret → el pod recoge el nuevo valor al remontar o en la próxima lectura del Secret).
@@ -34,7 +34,7 @@ Otras categorías de secretos — firma de JWT, roles de Postgres, credenciales 
 
 **El triaje se ejecuta en `soctalk-runs-worker` en cada namespace `tenant-<slug>`** (no en el pod central de la API). Por eso los secretos por tenant se montan en el namespace del tenant, no en `soctalk-system`.
 
-La clave de API de LLM **también se almacena en texto plano en `IntegrationConfig.llm_api_key_plain`** en Postgres — consulta el descargo del invariante arriba. El Secret de K8s se materializa a partir del valor de la BD en el momento del aprovisionamiento / rotación.
+La clave de API de LLM **también se almacena en texto plano en `IntegrationConfig.llm_api_key_plain`** en Postgres, consulta el descargo del invariante arriba. El Secret de K8s se materializa a partir del valor de la BD en el momento del aprovisionamiento / rotación.
 
 Elementos obsoletos de borradores anteriores (ya eliminados): `tenant-<id>-wazuh`, `tenant-<id>-thehive`, `tenant-<id>-cortex`, `wazuh-bootstrap`, `thehive-bootstrap`, `cortex-bootstrap`, `cassandra-creds`, `soctalk-license`. `tenant-<id>-llm` en `soctalk-system` aún existe en V1 como copia legada / de auditoría, pero **no** es lo que lee el runs-worker. La sección de arquitectura abajo describe la justificación del diseño; solo el inventario de arriba está vigente.
 
@@ -97,7 +97,7 @@ SocTalk almacena referencias y etiquetas de versión; no conserva el material en
 1. **Rotación de la clave de LLM por tenant** (el MSSP la inicia vía `PATCH /api/mssp/tenants/{id}/llm`):
    - El almacén autoritativo se actualiza en Postgres (`IntegrationConfig.llm_api_key_plain`).
    - El controlador reescribe `Secret/tenant-llm-key` en `tenant-<slug>` (no en el namespace del sistema).
-   - El controlador reinicia `Deployment/soctalk-runs-worker` en el namespace del tenant para que la nueva clave surta efecto en la próxima toma. **Se requiere reiniciar el pod** — V1 no recarga secretos en tiempo de ejecución.
+   - El controlador reinicia `Deployment/soctalk-runs-worker` en el namespace del tenant para que la nueva clave surta efecto en la próxima toma. **Se requiere reiniciar el pod**: V1 no recarga secretos en tiempo de ejecución.
 
 2. **Rotación de credenciales de administrador de Wazuh / TheHive / Cortex** (manual, runbook):
    - `kubectl patch secret <name> -n tenant-<slug> ...` para reescribir la credencial.
@@ -107,7 +107,7 @@ SocTalk almacena referencias y etiquetas de versión; no conserva el material en
 3. **Rotación de credenciales de Postgres** (manual, runbook):
    - `ALTER ROLE soctalk_app WITH PASSWORD ...` en Postgres.
    - `kubectl patch secret soctalk-system-postgres-app-creds ...` (ten en cuenta el nombre renderizado por el chart).
-   - `kubectl rollout restart deploy soctalk-system-api` — no hay un pod de orquestador separado en V1 (el orquestador está co-ubicado en el pod de la API).
+   - `kubectl rollout restart deploy soctalk-system-api`: no hay un pod de orquestador separado en V1 (el orquestador está co-ubicado en el pod de la API).
 
 4. **Rotación de la clave de firma de JWT** (una versión futura): la rotación sin tiempo de inactividad requiere admitir dos claves válidas durante la transición. Esta versión lo pospone; la rotación manual fuerza una ventana en la que todos los usuarios deben reautenticarse.
 
@@ -115,9 +115,9 @@ SocTalk almacena referencias y etiquetas de versión; no conserva el material en
 
 El RBAC de Kubernetes restringe qué ServiceAccounts pueden leer qué Secrets:
 
-- SA `soctalk-system-api` en `soctalk-system`: puede leer Secrets en `soctalk-system` (credenciales de Postgres, claves de firma de JWT/adaptador). También está vinculada para escribir Secrets en namespaces `tenant-*` (necesario para crear/rotar los secretos de bootstrap del tenant) — el chart V1 consolida los roles de API + controlador en esta SA.
+- SA `soctalk-system-api` en `soctalk-system`: puede leer Secrets en `soctalk-system` (credenciales de Postgres, claves de firma de JWT/adaptador). También está vinculada para escribir Secrets en namespaces `tenant-*` (necesario para crear/rotar los secretos de bootstrap del tenant), el chart V1 consolida los roles de API + controlador en esta SA.
 - `ServiceAccount` por tenant en `tenant-<slug>`: solo puede leer secretos en su propio namespace. Puede leer su propio `adapter-token` / `runs-worker-token` / `tenant-llm-key`, pero nunca la clave de firma del sistema.
-- La `soctalk-orchestrator-sa` de borradores anteriores no existe en V1 — el orquestador se ejecuta dentro del pod de la API bajo la SA de la API.
+- La `soctalk-orchestrator-sa` de borradores anteriores no existe en V1, el orquestador se ejecuta dentro del pod de la API bajo la SA de la API.
 
 Las plantillas de `Role`/`RoleBinding` forman parte del chart `soctalk-system` (para las SA de SocTalk) y del chart `soctalk-tenant` (para las SA por tenant).
 

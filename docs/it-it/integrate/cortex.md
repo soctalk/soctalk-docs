@@ -6,8 +6,8 @@
 
 Il chart `soctalk-tenant` in V1 non ha un subchart Cortex (`dependencies: []`). Le opzioni sono:
 
-- **Cortex gestito dal cliente** — il cliente esegue il proprio; l'MSSP fornisce URL + chiave API.
-- **Nessun Cortex** — la pipeline AI tenta comunque il percorso `ENRICH` (il supervisor non sa che Cortex è assente); ogni invocazione di `cortex_worker` fallisce e il fallimento viene registrato nel log. In V1 non esiste un campo di stato per singolo observable; il worker semplicemente ritorna senza arricchimento e il supervisor prosegue.
+- **Cortex gestito dal cliente**: il cliente esegue il proprio; l'MSSP fornisce URL + chiave API.
+- **Nessun Cortex**: la pipeline AI tenta comunque il percorso `ENRICH` (il supervisor non sa che Cortex è assente); ogni invocazione di `cortex_worker` fallisce e il fallimento viene registrato nel log. In V1 non esiste un campo di stato per singolo observable; il worker semplicemente ritorna senza arricchimento e il supervisor prosegue.
 
 Un "subchart Cortex integrato" è stato descritto in bozze precedenti come opzione pianificata, ma **non è implementato in questa release**.
 
@@ -27,11 +27,11 @@ Dettaglio del Tenant → Impostazioni → Cortex.
 
 ## Selezione dell'analyzer
 
-Per ciascun observable, il worker prova il **primo nome di analyzer** in una `ANALYZER_MAP` hard-coded (in [`src/soctalk/workers/cortex.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/workers/cortex.py)) corrispondente al tipo dell'observable — senza verificare se quell'analyzer sia effettivamente installato sull'istanza Cortex. Se l'analyzer non è installato (o fallisce), il fallimento viene registrato nel log e il worker ritorna senza l'arricchimento. In V1 non c'è un fallback verso un secondo analyzer; installa l'analyzer canonico indicato in `ANALYZER_MAP` per ciascun tipo di observable che ti interessa. L'esposizione dell'ordine di preferenza degli analyzer come valore del chart è nella roadmap.
+Per ciascun observable, il worker prova il **primo nome di analyzer** in una `ANALYZER_MAP` hard-coded (in [`src/soctalk/workers/cortex.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/workers/cortex.py)) corrispondente al tipo dell'observable, senza verificare se quell'analyzer sia effettivamente installato sull'istanza Cortex. Se l'analyzer non è installato (o fallisce), il fallimento viene registrato nel log e il worker ritorna senza l'arricchimento. In V1 non c'è un fallback verso un secondo analyzer; installa l'analyzer canonico indicato in `ANALYZER_MAP` per ciascun tipo di observable che ti interessa. L'esposizione dell'ordine di preferenza degli analyzer come valore del chart è nella roadmap.
 
 ## Costi
 
-Cortex in sé è gratuito; i provider degli analyzer applicano tariffe per le query. SocTalk non contabilizza direttamente le chiamate a Cortex — contabilizzale presso il provider:
+Cortex in sé è gratuito; i provider degli analyzer applicano tariffe per le query. SocTalk non contabilizza direttamente le chiamate a Cortex, contabilizzale presso il provider:
 
 - VirusTotal: quota per chiave
 - AbuseIPDB: quota per chiave
@@ -51,7 +51,7 @@ Sequenza:
 4. Interroga `/api/job/{id}/report` finché il job non termina o non scatta un timeout per singolo job.
 5. Aggiunge allo stato del case il verdetto (`safe`, `info`, `suspicious`, `malicious`) e il corpo del report. I job falliti registrano l'errore nel log e proseguono.
 
-Le chiamate a Cortex fallite non fanno fallire il run — il worker registra il fallimento nel log e ritorna al supervisor senza arricchimento per quell'observable. Il nodo del verdetto ragiona su qualunque contesto sia disponibile.
+Le chiamate a Cortex fallite non fanno fallire il run, il worker registra il fallimento nel log e ritorna al supervisor senza arricchimento per quell'observable. Il nodo del verdetto ragiona su qualunque contesto sia disponibile.
 
 ## Cortex integrato: non in questa release
 
@@ -65,8 +65,8 @@ Il chart `soctalk-tenant` non integra Cortex come subchart. Esegui Cortex autono
 
 ## Cosa non è trattato qui
 
-- Sviluppo di analyzer personalizzati — fuori ambito; vedi [TheHive-Project/Cortex-Analyzers](https://github.com/TheHive-Project/Cortex-Analyzers).
-- Override di TLP/PAP per singolo observable — pianificati; oggi il valore predefinito del Tenant si applica a ogni invio.
+- Sviluppo di analyzer personalizzati, fuori ambito; vedi [TheHive-Project/Cortex-Analyzers](https://github.com/TheHive-Project/Cortex-Analyzers).
+- Override di TLP/PAP per singolo observable, pianificati; oggi il valore predefinito del Tenant si applica a ogni invio.
 
 ## Riferimenti nel codice sorgente
 

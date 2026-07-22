@@ -1,6 +1,6 @@
 # Benutzer verwalten: eine exemplarische Anleitung
 
-Diese Anleitung führt durch die Bereitstellung eines Logins und dessen gesamten Lebenszyklus über die UI, auf beiden Seiten des Geschäfts: MSSP-Personal über das Panel **Staff Users** und die eigenen Mitarbeitenden eines Kunden über das Mandanten-Panel **Users**. Die beiden Panels spiegeln einander, sodass das eine vertraut ist, sobald du das andere gemacht hast. Für das Modell hinter alldem — welche Rollen es gibt und was jede kann — siehe [Benutzer und Rollen](/de-de/users-and-roles); diese Seite ist der Klick-für-Klick-Durchlauf.
+Diese Anleitung führt durch die Bereitstellung eines Logins und dessen gesamten Lebenszyklus über die UI, auf beiden Seiten des Geschäfts: MSSP-Personal über das Panel **Staff Users** und die eigenen Mitarbeitenden eines Kunden über das Mandanten-Panel **Users**. Die beiden Panels spiegeln einander, sodass das eine vertraut ist, sobald du das andere gemacht hast. Für das Modell hinter alldem, welche Rollen es gibt und was jede kann, siehe [Benutzer und Rollen](/de-de/users-and-roles); diese Seite ist der Klick-für-Klick-Durchlauf.
 
 Alles hier wird von einem Admin erledigt. Auf der MSSP-Seite ist das ein `mssp_admin` oder `platform_admin`. Auf der Mandanten-Seite ist es der eigene `tenant_admin` des jeweiligen Kunden, der ausschließlich innerhalb seiner Organisation handelt. Keiner kann die Wand zwischen den Zielgruppen überwinden: Ein MSSP-Admin weist niemals eine Mandantenrolle zu, und ein Mandanten-Admin weist niemals eine MSSP-Rolle zu.
 

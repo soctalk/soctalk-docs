@@ -1,6 +1,6 @@
 # Assistant de configuration
 
-Configurateur de premier démarrage basé sur le navigateur, livré avec l'[image de VM de démonstration](/fr-fr/quickstart-vm). Il ne fait **pas** partie d'une installation de production — les utilisateurs en production rédigent eux-mêmes `values.yaml` à la main et exécutent `helm install`.
+Configurateur de premier démarrage basé sur le navigateur, livré avec l'[image de VM de démonstration](/fr-fr/quickstart-vm). Il ne fait **pas** partie d'une installation de production, les utilisateurs en production rédigent eux-mêmes `values.yaml` à la main et exécutent `helm install`.
 
 Le rôle de l'assistant est de :
 
@@ -32,18 +32,18 @@ Le jeton est renouvelé à chaque redémarrage de l'assistant. Il n'existe aucun
 
 ## Formulaire en deux étapes
 
-1. **Authentifier** — collez le jeton de configuration.
-2. **Configurer** — remplissez les champs ci-dessous.
+1. **Authentifier**: collez le jeton de configuration.
+2. **Configurer**: remplissez les champs ci-dessous.
 
 La page de saisie du jeton soumet à `POST /auth` ; la page de configuration soumet à `POST /submit`. Les deux utilisent des cookies CSRF liés par HMAC (`SameSite=Strict`, `HttpOnly`, `Secure`).
 
-### Étape 1 — Authentifier
+### Étape 1, Authentifier
 
-![Assistant de configuration — saisie du jeton](/screenshots/setup-wizard-token.png)
+![Assistant de configuration, saisie du jeton](/screenshots/setup-wizard-token.png)
 
-### Étape 2 — Configurer
+### Étape 2, Configurer
 
-![Assistant de configuration — formulaire de configuration, rempli](/screenshots/setup-wizard-config-filled.png)
+![Assistant de configuration, formulaire de configuration, rempli](/screenshots/setup-wizard-config-filled.png)
 
 ### Identité
 
@@ -59,7 +59,7 @@ La page de saisie du jeton soumet à `POST /auth` ; la page de configuration sou
 | Champ | Type | Notes |
 |---|---|---|
 | Fournisseur | liste déroulante (`anthropic`, `openai`) | **Affiché uniquement dans cette version.** L'assistant collecte la valeur mais ne l'écrit pas dans les valeurs du chart ; la valeur par défaut du chart (`openai-compatible`) s'applique. Pour fixer un fournisseur spécifique, modifiez `/etc/soctalk/values.yaml` afin de définir `defaults.llm.provider` avant l'exécution de `soctalk-firstboot.service`, ou faites un `helm upgrade` après l'installation. Le câblage à travers l'assistant est prévu pour une version future |
-| Clé API | mot de passe | écrite dans `/etc/soctalk/llm.key` (mode `0600`) — PAS dans le fichier de valeurs. L'installateur en crée un Secret Kubernetes (`soctalk-system-llm-api-key`) avec les champs de données `anthropic-api-key` et `openai-api-key`, afin que le runtime du chart puisse utiliser le fournisseur indiqué par les valeurs |
+| Clé API | mot de passe | écrite dans `/etc/soctalk/llm.key` (mode `0600`), PAS dans le fichier de valeurs. L'installateur en crée un Secret Kubernetes (`soctalk-system-llm-api-key`) avec les champs de données `anthropic-api-key` et `openai-api-key`, afin que le runtime du chart puisse utiliser le fournisseur indiqué par les valeurs |
 
 ### Intégration du tenant de démonstration
 
@@ -82,7 +82,7 @@ TENANT_NAME='<org name> — Demo'
 | `/etc/soctalk/values.yaml` | 0640 | Valeurs de chart rendues (`install.*`, `ingress.*`, `postgres.*`) |
 | `/etc/soctalk/llm.key` | 0600 | Clé API LLM, ligne unique |
 | `/etc/soctalk/onboard.env` | 0600 | Fichier d'environnement d'intégration du tenant de démonstration |
-| `/var/lib/soctalk-wizard.done` | 0644 | Sentinelle — empêche l'assistant de se redéclencher aux démarrages suivants |
+| `/var/lib/soctalk-wizard.done` | 0644 | Sentinelle, empêche l'assistant de se redéclencher aux démarrages suivants |
 
 ## Unité systemd
 
@@ -97,7 +97,7 @@ ConditionPathExists=!/etc/soctalk/values.yaml
 WantedBy=cloud-init.target
 ```
 
-Elle s'accroche à `cloud-init.target` (et non `multi-user.target`) pour éviter un cycle d'ordonnancement via `After=cloud-final.service`. Les données utilisateur de cloud-init sont autorisées à déposer directement `/etc/soctalk/values.yaml` — si c'est le cas, l'assistant ne démarre jamais et `soctalk-firstboot.service` passe directement à `helm install`.
+Elle s'accroche à `cloud-init.target` (et non `multi-user.target`) pour éviter un cycle d'ordonnancement via `After=cloud-final.service`. Les données utilisateur de cloud-init sont autorisées à déposer directement `/etc/soctalk/values.yaml`: si c'est le cas, l'assistant ne démarre jamais et `soctalk-firstboot.service` passe directement à `helm install`.
 
 ## Durcissement
 
@@ -109,7 +109,7 @@ Après une soumission réussie, l'assistant écrit la sentinelle et se termine. 
 
 - **Contrôle du jeton** sur chaque endpoint authentifié. Comparaison à temps constant.
 - **CSRF** via des cookies double-submit liés par HMAC sur chaque POST modifiant l'état.
-- **Limitation de débit** : 30 s minimum entre les tentatives d'authentification par IP source ; 10 échecs en une heure bloquent l'IP pendant une heure. (Codex a signalé qu'il s'agit d'un vecteur DoS trivial derrière un NAT — les opérateurs derrière un NAT partagé peuvent voir une configuration légitime bloquée. Redémarrez l'unité pour réinitialiser.)
+- **Limitation de débit** : 30 s minimum entre les tentatives d'authentification par IP source ; 10 échecs en une heure bloquent l'IP pendant une heure. (Codex a signalé qu'il s'agit d'un vecteur DoS trivial derrière un NAT, les opérateurs derrière un NAT partagé peuvent voir une configuration légitime bloquée. Redémarrez l'unité pour réinitialiser.)
 - **TLS auto-signé uniquement**. L'assistant ne sert jamais de HTTP en clair. Les clients acceptent le certificat auto-signé une seule fois ; les utilisateurs en production ne devraient jamais atteindre l'assistant.
 
 ## Ce qui se passe après la soumission
@@ -136,4 +136,4 @@ sudo rm /var/lib/soctalk-firstboot.done /var/lib/soctalk-wizard.done /etc/soctal
 sudo systemctl restart soctalk-setup-wizard
 ```
 
-C'est une opération destructive — la release helm existante possède toujours l'espace de noms `soctalk-system`. Pour une réinitialisation propre, faites d'abord `helm uninstall soctalk-system -n soctalk-system`.
+C'est une opération destructive, la release helm existante possède toujours l'espace de noms `soctalk-system`. Pour une réinitialisation propre, faites d'abord `helm uninstall soctalk-system -n soctalk-system`.

@@ -2,17 +2,17 @@
 
 Importez l'image `soctalk-demo-<ver>.vhd` publiée dans Azure en tant que disque managé, transformez-la en image de VM, puis démarrez-la. Les VM Azure s'exécutent sur Hyper-V, c'est donc aussi le moyen le plus rapide de valider l'image sur un hyperviseur Hyper-V sans avoir à mettre en place un hôte Windows Server.
 
-Ce parcours s'adresse aux **évaluateurs et aux démonstrations** — pour une installation en production sur votre propre cluster, voir [Installation](/fr-fr/install).
+Ce parcours s'adresse aux **évaluateurs et aux démonstrations**: pour une installation en production sur votre propre cluster, voir [Installation](/fr-fr/install).
 
 ## Pourquoi le `.vhd` (et pourquoi la Génération 1)
 
-- Azure n'accepte que les disques **VHD à taille fixe, alignés sur 1 Mio** (pas les VHDX, pas les VHD dynamiques). Le fichier `soctalk-demo-<ver>.vhd` publié est produit exactement de cette manière par le pipeline de publication (`qemu-img convert -O vpc -o subformat=fixed,force_size`), il s'importe donc tel quel — aucune étape de conversion locale.
+- Azure n'accepte que les disques **VHD à taille fixe, alignés sur 1 Mio** (pas les VHDX, pas les VHD dynamiques). Le fichier `soctalk-demo-<ver>.vhd` publié est produit exactement de cette manière par le pipeline de publication (`qemu-img convert -O vpc -o subformat=fixed,force_size`), il s'importe donc tel quel, aucune étape de conversion locale.
 - L'image est construite et testée au démarrage sous firmware BIOS, ce qui correspond aux VM Azure de **Génération 1**. Créez le disque et l'image avec `--hyper-v-generation V1`.
 - Un VHD fixe de 60 Go peut sembler lourd, mais il est presque entièrement composé de zéros. `azcopy` téléverse vers un blob de pages et **ignore les pages nulles**, si bien que le transfert réel correspond à peu près aux ~3 Go de données réelles.
 
 ## Prérequis
 
-- Un abonnement Azure (`az account list` doit en afficher un — un accès à l'annuaire au niveau du tenant ne suffit pas).
+- Un abonnement Azure (`az account list` doit en afficher un, un accès à l'annuaire au niveau du tenant ne suffit pas).
 - [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) (`az`) et [AzCopy](https://learn.microsoft.com/azure/storage/common/storage-use-azcopy-v10) (`azcopy`). Sur macOS : `brew install azure-cli azcopy`.
 - ~61 Go d'espace disque local libre pour le VHD décompressé.
 - Une paire de clés SSH (`~/.ssh/id_ed25519.pub` dans les exemples ci-dessous).
@@ -46,7 +46,7 @@ az group create -n $RG -l $LOC
 
 ## 3. Téléverser le VHD directement vers un disque managé
 
-Aucun compte de stockage nécessaire — Azure prend en charge le téléversement direct vers un disque managé. Créez un disque vide dimensionné exactement au nombre d'octets du fichier VHD, obtenez un SAS d'écriture à courte durée de vie, téléversez avec `azcopy`, puis révoquez le SAS :
+Aucun compte de stockage nécessaire, Azure prend en charge le téléversement direct vers un disque managé. Créez un disque vide dimensionné exactement au nombre d'octets du fichier VHD, obtenez un SAS d'écriture à courte durée de vie, téléversez avec `azcopy`, puis révoquez le SAS :
 
 ```bash
 VHD=soctalk-demo-$VER.vhd
@@ -78,7 +78,7 @@ az image create -g $RG -n soctalk-demo-image \
 
 ## 5. Démarrer une VM
 
-Restreignez le groupe de sécurité réseau à votre propre adresse IP — la machine expose SSH (22), l'interface SocTalk (443) et l'assistant de configuration (8443), dont aucun ne devrait être ouvert sur Internet :
+Restreignez le groupe de sécurité réseau à votre propre adresse IP, la machine expose SSH (22), l'interface SocTalk (443) et l'assistant de configuration (8443), dont aucun ne devrait être ouvert sur Internet :
 
 ```bash
 MYIP=$(curl -s https://ifconfig.me)
@@ -119,9 +119,9 @@ Sur les hyperviseurs, vous attachez un `seed.iso` NoCloud pour injecter une clé
 ssh ops@$IP sudo cat /var/log/soctalk-setup-token
 ```
 
-Rendez-vous sur `https://<IP>:8443/`, acceptez le certificat auto-signé, collez le jeton et remplissez l'assistant — nom du MSSP, identifiants administrateur, fournisseur LLM + clé API. Voir [Assistant de configuration](/fr-fr/setup-wizard) pour la référence des champs.
+Rendez-vous sur `https://<IP>:8443/`, acceptez le certificat auto-signé, collez le jeton et remplissez l'assistant, nom du MSSP, identifiants administrateur, fournisseur LLM + clé API. Voir [Assistant de configuration](/fr-fr/setup-wizard) pour la référence des champs.
 
-Après validation, l'installateur du premier démarrage exécute `helm install` et intègre le tenant `demo` — environ 2 minutes pour les pods `soctalk-system`, puis quelques minutes de plus pour la pile Wazuh du tenant de démonstration. Vous pouvez suivre l'opération depuis SSH :
+Après validation, l'installateur du premier démarrage exécute `helm install` et intègre le tenant `demo`: environ 2 minutes pour les pods `soctalk-system`, puis quelques minutes de plus pour la pile Wazuh du tenant de démonstration. Vous pouvez suivre l'opération depuis SSH :
 
 ```bash
 ssh ops@$IP
@@ -147,8 +147,8 @@ Cela supprime la VM, la carte réseau, l'IP publique, le NSG, le disque managé 
 
 | Symptôme | Vérification |
 |---|---|
-| `az disk create --for-upload` rejeté | `--upload-size-bytes` doit être la taille **exacte** du fichier en octets du `.vhd` décompressé, pied de page inclus — relancez la commande `stat` |
-| `azcopy` échoue avec une erreur 403 | Le SAS d'écriture a expiré (24 h dans l'exemple) ou a déjà été révoqué — relancez `az disk grant-access` |
+| `az disk create --for-upload` rejeté | `--upload-size-bytes` doit être la taille **exacte** du fichier en octets du `.vhd` décompressé, pied de page inclus, relancez la commande `stat` |
+| `azcopy` échoue avec une erreur 403 | Le SAS d'écriture a expiré (24 h dans l'exemple) ou a déjà été révoqué, relancez `az disk grant-access` |
 | La VM n'obtient jamais la clé SSH | Vérifiez que l'image et le disque ont été créés avec `--hyper-v-generation V1` ; une image V2 issue de ce VHD ne démarrera pas, et un démarrage échoué n'atteint jamais cloud-init |
 | L'URL de l'assistant ne se charge jamais | Règle NSG pour 8443 manquante ou votre IP publique a changé (`curl ifconfig.me` et comparez) ; ensuite `systemctl status soctalk-setup-wizard` via SSH |
-| Tout ce qui suit l'assistant | Identique à chaque plateforme — voir le [tableau de dépannage du Démarrage rapide](/fr-fr/quickstart-vm#troubleshooting) |
+| Tout ce qui suit l'assistant | Identique à chaque plateforme, voir le [tableau de dépannage du Démarrage rapide](/fr-fr/quickstart-vm#troubleshooting) |

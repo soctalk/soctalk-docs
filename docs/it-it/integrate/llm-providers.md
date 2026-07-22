@@ -2,8 +2,8 @@
 
 Il runtime ([`src/soctalk/llm.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/llm.py)) supporta due provider, selezionabili tramite `SOCTALK_LLM_PROVIDER`:
 
-- `anthropic` — tramite `langchain-anthropic` (modelli Claude)
-- `openai` — tramite `langchain-openai` (OpenAI o qualsiasi endpoint compatibile con OpenAI che rispetti `Authorization: Bearer <key>` verso `POST /v1/chat/completions`: Azure OpenAI, vLLM, Ollama, LiteLLM, ecc.)
+- `anthropic`: tramite `langchain-anthropic` (modelli Claude)
+- `openai`: tramite `langchain-openai` (OpenAI o qualsiasi endpoint compatibile con OpenAI che rispetti `Authorization: Bearer <key>` verso `POST /v1/chat/completions`: Azure OpenAI, vLLM, Ollama, LiteLLM, ecc.)
 
 In V1, la variabile d'ambiente del provider (`SOCTALK_LLM_PROVIDER`) è **onorata solo dai pod runs-worker per-tenant**. Il pod API utilizza invece impostazioni predefinite del provider cablate nel codice. Il provider per-tenant è impostabile tramite `PATCH /api/mssp/tenants/{tenant_id}/llm` (vedi [Override per-tenant](#per-tenant-overrides)).
 
@@ -41,7 +41,7 @@ Per eseguire un tenant direttamente su Anthropic (senza alcun proxy compatibile 
 
 …e fornisci la chiave Anthropic tramite il flusso BYOK (`PUT /api/tenant/llm/api-key`). Il controller renderizza `SOCTALK_LLM_PROVIDER=anthropic` sul runs-worker di quel tenant, che utilizza `langchain-anthropic`.
 
-Il valore `llm.provider: anthropic` del chart + `llm.existingSecret` (Secret con una chiave `anthropic-api-key`) inizializzano il Secret delle credenziali valido per l'intera installazione che il controller replica nei nuovi tenant — ma il valore del chart di per sé **non** imposta `SOCTALK_LLM_PROVIDER` da nessuna parte in V1; la selezione del provider è per-tenant.
+Il valore `llm.provider: anthropic` del chart + `llm.existingSecret` (Secret con una chiave `anthropic-api-key`) inizializzano il Secret delle credenziali valido per l'intera installazione che il controller replica nei nuovi tenant, ma il valore del chart di per sé **non** imposta `SOCTALK_LLM_PROVIDER` da nessuna parte in V1; la selezione del provider è per-tenant.
 
 ## Chiavi API
 
@@ -54,11 +54,11 @@ kubectl -n soctalk-system create secret generic soctalk-system-llm-api-key \
   --dry-run=client -o yaml | kubectl apply -f -
 ```
 
-Quando possibile fornisci entrambe le chiavi — il chart raggruppa entrambe le chiavi nel Secret indipendentemente dal provider attivo, così che cambiare provider in seguito (ad es., dev: openai → prod: anthropic) non richieda di ricreare il Secret.
+Quando possibile fornisci entrambe le chiavi, il chart raggruppa entrambe le chiavi nel Secret indipendentemente dal provider attivo, così che cambiare provider in seguito (ad es., dev: openai → prod: anthropic) non richieda di ricreare il Secret.
 
 ## UI Impostazioni
 
-[Impostazioni → LLM](/it-it/mssp-ui#settings) nella UI MSSP mostra il provider attivo, il modello, il base URL, la temperatura e i max token. I campi sono **in sola lettura in questa release** — il badge `Read-only` compare accanto al titolo. Le mutazioni non sono implementate; oggi i valori del chart + la selezione basata sulle variabili d'ambiente del runtime sono le fonti autorevoli.
+[Impostazioni → LLM](/it-it/mssp-ui#settings) nella UI MSSP mostra il provider attivo, il modello, il base URL, la temperatura e i max token. I campi sono **in sola lettura in questa release**: il badge `Read-only` compare accanto al titolo. Le mutazioni non sono implementate; oggi i valori del chart + la selezione basata sulle variabili d'ambiente del runtime sono le fonti autorevoli.
 
 Le chiavi API non vengono mai mostrate nella risposta delle impostazioni (solo il flag `present: bool`).
 
@@ -102,12 +102,12 @@ Flusso di rotazione della chiave LLM per-tenant: vedi [Operazioni quotidiane →
 ## Note sui costi
 
 - Il runtime effettua molte piccole chiamate LLM per indagine (supervisor + worker + closure) e una grande chiamata di reasoning (verdetto). La separazione tra fast e reasoning è ora configurabile per tier: SocTalk risolve ogni ruolo, un tier router/supervisor più leggero e un tier verdetto/reasoning più forte, verso il proprio tier, ciascuno che punta al proprio provider, modello ed endpoint. Il parametro `defaults.llm.fastTier` nei valori del chart `soctalk-system` e il rendering per-tier nel livello di provisioning ti permettono di puntare il fast tier verso un modello economico mantenendo un modello più forte per il verdetto, così non baratti più la qualità del verdetto per abbassare il costo per chiamata. Il fast tier è disattivato di default (`fastTier: {}`); imposta il suo `provider`, `baseUrl` e `model` per abilitarlo. Inizializza la configurazione per-tier dei tenant appena onboardati, così i tenant esistenti mantengono la loro configurazione attuale finché non vengono patchati.
-- L'utilizzo di token per-tenant è misurato tramite la metrica Prometheus `soctalk_tenant_llm_tokens_total{direction="input|output"}` — vedi [Osservabilità](/it-it/observability#per-tenant-cost).
+- L'utilizzo di token per-tenant è misurato tramite la metrica Prometheus `soctalk_tenant_llm_tokens_total{direction="input|output"}`: vedi [Osservabilità](/it-it/observability#per-tenant-cost).
 - Il self-hosting conviene solo se mantieni la GPU occupata. Il parametro `runsWorker.concurrency` (default `1`) imposta quante indagini un runs-worker elabora in parallelo; aumentalo per riempire un batch continuo self-hosted e ammortizzare una GPU always-on su più lavoro. Vedi [Contenere la spesa del triage AI](/it-it/guides/inference-cost-optimization) per come dimensionarlo rispetto a un dato backend.
 
 ## Test di sanità
 
-In questa release non viene distribuita alcuna CLI di smoke-test dedicata. Il controllo più rapido consiste nell'onboarding di un tenant di prova e nell'esame dei log dell'orchestratore (`kubectl -n soctalk-system logs deploy/soctalk-system-api -f`) — la prima indagine farà emergere qualsiasi errore di configurazione del provider. Un comando di smoke-test scriptato è nella roadmap.
+In questa release non viene distribuita alcuna CLI di smoke-test dedicata. Il controllo più rapido consiste nell'onboarding di un tenant di prova e nell'esame dei log dell'orchestratore (`kubectl -n soctalk-system logs deploy/soctalk-system-api -f`), la prima indagine farà emergere qualsiasi errore di configurazione del provider. Un comando di smoke-test scriptato è nella roadmap.
 
 ## Riferimenti al codice sorgente
 

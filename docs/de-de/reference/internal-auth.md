@@ -63,8 +63,8 @@ Index: `(user_id, revoked_at)`.
 
 ### Wiederverwendung
 
-- `users` (`src/soctalk/core/tenancy/models.py:156`) — unverändert.
-- `audit_log` (`src/soctalk/core/tenancy/models.py:291`) — erhält
+- `users` (`src/soctalk/core/tenancy/models.py:156`), unverändert.
+- `audit_log` (`src/soctalk/core/tenancy/models.py:291`), erhält
   `auth.*`-Aktionen (siehe §9).
 
 Keine neue Audit-Tabelle. Keine Signierschlüssel-Tabelle (Sitzungen sind
@@ -162,7 +162,7 @@ Pro Anfrage:
 2. Schlage die Sitzungszeile nach. Weise ab, wenn sie fehlt, widerrufen
    ist, `absolute_expiry` überschritten hat oder `idle_expiry`
    überschritten hat.
-3. Aktualisiere `last_seen_at` (gedrosselt — schreibe höchstens alle 60s).
+3. Aktualisiere `last_seen_at` (gedrosselt, schreibe höchstens alle 60s).
 4. Lade den Benutzer und konstruiere dieselbe `UserIdentity`-Struktur, die
    der Pfad erzeugt. Setze `request.state.user_identity` genau wie heute,
    sodass Dekoratoren und RLS-Kontext-Helfer unverändert bleiben.
@@ -200,7 +200,7 @@ Beide Apps erhalten `/login`:
 
 Wenn die Anmeldung gegen eine Anmeldeinformation mit `must_change=true`
 erfolgreich ist, signalisiert die Serverantwort die Änderung als nächsten
-Schritt. Die UI navigiert direkt zu `/account/password` — kein
+Schritt. Die UI navigiert direkt zu `/account/password`: kein
 Dashboard-Aufblitzen.
 
 Solange `must_change` gesetzt ist, leitet jede Route außer
@@ -227,7 +227,7 @@ Im Header beider Apps, sichtbar bei Authentifizierung:
 - Benutzer-E-Mail.
 - Rollenbezeichnung („MSSP admin“, „Analyst“, „Customer viewer“ usw.).
 - Link zu „Change password.“
-- „Sign out“ — `POST /api/auth/logout`, dann Navigation zu `/login` mit
+- „Sign out“, `POST /api/auth/logout`, dann Navigation zu `/login` mit
   der Flash-Meldung „You have been signed out.“
 
 ### Admin-Reset (MSSP-Konsole)
@@ -242,7 +242,7 @@ Auf der Benutzerdetailseite in der MSSP-Konsole:
 - Bei Bestätigung gibt der Server das erzeugte Passwort einmalig zurück.
   Die UI stellt es in einem In-die-Zwischenablage-kopieren-Feld mit „Copy
   and close“ dar. Nachdem der Dialog geschlossen wurde, ist das Passwort
-  nicht mehr abrufbar — der Admin teilt es out-of-band.
+  nicht mehr abrufbar, der Admin teilt es out-of-band.
 
 ### Sitzungsablauf
 
@@ -346,7 +346,7 @@ Playwright-Smoke-Suite für jede UI:
 Nicht Teil dieser Spezifikation. Sortiert nach wahrscheinlicher
 Wiederaufnahme:
 
-1. `password_reset_tokens` — Self-Service-Passwort-Reset per E-Mail.
+1. `password_reset_tokens`: Self-Service-Passwort-Reset per E-Mail.
 2. MFA (TOTP + Wiederherstellungscodes), mit entsprechenden UI-Schritten in
    den Anmelde- und Konto-Flows.
 3. Sitzungsinventar (`GET /api/auth/sessions`, gezielt widerrufen,

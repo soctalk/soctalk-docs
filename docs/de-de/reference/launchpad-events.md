@@ -72,7 +72,7 @@ tearing_down → torn_down → complete
 | `provider_unavailable` | Upstream-Provider (Tailscale, Hetzner, ...) ist nicht erreichbar. | ja        |
 | `quota`             | Provider-seitiges Kontingent erschöpft.                            | nein         |
 | `timeout`           | Wartezeit hat eine Richtlinien-Deadline überschritten.             | ja           |
-| `internal`          | Fehler im Plugin/Orchestrator — unerwarteter Fehlerpfad.           | nein         |
+| `internal`          | Fehler im Plugin/Orchestrator, unerwarteter Fehlerpfad.           | nein         |
 | `network`           | Lokales Netzwerk / TLS / DNS.                                      | ja           |
 | `cancelled`         | Ctrl-C oder SIGTERM.                                               | nein         |
 

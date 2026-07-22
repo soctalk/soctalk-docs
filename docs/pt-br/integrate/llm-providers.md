@@ -2,8 +2,8 @@
 
 O runtime ([`src/soctalk/llm.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/llm.py)) suporta dois provedores, selecionados via `SOCTALK_LLM_PROVIDER`:
 
-- `anthropic` — via `langchain-anthropic` (modelos Claude)
-- `openai` — via `langchain-openai` (OpenAI ou qualquer endpoint compatível com OpenAI que respeite `Authorization: Bearer <key>` em `POST /v1/chat/completions`: Azure OpenAI, vLLM, Ollama, LiteLLM, etc.)
+- `anthropic`: via `langchain-anthropic` (modelos Claude)
+- `openai`: via `langchain-openai` (OpenAI ou qualquer endpoint compatível com OpenAI que respeite `Authorization: Bearer <key>` em `POST /v1/chat/completions`: Azure OpenAI, vLLM, Ollama, LiteLLM, etc.)
 
 No V1, a variável de ambiente do provedor (`SOCTALK_LLM_PROVIDER`) é **respeitada apenas pelos pods do runs-worker por tenant**. O próprio pod da API usa provedores padrão fixados no código. O provedor por tenant pode ser definido via `PATCH /api/mssp/tenants/{tenant_id}/llm` (veja [Substituições por tenant](#substituicoes-por-tenant)).
 
@@ -41,7 +41,7 @@ Para executar um tenant diretamente contra o Anthropic (sem um proxy compatível
 
 …e forneça a chave do Anthropic via o fluxo BYOK (`PUT /api/tenant/llm/api-key`). O controlador renderiza `SOCTALK_LLM_PROVIDER=anthropic` no runs-worker desse tenant, que usa `langchain-anthropic`.
 
-O valor `llm.provider: anthropic` do chart + `llm.existingSecret` (Secret com uma chave `anthropic-api-key`) inicializam o Secret de credenciais abrangente da instalação que o controlador espelha para novos tenants — mas o valor do chart **não** define, por si só, `SOCTALK_LLM_PROVIDER` em lugar nenhum no V1; a seleção de provedor é por tenant.
+O valor `llm.provider: anthropic` do chart + `llm.existingSecret` (Secret com uma chave `anthropic-api-key`) inicializam o Secret de credenciais abrangente da instalação que o controlador espelha para novos tenants, mas o valor do chart **não** define, por si só, `SOCTALK_LLM_PROVIDER` em lugar nenhum no V1; a seleção de provedor é por tenant.
 
 ## Chaves de API
 
@@ -54,11 +54,11 @@ kubectl -n soctalk-system create secret generic soctalk-system-llm-api-key \
   --dry-run=client -o yaml | kubectl apply -f -
 ```
 
-Forneça ambas as chaves quando possível — o chart agrupa as duas chaves no Secret independentemente do provedor ativo, então trocar de provedor depois (por exemplo, dev: openai → prod: anthropic) não exige recriar o Secret.
+Forneça ambas as chaves quando possível, o chart agrupa as duas chaves no Secret independentemente do provedor ativo, então trocar de provedor depois (por exemplo, dev: openai → prod: anthropic) não exige recriar o Secret.
 
 ## Interface de configurações
 
-[Configurações → LLM](/pt-br/mssp-ui#settings) na interface MSSP mostra o provedor ativo, o modelo, a URL base, a temperatura e o máximo de tokens. Os campos são **somente leitura nesta versão** — o selo `Read-only` aparece ao lado do título. Mutações não estão implementadas; hoje os valores do chart + a seleção baseada em variáveis de ambiente do runtime são autoritativos.
+[Configurações → LLM](/pt-br/mssp-ui#settings) na interface MSSP mostra o provedor ativo, o modelo, a URL base, a temperatura e o máximo de tokens. Os campos são **somente leitura nesta versão**: o selo `Read-only` aparece ao lado do título. Mutações não estão implementadas; hoje os valores do chart + a seleção baseada em variáveis de ambiente do runtime são autoritativos.
 
 As chaves de API nunca são exibidas na resposta de configurações (apenas o sinalizador `present: bool`).
 
@@ -102,12 +102,12 @@ Fluxo de rotação de LLM por tenant: veja [Operações diárias → Rotacionar 
 ## Notas sobre custo
 
 - O runtime faz muitas chamadas pequenas de LLM por investigação (supervisor + workers + encerramento) e uma grande chamada de raciocínio (veredito). A divisão entre rápido e raciocínio agora é configurável por tier: o SocTalk resolve cada papel, um tier mais leve de router/supervisor e um tier mais forte de veredito/raciocínio, para seu próprio tier, cada um apontando para seu próprio provedor, modelo e endpoint. O ajuste `defaults.llm.fastTier` nos valores do chart `soctalk-system` e a renderização por tier na camada de provisionamento permitem apontar o tier rápido para um modelo barato mantendo um modelo mais forte para o veredito, então você não troca mais qualidade de veredito para reduzir o custo por chamada. O tier rápido vem desligado por padrão (`fastTier: {}`); defina seu `provider`, `baseUrl` e `model` para habilitá-lo. Ele semeia a configuração por tier de novos tenants integrados, então tenants existentes mantêm sua configuração atual até serem atualizados via patch.
-- O uso de tokens por tenant é medido via a métrica Prometheus `soctalk_tenant_llm_tokens_total{direction="input|output"}` — veja [Observabilidade](/pt-br/observability#per-tenant-cost).
+- O uso de tokens por tenant é medido via a métrica Prometheus `soctalk_tenant_llm_tokens_total{direction="input|output"}`: veja [Observabilidade](/pt-br/observability#per-tenant-cost).
 - Auto-hospedar só compensa se você mantiver a GPU ocupada. O ajuste `runsWorker.concurrency` (padrão `1`) define quantas investigações um runs-worker processa em paralelo; aumente-o para preencher um batch contínuo auto-hospedado e amortizar uma GPU sempre ativa sobre mais trabalho. Veja [Mantendo baixa a conta de triagem por AI](/pt-br/guides/inference-cost-optimization) para saber como dimensioná-lo em relação a um dado backend.
 
 ## Teste de sanidade
 
-Nenhuma CLI de smoke-test dedicada é entregue nesta versão. A verificação mais rápida é fazer o onboarding de um tenant de teste e observar os logs do orquestrador (`kubectl -n soctalk-system logs deploy/soctalk-system-api -f`) — a primeira investigação revelará qualquer má configuração de provedor. Um comando de smoke-test em script está no roadmap.
+Nenhuma CLI de smoke-test dedicada é entregue nesta versão. A verificação mais rápida é fazer o onboarding de um tenant de teste e observar os logs do orquestrador (`kubectl -n soctalk-system logs deploy/soctalk-system-api -f`), a primeira investigação revelará qualquer má configuração de provedor. Um comando de smoke-test em script está no roadmap.
 
 ## Ponteiros de código-fonte
 

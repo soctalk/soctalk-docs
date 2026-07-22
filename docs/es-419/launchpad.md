@@ -1,8 +1,8 @@
 # Launchpad: piloto de MSSP con un solo comando
 
-Una vez que hayas visto SocTalk de extremo a extremo en una sola máquina co-ubicada ([Quickstart](/es-419/quickstart-vm)), **Launchpad es el siguiente paso**: te lleva de esa demo local a un piloto real — un plano de control de MSSP más uno o más entornos de tenant en tu propia infraestructura. Contrólalo desde una **consola web** (recomendado) o, más adelante, con un solo comando sin interfaz: arranca las VMs, las une a tu tailnet, instala SocTalk desde fuentes públicas y te entrega una URL.
+Una vez que hayas visto SocTalk de extremo a extremo en una sola máquina co-ubicada ([Quickstart](/es-419/quickstart-vm)), **Launchpad es el siguiente paso**: te lleva de esa demo local a un piloto real, un plano de control de MSSP más uno o más entornos de tenant en tu propia infraestructura. Contrólalo desde una **consola web** (recomendado) o, más adelante, con un solo comando sin interfaz: arranca las VMs, las une a tu tailnet, instala SocTalk desde fuentes públicas y te entrega una URL.
 
-¿Prefieres entender cada paso antes de dejar que una herramienta lo haga? El [piloto de MSSP hazlo tú mismo](/es-419/mssp-pilot) recorre la misma instalación a mano — los mismos charts, el mismo flujo de Tailscale. Launchpad simplemente hace el copiar y pegar por ti.
+¿Prefieres entender cada paso antes de dejar que una herramienta lo haga? El [piloto de MSSP hazlo tú mismo](/es-419/mssp-pilot) recorre la misma instalación a mano, los mismos charts, el mismo flujo de Tailscale. Launchpad simplemente hace el copiar y pegar por ti.
 
 ::: tip Tiempo de trabajo manual
 | Ruta | Trabajo manual | Tiempo total |
@@ -16,7 +16,7 @@ Una vez que hayas visto SocTalk de extremo a extremo en una sola máquina co-ubi
 Dadas tus credenciales de administrador de MSSP y una lista de tenants, Launchpad:
 
 1. Descarga la imagen cloud de Ubuntu Noble en tu host de VMs (se almacena en caché en ejecuciones posteriores)
-2. Aprovisiona VMs QEMU — una para el MSSP, una por tenant — con cloud-init + Tailscale
+2. Aprovisiona VMs QEMU, una para el MSSP, una por tenant, con cloud-init + Tailscale
 3. Espera a que cada VM se una a tu tailnet con la etiqueta que anuncia
 4. Ejecuta [`install.sh`](https://github.com/soctalk/soctalk/blob/main/install.sh) en el MSSP en modo `--demo`
 5. Da de alta cada tenant a través de la API del MSSP
@@ -24,7 +24,7 @@ Dadas tus credenciales de administrador de MSSP y una lista de tenants, Launchpa
 7. Instala k3s + Helm + `soctalk-cloud-agent` en cada VM de tenant
 8. El MSSP despacha el job `install_helm_release` → el cloud-agent obtiene y aplica el chart `soctalk-tenant` (Wazuh manager + indexer + dashboard, adapter, runs-worker)
 
-Al final tienes un dashboard de MSSP en funcionamiento, tenants registrados y `active`, y Wazuh corriendo por tenant. Todo descargado desde fuentes públicas — sin imágenes pre-preparadas, sin charts empaquetados.
+Al final tienes un dashboard de MSSP en funcionamiento, tenants registrados y `active`, y Wazuh corriendo por tenant. Todo descargado desde fuentes públicas, sin imágenes pre-preparadas, sin charts empaquetados.
 
 ## Qué no es
 
@@ -43,8 +43,8 @@ Reúne esto primero:
       - SSH sin contraseña desde tu estación de trabajo como un usuario en el grupo `kvm`
 - [ ] **Una tailnet de Tailscale.** El nivel gratuito basta. Necesitarás:
       - El nombre de la tailnet (p. ej. `taila1b2c3.ts.net`)
-      - Un [token de acceso a la API de Tailscale](https://login.tailscale.com/admin/settings/keys) con alcance `keys:write` — el launchpad lo usa para generar claves de autenticación de dispositivo efímeras por VM
-      - Propiedad de las etiquetas que usarás — agrégalas a tu ACL:
+      - Un [token de acceso a la API de Tailscale](https://login.tailscale.com/admin/settings/keys) con alcance `keys:write`: el launchpad lo usa para generar claves de autenticación de dispositivo efímeras por VM
+      - Propiedad de las etiquetas que usarás, agrégalas a tu ACL:
         ```json
         "tagOwners": {
           "tag:mssp":        ["autogroup:admin"],
@@ -81,25 +81,25 @@ conjunto instalado; `launchpad plugin sync` vuelve a obtener o repara el almacé
 
 ## 2. Ejecuta el piloto en la consola web
 
-`launchpad ui` inicia una consola web local y la abre en tu navegador — la forma principal de conducir un piloto. Registras tu infraestructura una vez como **Hosts** y **Networks** reutilizables y verificables, luego lanzas y observas.
+`launchpad ui` inicia una consola web local y la abre en tu navegador, la forma principal de conducir un piloto. Registras tu infraestructura una vez como **Hosts** y **Networks** reutilizables y verificables, luego lanzas y observas.
 
 ```bash
 launchpad ui
 ```
 
-En la primera ejecución el CLI descarga y verifica el conjunto de plugins en `~/.launchpad/plugins`, luego sirve la consola desde el mismo binario — nada más que instalar. En el navegador, recorre tres pantallas:
+En la primera ejecución el CLI descarga y verifica el conjunto de plugins en `~/.launchpad/plugins`, luego sirve la consola desde el mismo binario, nada más que instalar. En el navegador, recorre tres pantallas:
 
-1. **Networks** — agrega tu tailnet: el nombre del overlay (p. ej. `taila1b2c3.ts.net`) y tu clave de API de Tailscale. Presiona **Test** para confirmar que la clave funciona antes de depender de ella. Una ejecución se vincula a una red, y cada máquina se une a ella.
-2. **Hosts** — agrega el lugar donde aprovisionarás. Para esta guía ese es tu máquina KVM: el destino SSH y un directorio de trabajo con permisos de escritura. Los hosts nuevos precompletan los campos que su plataforma espera, y **Test** valida la conexión y las credenciales. Las credenciales se almacenan con el host y nunca salen de la máquina que ejecuta Launchpad.
-3. **Runs** — crea una ejecución: asigna el **nodo de control** (tu MSSP) y cada **tenant** a un host, elige la red, completa las credenciales de administrador de MSSP y la clave de LLM, y presiona **Launch**.
+1. **Networks**: agrega tu tailnet: el nombre del overlay (p. ej. `taila1b2c3.ts.net`) y tu clave de API de Tailscale. Presiona **Test** para confirmar que la clave funciona antes de depender de ella. Una ejecución se vincula a una red, y cada máquina se une a ella.
+2. **Hosts**: agrega el lugar donde aprovisionarás. Para esta guía ese es tu máquina KVM: el destino SSH y un directorio de trabajo con permisos de escritura. Los hosts nuevos precompletan los campos que su plataforma espera, y **Test** valida la conexión y las credenciales. Las credenciales se almacenan con el host y nunca salen de la máquina que ejecuta Launchpad.
+3. **Runs**: crea una ejecución: asigna el **nodo de control** (tu MSSP) y cada **tenant** a un host, elige la red, completa las credenciales de administrador de MSSP y la clave de LLM, y presiona **Launch**.
 
-![Networks — el overlay al que se une cada máquina de una ejecución, registrado una vez](/screenshots/launchpad-ui-networks.png)
+![Networks, el overlay al que se une cada máquina de una ejecución, registrado una vez](/screenshots/launchpad-ui-networks.png)
 
-![Hosts — los sustratos sobre los que aprovisionas, registrados una vez](/screenshots/launchpad-ui-hosts.png)
+![Hosts, los sustratos sobre los que aprovisionas, registrados una vez](/screenshots/launchpad-ui-hosts.png)
 
-La consola transmite el progreso en vivo — cada VM aprovisionándose, uniéndose a la tailnet e instalando SocTalk — y te da la URL del MSSP al final. Las ejecuciones son idempotentes (relanzar reconcilia contra las máquinas que ya existen en lugar de duplicarlas), y la acción **Down** desmonta las máquinas de una ejecución.
+La consola transmite el progreso en vivo, cada VM aprovisionándose, uniéndose a la tailnet e instalando SocTalk, y te da la URL del MSSP al final. Las ejecuciones son idempotentes (relanzar reconcilia contra las máquinas que ya existen en lugar de duplicarlas), y la acción **Down** desmonta las máquinas de una ejecución.
 
-![Una ejecución en progreso — las VMs del MSSP y del tenant aprovisionándose, con el rastreador de fases y un flujo de eventos en vivo](/screenshots/launchpad-ui-run.png)
+![Una ejecución en progreso, las VMs del MSSP y del tenant aprovisionándose, con el rastreador de fases y un flujo de eventos en vivo](/screenshots/launchpad-ui-run.png)
 
 ::: tip Verificación de cumplimiento
 Antes de apuntar un plugin a infraestructura real puedes comprobarlo desde el CLI:
@@ -113,11 +113,11 @@ Esto ejecuta la suite de cumplimiento de protocolo (checksum, handshake, `plan`,
 
 Cuando la ejecución termina (la consola la marca como completa, o `launchpad up` sale con `0`), comprueba los dos sistemas:
 
-**Dashboard del MSSP** — abre la URL que la ejecución imprimió al final (o `https://lp-mssp.<your-tailnet>.ts.net/`). Inicia sesión con las credenciales de administrador que estableciste para la ejecución. Tu tenant debería aparecer en la lista y pasar a **Online** en 1-2 minutos.
+**Dashboard del MSSP**: abre la URL que la ejecución imprimió al final (o `https://lp-mssp.<your-tailnet>.ts.net/`). Inicia sesión con las credenciales de administrador que estableciste para la ejecución. Tu tenant debería aparecer en la lista y pasar a **Online** en 1-2 minutos.
 
 ![Dashboard del MSSP aprovisionado por Launchpad](/screenshots/launchpad-mssp-dashboard.png)
 
-**Wazuh en el tenant** — conéctate por SSH a la VM del tenant (`ssh ops@lp-tenant-acme.<your-tailnet>.ts.net`) y revisa los pods:
+**Wazuh en el tenant**: conéctate por SSH a la VM del tenant (`ssh ops@lp-tenant-acme.<your-tailnet>.ts.net`) y revisa los pods:
 
 ```bash
 sudo k3s kubectl -n tenant-acme get pods
@@ -135,7 +135,7 @@ soctalk-adapter-<hash>                        1/1     Running
 soctalk-runs-worker-<hash>                    1/1     Running
 ```
 
-El StatefulSet `linuxep-0` es un endpoint Linux de demostración con el agente de Wazuh instalado — un lugar para simular alertas. Consulta [Simulador de ataques](/es-419/mssp-pilot#5-3-generate-alerts) para más detalles.
+El StatefulSet `linuxep-0` es un endpoint Linux de demostración con el agente de Wazuh instalado, un lugar para simular alertas. Consulta [Simulador de ataques](/es-419/mssp-pilot#5-3-generate-alerts) para más detalles.
 
 ### Conéctate por SSH a las VMs
 
@@ -156,16 +156,16 @@ Si MagicDNS está deshabilitado en tu tailnet, `lp-<key>.<tailnet>.ts.net` no se
 
 ## 4. Usa tu piloto: da de alta clientes y pregúntale a la AI
 
-Launchpad te entrega un MSSP en funcionamiento con tu primer tenant ya dado de alta — desde aquí lo conduces exactamente como lo haría un MSSP. El **Dashboard** es una vista de flota entre tenants: revisiones pendientes, casos atascados, tenants degradados y salud por tenant.
+Launchpad te entrega un MSSP en funcionamiento con tu primer tenant ya dado de alta, desde aquí lo conduces exactamente como lo haría un MSSP. El **Dashboard** es una vista de flota entre tenants: revisiones pendientes, casos atascados, tenants degradados y salud por tenant.
 
-![El dashboard del MSSP — vista de flota entre tenants](/screenshots/pilot-final-dashboard.png)
+![El dashboard del MSSP, vista de flota entre tenants](/screenshots/pilot-final-dashboard.png)
 
 **Da de alta otro cliente.** **Tenants → Create customer** ejecuta un breve asistente de cuatro pasos:
 
-![Create customer — 1. Identidad](/screenshots/pilot-add-tenant-step1.png)
-![Create customer — 2. Perfil](/screenshots/pilot-add-tenant-step2.png)
-![Create customer — 3. Marca](/screenshots/pilot-add-tenant-step3.png)
-![Create customer — 4. Revisión](/screenshots/pilot-add-tenant-step4.png)
+![Create customer, 1. Identidad](/screenshots/pilot-add-tenant-step1.png)
+![Create customer, 2. Perfil](/screenshots/pilot-add-tenant-step2.png)
+![Create customer, 3. Marca](/screenshots/pilot-add-tenant-step3.png)
+![Create customer, 4. Revisión](/screenshots/pilot-add-tenant-step4.png)
 
 El nuevo cliente se une a la flota, y el cloud-agent aprovisiona su stack de Wazuh + adapter de la misma manera en que Launchpad lo hizo para el primer tenant:
 
@@ -177,19 +177,19 @@ Profundiza en un tenant para ver sus investigaciones abiertas, revisiones y la s
 
 **Pregúntale al analista SOC de AI.** La vista **Chat** responde preguntas sobre toda la flota o acotadas a un tenant, llamando herramientas contra datos en vivo y resumiendo lo que encuentra:
 
-![Ask AI — un resumen de toda la flota, con la llamada a herramienta que ejecutó](/screenshots/pilot-chat-mssp-reply.png)
-![Ask AI — acotado a un solo tenant](/screenshots/pilot-chat-tenant-reply.png)
+![Ask AI, un resumen de toda la flota, con la llamada a herramienta que ejecutó](/screenshots/pilot-chat-mssp-reply.png)
+![Ask AI, acotado a un solo tenant](/screenshots/pilot-chat-tenant-reply.png)
 
 ::: tip
-La AI necesita un [proveedor de LLM](/es-419/integrate/llm-providers) real configurado — la clave de marcador de posición de la prueba de humo no responderá preguntas.
+La AI necesita un [proveedor de LLM](/es-419/integrate/llm-providers) real configurado, la clave de marcador de posición de la prueba de humo no responderá preguntas.
 :::
 
 ## 5. Ajusta con un archivo de configuración
 
-Una vez que un piloto funciona desde la consola, puedes capturar la misma configuración como un archivo YAML y conducirlo sin interfaz con `launchpad up` — sin consola. Recurre a esto cuando quieras:
+Una vez que un piloto funciona desde la consola, puedes capturar la misma configuración como un archivo YAML y conducirlo sin interfaz con `launchpad up`: sin consola. Recurre a esto cuando quieras:
 
-- **Ejecuciones repetibles y programadas** — registra la configuración en git, ejecútala en CI y verifica sobre el flujo de eventos JSON.
-- **Control fino que el formulario no expone** — fija una imagen base o su SHA, apunta a un tag de release específico de `install.sh`, programa muchos tenants a la vez, o ajusta CPU / memoria / disco por VM.
+- **Ejecuciones repetibles y programadas**: registra la configuración en git, ejecútala en CI y verifica sobre el flujo de eventos JSON.
+- **Control fino que el formulario no expone**: fija una imagen base o su SHA, apunta a un tag de release específico de `install.sh`, programa muchos tenants a la vez, o ajusta CPU / memoria / disco por VM.
 
 La consola y la configuración comparten los mismos Hosts y Networks bajo `~/.launchpad`, así que una ejecución por configuración reutiliza exactamente lo que ya probaste.
 
@@ -275,9 +275,9 @@ Tiempos aproximados de fase en una primera ejecución (caché fresca, internet d
 
 Las ejecuciones posteriores son mucho más rápidas porque la imagen base está en caché en el host de VMs.
 
-## 6. Itera — reanuda, desmonta, reinicia
+## 6. Itera, reanuda, desmonta, reinicia
 
-El launchpad es idempotente. Relanzar una ejecución — el **Launch** de la consola de nuevo, o `launchpad up` — retoma donde lo dejó:
+El launchpad es idempotente. Relanzar una ejecución, el **Launch** de la consola de nuevo, o `launchpad up`: retoma donde lo dejó:
 
 - Las VMs que ya existen se reutilizan (sin doble aprovisionamiento)
 - El paso de instalación del MSSP se omite si la API ya responde
@@ -299,7 +299,7 @@ Para agregar un tenant a un piloto en ejecución, agrégalo en la consola (o edi
 La VM arrancó pero nunca se unió a la tailnet. Cloud-init en la VM no pudo alcanzar los servidores de coordinación de Tailscale.
 
 - Confirma que tu host de VMs tiene internet
-- Conéctate por SSH al host de VMs e inspecciona el registro serial de QEMU en `<work_dir>/<run_id>/<vm_key>/serial.log` — captura la salida de cloud-init incluyendo tailscale-up
+- Conéctate por SSH al host de VMs e inspecciona el registro serial de QEMU en `<work_dir>/<run_id>/<vm_key>/serial.log`: captura la salida de cloud-init incluyendo tailscale-up
 - Causa común: la clave de autenticación efímera fue revocada antes de que la VM la usara (revisa el registro del administrador de Tailscale → Machines)
 
 ### La instalación del MSSP agota el tiempo de espera en `helm upgrade`
@@ -307,7 +307,7 @@ La VM arrancó pero nunca se unió a la tailnet. Cloud-init en la VM no pudo alc
 La instalación del chart se ejecutó pero los pods no convergieron en 15 minutos. Usualmente descargas de imágenes en conexiones lentas.
 
 - Conéctate por SSH a la VM del MSSP: `sudo k3s kubectl -n soctalk-system get pods` y busca `ImagePullBackOff` o `CrashLoopBackOff`
-- Si los pods todavía están descargando, espera y relanza — el segundo intento omite el paso de instalación una vez que la API responde
+- Si los pods todavía están descargando, espera y relanza, el segundo intento omite el paso de instalación una vez que la API responde
 
 ### El agente del tenant registra `no such host` en `/api/agent/register`
 
@@ -326,7 +326,7 @@ Verifica sobre esos eventos desde tu CI. Consulta [Esquema de eventos de Launchp
 
 ## A dónde ir después
 
-- **Agrega un tenant real.** Da de alta desde el dashboard del MSSP — consulta el [piloto hazlo tú mismo §3](/es-419/mssp-pilot#3-onboard-tenants) para el recorrido del asistente.
+- **Agrega un tenant real.** Da de alta desde el dashboard del MSSP, consulta el [piloto hazlo tú mismo §3](/es-419/mssp-pilot#3-onboard-tenants) para el recorrido del asistente.
 - **Genera algunas alertas.** El [Simulador de ataques](/es-419/mssp-pilot#5-3-generate-alerts) tiene el runbook.
 - **Apunta la AI a datos reales.** Configura tu [proveedor de LLM](/es-419/integrate/llm-providers) correctamente (la clave de marcador de posición de la prueba de humo no responderá preguntas).
 - **Pasa a producción.** [Install](/es-419/install) es la ruta sin launchpad, con capacidad de HA.

@@ -362,7 +362,7 @@ Regras:
 3. Webhooks de entrada do TheHive são aceitos apenas para cases de dashboard
    somente-leitura (não na v1). Qualquer tentativa de aceitar estado de entrada é
    explicitamente rejeitada e registrada.
-4. Sem loop de reconciliação — o TheHive é um espelho a jusante (downstream), a fonte
+4. Sem loop de reconciliação, o TheHive é um espelho a jusante (downstream), a fonte
    da verdade é o SocTalk.
 5. Exportações com falha tentam novamente com backoff exponencial até um teto; a falha
    permanente aparece no painel de saúde das integrações.

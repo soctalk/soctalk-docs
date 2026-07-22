@@ -63,8 +63,8 @@ Indice: `(user_id, revoked_at)`.
 
 ### Riuso
 
-- `users` (`src/soctalk/core/tenancy/models.py:156`) — invariata.
-- `audit_log` (`src/soctalk/core/tenancy/models.py:291`) — riceve le
+- `users` (`src/soctalk/core/tenancy/models.py:156`), invariata.
+- `audit_log` (`src/soctalk/core/tenancy/models.py:291`), riceve le
   azioni `auth.*` (vedi §9).
 
 Nessuna nuova tabella di audit. Nessuna tabella di chiavi di firma (le
@@ -163,7 +163,7 @@ Per ogni richiesta:
 1. Legge il cookie `soctalk_session`.
 2. Cerca la riga della sessione. Rifiuta se mancante, revocata, oltre
    `absolute_expiry`, oppure oltre `idle_expiry`.
-3. Aggiorna `last_seen_at` (con throttling — scrive al massimo ogni 60s).
+3. Aggiorna `last_seen_at` (con throttling, scrive al massimo ogni 60s).
 4. Carica l'utente e costruisce la stessa forma `UserIdentity` prodotta
    dal percorso. Imposta `request.state.user_identity` esattamente come
    oggi, così decoratori e helper del contesto RLS restano intatti.
@@ -202,7 +202,7 @@ Entrambe le app acquisiscono `/login`:
 
 Quando il login riesce con una credenziale che ha `must_change=true`, la
 risposta del server segnala il cambio come passo successivo. La UI naviga
-direttamente a `/account/password` — nessun flash della dashboard.
+direttamente a `/account/password`: nessun flash della dashboard.
 
 Mentre `must_change` è impostato, qualsiasi route eccetto
 `/account/password` e `POST /api/auth/logout` reindirizza a
@@ -227,7 +227,7 @@ Nell'header di entrambe le app, visibile quando autenticati:
 - Email utente.
 - Etichetta di ruolo ("MSSP admin", "Analyst", "Customer viewer", ecc.).
 - Link a "Change password."
-- "Sign out" — `POST /api/auth/logout`, poi naviga a `/login` con un
+- "Sign out", `POST /api/auth/logout`, poi naviga a `/login` con un
   messaggio flash "You have been signed out."
 
 ### Reset dell'admin (console MSSP)
@@ -241,7 +241,7 @@ Nella pagina di dettaglio utente della console MSSP:
   next login."
 - Alla conferma, il server restituisce una volta la password generata. La
   UI la mostra in un campo copia-negli-appunti con "Copy and close." Dopo
-  la chiusura del modale, la password non è più recuperabile — l'admin la
+  la chiusura del modale, la password non è più recuperabile, l'admin la
   condivide fuori banda.
 
 ### Scadenza della sessione
@@ -344,7 +344,7 @@ Suite di smoke Playwright per ogni UI:
 Non fa parte di questa specifica. Ordinato per probabilità di
 reintroduzione:
 
-1. `password_reset_tokens` — reset password self-service basato su email.
+1. `password_reset_tokens`: reset password self-service basato su email.
 2. MFA (TOTP + codici di recupero), con i corrispondenti passi UI nei
    flussi di login e account.
 3. Inventario delle sessioni (`GET /api/auth/sessions`, revoca-specifica,

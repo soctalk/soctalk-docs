@@ -4,7 +4,7 @@ Cómo un analista de un MSSP procesa las acciones propuestas por la AI que esper
 
 Existen dos backends en la base de código: la **cola del dashboard** (siempre activa) y **Slack bidireccional** (opt-in). El backend del dashboard es el único conectado al runtime del chart V1 en esta versión; el backend bidireccional de Slack existe en el código pero aún no lo activa la ruta de instalación V1.
 
-Para el lado del modelo — cuando la AI transfiere el control a la revisión humana — consulta [Pipeline de AI → Compuerta de revisión humana](/es-419/ai-pipeline#human-review-gate).
+Para el lado del modelo, cuando la AI transfiere el control a la revisión humana, consulta [Pipeline de AI → Compuerta de revisión humana](/es-419/ai-pipeline#human-review-gate).
 
 ## Estados de decisión
 
@@ -12,8 +12,8 @@ Toda revisión tiene el mismo contrato de tres decisiones, sin importar el backe
 
 | Decisión | Efecto en esta versión |
 |---|---|
-| `approve` | La fila pendiente de la revisión se marca como completada y el texto de `feedback` se agrega al registro de auditoría. El caso **no** se reanuda ni se cierra automáticamente con approve — hoy eso es un seguimiento del lado del analista. |
-| `reject` | El caso se cierra como falso positivo (`auto_closed_fp`). Terminal — el grafo no se vuelve a invocar con el `feedback` de la persona. |
+| `approve` | La fila pendiente de la revisión se marca como completada y el texto de `feedback` se agrega al registro de auditoría. El caso **no** se reanuda ni se cierra automáticamente con approve, hoy eso es un seguimiento del lado del analista. |
+| `reject` | El caso se cierra como falso positivo (`auto_closed_fp`). Terminal, el grafo no se vuelve a invocar con el `feedback` de la persona. |
 | `more_info` | La fila de la revisión se actualiza a `info_requested` con la lista de preguntas. El grafo **no** se vuelve a invocar automáticamente; el analista retoma el caso manualmente. |
 
 Las decisiones escriben filas de auditoría de solo anexado (append-only) etiquetadas con la identidad de la persona, la marca de tiempo y una justificación en texto libre. Nunca son editables después de enviarse.
@@ -34,11 +34,11 @@ Al hacer clic en **Review** se abre el detalle de la investigación, desplazado 
 - Tres botones: **Approve**, **Reject**, **Needs more info**
 - Un área de texto para la justificación (obligatoria para Reject / Needs more info)
 
-Al enviar se actualiza la fila de revisión pendiente en la base de datos (`approve` / `reject` / `more_info` más el `feedback` o las `questions` del operador). **No existe un outbox de propuestas en V1** — borradores anteriores describían un outbox indexado por clave de idempotencia y consumido por ejecutores posteriores (creación de casos en TheHive, notificación de Slack), pero ese pipeline no está implementado en esta versión. Las decisiones del revisor se detienen en la fila de revisión + el registro de auditoría; cualquier efecto posterior (por ejemplo, la creación de un caso en TheHive) solo ocurre si el worker de AI lo creó en línea durante la ejecución del grafo.
+Al enviar se actualiza la fila de revisión pendiente en la base de datos (`approve` / `reject` / `more_info` más el `feedback` o las `questions` del operador). **No existe un outbox de propuestas en V1**: borradores anteriores describían un outbox indexado por clave de idempotencia y consumido por ejecutores posteriores (creación de casos en TheHive, notificación de Slack), pero ese pipeline no está implementado en esta versión. Las decisiones del revisor se detienen en la fila de revisión + el registro de auditoría; cualquier efecto posterior (por ejemplo, la creación de un caso en TheHive) solo ocurre si el worker de AI lo creó en línea durante la ejecución del grafo.
 
 ## Backend bidireccional de Slack
 
-Se usa el Socket Mode de Slack para que SocTalk no necesite un endpoint de webhook público — la instalación de SocTalk inicia un WebSocket saliente hacia Slack.
+Se usa el Socket Mode de Slack para que SocTalk no necesite un endpoint de webhook público, la instalación de SocTalk inicia un WebSocket saliente hacia Slack.
 
 ### Requisitos previos
 
@@ -58,7 +58,7 @@ En la UI del MSSP → Settings → Slack:
 - **Notify on escalation** → on (envía cada veredicto de escalate)
 - **Notify on verdict** → opcional (también envía veredictos de cierre; alto volumen)
 
-Toda la configuración de Slack (tokens, canal, toggles de notificación) es solo por entorno en V1 — la ruta heredada `PUT /api/settings` no está montada por el chart V1. Consulta [Slack — Configurar](/es-419/integrate/slack#configure) para el patrón de inyección de variables de entorno.
+Toda la configuración de Slack (tokens, canal, toggles de notificación) es solo por entorno en V1, la ruta heredada `PUT /api/settings` no está montada por el chart V1. Consulta [Slack, Configurar](/es-419/integrate/slack#configure) para el patrón de inyección de variables de entorno.
 
 ### Experiencia del operador
 
@@ -71,7 +71,7 @@ Observables: 198.51.100.7 (Cortex: malicious, 8/12), sshd, alice@linux-ep-1
 [Approve]  [Reject]  [Needs more info]  [View in UI →]
 ```
 
-Los botones responden a través de Socket Mode; la instalación de SocTalk registra la decisión indexada por la clave de idempotencia de la propuesta. La misma propuesta en la cola del dashboard se actualiza en tiempo real — aprobar en Slack cierra la tarjeta del dashboard.
+Los botones responden a través de Socket Mode; la instalación de SocTalk registra la decisión indexada por la clave de idempotencia de la propuesta. La misma propuesta en la cola del dashboard se actualiza en tiempo real, aprobar en Slack cierra la tarjeta del dashboard.
 
 Si el analista hace clic en **Reject** o **Needs more info**, se abre un diálogo de Slack para la justificación (obligatoria).
 
@@ -87,11 +87,11 @@ Las mismas credenciales de Slack impulsarían notificaciones de webhook unidirec
 
 ## Contabilidad de resultados
 
-Las decisiones de revisión escriben una fila de auditoría. El gauge `soctalk_tenant_pending_reviews` está **definido** en el código de observabilidad pero **no se actualiza activamente** en V1 — se mantiene en 0. El seguimiento de la profundidad real de la cola de revisiones está en el roadmap. Un contador planificado `human_review_decisions_total` (por analista) tampoco está instrumentado todavía.
+Las decisiones de revisión escriben una fila de auditoría. El gauge `soctalk_tenant_pending_reviews` está **definido** en el código de observabilidad pero **no se actualiza activamente** en V1, se mantiene en 0. El seguimiento de la profundidad real de la cola de revisiones está en el roadmap. Un contador planificado `human_review_decisions_total` (por analista) tampoco está instrumentado todavía.
 
 ## Bypass: modo solo AI
 
-Un modo "auto-aprobar cada escalate" sin compuerta humana **no** está implementado en esta versión. El nodo de veredicto siempre enruta `escalate` a través de `human_review`. Eliminar la compuerta humana está en el roadmap como un toggle explícito restringido solo a `platform_admin`, con la justificación auditada — no como un valor predeterminado silencioso.
+Un modo "auto-aprobar cada escalate" sin compuerta humana **no** está implementado en esta versión. El nodo de veredicto siempre enruta `escalate` a través de `human_review`. Eliminar la compuerta humana está en el roadmap como un toggle explícito restringido solo a `platform_admin`, con la justificación auditada, no como un valor predeterminado silencioso.
 
 ## Punteros al código fuente
 

@@ -63,8 +63,8 @@ linha no banco é a fonte da verdade.
 
 ### Reutilização
 
-- `users` (`src/soctalk/core/tenancy/models.py:156`) — inalterado.
-- `audit_log` (`src/soctalk/core/tenancy/models.py:291`) — recebe as
+- `users` (`src/soctalk/core/tenancy/models.py:156`), inalterado.
+- `audit_log` (`src/soctalk/core/tenancy/models.py:291`), recebe as
   ações `auth.*` (ver §9).
 
 Nenhuma nova tabela de auditoria. Nenhuma tabela de chave de assinatura
@@ -163,7 +163,7 @@ Por requisição:
 1. Ler o cookie `soctalk_session`.
 2. Buscar a linha da sessão. Rejeitar se estiver ausente, revogada, além
    do `absolute_expiry` ou além do `idle_expiry`.
-3. Atualizar `last_seen_at` (com throttle — escrever no máximo a cada 60s).
+3. Atualizar `last_seen_at` (com throttle, escrever no máximo a cada 60s).
 4. Carregar o usuário e construir o mesmo formato de `UserIdentity`
    produzido pelo caminho. Definir `request.state.user_identity`
    exatamente como hoje, de modo que os decorators e os helpers de
@@ -203,7 +203,7 @@ Ambos os apps ganham `/login`:
 
 Quando o login é bem-sucedido contra uma credencial com
 `must_change=true`, a resposta do servidor sinaliza a troca como o próximo
-passo. A UI navega direto para `/account/password` — sem flash do
+passo. A UI navega direto para `/account/password`: sem flash do
 dashboard.
 
 Enquanto `must_change` estiver definido, qualquer rota exceto
@@ -229,7 +229,7 @@ No cabeçalho de ambos os apps, visível quando autenticado:
 - E-mail do usuário.
 - Rótulo do papel ("MSSP admin", "Analyst", "Customer viewer", etc.).
 - Link para "Trocar senha".
-- "Sair" — `POST /api/auth/logout`, depois navega para `/login` com uma
+- "Sair", `POST /api/auth/logout`, depois navega para `/login` com uma
   mensagem de flash "Você foi desconectado."
 
 ### Redefinição pelo admin (console do MSSP)
@@ -243,7 +243,7 @@ Na página de detalhes do usuário no console do MSSP:
   login."
 - Ao confirmar, o servidor retorna a senha gerada uma única vez. A UI a
   renderiza em um campo de copiar-para-a-área-de-transferência com "Copiar
-  e fechar". Depois que o modal fecha, a senha não é mais recuperável — o
+  e fechar". Depois que o modal fecha, a senha não é mais recuperável, o
   admin a compartilha por um canal externo.
 
 ### Expiração de sessão
@@ -344,7 +344,7 @@ Suíte de smoke com Playwright para cada UI:
 Fora do escopo desta especificação. Ordenado pela probabilidade de
 reincorporação:
 
-1. `password_reset_tokens` — redefinição de senha por e-mail em
+1. `password_reset_tokens`: redefinição de senha por e-mail em
    autoatendimento.
 2. MFA (TOTP + códigos de recuperação), com os passos de UI
    correspondentes nos fluxos de login e de conta.
