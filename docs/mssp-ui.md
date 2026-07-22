@@ -64,7 +64,7 @@ Three sections:
 2. **Actions** — Suspend / Resume / Retry Provisioning / Decommission. **Suspend in this release flips the tenant's state to `suspended`** so the orchestrator stops scheduling new investigations; it does **not** scale workloads. For a definitive cut-off, follow [Daily Operations → Emergency disable](/operations#emergency-disable-a-tenant-immediately). **Retry Provisioning** only works on tenants in `degraded` — the API rejects `:retry` on tenants in `pending` (`pending → provisioning` is automatic on first attempt).
 3. **Lifecycle Events** — chronological log of the provisioning state machine: `preflight_ok → secrets_minted → namespace_ready → secrets_applied → helm_applied (soctalk-tenant chart) → helm_applied (Wazuh chart) → workloads_ready → integration_config_written → active`. The two `helm_applied` rows are distinguishable via the event payload (chart identity). When a tenant gets stuck this table tells you which step failed.
 
-The page is read-only otherwise; the per-tenant SOC (Wazuh, Cortex, TheHive) opens in its own window via the **Open SOC** action on the tenants list.
+The page is read-only otherwise; the per-tenant SOC opens in its own window via the **Open SOC** action on the tenants list. Wazuh is the in-namespace data plane; TheHive and Cortex are external integrations, not bundled per-tenant components.
 
 ## Investigations
 
@@ -142,8 +142,8 @@ Sections:
 
 - **LLM** — Provider (`openai-compatible | anthropic`), Fast Model, Reasoning Model, Temperature, Max Tokens, optional Base URL + Organization. API keys live in environment / Kubernetes Secrets, never in this form.
 - **Wazuh SIEM** — enable toggle, URL, credentials.
-- **Cortex** — enable toggle, URL, credentials.
-- **TheHive** — enable toggle, URL, organisation, credentials.
+- **Cortex** — enable toggle, URL, credentials. External integration, not a bundled subchart; the URL points at the tenant's Cortex instance (see /integrate/cortex).
+- **TheHive** — enable toggle, URL, organisation, credentials. External integration, not a bundled subchart; the URL points at the tenant's TheHive instance (see /integrate/thehive).
 - **Slack** — webhook + interactive backend config.
 
 The **Bring your own LLM key →** link goes to per-tenant LLM key rotation (per-tenant LLM keys override the install-wide one).

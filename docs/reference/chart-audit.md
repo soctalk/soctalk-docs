@@ -10,11 +10,12 @@ Charts to audit:
 | Upstream | Upstream source | Target version |
 |---|---|---|
 | Wazuh | `wazuh/wazuh-kubernetes` Helm chart (community) or official OCI chart | Latest stable 4.x supporting single-manager HA |
-| TheHive | `StrangeBee/thehive4` Helm chart or community | 5.x |
-| Cortex | `TheHive-Project/Cortex` Helm chart or community | 3.x |
+| linux-ep | SocTalk L2 endpoint-agent subchart (component key `components.linuxep`) | `0.2.0` |
 | MISP | **deferred a future release** | |
 
-For each chart we vendor the manifest templates (with patches if needed) as subchart dependencies of `charts/soctalk-tenant/`: Version pinning is strict. `Chart.yaml` uses exact semver with digest (OCI) where available.
+The `soctalk-tenant` chart vendors exactly two subcharts, `wazuh` and `linux-ep`. For each we vendor the manifest templates (with patches if needed) as subchart dependencies of `charts/soctalk-tenant/`: Version pinning is strict. `Chart.yaml` uses exact semver with digest (OCI) where available.
+
+TheHive and Cortex are **external integrations**, reached over the network and configured per tenant (see /integrate/thehive and /integrate/cortex). They are not vendored subcharts, so they are out of scope for this chart audit.
 
 ## Classification rules
 
@@ -57,44 +58,24 @@ Wazuh charts typically render:
 5. Ensure all pods have `securityContext: { runAsNonRoot: true, allowPrivilegeEscalation: false }`; patch if upstream sets otherwise.
 6. Pin images to digests, not `latest`.
 
-### TheHive
+### linux-ep
+
+The L2 endpoint-agent subchart (`components.linuxep`). Its rendered inventory is narrow: the chart emits a single `StatefulSet` and consumes an existing Secret by `secretKeyRef` rather than rendering its own credential objects.
 
 | Object | Expected class | Notes |
 |---|---|---|
-| `Deployment` (TheHive app) | NS-OK | |
-| `StatefulSet` (Cassandra or external-DB-backed variants) | NS-OK | uses embedded Cassandra; external Cassandra is a future release option |
-| `Service` (TheHive web + API on 9000) | NS-OK | |
-| `ConfigMap` (application.conf) | NS-OK | Per-tenant config rendered by SocTalk |
-| `Secret` (admin credentials, Cortex API key for this tenant's Cortex) | NS-OK | |
-| `PersistentVolumeClaim` (Cassandra data, index data) | NS-OK | |
-| `ServiceAccount` | NS-OK | |
-| `Ingress` | PATCH or disable | Same as Wazuh: dashboard exposure via MSSP-side proxy with tenant routing, not per-namespace Ingress |
-| `Job` (bootstrap / init) | NS-OK | OK for first-run cert generation / DB init |
-| `CustomResourceDefinition` | **FORBIDDEN**: must be in `soctalk-system` chart if present |
-| `ClusterRole` / `ClusterRoleBinding` | **FORBIDDEN** in tenant chart |
+| `StatefulSet` (endpoint agent) | NS-OK | The only workload the subchart renders; namespace-scoped |
+| `Secret` (enrollment / agent credentials) | Consumed, not rendered | Referenced via `secretKeyRef`; seeded per-tenant at provisioning, outside this subchart |
+| `ClusterRole` / `ClusterRoleBinding` | **FORBIDDEN** in tenant chart | Never install cluster-wide RBAC from a tenant namespace |
 
-**Expected patches**:
-1. Strip Ingress; use ClusterIP Services only.
-2. Pin Cassandra to digest; set resource limits matching sizing sizing.
-3. Ensure init Job is idempotent (re-runs harmless).
-4. No CRD dependencies.
+**Current state and expected patches**:
+1. The subchart default sets `securityContext.privileged: true` on the agent pod. This is PoC-only behavior and a real risk, it must be scoped down (drop privileged, `allowPrivilegeEscalation: false`) before any production use.
+2. Confirm no `ClusterRole`/`ClusterRoleBinding` appears in rendered output.
+3. Pin images to digests, not `latest`.
 
-### Cortex
+### External integrations (out of audit scope)
 
-| Object | Expected class | Notes |
-|---|---|---|
-| `Deployment` (Cortex app) | NS-OK | |
-| `StatefulSet` (Elasticsearch or compatible index) | NS-OK | embedded ES; external ES is a future release |
-| `Service` (Cortex API on 9001) | NS-OK | |
-| `ConfigMap` (application.conf, analyzer lists) | NS-OK | |
-| `Secret` (admin, inter-service tokens) | NS-OK | |
-| `PersistentVolumeClaim` | NS-OK | |
-| `ServiceAccount` | NS-OK | |
-| `Job` (analyzer registration) | NS-OK if idempotent |
-| `Ingress` | PATCH or disable |
-| `PrivilegedContainer` (Docker-in-Docker for analyzer sandboxing, if upstream uses this pattern) | **FORBIDDEN**: patch | Cortex analyzers that require Docker sandboxing are out of scope for this release. Use only analyzers that run in-process or call out to sandboxed external services |
-
-**Known risk**: Cortex historically runs some analyzers as subprocesses or Docker containers. This release limits to "pure-code" analyzers that don't require privileged host access. Analyzer list is pinned in values; analyzers requiring Docker-in-Docker are rejected at provisioning time.
+TheHive and Cortex are **external integrations**, not vendored subcharts, so they are out of scope for this chart audit. SocTalk reaches them over the network per tenant; there are no in-namespace TheHive/Cortex objects to classify. Configure them via /integrate/thehive and /integrate/cortex.
 
 ## Cluster prerequisites list (rolled into install guide + `soctalk-system` chart prereq check)
 
@@ -123,7 +104,7 @@ Two paths:
 1. **Values-driven overrides**: prefer upstream chart values that disable the unwanted object (e.g., `ingress.enabled: false`, `networkPolicy.enabled: false` if upstream's is looser than ours, `rbac.create: true` scoped to namespace only).
 2. **Kustomize-style overlay** (Helm's `kustomize` integration or post-render hook) for objects that can't be disabled via values: strip `ClusterRole`s, remove `hostPath` volumes, set `securityContext`.
 
-We vendor upstream charts as pinned subchart dependencies in `charts/soctalk-tenant/charts/`, not as `helm repo` references. This lets us:
+We vendor upstream charts as sibling charts under `charts/` (`charts/wazuh`, `charts/linux-ep`) referenced by relative path, not as `helm repo` references (helm copies them into the package at build time). This lets us:
 - Pin to exact versions (no upstream surprise updates)
 - Apply patches as needed without depending on upstream PR acceptance
 - Sign our bundle as a single artifact (a future release when cosign lands)
@@ -135,23 +116,21 @@ If upstream doesn't meet our needs after patches, the fallback is to write SocTa
 Items that require actual `helm template` runs + inspection to confirm:
 
 - [ ] **Wazuh**: does the chosen chart version require CRDs for operator-driven deployment? If yes, move CRDs to `soctalk-system` chart.
-- [ ] **TheHive**: does Cassandra require `StorageClass` with specific features (e.g., RWO only, minimum IOPS)? Document in sizing sizing.
-- [ ] **Cortex**: what analyzers are enabled by default, and do any require Docker-in-Docker? Produce an allowlist of-safe analyzers.
+- [ ] **linux-ep**: does the endpoint agent require host-level access (hostPath, host network) that must be patched out or scoped down?
 - [ ] **All charts**: any `Job` or `CronJob` that runs with `ServiceAccount` beyond the namespace? Patch to ns-local SA.
 - [ ] **All charts**: any `initContainer` with `privileged: true` or `hostPath` mounts? Patch or replace.
 - [ ] **All charts**: default `resources.requests` and `limits`: Compare to sizing sizing profile; override in values where needed.
 
-Each open item becomes a pre-release validation checklist entry. The spike's output is a filled-in classification table and the patched chart ready for `charts/soctalk-tenant/charts/`.
+Each open item becomes a pre-release validation checklist entry. The spike's output is a filled-in classification table and the patched chart maintained under `charts/wazuh` / `charts/linux-ep`.
 
 ## Output artifact (produced before shipping)
 
 The spike produces:
 
 1. **Classified object inventory** (filling in section 3 tables with actual rendered objects).
-2. **Patched chart bundles** checked into `charts/soctalk-tenant/charts/wazuh/`, `thehive/`, `cortex/` with pinned versions.
+2. **Patched chart bundles** maintained under `charts/wazuh/` and `charts/linux-ep/` with pinned versions.
 3. **Cluster prerequisites list** merged into install guide.
-4. **Analyzer allowlist** for Cortex (safe-only set).
-5. **Values schema fragment** for each subchart (inputs SocTalk will provide per-tenant).
+4. **Values schema fragment** for each subchart (inputs SocTalk will provide per-tenant).
 
 The spike's completion is a prerequisite for Helm chart implementation.
 
