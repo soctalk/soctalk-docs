@@ -30,7 +30,7 @@ Der Floor wird im Code durchgesetzt, nicht in Richtliniendaten, und er gilt auf 
 
 | Veto | Wann es auslöst |
 |---|---|
-| IOC vorhanden | Auf dem Verdict-Pfad ein bösartiges Anreicherungs-Verdict oder ein MISP-Match; auf den Ingest-Fast-Paths jedes rohe IOC auf der Warnung. |
+| IOC vorhanden | Auf dem Verdict-Pfad ein bösartiges Anreicherungs-Verdikt oder ein MISP-Match; auf den Ingest-Fast-Paths jedes rohe IOC auf der Warnung. |
 | Widersprochene Autorisierung | Records existieren, decken die Aktivität aber nicht ab (abgelaufen, außerhalb des Zeitfensters, falscher Scope, per Richtlinie verboten). |
 | Ungeprüftes IOC | Ein Abschluss auf Router-Ebene mit Observables, die keine Anreicherung jemals geprüft hat. |
 | Aktiver Vorfall | Eine andere aktive Untersuchung teilt eine anhang-fähige Entität mit dieser. |

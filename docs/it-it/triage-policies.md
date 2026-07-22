@@ -30,7 +30,7 @@ Il floor è applicato nel codice, non nei dati della policy, e vale su ogni pian
 
 | Veto | Quando scatta |
 |---|---|
-| IOC presente | Sul percorso del verdict, un verdict di enrichment malevolo o un match MISP; sulle fast-path di ingest, qualsiasi IOC grezzo sull'alert. |
+| IOC presente | Sul percorso del verdict, un verdetto di enrichment malevolo o un match MISP; sulle fast-path di ingest, qualsiasi IOC grezzo sull'alert. |
 | Autorizzazione contraddetta | Esistono record ma non coprono l'attività (scaduti, fuori finestra, ambito errato, vietati dalla policy). |
 | IOC non verificato | Una chiusura di tier router con observable che nessun enrichment ha mai controllato. |
 | Incident attivo | Un'altra indagine attiva condivide con questa un'entità idonea al collegamento. |
