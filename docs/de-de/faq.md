@@ -32,7 +32,7 @@ Ja, mit ein paar zusätzlichen Schritten:
 
 - **Container-Images**: Spiegle `ghcr.io/soctalk/*` in deine interne Registry. Das Chart akzeptiert `image.registry: your.registry.example/soctalk`.
 - **Helm-Chart**: Führe `helm pull oci://ghcr.io/soctalk/charts/soctalk-system` einmal aus, hoste es in einer internen OCI-Registry und richte die Installationen darauf aus.
-- **LLM**: Verwende einen lokalen OpenAI-kompatiblen Endpunkt (vLLM, Ollama-Proxy, On-Prem-Bedrock-Proxy). Siehe [LLM-Anbieter](/de-de/integrate/llm-providers).
+- **LLM**: Verwende einen lokalen OpenAI-kompatiblen Endpoint (vLLM, Ollama-Proxy, On-Prem-Bedrock-Proxy). Siehe [LLM-Anbieter](/de-de/integrate/llm-providers).
 - **Cortex-Analyzer**: Jeder Analyzer, der Internet benötigt, funktioniert nicht. Verwende nur On-Prem-Analyzer (MaxMind GeoIP, internes MISP) oder deaktiviere Cortex.
 - **GitHub Releases**: Lade das [VM-Image](/de-de/downloads) auf einem verbundenen Host herunter und übertrage es per Sneakernet.
 
@@ -45,7 +45,7 @@ Stark variabel, abhängig von:
 - Warnungsvolumen (eine Untersuchung pro Warnung, die die Korrelation übersteht)
 - Token-Budget pro Lauf (`case_runs.tokens_budget`, Modell-Standard 200.000)
 - Modellauswahl (`fast_model` + `reasoning_model`)
-- Wie oft das Verdikt `needs_more_info` lautet (löst einen erneuten Lauf aus)
+- Wie oft das Verdict `needs_more_info` lautet (löst einen erneuten Lauf aus)
 
 Größenordnung mit dem Standardbudget von 200.000 Token pro Lauf und typischer Nutzung: 30 Warnungen/Tag × ~60k Token/Untersuchung × 5 $/Mtok Eingabe ≈ 9 $/Tag pro Mandant bei einem günstigen OpenAI-kompatiblen Setup. Sinkt um das 5- bis 10-Fache mit einem günstigeren Fast-Modell. Siehe [Observability, Kosten pro Mandant](/de-de/observability#per-tenant-cost) zur Messung.
 
@@ -59,13 +59,13 @@ Ja, der Override pro Mandant gilt auch für den API-Schlüssel. Der maßgebliche
 
 ## Sendet SocTalk Kundendaten an Anthropic / OpenAI?
 
-Nur das, worüber die AI-Pipeline nachdenkt: den Warnungstext, die extrahierten Observables und die Worker-Ausgaben. Die Laufzeitumgebung exfiltriert keine ruhenden Daten, nur das, was im aktuellen Untersuchungszustand enthalten ist. Wenn du eine strengere Haltung benötigst, verwende einen On-Prem-LLM-Endpunkt (vLLM, Ollama). Siehe [LLM-Anbieter, Wechsel zu Anthropic / Laufzeit-Schalter](/de-de/integrate/llm-providers#runtime-only-knobs-env-not-chart).
+Nur das, worüber die AI-Pipeline nachdenkt: den Warnungstext, die extrahierten Observables und die Worker-Ausgaben. Die Laufzeitumgebung exfiltriert keine ruhenden Daten, nur das, was im aktuellen Untersuchungszustand enthalten ist. Wenn du eine strengere Haltung benötigst, verwende einen On-Prem-LLM-Endpoint (vLLM, Ollama). Siehe [LLM-Anbieter, Wechsel zu Anthropic / Laufzeit-Schalter](/de-de/integrate/llm-providers#runtime-only-knobs-env-not-chart).
 
 ## Ersetzt es meine Analysten?
 
-Nein. SocTalk ist als **Copilot** positioniert, nicht als Ersatz. Der Verdikt-Knoten entscheidet `escalate | close | needs_more_info`; eine Eskalation durchläuft immer ein Gate für die [menschliche Prüfung](/de-de/human-review). Ohne den Menschen bräuchte ein MSSP mit hohem Volumen weiterhin Analysten, um die Entscheidungen zu bearbeiten, die SocTalk an sie weiterleitet.
+Nein. SocTalk ist als **Copilot** positioniert, nicht als Ersatz. Der Verdict-Knoten entscheidet `escalate | close | needs_more_info`; eine Eskalation durchläuft immer ein Gate für die [menschliche Prüfung](/de-de/human-review). Ohne den Menschen bräuchte ein MSSP mit hohem Volumen weiterhin Analysten, um die Entscheidungen zu bearbeiten, die SocTalk an sie weiterleitet.
 
-Der Nutzen liegt in der Kompression, dasselbe Analystenteam kann das 5- bis 10-Fache des Warnungsvolumens bewältigen, weil Routinefälle automatisch geschlossen werden und nur die unklaren Fälle die menschliche Prüfung erreichen.
+Der Nutzen liegt in der Kompression; dasselbe Analystenteam kann das 5- bis 10-Fache des Warnungsvolumens bewältigen, weil Routinefälle automatisch geschlossen werden und nur die unklaren Fälle die menschliche Prüfung erreichen.
 
 ## Funktioniert es ohne Wazuh?
 

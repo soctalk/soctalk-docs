@@ -156,7 +156,7 @@ Si MagicDNS está deshabilitado en tu tailnet, `lp-<key>.<tailnet>.ts.net` no se
 
 ## 4. Usa tu piloto: da de alta clientes y pregúntale a la AI
 
-Launchpad te entrega un MSSP en funcionamiento con tu primer tenant ya dado de alta, desde aquí lo conduces exactamente como lo haría un MSSP. El **Dashboard** es una vista de flota entre tenants: revisiones pendientes, casos atascados, tenants degradados y salud por tenant.
+Launchpad te entrega un MSSP en funcionamiento con tu primer tenant ya dado de alta; desde aquí lo conduces exactamente como lo haría un MSSP. El **Dashboard** es una vista de flota entre tenants: revisiones pendientes, casos atascados, tenants degradados y salud por tenant.
 
 ![El dashboard del MSSP, vista de flota entre tenants](/screenshots/pilot-final-dashboard.png)
 
@@ -181,7 +181,7 @@ Profundiza en un tenant para ver sus investigaciones abiertas, revisiones y la s
 ![Ask AI, acotado a un solo tenant](/screenshots/pilot-chat-tenant-reply.png)
 
 ::: tip
-La AI necesita un [proveedor de LLM](/es-419/integrate/llm-providers) real configurado, la clave de marcador de posición de la prueba de humo no responderá preguntas.
+La AI necesita un [proveedor de LLM](/es-419/integrate/llm-providers) real configurado; la clave de marcador de posición de la prueba de humo no responderá preguntas.
 :::
 
 ## 5. Ajusta con un archivo de configuración
@@ -307,7 +307,7 @@ La VM arrancó pero nunca se unió a la tailnet. Cloud-init en la VM no pudo alc
 La instalación del chart se ejecutó pero los pods no convergieron en 15 minutos. Usualmente descargas de imágenes en conexiones lentas.
 
 - Conéctate por SSH a la VM del MSSP: `sudo k3s kubectl -n soctalk-system get pods` y busca `ImagePullBackOff` o `CrashLoopBackOff`
-- Si los pods todavía están descargando, espera y relanza, el segundo intento omite el paso de instalación una vez que la API responde
+- Si los pods todavía están descargando, espera y relanza; el segundo intento omite el paso de instalación una vez que la API responde
 
 ### El agente del tenant registra `no such host` en `/api/agent/register`
 
@@ -326,7 +326,7 @@ Verifica sobre esos eventos desde tu CI. Consulta [Esquema de eventos de Launchp
 
 ## A dónde ir después
 
-- **Agrega un tenant real.** Da de alta desde el dashboard del MSSP, consulta el [piloto hazlo tú mismo §3](/es-419/mssp-pilot#3-onboard-tenants) para el recorrido del asistente.
+- **Agrega un tenant real.** Da de alta desde el dashboard del MSSP; consulta el [piloto hazlo tú mismo §3](/es-419/mssp-pilot#3-onboard-tenants) para el recorrido del asistente.
 - **Genera algunas alertas.** El [Simulador de ataques](/es-419/mssp-pilot#5-3-generate-alerts) tiene el runbook.
 - **Apunta la AI a datos reales.** Configura tu [proveedor de LLM](/es-419/integrate/llm-providers) correctamente (la clave de marcador de posición de la prueba de humo no responderá preguntas).
 - **Pasa a producción.** [Install](/es-419/install) es la ruta sin launchpad, con capacidad de HA.

@@ -1,6 +1,6 @@
 # Täglicher Betrieb
 
-Aufgaben, die MSSP-Betreiber gegen eine laufende SocTalk-Installation ausführen. Falls noch nicht geschehen, lesen Sie zuerst die [MSSP-UI-Tour](/de-de/mssp-ui), sie katalogisiert jede unten referenzierte Seite.
+Aufgaben, die MSSP-Betreiber gegen eine laufende SocTalk-Installation ausführen. Falls noch nicht geschehen, lesen Sie zuerst die [MSSP-UI-Tour](/de-de/mssp-ui); sie katalogisiert jede unten referenzierte Seite.
 
 ## Untersuchungs-Warteschlange
 
@@ -10,7 +10,7 @@ Aufgaben, die MSSP-Betreiber gegen eine laufende SocTalk-Installation ausführen
 
 ## Vorschlags-Prüfungs-Warteschlange
 
-**Reviews** ist die mandantenübergreifende Warteschlange von KI-Vorschlägen, die auf einen Menschen warten. Genehmigen / Ablehnen / Mehr-Infos aktualisieren jeweils die Prüfungszeile in der Datenbank (und dem Audit-Log). Es gibt **keine Outbox** in V1, die Executor- / nachgelagerte Benachrichtigungs-Pipeline steht auf der Roadmap.
+**Reviews** ist die mandantenübergreifende Warteschlange von KI-Vorschlägen, die auf einen Menschen warten. Genehmigen / Ablehnen / Mehr-Infos aktualisieren jeweils die Prüfungszeile in der Datenbank (und dem Audit-Log). Es gibt **keine Outbox** in V1; die Executor- / nachgelagerte Benachrichtigungs-Pipeline steht auf der Roadmap.
 
 ![Review queue](/screenshots/review-queue.png)
 
@@ -66,7 +66,7 @@ Wenn die Data Plane gesund ist, der Adapter aber `soctalk-system` immer noch nic
 
 ## Data-Plane-Bootstrap-Secrets rotieren
 
-Es gibt in diesem Release kein `soctalk-cli rotate-*`-Kommando, dieser Weg war in früheren Entwürfen dokumentiert. Heute:
+Es gibt in diesem Release kein `soctalk-cli rotate-*`-Kommando; dieser Weg war in früheren Entwürfen dokumentiert. Heute:
 
 - **Wazuh-Admin-Passwort:** patchen Sie das relevante Secret im Mandanten-Namespace und starten Sie dann den betroffenen Pod neu. Der Bootstrap-Rerun der Chart beim Pod-Start übernimmt die neue Zugangsinformation. TheHive und Cortex sind externe Integrationen, keine gebündelten Subcharts, daher werden ihre Zugangsdaten in jenen Systemen rotiert und über die Integrationskonfiguration aktualisiert (siehe /de-de/integrate/thehive, /de-de/integrate/cortex).
 - **Wazuh-`authd`-Shared-Secret:** patchen Sie `Secret/wazuh-authd-secret` in `tenant-<slug>`, starten Sie den Wazuh-Manager neu. Alle bestehenden Agenten müssen sich mit dem neuen Secret neu registrieren; verteilen Sie es über Ihren üblichen sicheren Kanal.
@@ -125,7 +125,7 @@ spec:
 EOF
 ```
 
-Kehren Sie den Vorgang um, indem Sie die NetworkPolicy löschen, die Workloads wieder auf ihre ursprünglichen Replica-Anzahlen hochskalieren und in der UI **Resume** aufrufen. **Resume** aktualisiert in diesem Release ebenfalls nur den DB-Zustand, es stellt die Replica-Anzahlen nicht für Sie wieder her.
+Kehren Sie den Vorgang um, indem Sie die NetworkPolicy löschen, die Workloads wieder auf ihre ursprünglichen Replica-Anzahlen hochskalieren und in der UI **Resume** aufrufen. **Resume** aktualisiert in diesem Release ebenfalls nur den DB-Zustand; es stellt die Replica-Anzahlen nicht für Sie wieder her.
 
 ## Verdacht auf mandantenübergreifendes Datenleck
 

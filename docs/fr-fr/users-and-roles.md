@@ -65,7 +65,7 @@ Remarques :
 - Les rôles assignables sont `customer_viewer`, `tenant_analyst`, `tenant_manager` et `tenant_admin`. Un rôle MSSP ne peut pas être assigné ici ; la requête est rejetée. C'est le mur d'audience.
 - Le nouvel utilisateur est toujours placé dans le tenant de l'appelant. Le tenant est pris dans la session de l'appelant, jamais dans le corps de la requête, et la base de données l'impose, de sorte qu'un administrateur de tenant ne peut jamais créer d'utilisateurs que dans son propre tenant.
 - Un e-mail en double est rejeté. Les e-mails sont uniques sur l'ensemble de l'installation.
-- `GET /api/tenant/users` liste les utilisateurs du tenant lui-même. Les deux points de terminaison requièrent la capacité `tenant_manage_users`, que seul `tenant_admin` détient.
+- `GET /api/tenant/users` liste les utilisateurs du tenant lui-même. Les deux endpoints requièrent la capacité `tenant_manage_users`, que seul `tenant_admin` détient.
 
 Le portail du client est accessible sur un hôte propre à chaque tenant. Le nom d'hôte fixe provient de `ingress.hostnames.customer` dans les valeurs du chart, et les hôtes par tenant pilotés par slug proviennent de `ingress.tenantWildcard`. Consultez la [documentation d'installation](/fr-fr/install) pour la disposition des noms d'hôte.
 
@@ -82,7 +82,7 @@ curl -X POST 'https://mssp.your-mssp.example/api/mssp/users' \
 Remarques :
 
 - Les rôles assignables sont `analyst`, `mssp_manager`, `mssp_admin` et `platform_admin`. Un rôle tenant ne peut pas être assigné ici (le mur d'audience). L'assignation de `platform_admin` n'est autorisée que si l'appelant est déjà un `platform_admin`.
-- Le nouvel utilisateur est côté MSSP (`tenant_id` est null). Ces points de terminaison n'opèrent jamais que sur les lignes du personnel MSSP, de sorte qu'un utilisateur tenant ne peut jamais être atteint par leur intermédiaire.
+- Le nouvel utilisateur est côté MSSP (`tenant_id` est null). Ces endpoints n'opèrent jamais que sur les lignes du personnel MSSP, de sorte qu'un utilisateur tenant ne peut jamais être atteint par leur intermédiaire.
 - La réponse contient un mot de passe temporaire à usage unique ; l'utilisateur le change à sa première connexion. Un e-mail en double est rejeté.
 - `GET /api/mssp/users` liste le personnel. Tous ces éléments requièrent la capacité `manage_users`, détenue uniquement par `mssp_admin` et `platform_admin`.
 
@@ -116,7 +116,7 @@ curl -X POST 'https://mssp.your-mssp.example/api/mssp/users/<user-id>/password/r
 
 La cible peut être un utilisateur MSSP ou un utilisateur tenant ; l'acteur doit être `mssp_admin` ou `platform_admin`. La réponse contient un nouveau `temporary_password` marqué `must_change=true`, et la réinitialisation révoque toutes les sessions existantes de cet utilisateur. Partagez le mot de passe ; l'utilisateur en choisit un nouveau à sa première connexion.
 
-Il n'y a pas d'action de réinitialisation côté tenant, de sorte qu'un `tenant_admin` ne peut pas réinitialiser le mot de passe de l'un de ses propres utilisateurs depuis l'interface. Tant que cela n'est pas livré, un administrateur MSSP le réinitialise avec le point de terminaison ci-dessus, ou un opérateur le réinitialise directement sur la ligne de la base de données.
+Il n'y a pas d'action de réinitialisation côté tenant, de sorte qu'un `tenant_admin` ne peut pas réinitialiser le mot de passe de l'un de ses propres utilisateurs depuis l'interface. Tant que cela n'est pas livré, un administrateur MSSP le réinitialise avec l'endpoint ci-dessus, ou un opérateur le réinitialise directement sur la ligne de la base de données.
 
 ## Usurpation et changement de contexte tenant
 

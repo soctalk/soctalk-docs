@@ -43,8 +43,8 @@ Beschaffe dir zuerst Folgendes:
       - Passwortloses SSH von deiner Workstation als Benutzer in der `kvm`-Gruppe
 - [ ] **Ein Tailscale-Tailnet.** Der kostenlose Tarif genügt. Du benötigst:
       - Den Tailnet-Namen (z. B. `taila1b2c3.ts.net`)
-      - Ein [Tailscale-API-Zugriffstoken](https://login.tailscale.com/admin/settings/keys) mit `keys:write`-Scope, der Launchpad nutzt es, um pro VM kurzlebige Geräte-Auth-Keys zu erzeugen
-      - Tag-Ownership für die Tags, die du verwenden wirst, füge diese zu deiner ACL hinzu:
+      - Ein [Tailscale-API-Zugriffstoken](https://login.tailscale.com/admin/settings/keys) mit `keys:write`-Scope; der Launchpad nutzt es, um pro VM kurzlebige Geräte-Auth-Keys zu erzeugen
+      - Tag-Ownership für die Tags, die du verwenden wirst; füge diese zu deiner ACL hinzu:
         ```json
         "tagOwners": {
           "tag:mssp":        ["autogroup:admin"],
@@ -181,7 +181,7 @@ Tauche in einen Mandanten ein, um seine offenen Untersuchungen, Prüfungen und d
 ![Ask AI, auf einen einzelnen Mandanten begrenzt](/screenshots/pilot-chat-tenant-reply.png)
 
 ::: tip
-Die AI benötigt einen echten konfigurierten [LLM-Anbieter](/de-de/integrate/llm-providers), der Smoke-Test-Platzhalter-Schlüssel beantwortet keine Fragen.
+Die AI benötigt einen echten konfigurierten [LLM-Anbieter](/de-de/integrate/llm-providers); der Smoke-Test-Platzhalter-Schlüssel beantwortet keine Fragen.
 :::
 
 ## 5. Mit einer Konfigurationsdatei feinjustieren
@@ -307,7 +307,7 @@ Die VM ist gebootet, aber nie dem Tailnet beigetreten. Cloud-init auf der VM kon
 Die Chart-Installation lief, aber die Pods konvergierten nicht innerhalb von 15 Minuten. Meist Image-Pulls über langsame Verbindungen.
 
 - Verbinde dich per SSH mit der MSSP-VM: `sudo k3s kubectl -n soctalk-system get pods` und prüfe auf `ImagePullBackOff` oder `CrashLoopBackOff`
-- Wenn Pods noch ziehen, warte und starte erneut, der zweite Versuch überspringt den Installationsschritt, sobald die API antwortet
+- Wenn Pods noch ziehen, warte und starte erneut; der zweite Versuch überspringt den Installationsschritt, sobald die API antwortet
 
 ### Mandanten-Agent loggt `no such host` bei `/api/agent/register`
 

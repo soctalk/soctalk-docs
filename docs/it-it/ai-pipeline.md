@@ -1,6 +1,6 @@
 # Pipeline AI
 
-Cosa succede tra "arriva un alert" e "viene scritto un verdetto". Il livello di triage di SocTalk è una macchina a stati LangGraph, un supervisor che instrada il lavoro verso nodi worker specializzati, seguito da un nodo di verdetto che decide se il caso richiede una revisione umana.
+Cosa succede tra "arriva un alert" e "viene scritto un verdict". Il livello di triage di SocTalk è una macchina a stati LangGraph, un supervisor che instrada il lavoro verso nodi worker specializzati, seguito da un nodo di verdict che decide se il caso richiede una revisione umana.
 
 Questa pagina è il modello mentale. Il codice si trova in [`src/soctalk/graph/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/graph), [`src/soctalk/supervisor/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/supervisor) e [`src/soctalk/workers/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/workers).
 
@@ -31,7 +31,7 @@ flowchart LR
 | **cortex_worker** | Invia gli observable agli analyzer di Cortex (VirusTotal, AbuseIPDB, ecc.) per reputazione/arricchimento. | modello veloce |
 | **misp_worker** | Cerca gli observable nei feed di threat-intel di MISP per il contesto di campagne / attori noti. | modello veloce |
 | **verdict** | Ragiona su tutto ciò che i worker hanno raccolto. Produce `escalate | close | needs_more_info` + confidenza + una breve motivazione. | **modello di reasoning** |
-| **human_review** | Mette in pausa l'esecuzione; emette una richiesta di revisione verso la coda della dashboard e/o Slack. Attende una `HumanDecision` (`approve | reject | more_info`). |, (esseri umani) |
+| **human_review** | Mette in pausa l'esecuzione; emette una richiesta di revisione verso la coda della dashboard e/o Slack. Attende una `HumanDecision` (`approve | reject | more_info`). | (esseri umani) |
 | **close** | Genera il report di chiusura e scrive la disposizione (`close_fp | escalate | leave_open`). **In V1 il nodo close non pubblica verso le integrazioni in uscita.** Nessun nodo del grafo pubblica attualmente su TheHive in V1 (il nodo `thehive_worker` citato in bozze precedenti non è collegato al graph builder V1). Anche la pubblicazione tramite webhook Slack da close non è collegata. L'integrazione in uscita dal nodo close è nella roadmap. | modello veloce |
 
 ## Instradamento del supervisor
@@ -43,14 +43,14 @@ L'unico compito del supervisor è scegliere il nodo successivo. Il suo spazio de
 | `INVESTIGATE` | Non so ancora abbastanza su questo alert. Esegui il worker Wazuh. |
 | `ENRICH` | Ho observable di cui non ho verificato la reputazione. Esegui Cortex. |
 | `CONTEXTUALIZE` | Gli observable sembrano interessanti; verifica campagne/attori noti. Esegui MISP. |
-| `VERDICT` | Ho abbastanza. Passa al nodo di verdetto. |
-| `CLOSE` | Questo è un caso lampante (ad es. un falso positivo evidente o un alert già risolto). Salta il nodo di verdetto. |
+| `VERDICT` | Ho abbastanza. Passa al nodo di verdict. |
+| `CLOSE` | Questo è un caso lampante (ad es. un falso positivo evidente o un alert già risolto). Salta il nodo di verdict. |
 
-Il supervisor non invoca mai strumenti esterni direttamente. Legge lo `SecOpsState` accumulato (alert, observable, output precedenti dei worker, verdetti) e produce una delle cinque decisioni. La maggior parte dei casi cicla supervisor → worker → supervisor → worker → supervisor → VERDICT, da tre a sei hop in totale.
+Il supervisor non invoca mai strumenti esterni direttamente. Legge lo `SecOpsState` accumulato (alert, observable, output precedenti dei worker, verdict) e produce una delle cinque decisioni. La maggior parte dei casi cicla supervisor → worker → supervisor → worker → supervisor → VERDICT, da tre a sei hop in totale.
 
-## Nodo di verdetto
+## Nodo di verdict
 
-Il modello di reasoning riceve l'intero stato accumulato, l'alert originale, i risultati di ogni worker, tutti gli observable con il loro arricchimento, i tentativi di verdetto precedenti (se ha ciclato su `NEEDS_MORE_INFO`). Produce:
+Il modello di reasoning riceve l'intero stato accumulato, l'alert originale, i risultati di ogni worker, tutti gli observable con il loro arricchimento, i tentativi di verdict precedenti (se ha ciclato su `NEEDS_MORE_INFO`). Produce:
 
 | Campo | Tipo |
 |---|---|
@@ -99,7 +99,7 @@ Ogni tenant ha il proprio pod `runs-worker` (nel namespace `tenant-<slug>`) che 
 3. `ainvoke()` sul grafo, pubblicando `POST /api/internal/worker/runs/{run_id}/heartbeat` ogni 20 s.
 4. Al completamento, pubblica lo stato finale e la disposizione su `POST /api/internal/worker/runs/{run_id}/complete`.
 
-Il runs-worker è l'unico pod di calcolo per tenant, tenerlo nel namespace del tenant significa che un tenant fuori budget non può privare il resto dell'installazione delle risorse di calcolo. La logica del supervisor + worker + verdetto è di per sé stateless; il grosso del lavoro sono le chiamate LLM (fuori dal cluster, addebitate al provider configurato del tenant).
+Il runs-worker è l'unico pod di calcolo per tenant, tenerlo nel namespace del tenant significa che un tenant fuori budget non può privare il resto dell'installazione delle risorse di calcolo. La logica del supervisor + worker + verdict è di per sé stateless; il grosso del lavoro sono le chiamate LLM (fuori dal cluster, addebitate al provider configurato del tenant).
 
 ## Riferimenti al codice sorgente
 
@@ -107,7 +107,7 @@ Il runs-worker è l'unico pod di calcolo per tenant, tenerlo nel namespace del t
 |---|---|
 | Graph builder + instradamento | [`src/soctalk/graph/builder.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/graph/builder.py) |
 | Logica del supervisor | [`src/soctalk/supervisor/node.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/supervisor/node.py) |
-| Nodo di verdetto | [`src/soctalk/supervisor/verdict.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/supervisor/verdict.py) |
+| Nodo di verdict | [`src/soctalk/supervisor/verdict.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/supervisor/verdict.py) |
 | Nodi worker | [`src/soctalk/workers/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/workers) |
 | Chiusura / disposizione | [`src/soctalk/graph/close.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/graph/close.py) |
 | Loop del runs worker | [`src/soctalk/runs_worker/main.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/runs_worker/main.py) |

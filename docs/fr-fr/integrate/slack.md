@@ -46,7 +46,7 @@ MSSP UI → Settings → Slack :
 
 Les notifications Slack couvrent uniquement les événements d'escalade et de verdict (aucun bouton `notify_on_capacity` n'existe).
 
-Les jetons (URL de webhook, jeton de bot, jeton d'application) ne sont **pas** modifiables via ce point de terminaison, fournissez-les comme variables d'environnement sur le Deployment de l'orchestrateur (`SLACK_WEBHOOK_URL`, `SLACK_BOT_TOKEN`, `SLACK_APP_TOKEN`) ou via des variables d'environnement montées depuis un Secret. Effectuez la rotation en corrigeant le Secret et en redémarrant l'orchestrateur.
+Les jetons (URL de webhook, jeton de bot, jeton d'application) ne sont **pas** modifiables via cet endpoint ; fournissez-les comme variables d'environnement sur le Deployment de l'orchestrateur (`SLACK_WEBHOOK_URL`, `SLACK_BOT_TOKEN`, `SLACK_APP_TOKEN`) ou via des variables d'environnement montées depuis un Secret. Effectuez la rotation en corrigeant le Secret et en redémarrant l'orchestrateur.
 
 ### Format des messages
 
@@ -65,7 +65,7 @@ Block Kit minimal ; pas de boutons (c'est le rôle du backend HIL).
 
 > **Statut :** le backend HIL bidirectionnel Slack existe dans le code (`src/soctalk/hil/backends/slack.py`) mais n'est **pas câblé dans le runtime du chart V1 dans cette version**. La file d'examen du tableau de bord à `/review` est la seule surface HIL fonctionnelle. Considérez la configuration HIL Slack ci-dessous comme la conception prévue.
 
-Pour le flux d'examen des analystes. La même application Slack, plus l'App-Level Token. Le backend HIL de SocTalk ouvre un WebSocket sortant vers Slack, aucun point de terminaison public requis ; fonctionne derrière un NAT.
+Pour le flux d'examen des analystes. La même application Slack, plus l'App-Level Token. Le backend HIL de SocTalk ouvre un WebSocket sortant vers Slack, aucun endpoint public requis ; fonctionne derrière un NAT.
 
 ### Configurer
 

@@ -51,7 +51,7 @@ curl -X PATCH https://<your-mssp-host>/api/mssp/tenants/<tenant-id>/llm \
       }'
 ```
 
-Cela persiste l'`IntegrationConfig` du tenant et met en file d'attente un re-provisionnement, le contrôleur effectue un `helm upgrade` du chart du tenant, le `runs-worker` redémarre avec l'environnement Ollama, **et la NetworkPolicy de sortie ouvre automatiquement le port d'Ollama** (voir les notes sur l'accessibilité). Les nouveaux runs de triage vont vers Ollama.
+Cela persiste l'`IntegrationConfig` du tenant et met en file d'attente un re-provisionnement ; le contrôleur effectue un `helm upgrade` du chart du tenant, le `runs-worker` redémarre avec l'environnement Ollama, **et la NetworkPolicy de sortie ouvre automatiquement le port d'Ollama** (voir les notes sur l'accessibilité). Les nouveaux runs de triage vont vers Ollama.
 
 Pour faire d'Ollama la valeur par défaut de **chaque** nouveau tenant, définissez `defaults.llm` dans les values `soctalk-system` lors de l'installation :
 

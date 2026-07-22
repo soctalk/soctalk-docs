@@ -23,7 +23,7 @@ As decisões gravam linhas de auditoria somente-adição marcadas com a identida
 A [Fila de revisão](/pt-br/mssp-ui#reviews-human-in-the-loop) em `/review` mostra todas as revisões pendentes de todos os tenants. Os cards exibem:
 
 - Título da investigação + tenant
-- Chip de veredito da AI (`AI: Escalate / Close / Needs More Info`)
+- Chip de verdict da AI (`AI: Escalate / Close / Needs More Info`)
 - Severidade
 - Contagem de alertas + prazo (se um SLA estiver configurado)
 
@@ -55,8 +55,8 @@ Na UI do MSSP → Settings → Slack:
 - **Bot token** → `xoxb-…`
 - **App token** → `xapp-…`
 - **Channel** → `#soc-reviews` (ou o que preferir)
-- **Notify on escalation** → ativado (envia todo veredito de escalonamento)
-- **Notify on verdict** → opcional (também envia vereditos de fechamento; alto volume)
+- **Notify on escalation** → ativado (envia todo verdict de escalonamento)
+- **Notify on verdict** → opcional (também envia verdicts de fechamento; alto volume)
 
 Toda a configuração do Slack (tokens, canal, toggles de notificação) é apenas por ambiente no V1, a rota legada `PUT /api/settings` não é montada pelo chart V1. Consulte [Slack, Configurar](/pt-br/integrate/slack#configure) para o padrão de injeção de variáveis de ambiente.
 
@@ -83,7 +83,7 @@ Nesta versão, todas as revisões vão para o único canal de toda a instalaçã
 
 ### Notificações de saída (unidirecionais)
 
-As mesmas credenciais do Slack acionariam notificações de webhook unidirecionais (fechamentos de caso, decisões de veredito) em uma versão futura. O código do notificador de webhook existe em `src/soctalk/notifications/slack_webhook.py`, mas só está integrado no entry point legado; o `app_v1` do chart V1 não o invoca. Não existe toggle `notify_on_capacity` em nenhuma versão.
+As mesmas credenciais do Slack acionariam notificações de webhook unidirecionais (fechamentos de caso, decisões de verdict) em uma versão futura. O código do notificador de webhook existe em `src/soctalk/notifications/slack_webhook.py`, mas só está integrado no entry point legado; o `app_v1` do chart V1 não o invoca. Não existe toggle `notify_on_capacity` em nenhuma versão.
 
 ## Contabilização de resultados
 
@@ -91,7 +91,7 @@ As decisões de revisão gravam uma linha de auditoria. O gauge `soctalk_tenant_
 
 ## Bypass: modo somente-AI
 
-Um modo "auto-aprovar todo escalonamento" sem portão humano **não** está implementado nesta versão. O nó de veredito sempre roteia `escalate` através de `human_review`. Remover o portão humano está no roadmap como um toggle explícito restrito apenas a `platform_admin`, com a justificativa sendo auditada, não como um padrão silencioso.
+Um modo "auto-aprovar todo escalonamento" sem portão humano **não** está implementado nesta versão. O nó de verdict sempre roteia `escalate` através de `human_review`. Remover o portão humano está no roadmap como um toggle explícito restrito apenas a `platform_admin`, com a justificativa sendo auditada, não como um padrão silencioso.
 
 ## Ponteiros de código
 

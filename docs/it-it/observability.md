@@ -4,7 +4,7 @@ Metriche e log per un MSSP che esegue SocTalk. Due destinatari in mente: dashboa
 
 ## Endpoint Prometheus
 
-`GET /metrics` sul Service `soctalk-system-api` espone le metriche dell'installazione nel formato di esposizione Prometheus. Non autenticato per scelta progettuale, limitalo tramite NetworkPolicy oppure un Ingress con `auth-basic`/allowlist di IP se non vuoi che sia leggibile da chiunque.
+`GET /metrics` sul Service `soctalk-system-api` espone le metriche dell'installazione nel formato di esposizione Prometheus. Non autenticato per scelta progettuale; limitalo tramite NetworkPolicy oppure un Ingress con `auth-basic`/allowlist di IP se non vuoi che sia leggibile da chiunque.
 
 ## Stato dell'strumentazione in V1
 
@@ -46,7 +46,7 @@ Tutti etichettati con `tenant_id`. La cardinalità è limitata dal numero di ten
 
 - `rate(soctalk_tenant_llm_tokens_total[1h])` impilato per tenant, chi spende di più in questa ora
 - Token totali giornalieri × il $/Mtok del tuo provider = proiezione di costo
-- Burn-down rispetto al budget di token per esecuzione (`case_runs.tokens_budget`, default del modello 200.000; il fallback dell'env `SOCTALK_CASE_RUN_TOKEN_BUDGET` con default 15.000 si applica solo quando la riga non ha valore), quanto spesso una singola esecuzione sfora il budget?
+- Burn-down rispetto al budget di token per esecuzione (`case_runs.tokens_budget`, default del modello 200.000; il fallback dell'env `SOCTALK_CASE_RUN_TOKEN_BUDGET` con default 15.000 si applica solo quando la riga non ha valore): quanto spesso una singola esecuzione sfora il budget?
 
 ### A livello di servizio
 

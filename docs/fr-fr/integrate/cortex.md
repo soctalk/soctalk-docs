@@ -7,7 +7,7 @@
 Le chart `soctalk-tenant` en V1 n'a pas de sous-chart Cortex (`dependencies: []`). Les options sont les suivantes :
 
 - **Cortex géré par le client**: le client exploite le sien ; le MSSP fournit l'URL et la clé API.
-- **Pas de Cortex**: le pipeline AI tente tout de même la route `ENRICH` (le superviseur ignore que Cortex est absent) ; chaque invocation de `cortex_worker` échoue et l'échec est journalisé. Il n'existe pas de champ de statut par observable en V1 ; le worker se contente de renvoyer sans enrichissement et le superviseur poursuit.
+- **Pas de Cortex**: le pipeline AI tente tout de même la route `ENRICH` (le supervisor ignore que Cortex est absent) ; chaque invocation de `cortex_worker` échoue et l'échec est journalisé. Il n'existe pas de champ de statut par observable en V1 ; le worker se contente de renvoyer sans enrichissement et le supervisor poursuit.
 
 Un « sous-chart Cortex intégré » était décrit dans des brouillons antérieurs comme une option prévue, mais il n'est **pas implémenté dans cette version**.
 
@@ -51,7 +51,7 @@ Séquence :
 4. Interroge `/api/job/{id}/report` jusqu'à ce que le job se termine ou qu'un timeout par job se déclenche.
 5. Ajoute le verdict (`safe`, `info`, `suspicious`, `malicious`) et le corps du rapport à l'état du cas. Les jobs en échec journalisent l'erreur et poursuivent.
 
-Les appels Cortex en échec ne font pas échouer le run, le worker journalise l'échec et revient au superviseur sans enrichissement pour cet observable. Le nœud de verdict raisonne à partir de tout contexte disponible.
+Les appels Cortex en échec ne font pas échouer le run ; le worker journalise l'échec et revient au supervisor sans enrichissement pour cet observable. Le nœud de verdict raisonne à partir de tout contexte disponible.
 
 ## Cortex intégré : pas dans cette version
 

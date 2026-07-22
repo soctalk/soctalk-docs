@@ -6,7 +6,7 @@ Das meiste, was ein SOC eskaliert, ist nicht böswillig. Es ist eine reale Perso
 
 Autorisierung ist die Schicht, die SocTalk diesen Kontext des Organisationszustands verleiht. Sie bindet typisierte Datensätze (Change-Tickets, dauerhafte Baselines, Change-Freezes, Verbote und Entitätsfakten über Assets und Konten) an die Aktivität in einer Warnung und schlussfolgert, ob ein einzelner Datensatz sie vollständig abdeckt. Sie senkt den Verdacht nur, indem sie abdeckende Belege findet. Sie erhöht ihn nie und setzt niemals ein böswilliges Signal außer Kraft.
 
-Sie ist kein separater Schritt, der auf die Triage aufgesetzt wird. Sie ist Kontext, den die agentische Schleife während der Untersuchung sammelt, und sie löst sich in einen von drei Zuständen auf, die das Verdikt prägen. Alles Nachgelagerte durchläuft weiterhin den Sicherheitsboden, den die Autorisierung niemals schwächen kann.
+Sie ist kein separater Schritt, der auf die Triage aufgesetzt wird. Sie ist Kontext, den die agentische Schleife während der Untersuchung sammelt, und sie löst sich in einen von drei Zuständen auf, die das Verdict prägen. Alles Nachgelagerte durchläuft weiterhin den Sicherheitsboden, den die Autorisierung niemals schwächen kann.
 
 ![Wo die Autorisierung in den Triage-Workflow passt](/diagrams/authorization-in-triage.svg)
 
@@ -56,7 +56,7 @@ Autorisierung ist eine Unterdrückungsfläche, daher werden ihre Grenzen im Code
 
 - **Abwesenheit schließt niemals automatisch.** Kein abdeckender Datensatz bedeutet, dass ein Mensch entscheidet, niemals ein automatisches Schließen.
 - **Autorisierung setzt niemals ein böswilliges Signal außer Kraft.** Ein gespeicherter Fakt "autorisiert" kann eine Warnung nicht schließen, die zugleich einen IOC-Treffer, eine böswillige Anreicherung oder eine Korrelation mit einem aktiven Vorfall trägt. Die Korrelation läuft vor der Unterdrückung, und der Sicherheitsboden legt in diesen Fällen unabhängig von jedem Fakt ein Veto ein. Eine wiederverwendbare Autorisierung senkt den routinemäßigen Verdacht; sie macht das System nicht blind für einen realen Angriff, der dieselbe Aktivität wiederverwendet.
-- **Der Speicher ist typisiert und geregelt.** Fakten tragen eine Quelle, eine Vertrauensstufe, einen Geltungsbereich und ein Ablaufdatum. Sie sind niemals formloser Prompt-Speicher, und breite oder privilegierte Fakten sollen die Prüfung durchlaufen.
+- **Der Speicher ist typisiert und geregelt.** Fakten tragen eine Quelle, einen Trust Tier, einen Geltungsbereich und ein Ablaufdatum. Sie sind niemals formloser Prompt-Speicher, und breite oder privilegierte Fakten sollen die Prüfung durchlaufen.
 - **Vertrauen ist gestuft.** Konnektor-verifizierte Datensätze rangieren über systembehaupteten, die über analysten-behaupteten rangieren, die über routinemäßiger Telemetrie rangieren, die über mandanten-behaupteten rangiert. Ein Datensatz mit höherem Vertrauen bestätigt einen mit niedrigerem Vertrauen oder setzt ihn außer Kraft.
 
 ## Wo es auftaucht

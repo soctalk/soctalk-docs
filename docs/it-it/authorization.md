@@ -6,7 +6,7 @@ La maggior parte di ciò che un SOC escala non è malevolo. Si tratta di una per
 
 L'autorizzazione è il livello che fornisce a SocTalk quel contesto sullo stato dell'organizzazione. Lega record tipizzati (change ticket, baseline permanenti, blocchi delle modifiche, divieti e fatti sulle entità relativi ad asset e account) all'attività presente in un alert, e ragiona sul fatto che un singolo record la copra interamente. Non fa che abbassare il sospetto trovando evidenze di copertura. Non lo alza mai, e non prevale mai su un segnale malevolo.
 
-Non è un passaggio separato aggiunto al triage. È contesto che il loop agentico raccoglie mentre indaga, e si risolve in uno di tre stati che plasmano il verdetto. Tutto ciò che avviene a valle passa comunque per il livello minimo di sicurezza, che l'autorizzazione non può mai indebolire.
+Non è un passaggio separato aggiunto al triage. È contesto che il loop agentico raccoglie mentre indaga, e si risolve in uno di tre stati che plasmano il verdict. Tutto ciò che avviene a valle passa comunque per il livello minimo di sicurezza, che l'autorizzazione non può mai indebolire.
 
 ![Dove si colloca l'autorizzazione nel flusso di triage](/diagrams/authorization-in-triage.svg)
 

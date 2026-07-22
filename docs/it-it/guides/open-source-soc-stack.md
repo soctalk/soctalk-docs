@@ -14,7 +14,7 @@ Questa guida spiega cosa fa ciascun pezzo, quanto costa davvero assemblarli, com
 
 **[TheHive](https://thehive-project.org/)** è il livello di gestione dei casi: una piattaforma di incident response in cui gli alert diventano casi, i casi contengono task e observable e i team di analisti collaborano con un audit trail. Se Wazuh è dove nascono gli alert, TheHive è dove le indagini vivono e muoiono.
 
-**Cortex** è il compagno di TheHive per l'analisi degli observable. Gli passi un IP, un hash, un dominio o un URL, e i suoi plugin analyzer interrogano in parallelo servizi di reputazione e sandbox, da VirusTotal e AbuseIPDB fino a Hybrid Analysis e decine di altri, e riportano un verdetto. Trasforma "ecco un hash" in "ecco cosa il mondo sa di questo hash".
+**Cortex** è il compagno di TheHive per l'analisi degli observable. Gli passi un IP, un hash, un dominio o un URL, e i suoi plugin analyzer interrogano in parallelo servizi di reputazione e sandbox, da VirusTotal e AbuseIPDB fino a Hybrid Analysis e decine di altri, e riportano un verdict. Trasforma "ecco un hash" in "ecco cosa il mondo sa di questo hash".
 
 **[MISP](https://www.misp-project.org/)** è la piattaforma di threat intelligence: aggrega, correla e condivide indicatori di compromissione tra feed e community di condivisione. Verificare un observable su MISP ti dice se appartiene a una campagna o a un attore noto, un contesto che nessuno degli altri tre strumenti possiede da solo.
 

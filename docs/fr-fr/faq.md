@@ -65,7 +65,7 @@ Uniquement ce sur quoi le pipeline AI raisonne : le corps de l'alerte, les obser
 
 Non. SocTalk est positionné comme un **copilote**, pas comme un remplacement. Le nœud de verdict décide `escalate | close | needs_more_info` ; une escalade passe toujours par une porte de [revue humaine](/fr-fr/human-review). Sans l'humain, un MSSP à fort volume aurait toujours besoin d'analystes pour traiter les décisions que SocTalk leur achemine.
 
-La valeur réside dans la compression, la même équipe d'analystes peut gérer 5 à 10 fois le volume d'alertes, car les cas de routine se clôturent automatiquement et seuls les cas ambigus atteignent la revue humaine.
+La valeur réside dans la compression ; la même équipe d'analystes peut gérer 5 à 10 fois le volume d'alertes, car les cas de routine se clôturent automatiquement et seuls les cas ambigus atteignent la revue humaine.
 
 ## Fonctionne-t-il sans Wazuh ?
 

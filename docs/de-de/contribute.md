@@ -19,7 +19,7 @@ cd soctalk
 - cert-manager installiert
 - k3d local-path als Standard-StorageClass
 
-Es **baut keine** SocTalk-Images, installiert nicht das SocTalk-Chart, onboardet keine Mandanten und lädt keine Daten vor, frühere Entwürfe dieser Seite behaupteten dies. Führe die nächsten Schritte selbst aus. Typische Abfolge nach `dev-up.sh`:
+Es **baut keine** SocTalk-Images, installiert nicht das SocTalk-Chart, onboardet keine Mandanten und lädt keine Daten vor; frühere Entwürfe dieser Seite behaupteten dies. Führe die nächsten Schritte selbst aus. Typische Abfolge nach `dev-up.sh`:
 
 ```bash
 just build-api build-frontend  # api image embeds the orchestrator in V1
@@ -73,7 +73,7 @@ pytest tests/                          # full suite
 pytest tests/v1/test_rls_isolation.py  # Postgres Row-Level Security suite
 ```
 
-Die RLS-Tests sind nicht verhandelbar, sie verifizieren die mandantenübergreifende Datenisolation, die das [Sicherheitsmodell](/de-de/reference/security-model) verspricht. CI führt die vollständige pytest-Suite bei jedem PR aus.
+Die RLS-Tests sind nicht verhandelbar; sie verifizieren die mandantenübergreifende Datenisolation, die das [Sicherheitsmodell](/de-de/reference/security-model) verspricht. CI führt die vollständige pytest-Suite bei jedem PR aus.
 
 ## Stil
 
@@ -84,7 +84,7 @@ Die RLS-Tests sind nicht verhandelbar, sie verifizieren die mandantenübergreife
 
 ## PR-Erwartungen
 
-- **Tests für die Änderung.** Neue Endpunkte brauchen API-Tests; neue Graph-Knoten brauchen State-Machine-Tests; Chart-Änderungen brauchen gerenderte Template-Snapshots.
+- **Tests für die Änderung.** Neue Endpoints brauchen API-Tests; neue Graph-Knoten brauchen State-Machine-Tests; Chart-Änderungen brauchen gerenderte Template-Snapshots.
 - **Migration, wenn du ein Modell angefasst hast.** Alembic generiert automatisch; prüfe das generierte SQL vor dem Commit auf Korrektheit.
 - **Aktualisiere die Docs** in [`soctalk-docs`](https://github.com/soctalk/soctalk-docs), wenn die Änderung ein dokumentiertes Verhalten betrifft. Bei rein internen Refactorings sind wir hierbei nicht streng; bei allem, was für Benutzer sichtbar ist, sind wir streng.
 - **Kleine PRs.** Große PRs mit gemischten Änderungen sind schwer zu prüfen. Trenne Refactoring von Feature; trenne Chart-Änderung von Laufzeitänderung.

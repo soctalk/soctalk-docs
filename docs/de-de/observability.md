@@ -2,9 +2,9 @@
 
 Metriken und Logs für einen MSSP, der SocTalk betreibt. Zwei Konsumenten im Blick: Dashboards für die Kapazitätsplanung und Dashboards für die Kosten pro Mandant.
 
-## Prometheus-Endpunkt
+## Prometheus-Endpoint
 
-`GET /metrics` auf dem `soctalk-system-api` Service stellt die Metriken der Installation im Prometheus-Expositionsformat bereit. Absichtlich nicht authentifiziert, schränke ihn über eine NetworkPolicy oder einen Ingress mit `auth-basic`/IP-Allowlist ein, falls er nicht weltweit lesbar sein soll.
+`GET /metrics` auf dem `soctalk-system-api` Service stellt die Metriken der Installation im Prometheus-Expositionsformat bereit. Absichtlich nicht authentifiziert; schränke ihn über eine NetworkPolicy oder einen Ingress mit `auth-basic`/IP-Allowlist ein, falls er nicht weltweit lesbar sein soll.
 
 ## Stand der Instrumentierung in V1
 

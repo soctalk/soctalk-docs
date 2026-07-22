@@ -60,13 +60,13 @@ Le run est une boucle agentique, mais l'empreinte du modèle à l'intérieur est
 
 La boucle s'ouvre sur une porte déterministe. Si l'alerte correspond à une [politique de triage](/fr-fr/triage-policies) dont la disposition (le résultat à appliquer : clôturer, escalader ou demander davantage d'informations) est garantie et incontestée, l'affaire est réglée là, et le modèle n'est jamais consulté.
 
-Pour tout le reste, un **superviseur** décide de la prochaine étape. C'est le premier des deux rôles de modèle, et tout son travail est le routage : enquêter, enrichir, contextualiser, décider ou clôturer. Il ne fait lui-même aucun travail de domaine, et il peut lui falloir plusieurs tours de routage avant de décider.
+Pour tout le reste, un **supervisor** décide de la prochaine étape. C'est le premier des deux rôles de modèle, et tout son travail est le routage : enquêter, enrichir, contextualiser, décider ou clôturer. Il ne fait lui-même aucun travail de domaine, et il peut lui falloir plusieurs tours de routage avant de décider.
 
 Le travail vers lequel il route est déterministe. Les **étapes d'enrichissement** tirent le contexte hôte et processus du SIEM, vérifient la réputation d'un observable via les analyseurs Cortex et recherchent le contexte de renseignement sur les menaces dans MISP. Ce sont des appels d'outils et des heuristiques, pas des appels de modèle. Une idée reçue fréquente au sujet du triage par AI est que le modèle fait l'enrichissement. Ici il ne le fait pas : l'enrichissement est une orchestration d'outils déterministe, et le modèle ne fait que lire les résultats.
 
 Chemin faisant, le run rassemble son [contexte d'autorisation](/fr-fr/authorization) : les faits d'état de l'organisation (tickets de changement, maintenance approuvée, contexte de compte et d'actif) qui disent si cette activité était autorisée. L'autorisation est ce qui permet au pipeline de séparer un changement autorisé d'une attaque qui produit une alerte identique à l'octet près, une distinction qu'aucune recherche de réputation ne peut faire.
 
-Lorsque le superviseur en a assez, il transmet au **verdict**, le second rôle de modèle. C'est le seul endroit où un modèle de raisonnement pèse tout ce que le run a rassemblé et propose une disposition : clôturer, escalader ou demander davantage d'informations.
+Lorsque le supervisor en a assez, il transmet au **verdict**, le second rôle de modèle. C'est le seul endroit où un modèle de raisonnement pèse tout ce que le run a rassemblé et propose une disposition : clôturer, escalader ou demander davantage d'informations.
 
 Puis le déterminisme reprend la main. Le verdict est une proposition, pas un engagement. Un garde-fou de [politique de triage](/fr-fr/triage-policies) ne peut jamais que rehausser la décision du modèle, jamais l'abaisser : une clôture proposée au-dessus d'un signal malveillant ou d'un enregistrement d'autorisation contredit est transformée en escalade, et le vocabulaire du garde-fou rend la suppression impossible à exprimer. Si une clôture proposée touche un actif sensible, elle est retenue pour une validation humaine. Le modèle propose ; le code déterministe dispose.
 

@@ -253,7 +253,7 @@ En la página de detalle del usuario en la consola MSSP:
 - Al confirmar, el servidor devuelve la contraseña generada una sola vez.
   La UI la muestra en un campo con copiado al portapapeles con "Copiar y
   cerrar". Después de que el modal se cierra, la contraseña ya no se puede
-  recuperar, el admin la comparte por un canal alterno.
+  recuperar; el admin la comparte por un canal alterno.
 
 ### Expiración de la sesión
 

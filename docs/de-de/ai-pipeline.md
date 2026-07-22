@@ -1,6 +1,6 @@
 # KI-Pipeline
 
-Was zwischen "eine Warnung trifft ein" und "ein Verdikt wird geschrieben" passiert. Die Triage-Schicht von SocTalk ist eine LangGraph-Zustandsmaschine, ein Supervisor, der Arbeit an spezialisierte Worker-Knoten weiterleitet, gefolgt von einem Verdikt-Knoten, der entscheidet, ob der Fall eine menschliche Prüfung benötigt.
+Was zwischen "eine Warnung trifft ein" und "ein Verdict wird geschrieben" passiert. Die Triage-Schicht von SocTalk ist eine LangGraph-Zustandsmaschine, ein Supervisor, der Arbeit an spezialisierte Worker-Knoten weiterleitet, gefolgt von einem Verdict-Knoten, der entscheidet, ob der Fall eine menschliche Prüfung benötigt.
 
 Diese Seite ist das mentale Modell. Der Code liegt in [`src/soctalk/graph/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/graph), [`src/soctalk/supervisor/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/supervisor) und [`src/soctalk/workers/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/workers).
 
@@ -31,7 +31,7 @@ flowchart LR
 | **cortex_worker** | Sendet Observables an Cortex-Analyzer (VirusTotal, AbuseIPDB usw.) zur Reputationsprüfung/Anreicherung. | schnelles Modell |
 | **misp_worker** | Schlägt Observables gegen MISP-Threat-Intel-Feeds nach, um bekannten Kampagnen-/Akteur-Kontext zu finden. | schnelles Modell |
 | **verdict** | Argumentiert über alles, was die Worker gesammelt haben. Gibt `escalate | close | needs_more_info` + Konfidenz + eine kurze Begründung aus. | **Reasoning-Modell** |
-| **human_review** | Pausiert den Lauf; sendet eine Prüfungsanfrage an die Dashboard-Warteschlange und/oder an Slack. Wartet auf eine `HumanDecision` (`approve | reject | more_info`). |, (Menschen) |
+| **human_review** | Pausiert den Lauf; sendet eine Prüfungsanfrage an die Dashboard-Warteschlange und/oder an Slack. Wartet auf eine `HumanDecision` (`approve | reject | more_info`). | (Menschen) |
 | **close** | Erzeugt den Abschlussbericht und schreibt die Disposition (`close_fp | escalate | leave_open`). **In V1 postet der close-Knoten nicht an ausgehende Integrationen.** Kein Graph-Knoten postet in V1 derzeit an TheHive (der `thehive_worker`-Knoten, der in früheren Entwürfen erwähnt wurde, ist nicht in den V1-Graph-Builder verdrahtet). Auch das Posten per Slack-Webhook aus close ist nicht verdrahtet. Die ausgehende Integration vom close-Knoten steht auf der Roadmap. | schnelles Modell |
 
 ## Supervisor-Routing
@@ -43,14 +43,14 @@ Die einzige Aufgabe des Supervisors ist es, den nächsten Knoten auszuwählen. S
 | `INVESTIGATE` | Ich weiß noch nicht genug über diese Warnung. Führe den Wazuh-Worker aus. |
 | `ENRICH` | Ich habe Observables, deren Reputation ich noch nicht geprüft habe. Führe Cortex aus. |
 | `CONTEXTUALIZE` | Die Observables sehen interessant aus; prüfe auf bekannte Kampagnen/Akteure. Führe MISP aus. |
-| `VERDICT` | Ich habe genug. Übergib an den Verdikt-Knoten. |
-| `CLOSE` | Dies ist ein eindeutiger Fall (z. B. offensichtlicher Falsch-Positiv oder bereits gelöste Warnung). Überspringe den Verdikt-Knoten. |
+| `VERDICT` | Ich habe genug. Übergib an den Verdict-Knoten. |
+| `CLOSE` | Dies ist ein eindeutiger Fall (z. B. offensichtlicher Falsch-Positiv oder bereits gelöste Warnung). Überspringe den Verdict-Knoten. |
 
-Der Supervisor ruft selbst niemals externe Tools auf. Er liest den akkumulierten `SecOpsState` (Warnungen, Observables, vorherige Worker-Ausgaben, Verdikte) und gibt eine der fünf Entscheidungen aus. Die meisten Fälle durchlaufen den Zyklus supervisor → worker → supervisor → worker → supervisor → VERDICT, insgesamt drei bis sechs Sprünge.
+Der Supervisor ruft selbst niemals externe Tools auf. Er liest den akkumulierten `SecOpsState` (Warnungen, Observables, vorherige Worker-Ausgaben, Verdicts) und gibt eine der fünf Entscheidungen aus. Die meisten Fälle durchlaufen den Zyklus supervisor → worker → supervisor → worker → supervisor → VERDICT, insgesamt drei bis sechs Sprünge.
 
-## Verdikt-Knoten
+## Verdict-Knoten
 
-Das Reasoning-Modell erhält den gesamten akkumulierten Zustand, die ursprüngliche Warnung, die Erkenntnisse jedes Workers, alle Observables mit ihrer Anreicherung sowie vorherige Verdikt-Versuche (falls eine `NEEDS_MORE_INFO`-Schleife durchlaufen wurde). Es gibt aus:
+Das Reasoning-Modell erhält den gesamten akkumulierten Zustand, die ursprüngliche Warnung, die Erkenntnisse jedes Workers, alle Observables mit ihrer Anreicherung sowie vorherige Verdict-Versuche (falls eine `NEEDS_MORE_INFO`-Schleife durchlaufen wurde). Es gibt aus:
 
 | Feld | Typ |
 |---|---|
@@ -70,7 +70,7 @@ Das Reasoning-Modell erhält den gesamten akkumulierten Zustand, die ursprüngli
 | Entscheidung | Auswirkung auf den Fall |
 |---|---|
 | `approve` | Ausstehende Prüfung als abgeschlossen markiert + Feedback auditiert. Wird **nicht** automatisch fortgesetzt; Nachbearbeitung durch Analyst. |
-| `reject` | Fall wird als `auto_closed_fp` geschlossen. Terminal, der Graph wird nicht erneut aufgerufen. |
+| `reject` | Fall wird als `auto_closed_fp` geschlossen. Terminal; der Graph wird nicht erneut aufgerufen. |
 | `more_info` | Prüfung als `info_requested` mit der Fragenliste markiert. Wird **nicht** automatisch fortgesetzt; Nachbearbeitung durch Analyst. |
 
 Die Identität, der Zeitstempel und die Begründung des Menschen werden an das nur-anfügbare `case_events`-Log des Falls angehängt.
@@ -99,7 +99,7 @@ Jeder Mandant hat seinen eigenen `runs-worker`-Pod (im Namespace `tenant-<slug>`
 3. `ainvoke()` gegen den Graphen, wobei alle 20 s `POST /api/internal/worker/runs/{run_id}/heartbeat` gepostet wird.
 4. Nach Abschluss postet er den Endzustand und die Disposition an `POST /api/internal/worker/runs/{run_id}/complete`.
 
-Der runs-worker ist der einzige Compute-Pod pro Mandant, ihn im Mandanten-Namespace zu halten bedeutet, dass ein Mandant, der sein Budget überschreitet, dem Rest der Installation keine Compute-Ressourcen entziehen kann. Die Supervisor-, Worker- und Verdikt-Logik selbst ist zustandslos; die Schwerarbeit sind die LLM-Aufrufe (außerhalb des Clusters, abgerechnet über den konfigurierten Provider des Mandanten).
+Der runs-worker ist der einzige Compute-Pod pro Mandant; ihn im Mandanten-Namespace zu halten bedeutet, dass ein Mandant, der sein Budget überschreitet, dem Rest der Installation keine Compute-Ressourcen entziehen kann. Die Supervisor-, Worker- und Verdict-Logik selbst ist zustandslos; die Schwerarbeit sind die LLM-Aufrufe (außerhalb des Clusters, abgerechnet über den konfigurierten Provider des Mandanten).
 
 ## Quell-Verweise
 
@@ -107,7 +107,7 @@ Der runs-worker ist der einzige Compute-Pod pro Mandant, ihn im Mandanten-Namesp
 |---|---|
 | Graph-Builder + Routing | [`src/soctalk/graph/builder.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/graph/builder.py) |
 | Supervisor-Logik | [`src/soctalk/supervisor/node.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/supervisor/node.py) |
-| Verdikt-Knoten | [`src/soctalk/supervisor/verdict.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/supervisor/verdict.py) |
+| Verdict-Knoten | [`src/soctalk/supervisor/verdict.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/supervisor/verdict.py) |
 | Worker-Knoten | [`src/soctalk/workers/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/workers) |
 | Abschluss / Disposition | [`src/soctalk/graph/close.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/graph/close.py) |
 | Runs-Worker-Schleife | [`src/soctalk/runs_worker/main.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/runs_worker/main.py) |

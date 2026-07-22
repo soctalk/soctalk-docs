@@ -1,6 +1,6 @@
 # Attack Simulator und linux-ep
 
-Ein Paar von Demo-Werkzeugen, die realistische Wazuh-Warnungen erzeugen, damit ein MSSP-Operator die [AI-Pipeline](/de-de/ai-pipeline) von SocTalk tatsächlich bei der Arbeit sehen kann. Wird für Evaluierungen und Live-Demos dringend empfohlen, ohne Warnungen gibt es für den Agenten nichts zu triagieren.
+Ein Paar von Demo-Werkzeugen, die realistische Wazuh-Warnungen erzeugen, damit ein MSSP-Operator die [AI-Pipeline](/de-de/ai-pipeline) von SocTalk tatsächlich bei der Arbeit sehen kann. Wird für Evaluierungen und Live-Demos dringend empfohlen; ohne Warnungen gibt es für den Agenten nichts zu triagieren.
 
 Beide sind Teil der FOSS-Distribution. Quellcode:
 
@@ -40,7 +40,7 @@ Für das [Demo-VM-Image](/de-de/quickstart-vm) ist der Simulator standardmäßig
 | `wazuh.managerHost` | "" (erforderlich) | Der Service-Hostname des Wazuh-Managers des Mandanten (z. B. `wazuh-demo-wazuh-manager`) |
 | `wazuh.credsSecret.name` | "" (erforderlich) | Vorhandenes Secret mit dem `authd`-Registrierungspasswort (typischerweise `wazuh-<slug>-wazuh-creds`) |
 | `wazuh.credsSecret.authdPasswordKey` | `AUTHD_PASS` | Key innerhalb des Secrets für das `authd`-Passwort |
-| `simulator.enabled` | `false` | Haupt-Schalter. Standardmäßig aus, bleibt er aus, bleiben die Pods im Leerlauf (keine synthetischen Warnungen) |
+| `simulator.enabled` | `false` | Haupt-Schalter. Standardmäßig aus; bleibt er aus, bleiben die Pods im Leerlauf (keine synthetischen Warnungen) |
 | `simulator.attackDelay` | 10 | Sekunden nach Pod-Start (Agent registriert) vor dem ersten TTP |
 | `simulator.attackInterval` | 120 | Sekunden zwischen nachfolgenden TTPs |
 | `simulator.dailyAlertCap` | 30 | Obergrenze pro Pod für `SOCTALK_ATTACK`-Emissionen pro UTC-Tag. 0 deaktiviert die Obergrenze |
@@ -91,7 +91,7 @@ sudo /opt/scripts/run-attack.sh T1110
 sudo /opt/scripts/run-attack.sh T1027.001
 ```
 
-`run-attack.sh` ist der Einstiegspunkt, es leitet an die Skripte pro TTP weiter. Nützlich für Live-Demos, bei denen du auf Kommando eine bestimmte Warnung auslösen willst.
+`run-attack.sh` ist der Einstiegspunkt; es leitet an die Skripte pro TTP weiter. Nützlich für Live-Demos, bei denen du auf Kommando eine bestimmte Warnung auslösen willst.
 
 ## Den Simulator entfernen
 

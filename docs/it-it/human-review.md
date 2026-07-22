@@ -23,7 +23,7 @@ Le decisioni scrivono righe di audit in sola aggiunta, marcate con l'identità d
 La [Coda di revisione](/it-it/mssp-ui#reviews-human-in-the-loop) su `/review` mostra ogni revisione pending attraverso tutti i tenant. Le card visualizzano:
 
 - Titolo dell'indagine + tenant
-- Chip del verdetto AI (`AI: Escalate / Close / Needs More Info`)
+- Chip del verdict AI (`AI: Escalate / Close / Needs More Info`)
 - Severità
 - Numero di alert + scadenza (se è configurato un SLA)
 
@@ -55,8 +55,8 @@ Nella MSSP UI → Settings → Slack:
 - **Bot token** → `xoxb-…`
 - **App token** → `xapp-…`
 - **Channel** → `#soc-reviews` (o quello che preferisci)
-- **Notify on escalation** → on (invia ogni verdetto di escalation)
-- **Notify on verdict** → opzionale (invia anche i verdetti di chiusura; volume elevato)
+- **Notify on escalation** → on (invia ogni verdict di escalation)
+- **Notify on verdict** → opzionale (invia anche i verdict di chiusura; volume elevato)
 
 Tutta la configurazione Slack (token, canale, toggle di notifica) è solo tramite ambiente in V1, la vecchia route `PUT /api/settings` non è montata dal chart V1. Vedi [Slack, Configurazione](/it-it/integrate/slack#configure) per il pattern di iniezione delle variabili d'ambiente.
 
@@ -83,7 +83,7 @@ In questa release, tutte le revisioni vanno all'unico canale a livello di instal
 
 ### Notifiche in uscita (unidirezionali)
 
-Le stesse credenziali Slack alimenterebbero notifiche webhook unidirezionali (chiusure di casi, decisioni di verdetto) in una release futura. Il codice del notificatore webhook esiste in `src/soctalk/notifications/slack_webhook.py` ma è integrato solo nell'entry point legacy; l'`app_v1` del chart V1 non lo invoca. Non esiste alcun toggle `notify_on_capacity` in nessuna release.
+Le stesse credenziali Slack alimenterebbero notifiche webhook unidirezionali (chiusure di casi, decisioni di verdict) in una release futura. Il codice del notificatore webhook esiste in `src/soctalk/notifications/slack_webhook.py` ma è integrato solo nell'entry point legacy; l'`app_v1` del chart V1 non lo invoca. Non esiste alcun toggle `notify_on_capacity` in nessuna release.
 
 ## Contabilizzazione degli esiti
 
@@ -91,7 +91,7 @@ Le decisioni di revisione scrivono una riga di audit. Il gauge `soctalk_tenant_p
 
 ## Bypass: modalità solo-AI
 
-Una modalità "auto-approva ogni escalation" senza gate umano **non** è implementata in questa release. Il nodo del verdetto instrada sempre `escalate` attraverso `human_review`. La rimozione del gate umano è nella roadmap come toggle esplicito riservato solo a `platform_admin`, con la motivazione soggetta ad audit, non come default silenzioso.
+Una modalità "auto-approva ogni escalation" senza gate umano **non** è implementata in questa release. Il nodo del verdict instrada sempre `escalate` attraverso `human_review`. La rimozione del gate umano è nella roadmap come toggle esplicito riservato solo a `platform_admin`, con la motivazione soggetta ad audit, non come default silenzioso.
 
 ## Riferimenti al codice sorgente
 

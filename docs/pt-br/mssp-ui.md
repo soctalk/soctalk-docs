@@ -41,7 +41,7 @@ Blocos de KPI na linha superior (Open Investigations, Pending Reviews, Avg Time 
 Abaixo dos blocos:
 
 - **Investigation Throughput (24h)**: gráfico de barras+linha de criadas / fechadas manualmente / fechadas automaticamente / escaladas / backlog.
-- **Verdicts Today**: contagem corrente dos vereditos de AI do dia.
+- **Verdicts Today**: contagem corrente dos verdicts de AI do dia.
 - **Active Investigations**: lista curta de casos em andamento com link direto para cada um.
 
 O gráfico é o widget mais observado para planejamento de capacidade; se o backlog (linha vermelha) tende a subir enquanto o throughput permanece estável, o MSSP está subprovisionado ou o modelo está deixando casos demais escaparem para a revisão humana.
@@ -97,7 +97,7 @@ O botão flutuante **Ask AI** abre uma conversa lateral que opera sobre o contex
 
 ![Fila de revisão](/screenshots/review-queue.png)
 
-A fila cross-tenant de propostas de AI aguardando um gate humano. Cada linha exibe o título da proposta, contagem de alertas, prazo, severity, chip de veredito da AI (`AI: Escalate / Close / Needs More Info`) e um botão **Review**.
+A fila cross-tenant de propostas de AI aguardando um gate humano. Cada linha exibe o título da proposta, contagem de alertas, prazo, severity, chip de verdict da AI (`AI: Escalate / Close / Needs More Info`) e um botão **Review**.
 
 Revisar registra a decisão (`approve | reject | more_info`), que atualiza a linha de revisão pendente no banco de dados. Na V1 **não há pipeline downstream baseado em outbox**; a decisão para na linha de revisão + no log de auditoria. Qualquer criação de caso no TheHive ou notificação no Slack precisa acontecer inline durante a execução do grafo de AI.
 

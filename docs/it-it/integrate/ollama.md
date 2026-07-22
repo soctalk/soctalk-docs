@@ -101,7 +101,7 @@ Quando arriva un alert, l'indagine viene sottoposta a triage dal modello locale,
 
 ## Scegliere un modello
 
-La pipeline di SocTalk esegue **tool-calling + verdetti JSON strutturati**, quindi scegli un modello instruct con solido supporto ai tool, `qwen2.5`, `llama3.1`, `mistral-nemo`. I modelli piccoli/datati spesso falliscono l'output strutturato. Il tier di reasoning trae il massimo beneficio da un modello più potente; puoi separarli con `fast_model` / `reasoning_model` (un piccolo router veloce + un modello di verdetto più grande).
+La pipeline di SocTalk esegue **tool-calling + verdict JSON strutturati**, quindi scegli un modello instruct con solido supporto ai tool, `qwen2.5`, `llama3.1`, `mistral-nemo`. I modelli piccoli/datati spesso falliscono l'output strutturato. Il tier di reasoning trae il massimo beneficio da un modello più potente; puoi separarli con `fast_model` / `reasoning_model` (un piccolo router veloce + un modello di verdict più grande).
 
 ::: tip La CPU è lenta
 Su CPU, un modello 7B gira a ~decine di token/sec, e un singolo triage effettua diverse chiamate LLM, aspettati **minuti** per indagine. Usa un host con GPU per una latenza utilizzabile, o un modello veloce più piccolo.

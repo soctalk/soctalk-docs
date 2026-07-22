@@ -24,7 +24,7 @@ xz -d soctalk-demo-$VER.qcow2.xz
 
 ## 2. Construye el ISO semilla de cloud-init
 
-Un ISO semilla NoCloud crea un usuario `ops` con tu clave SSH. Sin él aún puedes iniciar sesión como el usuario de tiempo de compilación `ubuntu:packer` (consulta [Acceso SSH](/es-419/quickstart-vm#ssh-access-credentials)), pero esa credencial está en el árbol de código público, proporciona la semilla antes de exponer la VM a una red en la que no confíes. En el nodo, o en cualquier equipo Linux:
+Un ISO semilla NoCloud crea un usuario `ops` con tu clave SSH. Sin él aún puedes iniciar sesión como el usuario de tiempo de compilación `ubuntu:packer` (consulta [Acceso SSH](/es-419/quickstart-vm#ssh-access-credentials)), pero esa credencial está en el árbol de código público; proporciona la semilla antes de exponer la VM a una red en la que no confíes. En el nodo, o en cualquier equipo Linux:
 
 ```bash
 cat > user-data <<'EOF'
@@ -123,7 +123,7 @@ La **Console** muestra el appliance arrancando hasta un prompt de inicio de sesi
 
 ![Console, booted](/screenshots/proxmox-vm-console.png)
 
-La VM toma una concesión DHCP de tu puente LAN. Encuentra su IP desde la consola (`login: ops` funciona solo con clave SSH, usa la salida de la consola o tu servidor/router DHCP), o desde el nodo:
+La VM toma una concesión DHCP de tu puente LAN. Encuentra su IP desde la consola (`login: ops` funciona solo con clave SSH; usa la salida de la consola o tu servidor/router DHCP), o desde el nodo:
 
 ```bash
 # the MAC is on the VM's Network Device (net0)

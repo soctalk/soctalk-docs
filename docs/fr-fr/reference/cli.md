@@ -27,7 +27,7 @@ Demande un nouveau mot de passe (ou le lit depuis `SOCTALK_PASSWORD`), recherche
 
 ### `soctalk` (point d'entrée de l'orchestrateur)
 
-`soctalk` est le point d'entrée de l'orchestrateur, il exécute le superviseur LangGraph + les workers. En V1, le pod API embarque l'orchestrateur (pas de Deployment `soctalk-system-orchestrator` séparé). Généralement non invoqué à la main en dehors du développement.
+`soctalk` est le point d'entrée de l'orchestrateur ; il exécute le supervisor LangGraph + les workers. En V1, le pod API embarque l'orchestrateur (pas de Deployment `soctalk-system-orchestrator` séparé). Généralement non invoqué à la main en dehors du développement.
 
 ### Pas encore de `soctalk-cli` polyvalent
 

@@ -49,9 +49,9 @@ Sequenza:
 2. Per ciascun observable, cerca l'elenco di analyzer in `ANALYZER_MAP` per il suo tipo.
 3. Invia al primo analyzer mappato tramite l'endpoint `/api/observable` di Cortex.
 4. Interroga `/api/job/{id}/report` finché il job non termina o non scatta un timeout per singolo job.
-5. Aggiunge allo stato del case il verdetto (`safe`, `info`, `suspicious`, `malicious`) e il corpo del report. I job falliti registrano l'errore nel log e proseguono.
+5. Aggiunge allo stato del case il verdict (`safe`, `info`, `suspicious`, `malicious`) e il corpo del report. I job falliti registrano l'errore nel log e proseguono.
 
-Le chiamate a Cortex fallite non fanno fallire il run, il worker registra il fallimento nel log e ritorna al supervisor senza arricchimento per quell'observable. Il nodo del verdetto ragiona su qualunque contesto sia disponibile.
+Le chiamate a Cortex fallite non fanno fallire il run, il worker registra il fallimento nel log e ritorna al supervisor senza arricchimento per quell'observable. Il nodo del verdict ragiona su qualunque contesto sia disponibile.
 
 ## Cortex integrato: non in questa release
 

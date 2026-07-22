@@ -31,7 +31,7 @@ Le premier correctif est contre-intuitif : la majeure partie d'un pipeline de tr
 - **La déconfliction d'engagements** met en correspondance les fenêtres déclarées de pentest et de red team par source, hôte, technique et période. Les tests autorisés sont marqués et audités, jamais clôturés automatiquement, et toute activité de testeur hors périmètre est renvoyée d'office à un humain.
 - **La clôture déterministe** traite par règle les faux positifs de faible sévérité et de confiance élevée, sans appel de modèle.
 
-Beaucoup d'alertes n'atteignent jamais un modèle. Ce qui survit est promu en enquête, et même alors le modèle n'est consulté que dans deux rôles : un **superviseur** qui route l'enquête (récupérer le contexte de l'hôte depuis Wazuh, vérifier la réputation des observables via les analyseurs Cortex, interroger la threat intel MISP ; tous sont des appels d'outils déterministes dont le modèle ne fait que *lire* les résultats), et un nœud de **verdict** où un modèle de raisonnement pèse tout ce qui a été rassemblé et propose `escalate`, `close` ou `needs_more_info` avec confiance, justification et solidité des preuves.
+Beaucoup d'alertes n'atteignent jamais un modèle. Ce qui survit est promu en enquête, et même alors le modèle n'est consulté que dans deux rôles : un **supervisor** qui route l'enquête (récupérer le contexte de l'hôte depuis Wazuh, vérifier la réputation des observables via les analyseurs Cortex, interroger la threat intel MISP ; tous sont des appels d'outils déterministes dont le modèle ne fait que *lire* les résultats), et un nœud de **verdict** où un modèle de raisonnement pèse tout ce qui a été rassemblé et propose `escalate`, `close` ou `needs_more_info` avec confiance, justification et solidité des preuves.
 
 ```mermaid
 flowchart TD
@@ -80,7 +80,7 @@ Le runtime de SocTalk prend en charge deux fournisseurs : `anthropic` (Claude) e
 SocTalk est une plateforme SOC Apache 2.0, AI-first, pour MSP et MSSP : une stack Wazuh dédiée par client sur votre propre Kubernetes, derrière un seul plan de contrôle, avec le pipeline de triage ci-dessus exécuté par tenant. Pour aller plus loin :
 
 - [Comment ça marche](/fr-fr/how-it-works) raconte le pipeline complet : l'entonnoir déterministe, les deux rôles du modèle, le plancher de sécurité appliqué en trois points.
-- [Pipeline IA](/fr-fr/ai-pipeline) couvre la machine à états LangGraph : superviseur, workers, verdict, cycle de vie des exécutions.
+- [Pipeline IA](/fr-fr/ai-pipeline) couvre la machine à états LangGraph : supervisor, workers, verdict, cycle de vie des exécutions.
 - [Politiques de triage](/fr-fr/triage-policies) montre comment rédiger des garde-fous déterministes dans l'éditeur no-code, en mode shadow puis en activation.
 - [Revue humaine](/fr-fr/human-review) documente la file de revue et le contrat de décision de l'analyste.
 

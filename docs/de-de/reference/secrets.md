@@ -115,9 +115,9 @@ SocTalk speichert Referenzen und Versionslabels; das Material wird über den Pro
 
 Kubernetes-RBAC schränkt ein, welche ServiceAccounts welche Secrets lesen dürfen:
 
-- `soctalk-system-api`-SA in `soctalk-system`: kann Secrets in `soctalk-system` lesen (Postgres-Zugangsdaten, JWT-/Adapter-Signierschlüssel). Außerdem berechtigt, Secrets in `tenant-*`-Namespaces zu schreiben (erforderlich, um Mandanten-Bootstrap-Secrets zu erstellen/rotieren), das V1-Chart konsolidiert die API- und Controller-Rollen in dieser SA.
+- `soctalk-system-api`-SA in `soctalk-system`: kann Secrets in `soctalk-system` lesen (Postgres-Zugangsdaten, JWT-/Adapter-Signierschlüssel). Außerdem berechtigt, Secrets in `tenant-*`-Namespaces zu schreiben (erforderlich, um Mandanten-Bootstrap-Secrets zu erstellen/rotieren); das V1-Chart konsolidiert die API- und Controller-Rollen in dieser SA.
 - Pro-Mandant `ServiceAccount` in `tenant-<slug>`: kann nur Secrets im eigenen Namespace lesen. Es kann sein eigenes `adapter-token` / `runs-worker-token` / `tenant-llm-key` lesen, aber niemals den System-Signierschlüssel.
-- Die `soctalk-orchestrator-sa` aus früheren Entwürfen existiert in V1 nicht, der Orchestrator läuft im API-Pod unter der API-SA.
+- Die `soctalk-orchestrator-sa` aus früheren Entwürfen existiert in V1 nicht; der Orchestrator läuft im API-Pod unter der API-SA.
 
 `Role`-/`RoleBinding`-Templates sind Teil des `soctalk-system`-Charts (für SocTalk-SAs) und des `soctalk-tenant`-Charts (für pro-Mandant SAs).
 

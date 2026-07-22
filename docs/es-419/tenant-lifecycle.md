@@ -106,7 +106,7 @@ Cada namespace `tenant-<slug>` recibe un `ResourceQuota` y un `LimitRange` en el
 
 (Los números exactos viven en `_profile_tenant_overrides` en [`render.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/core/provisioning/render.py).)
 
-Si una carga de trabajo real excede el presupuesto del perfil (p. ej., el Wazuh indexer se ralentiza durante una ingesta intensa), aumenta el ResourceQuota mediante `helm upgrade` con valores sobrescritos. No edites el objeto ResourceQuota directamente, la siguiente actualización del chart lo sobrescribirá.
+Si una carga de trabajo real excede el presupuesto del perfil (p. ej., el Wazuh indexer se ralentiza durante una ingesta intensa), aumenta el ResourceQuota mediante `helm upgrade` con valores sobrescritos. No edites el objeto ResourceQuota directamente; la siguiente actualización del chart lo sobrescribirá.
 
 ## Rutas de recuperación
 
@@ -120,7 +120,7 @@ Normalmente un pod atascado (ImagePullBackOff, PVC en `Pending`, ResourceQuota d
 
 ### Tenant en `degraded`
 
-En V1, a `degraded` solo se entra tras un **fallo de aprovisionamiento**, no por pérdida de heartbeat. Si un tenant está en `degraded`, el controlador de aprovisionamiento falló en uno de los 9 pasos anteriores, lee la fila del evento del ciclo de vida para ver cuál. El plano de datos (Wazuh) puede seguir ejecutándose dependiendo de qué paso falló. Consulta [Operaciones diarias, Tenant en estado degradado](/es-419/operations#tenant-in-degraded-state).
+En V1, a `degraded` solo se entra tras un **fallo de aprovisionamiento**, no por pérdida de heartbeat. Si un tenant está en `degraded`, el controlador de aprovisionamiento falló en uno de los 9 pasos anteriores; lee la fila del evento del ciclo de vida para ver cuál. El plano de datos (Wazuh) puede seguir ejecutándose dependiendo de qué paso falló. Consulta [Operaciones diarias, Tenant en estado degradado](/es-419/operations#tenant-in-degraded-state).
 
 ### Tenant en `suspended`
 

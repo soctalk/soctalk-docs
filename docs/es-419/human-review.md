@@ -38,7 +38,7 @@ Al enviar se actualiza la fila de revisión pendiente en la base de datos (`appr
 
 ## Backend bidireccional de Slack
 
-Se usa el Socket Mode de Slack para que SocTalk no necesite un endpoint de webhook público, la instalación de SocTalk inicia un WebSocket saliente hacia Slack.
+Se usa el Socket Mode de Slack para que SocTalk no necesite un endpoint de webhook público; la instalación de SocTalk inicia un WebSocket saliente hacia Slack.
 
 ### Requisitos previos
 
@@ -58,7 +58,7 @@ En la UI del MSSP → Settings → Slack:
 - **Notify on escalation** → on (envía cada veredicto de escalate)
 - **Notify on verdict** → opcional (también envía veredictos de cierre; alto volumen)
 
-Toda la configuración de Slack (tokens, canal, toggles de notificación) es solo por entorno en V1, la ruta heredada `PUT /api/settings` no está montada por el chart V1. Consulta [Slack, Configurar](/es-419/integrate/slack#configure) para el patrón de inyección de variables de entorno.
+Toda la configuración de Slack (tokens, canal, toggles de notificación) es solo por entorno en V1; la ruta heredada `PUT /api/settings` no está montada por el chart V1. Consulta [Slack, Configurar](/es-419/integrate/slack#configure) para el patrón de inyección de variables de entorno.
 
 ### Experiencia del operador
 
@@ -71,7 +71,7 @@ Observables: 198.51.100.7 (Cortex: malicious, 8/12), sshd, alice@linux-ep-1
 [Approve]  [Reject]  [Needs more info]  [View in UI →]
 ```
 
-Los botones responden a través de Socket Mode; la instalación de SocTalk registra la decisión indexada por la clave de idempotencia de la propuesta. La misma propuesta en la cola del dashboard se actualiza en tiempo real, aprobar en Slack cierra la tarjeta del dashboard.
+Los botones responden a través de Socket Mode; la instalación de SocTalk registra la decisión indexada por la clave de idempotencia de la propuesta. La misma propuesta en la cola del dashboard se actualiza en tiempo real; aprobar en Slack cierra la tarjeta del dashboard.
 
 Si el analista hace clic en **Reject** o **Needs more info**, se abre un diálogo de Slack para la justificación (obligatoria).
 
@@ -87,7 +87,7 @@ Las mismas credenciales de Slack impulsarían notificaciones de webhook unidirec
 
 ## Contabilidad de resultados
 
-Las decisiones de revisión escriben una fila de auditoría. El gauge `soctalk_tenant_pending_reviews` está **definido** en el código de observabilidad pero **no se actualiza activamente** en V1, se mantiene en 0. El seguimiento de la profundidad real de la cola de revisiones está en el roadmap. Un contador planificado `human_review_decisions_total` (por analista) tampoco está instrumentado todavía.
+Las decisiones de revisión escriben una fila de auditoría. El gauge `soctalk_tenant_pending_reviews` está **definido** en el código de observabilidad pero **no se actualiza activamente** en V1; se mantiene en 0. El seguimiento de la profundidad real de la cola de revisiones está en el roadmap. Un contador planificado `human_review_decisions_total` (por analista) tampoco está instrumentado todavía.
 
 ## Bypass: modo solo AI
 

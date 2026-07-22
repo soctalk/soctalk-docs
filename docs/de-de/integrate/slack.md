@@ -39,14 +39,14 @@ MSSP-UI → Settings → Slack:
 |---|---|
 | Webhook URL | `https://hooks.slack.com/services/T…/B…/…` |
 | Channel | Optionale Kanal-Überschreibung; andernfalls postet der Webhook in seinen Standardkanal |
-| Notify on escalation | Standardmäßig an. Postet, wenn ein Verdikt als `escalate` geschlossen wird |
+| Notify on escalation | Standardmäßig an. Postet, wenn ein Verdict als `escalate` geschlossen wird |
 | Notify on verdict | Standardmäßig aus. Postet auch jede `close`-Disposition, hohes Volumen |
 
 **Es gibt in V1 keine API zum Ändern der Slack-Integrationseinstellungen**: das V1-Chart bindet die Legacy-Route `PUT /api/settings` nicht ein. Die Slack-Konfiguration erfolgt ausschließlich über die Umgebung: stelle `SLACK_WEBHOOK_URL`, `SLACK_CHANNEL`, `SLACK_NOTIFY_ON_ESCALATION` und `SLACK_NOTIFY_ON_VERDICT` als Umgebungsvariablen im `soctalk-system-api`-Deployment bereit.
 
-Slack-Benachrichtigungen decken nur Eskalations- und Verdikt-Ereignisse ab (es existiert kein `notify_on_capacity`-Schalter).
+Slack-Benachrichtigungen decken nur Eskalations- und Verdict-Ereignisse ab (es existiert kein `notify_on_capacity`-Schalter).
 
-Tokens (Webhook-URL, Bot-Token, App-Token) sind über diesen Endpunkt **nicht** schreibbar, stelle sie als Umgebungsvariablen im Orchestrator-Deployment bereit (`SLACK_WEBHOOK_URL`, `SLACK_BOT_TOKEN`, `SLACK_APP_TOKEN`) oder über Secret-gemountete Umgebung. Rotiere sie, indem du das Secret patchst und den Orchestrator neu rollst.
+Tokens (Webhook-URL, Bot-Token, App-Token) sind über diesen Endpoint **nicht** schreibbar, stelle sie als Umgebungsvariablen im Orchestrator-Deployment bereit (`SLACK_WEBHOOK_URL`, `SLACK_BOT_TOKEN`, `SLACK_APP_TOKEN`) oder über Secret-gemountete Umgebung. Rotiere sie, indem du das Secret patchst und den Orchestrator neu rollst.
 
 ### Nachrichtenformat
 
@@ -65,7 +65,7 @@ Minimales Block Kit; keine Buttons (das ist Aufgabe des HIL-Backends).
 
 > **Status:** Das zweiweggerichtete Slack-HIL-Backend existiert im Code (`src/soctalk/hil/backends/slack.py`), ist aber **in diesem Release nicht in die Laufzeit des V1-Charts verdrahtet**. Die Prüfungswarteschlange im Dashboard unter `/review` ist die einzige funktionierende HIL-Oberfläche. Behandle das folgende Slack-HIL-Setup als geplantes Design.
 
-Für den Analysten-Prüfungs-Workflow. Dieselbe Slack-App, plus das App-Level Token. Das HIL-Backend von SocTalk öffnet einen ausgehenden WebSocket zu Slack, kein öffentlicher Endpunkt nötig; funktioniert hinter NAT.
+Für den Analysten-Prüfungs-Workflow. Dieselbe Slack-App, plus das App-Level Token. Das HIL-Backend von SocTalk öffnet einen ausgehenden WebSocket zu Slack, kein öffentlicher Endpoint nötig; funktioniert hinter NAT.
 
 ### Konfigurieren
 

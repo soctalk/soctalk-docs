@@ -2,7 +2,7 @@
 
 O modelo de três papéis do Postgres, os templates de política RLS, a disciplina `FORCE ROW LEVEL SECURITY` e os testes de isolamento que o SocTalk executa em CI.
 
-> **Nota de implantação V1.** O texto abaixo refere-se a "pods de API" e "pods de orquestrador" como cargas de trabalho separadas, o modelo de papéis e as regras de acesso permanecem corretos. No chart V1 eles estão **co-localizados em um único Deployment `soctalk-system-api`**, portanto toda referência a "pod de orquestrador" mapeia para esse mesmo conjunto de pods nesta versão.
+> **Nota de implantação V1.** O texto abaixo refere-se a "pods de API" e "pods de orquestrador" como cargas de trabalho separadas; o modelo de papéis e as regras de acesso permanecem corretos. No chart V1 eles estão **co-localizados em um único Deployment `soctalk-system-api`**, portanto toda referência a "pod de orquestrador" mapeia para esse mesmo conjunto de pods nesta versão.
 
 ## Papéis
 

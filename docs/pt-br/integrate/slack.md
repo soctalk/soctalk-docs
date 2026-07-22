@@ -39,12 +39,12 @@ MSSP UI → Settings → Slack:
 |---|---|
 | Webhook URL | `https://hooks.slack.com/services/T…/B…/…` |
 | Channel | Substituição opcional de canal; caso contrário, o webhook publica no canal padrão dele |
-| Notify on escalation | Ligado por padrão. Publica quando um veredito é encerrado como `escalate` |
+| Notify on escalation | Ligado por padrão. Publica quando um verdict é encerrado como `escalate` |
 | Notify on verdict | Desligado por padrão. Publica também cada disposição de `close`: volume alto |
 
 **Não há API para alterar as configurações da integração com o Slack no V1**: o chart V1 não monta a rota legada `PUT /api/settings`. A configuração do Slack é somente por ambiente: forneça `SLACK_WEBHOOK_URL`, `SLACK_CHANNEL`, `SLACK_NOTIFY_ON_ESCALATION` e `SLACK_NOTIFY_ON_VERDICT` como variáveis de ambiente no Deployment `soctalk-system-api`.
 
-As notificações do Slack cobrem apenas eventos de escalonamento e veredito (não existe um toggle `notify_on_capacity`).
+As notificações do Slack cobrem apenas eventos de escalonamento e verdict (não existe um toggle `notify_on_capacity`).
 
 Os tokens (webhook URL, bot token, app token) **não** podem ser gravados por esse endpoint, forneça-os como variáveis de ambiente no Deployment do orquestrador (`SLACK_WEBHOOK_URL`, `SLACK_BOT_TOKEN`, `SLACK_APP_TOKEN`) ou via env montado por Secret. Faça a rotação aplicando patch no Secret e reiniciando o orquestrador.
 

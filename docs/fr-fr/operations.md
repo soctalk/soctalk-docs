@@ -1,6 +1,6 @@
 # Opérations quotidiennes
 
-Tâches que les opérateurs MSSP exécutent sur une installation SocTalk active. Si ce n'est pas déjà fait, lisez d'abord la [visite guidée de l'interface MSSP](/fr-fr/mssp-ui), elle recense toutes les pages référencées ci-dessous.
+Tâches que les opérateurs MSSP exécutent sur une installation SocTalk active. Si ce n'est pas déjà fait, lisez d'abord la [visite guidée de l'interface MSSP](/fr-fr/mssp-ui) ; elle recense toutes les pages référencées ci-dessous.
 
 ## File d'attente des enquêtes
 
@@ -125,7 +125,7 @@ spec:
 EOF
 ```
 
-Inversez en supprimant la NetworkPolicy, en remettant les charges de travail à l'échelle de leurs nombres de réplicas d'origine, et en appelant **Reprendre** dans l'interface. **Reprendre** ne met également à jour que l'état en base de données dans cette release, cela ne restaurera pas les nombres de réplicas à votre place.
+Inversez en supprimant la NetworkPolicy, en remettant les charges de travail à l'échelle de leurs nombres de réplicas d'origine, et en appelant **Reprendre** dans l'interface. **Reprendre** ne met également à jour que l'état en base de données dans cette release ; cela ne restaurera pas les nombres de réplicas à votre place.
 
 ## Soupçon de fuite de données inter-tenant
 

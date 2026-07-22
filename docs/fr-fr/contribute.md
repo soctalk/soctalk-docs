@@ -66,14 +66,14 @@ Le site de documentation (ce site) réside dans un dépôt distinct, [`soctalk/s
 
 ## Tests
 
-Il n'y a pas de recettes `just test` / `just test-rls` / `just e2e-l1-l2` dans cette version, c'est la forme prévue. Aujourd'hui, exécutez les tests directement avec pytest :
+Il n'y a pas de recettes `just test` / `just test-rls` / `just e2e-l1-l2` dans cette version ; c'est la forme prévue. Aujourd'hui, exécutez les tests directement avec pytest :
 
 ```bash
 pytest tests/                          # full suite
 pytest tests/v1/test_rls_isolation.py  # Postgres Row-Level Security suite
 ```
 
-Les tests RLS sont non négociables, ils vérifient l'isolation des données inter-tenants que promet le [Modèle de sécurité](/fr-fr/reference/security-model). La CI exécute la suite pytest complète sur chaque PR.
+Les tests RLS sont non négociables ; ils vérifient l'isolation des données inter-tenants que promet le [Modèle de sécurité](/fr-fr/reference/security-model). La CI exécute la suite pytest complète sur chaque PR.
 
 ## Style
 

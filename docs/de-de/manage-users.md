@@ -70,8 +70,8 @@ Einige Regeln gelten bei jeder Änderung, auf beiden Seiten, und die UI erzwingt
 
 ## Ein Passwort zurücksetzen
 
-In dieser Version gibt es keinen Self-Service-Passwort-vergessen-Ablauf. Wenn jemand ausgesperrt ist, setzt ein Admin ihn zurück. Auf der MSSP-Seite setzt ein `mssp_admin` oder `platform_admin` jeden Benutzer zurück, ob MSSP oder Mandant, und das Zurücksetzen liefert ein frisches einmaliges Passwort zurück und widerruft die bestehenden Sitzungen dieses Benutzers. Der genaue Endpunkt und der CLI-Fallback für Bootstrap- und Offline-Fälle stehen in [Benutzer und Rollen](/de-de/users-and-roles#password-reset).
+In dieser Version gibt es keinen Self-Service-Passwort-vergessen-Ablauf. Wenn jemand ausgesperrt ist, setzt ein Admin ihn zurück. Auf der MSSP-Seite setzt ein `mssp_admin` oder `platform_admin` jeden Benutzer zurück, ob MSSP oder Mandant, und das Zurücksetzen liefert ein frisches einmaliges Passwort zurück und widerruft die bestehenden Sitzungen dieses Benutzers. Der genaue Endpoint und der CLI-Fallback für Bootstrap- und Offline-Fälle stehen in [Benutzer und Rollen](/de-de/users-and-roles#password-reset).
 
 ## Dasselbe über die API
 
-Jede Aktion oben hat eine API-Entsprechung unter `/api/mssp/users` und `/api/tenant/users`, einschließlich Erstellen, Auflisten, Rollenänderung, Deaktivieren und Reaktivieren. Die Anfrageformate, die jeweils erforderliche Berechtigung sowie die Regeln zu Zielgruppe und Mandanten-Scoping sind in [Benutzer und Rollen](/de-de/users-and-roles#creating-tenant-users) dokumentiert. Die UI ist eine dünne Schicht über diesen Endpunkten, sodass du alles, was du anklicken kannst, auch automatisieren kannst.
+Jede Aktion oben hat eine API-Entsprechung unter `/api/mssp/users` und `/api/tenant/users`, einschließlich Erstellen, Auflisten, Rollenänderung, Deaktivieren und Reaktivieren. Die Anfrageformate, die jeweils erforderliche Berechtigung sowie die Regeln zu Zielgruppe und Mandanten-Scoping sind in [Benutzer und Rollen](/de-de/users-and-roles#creating-tenant-users) dokumentiert. Die UI ist eine dünne Schicht über diesen Endpoints, sodass du alles, was du anklicken kannst, auch automatisieren kannst.

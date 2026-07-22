@@ -374,7 +374,7 @@ Los clientes programáticos pueden:
 
 En `SOCTALK_AUTH_MODE=proxy`, la API confía en los headers upstream
 `X-Forwarded-User` / `X-Forwarded-Email` / `X-Forwarded-Groups` y **toda** la
-superficie de autenticación de sesión se desmonta, `/api/auth/*` (`login`,
+superficie de autenticación de sesión se desmonta; `/api/auth/*` (`login`,
 `logout`, `me`, `assume-tenant`, `password/change`) **y**
 `/api/mssp/users/{id}/password/reset` devuelven 404 (no 405). Tu IdP es dueño de
 la superficie de identidad.
@@ -474,7 +474,7 @@ curl -N -b jar 'https://mssp.../api/events/stream'
 ```
 
 Server-Sent Events. **En esta versión el stream solo emite pings de keep-alive**
-(un `ping` aproximadamente cada 25 s), la difusión de eventos de dominio
+(un `ping` aproximadamente cada 25 s); la difusión de eventos de dominio
 (actualizaciones de investigaciones, ciclo de vida de tenants, etc.) está en el
 roadmap. Trata el endpoint como una prueba de conectividad a nivel de cable por
 ahora.
@@ -527,7 +527,7 @@ print(detail.phase, detail.alert_count, detail.verdict_decision)
 ```
 
 Las funciones de endpoint se nombran según el operationId que FastAPI deriva de
-la ruta (`list_investigations_api_investigations_get`), asígnales un alias al
+la ruta (`list_investigations_api_investigations_get`); asígnales un alias al
 importarlas, como arriba, para mayor legibilidad. `sync()` devuelve el modelo
 deserializado (`InvestigationList`, cuyos `.items` son `Investigation`);
 `sync_detailed()` devuelve el `Response` en bruto con el código de estado si lo
@@ -543,12 +543,12 @@ esquema que deja de generar un cliente funcional hace fallar la build.
 
 Usados por el adapter y el runs-worker por tenant (ver los grupos
 `internal-adapter` e `internal-worker` en el catálogo de arriba). No son para
-consumo humano, se listan para que los MSSP puedan ver qué hacen esos pods.
+consumo humano; se listan para que los MSSP puedan ver qué hacen esos pods.
 
 Cada llamada lleva un token con alcance de tenant que la API acuña en el
 aprovisionamiento y **auto-renueva** antes de que expire (los tokens de adapter
 viven 7 días, los de worker 30 días; el plano de control los vuelve a acuñar
-bien dentro de esa ventana). Los tokens están vinculados al tenant, un adapter
+bien dentro de esa ventana). Los tokens están vinculados al tenant; un adapter
 solo puede actuar sobre las URLs de su propio tenant.
 
 ## Límites de tasa

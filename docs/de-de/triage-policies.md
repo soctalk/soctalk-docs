@@ -1,8 +1,8 @@
 # Triage-Richtlinien
 
-Ein LLM, das eine `sudo`-Warnung triagiert, ist ein brillanter Analyst und eine schwache Garantie. Stelle ihm dieselbe Frage zweimal, und du kannst zwei Antworten bekommen. Weise es an, vor jeder Entscheidung stets den Change-Record heranzuziehen, und es wird das tun, meistens, größtenteils. Aber ein Teil der Triage ist keine Ermessensfrage. Ein Beweisschritt *muss* laufen, bevor ein Verdikt zählt. Ein Abschluss auf einem PCI-Asset *muss* für einen Menschen pausieren. Eine Flut von Agent-Health-Rauschen *sollte* überhaupt keinen Model-Call kosten. Für diese Fälle willst du kein Reasoning. Du willst eine Regel.
+Ein LLM, das eine `sudo`-Warnung triagiert, ist ein brillanter Analyst und eine schwache Garantie. Stelle ihm dieselbe Frage zweimal, und du kannst zwei Antworten bekommen. Weise es an, vor jeder Entscheidung stets den Change-Record heranzuziehen, und es wird das tun, meistens, größtenteils. Aber ein Teil der Triage ist keine Ermessensfrage. Ein Beweisschritt *muss* laufen, bevor ein Verdict zählt. Ein Abschluss auf einem PCI-Asset *muss* für einen Menschen pausieren. Eine Flut von Agent-Health-Rauschen *sollte* überhaupt keinen Model-Call kosten. Für diese Fälle willst du kein Reasoning. Du willst eine Regel.
 
-Eine **Triage-Richtlinie** ist genau diese Regel, geschrieben als Daten. Sie ersetzt den Agenten nicht, sie legt einige deterministische Gates um die **agentische Schleife** (den Supervisor-und-Tools-Zyklus, der anreichert, untersucht und sich zu einem Verdikt durchdenkt). Jedes einzelne davon gehorcht demselben Gesetz:
+Eine **Triage-Richtlinie** ist genau diese Regel, geschrieben als Daten. Sie ersetzt den Agenten nicht, sie legt einige deterministische Gates um die **agentische Schleife** (den Supervisor-und-Tools-Zyklus, der anreichert, untersucht und sich zu einem Verdict durchdenkt). Jedes einzelne davon gehorcht demselben Gesetz:
 
 > **Das LLM schlägt vor. Ein deterministisches Gate entscheidet.**
 
@@ -20,9 +20,9 @@ Die eine Eigenschaft, die all dies sicher macht: Eine **mandanten-verfasste** Tr
 Eine Triage-Richtlinie steuert einen Lauf an vier Punkten, den nummerierten Gates im Diagramm oben.
 
 1. **Resolver.** Ein Eintrittsknoten gleicht die Warnung gegen die Registry ab und schreibt die aktive Triage-Richtlinie in den Lauf-State. Gehört die Warnung zu einer bekannten Betriebsklasse ohne Sicherheitsindikatoren, kann der Lauf hier deterministisch abgeschlossen werden, ohne das Modell jemals aufzurufen.
-2. **Vor-Entscheidungs-Gate.** Eine Richtlinie kann deterministische Schritte verlangen (zum Beispiel das Sammeln von Autorisierungskontext), bevor ein Verdikt zulässig ist. Schlägt der Supervisor ein Verdikt zu früh vor, leitet das Gate ihn zunächst zum erforderlichen Schritt um. Eine Richtlinie kann außerdem einschränken, welche Supervisor-Aktionen in jeder Phase zulässig sind, und diese Einschränkung wird vor dem Call auf die strukturierte Ausgabe des Modells angewendet, sodass eine unzulässige Aktion nicht einmal gesampelt werden kann.
-3. **Nach-Verdikt-Guard.** Nachdem das Modell ein Verdikt entworfen hat, entscheidet eine reine Funktion, ob es committet wird. Sie kann den Entwurf überschreiben (einen Abschluss zu einer Eskalation anheben), ihn unterbrechen (den Entwurf beibehalten, aber zur menschlichen Freigabe umleiten) oder ihn bestehen lassen. Jede Überschreibung wird protokolliert.
-4. **Safety Floor.** Eine nicht überschreibbare Menge von Prüfungen bewacht jeden automatischen Abschlusspfad. Es ist *kein* einzelner Schritt, die IOC-/Autorisierungs-Vetos laufen innerhalb des Nach-Verdikt-Guards, und die Kill-Switch-, Volumen-Cap- und Aktiver-Vorfall-Vetos laufen erneut, wenn ein Abschluss auf der Worker-, Server- und Ingest-Ebene committet wird. Das Diagramm zeichnet ihn der Klarheit halber als einen Knoten; nichts in einer Triage-Richtlinie kann ihn abschwächen, wo immer er läuft.
+2. **Vor-Entscheidungs-Gate.** Eine Richtlinie kann deterministische Schritte verlangen (zum Beispiel das Sammeln von Autorisierungskontext), bevor ein Verdict zulässig ist. Schlägt der Supervisor ein Verdict zu früh vor, leitet das Gate ihn zunächst zum erforderlichen Schritt um. Eine Richtlinie kann außerdem einschränken, welche Supervisor-Aktionen in jeder Phase zulässig sind, und diese Einschränkung wird vor dem Call auf die strukturierte Ausgabe des Modells angewendet, sodass eine unzulässige Aktion nicht einmal gesampelt werden kann.
+3. **Nach-Verdict-Guard.** Nachdem das Modell ein Verdict entworfen hat, entscheidet eine reine Funktion, ob es committet wird. Sie kann den Entwurf überschreiben (einen Abschluss zu einer Eskalation anheben), ihn unterbrechen (den Entwurf beibehalten, aber zur menschlichen Freigabe umleiten) oder ihn bestehen lassen. Jede Überschreibung wird protokolliert.
+4. **Safety Floor.** Eine nicht überschreibbare Menge von Prüfungen bewacht jeden automatischen Abschlusspfad. Es ist *kein* einzelner Schritt, die IOC-/Autorisierungs-Vetos laufen innerhalb des Nach-Verdict-Guards, und die Kill-Switch-, Volumen-Cap- und Aktiver-Vorfall-Vetos laufen erneut, wenn ein Abschluss auf der Worker-, Server- und Ingest-Ebene committet wird. Das Diagramm zeichnet ihn der Klarheit halber als einen Knoten; nichts in einer Triage-Richtlinie kann ihn abschwächen, wo immer er läuft.
 
 ## Der Safety Floor
 
@@ -30,7 +30,7 @@ Der Floor wird im Code durchgesetzt, nicht in Richtliniendaten, und er gilt auf 
 
 | Veto | Wann es auslöst |
 |---|---|
-| IOC vorhanden | Auf dem Verdikt-Pfad ein bösartiges Anreicherungs-Verdikt oder ein MISP-Match; auf den Ingest-Fast-Paths jedes rohe IOC auf der Warnung. |
+| IOC vorhanden | Auf dem Verdict-Pfad ein bösartiges Anreicherungs-Verdict oder ein MISP-Match; auf den Ingest-Fast-Paths jedes rohe IOC auf der Warnung. |
 | Widersprochene Autorisierung | Records existieren, decken die Aktivität aber nicht ab (abgelaufen, außerhalb des Zeitfensters, falscher Scope, per Richtlinie verboten). |
 | Ungeprüftes IOC | Ein Abschluss auf Router-Ebene mit Observables, die keine Anreicherung jemals geprüft hat. |
 | Aktiver Vorfall | Eine andere aktive Untersuchung teilt eine anhang-fähige Entität mit dieser. |
@@ -45,7 +45,7 @@ Der Kill Switch und der Volumen-Cap lohnen es, beim Namen gekannt zu werden. `SO
 
 Zwei werden mit dem Produkt ausgeliefert. Beide sind geprüfter Code und schreibgeschützt.
 
-**`dual-use-privileged-exec`** behandelt Host-Auth-Aktivität wie `sudo` und `su`, bei der dasselbe Ereignis unter einem abdeckenden Change-Record eine Routineadministration ist und ohne einen solchen ein Vorfall. Sie erfordert den Schritt `gather_authorization_context` vor jedem Verdikt, entfernt `CLOSE` aus den zulässigen Aktionen des Supervisors (damit die günstige Router-Ebene einen Fall nicht kurzschließen kann, dessen ganzer Sinn darin besteht, dass gutartig und feindselig identisch aussehen), und verlangt eine menschliche Freigabe für jeden Abschluss, der ein PCI-klassifiziertes Asset berührt.
+**`dual-use-privileged-exec`** behandelt Host-Auth-Aktivität wie `sudo` und `su`, bei der dasselbe Ereignis unter einem abdeckenden Change-Record eine Routineadministration ist und ohne einen solchen ein Vorfall. Sie erfordert den Schritt `gather_authorization_context` vor jedem Verdict, entfernt `CLOSE` aus den zulässigen Aktionen des Supervisors (damit die günstige Router-Ebene einen Fall nicht kurzschließen kann, dessen ganzer Sinn darin besteht, dass gutartig und feindselig identisch aussehen), und verlangt eine menschliche Freigabe für jeden Abschluss, der ein PCI-klassifiziertes Asset berührt.
 
 **`agent-health-operational`** behandelt das Rauschen des Wazuh-Agent-Selbstmonitorings, etwa Regel 202 „Agent event queue is flooded.“ Dies ist eine Infrastrukturbedingung, kein Sicherheitsereignis, daher schließt die Richtlinie es deterministisch ohne jeden Model-Call ab, was das Ergebnis zudem konsistent macht, statt von Lauf zu Lauf zu variieren. Jeder Sicherheitsindikator auf der Warnung (eine MITRE-Technik, ein IOC, ein bösartiges Signal, eine nicht attestierte Klasse oder ein kritisches Wazuh-Level, 12+) verhindert den deterministischen Abschluss per Veto und schickt die Warnung in die vollständige Triage.
 
@@ -85,7 +85,7 @@ Lies diese Bedingung so: Wenn die Autorisierungsklasse als `contradicted` heraus
 | Feld | Bedeutung |
 |---|---|
 | `applies_to` | Welche Warnungen die Richtlinie steuert. Abgeglichen anhand von Regelgruppen, Regel-IDs oder dem Autorisierungs-Track der Aktivität der Warnung, die drei werden mit OR verknüpft. |
-| `required_steps` | Deterministische Knoten, die laufen müssen, bevor ein Verdikt zulässig ist. |
+| `required_steps` | Deterministische Knoten, die laufen müssen, bevor ein Verdict zulässig ist. |
 | `decision_modules` | Deklariert die geprüften Engines, auf die sich die Richtlinie stützt (heute: `authorization_engine`), validiert gegen bekannte Module. Die Laufzeitkonsultation wird derzeit durch `required_steps` gesteuert (z. B. `gather_authorization_context`), nicht durch dieses Feld. |
 | `legal_actions` | Die pro Phase zulässigen Supervisor-Aktionen (`triage`, bis die erforderlichen Schritte gelaufen sind, dann `decide`). Eine nicht aufgeführte Phase ist unbeschränkt. |
 | `close_signoff_data_classes` | Ein committender Abschluss auf einem Asset in einer dieser Klassen wird für eine menschliche Freigabe unterbrochen. |
@@ -95,7 +95,7 @@ Lies diese Bedingung so: Wenn die Autorisierungsklasse als `contradicted` heraus
 Einige Fähigkeiten sind dadurch eingeschränkt, woher eine Richtlinie stammt:
 
 - **Deterministische Dispositionen** (das, womit `agent-health-operational` ohne Modell abschließt) sind **nur eingebaut**: eine neue Auto-Close-Klasse zu prägen ist eine Code-Review-Entscheidung, keine Konfiguration.
-- **Verfasste Richtlinien dürfen `CLOSE` nicht gewähren** in `legal_actions`. Es zu gewähren fügt nichts gegenüber einer unbeschränkten Phase hinzu (die Baseline erlaubt den Router-Abschluss bereits), würde aber das Remapping unzulässiger Aktionen jeden Vorschlag zu einem verdiktlosen Auto-Close zwingen lassen, der nur auf dem groben Floor steht. Terminale Entscheidungen laufen stattdessen über `VERDICT`; die Validierung weist `CLOSE` in jeder Phase zurück. Eingebaute und Datei-Richtlinien dürfen weiterhin die vollständige Aktionsmenge auflisten.
+- **Verfasste Richtlinien dürfen `CLOSE` nicht gewähren** in `legal_actions`. Es zu gewähren fügt nichts gegenüber einer unbeschränkten Phase hinzu (die Baseline erlaubt den Router-Abschluss bereits), würde aber das Remapping unzulässiger Aktionen jeden Vorschlag zu einem verdictlosen Auto-Close zwingen lassen, der nur auf dem groben Floor steht. Terminale Entscheidungen laufen stattdessen über `VERDICT`; die Validierung weist `CLOSE` in jeder Phase zurück. Eingebaute und Datei-Richtlinien dürfen weiterhin die vollständige Aktionsmenge auflisten.
 
 ## Guardrail-Bedingungen
 

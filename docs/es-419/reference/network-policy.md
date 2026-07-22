@@ -350,7 +350,7 @@ spec:
 
 **4.3.5 Permitir entrada del agente Wazuh hacia el gestor del tenant**
 
-La telemetría del agente en 1514/1515 llega vía la ruta documentada en [Wazuh Ingress](/es-419/reference/wazuh-ingress). El despliegue de referencia es un Service LoadBalancer por tenant (LB de nube o MetalLB), con un Deployment de HAProxy en clúster en `soctalk-system` como respaldo de IP única. La NetworkPolicy debe permitir cualquiera de esas rutas que la instalación realmente ejecute, `ingress-system` **no** es el origen correcto para ninguna de ellas, así que no uses la plantilla estándar del chart sin editarla.
+La telemetría del agente en 1514/1515 llega vía la ruta documentada en [Wazuh Ingress](/es-419/reference/wazuh-ingress). El despliegue de referencia es un Service LoadBalancer por tenant (LB de nube o MetalLB), con un Deployment de HAProxy en clúster en `soctalk-system` como respaldo de IP única. La NetworkPolicy debe permitir cualquiera de esas rutas que la instalación realmente ejecute; `ingress-system` **no** es el origen correcto para ninguna de ellas, así que no uses la plantilla estándar del chart sin editarla.
 
 Elige un bloque según la instalación:
 

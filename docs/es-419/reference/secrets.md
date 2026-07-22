@@ -1,6 +1,6 @@
 # Política de ubicación de secretos
 
-> **Nota de despliegue V1.** Varias entradas a continuación hacen referencia a los "pods del orquestador" como una carga de trabajo distinta, en el chart V1 el orquestador está co-ubicado en el Deployment `soctalk-system-api`, por lo que las referencias a "pod del orquestador" significan "pod de la API" en esta versión. Los nombres específicos de los Secret de K8s también pueden variar ligeramente respecto a los nombres renderizados por el chart (consulta [`charts/soctalk-system/templates/60-secrets.yaml`](https://github.com/soctalk/soctalk/blob/main/charts/soctalk-system/templates/60-secrets.yaml) como fuente de verdad).
+> **Nota de despliegue V1.** Varias entradas a continuación hacen referencia a los "pods del orquestador" como una carga de trabajo distinta; en el chart V1 el orquestador está co-ubicado en el Deployment `soctalk-system-api`, por lo que las referencias a "pod del orquestador" significan "pod de la API" en esta versión. Los nombres específicos de los Secret de K8s también pueden variar ligeramente respecto a los nombres renderizados por el chart (consulta [`charts/soctalk-system/templates/60-secrets.yaml`](https://github.com/soctalk/soctalk/blob/main/charts/soctalk-system/templates/60-secrets.yaml) como fuente de verdad).
 
 ## Invariante (aspiracional)
 
@@ -34,7 +34,7 @@ Otras categorías de secretos, firma de JWT, roles de Postgres, credenciales de 
 
 **El triaje se ejecuta en `soctalk-runs-worker` en cada namespace `tenant-<slug>`** (no en el pod central de la API). Por eso los secretos por tenant se montan en el namespace del tenant, no en `soctalk-system`.
 
-La clave de API de LLM **también se almacena en texto plano en `IntegrationConfig.llm_api_key_plain`** en Postgres, consulta el descargo del invariante arriba. El Secret de K8s se materializa a partir del valor de la BD en el momento del aprovisionamiento / rotación.
+La clave de API de LLM **también se almacena en texto plano en `IntegrationConfig.llm_api_key_plain`** en Postgres; consulta el descargo del invariante arriba. El Secret de K8s se materializa a partir del valor de la BD en el momento del aprovisionamiento / rotación.
 
 Elementos obsoletos de borradores anteriores (ya eliminados): `tenant-<id>-wazuh`, `tenant-<id>-thehive`, `tenant-<id>-cortex`, `wazuh-bootstrap`, `thehive-bootstrap`, `cortex-bootstrap`, `cassandra-creds`, `soctalk-license`. `tenant-<id>-llm` en `soctalk-system` aún existe en V1 como copia legada / de auditoría, pero **no** es lo que lee el runs-worker. La sección de arquitectura abajo describe la justificación del diseño; solo el inventario de arriba está vigente.
 
@@ -115,9 +115,9 @@ SocTalk almacena referencias y etiquetas de versión; no conserva el material en
 
 El RBAC de Kubernetes restringe qué ServiceAccounts pueden leer qué Secrets:
 
-- SA `soctalk-system-api` en `soctalk-system`: puede leer Secrets en `soctalk-system` (credenciales de Postgres, claves de firma de JWT/adaptador). También está vinculada para escribir Secrets en namespaces `tenant-*` (necesario para crear/rotar los secretos de bootstrap del tenant), el chart V1 consolida los roles de API + controlador en esta SA.
+- SA `soctalk-system-api` en `soctalk-system`: puede leer Secrets en `soctalk-system` (credenciales de Postgres, claves de firma de JWT/adaptador). También está vinculada para escribir Secrets en namespaces `tenant-*` (necesario para crear/rotar los secretos de bootstrap del tenant); el chart V1 consolida los roles de API + controlador en esta SA.
 - `ServiceAccount` por tenant en `tenant-<slug>`: solo puede leer secretos en su propio namespace. Puede leer su propio `adapter-token` / `runs-worker-token` / `tenant-llm-key`, pero nunca la clave de firma del sistema.
-- La `soctalk-orchestrator-sa` de borradores anteriores no existe en V1, el orquestador se ejecuta dentro del pod de la API bajo la SA de la API.
+- La `soctalk-orchestrator-sa` de borradores anteriores no existe en V1; el orquestador se ejecuta dentro del pod de la API bajo la SA de la API.
 
 Las plantillas de `Role`/`RoleBinding` forman parte del chart `soctalk-system` (para las SA de SocTalk) y del chart `soctalk-tenant` (para las SA por tenant).
 

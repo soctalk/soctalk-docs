@@ -45,7 +45,7 @@ Altamente variável, depende de:
 - Volume de alertas (uma investigação por alerta que sobrevive à correlação)
 - Orçamento de tokens por execução (`case_runs.tokens_budget`, padrão do modelo 200.000)
 - Seleção de modelo (`fast_model` + `reasoning_model`)
-- Com que frequência o veredito diz `needs_more_info` (causa uma reexecução)
+- Com que frequência o verdict diz `needs_more_info` (causa uma reexecução)
 
 Ordem de grandeza com o orçamento padrão de 200.000 tokens por execução e uso típico: 30 alertas/dia × ~60k tokens/investigação × US$ 5/Mtok de entrada ≈ US$ 9/dia por tenant em uma configuração econômica compatível com OpenAI. Cai de 5 a 10× com um fast model mais barato. Consulte [Observabilidade, Custo por tenant](/pt-br/observability#per-tenant-cost) para medi-lo.
 
@@ -63,7 +63,7 @@ Apenas aquilo sobre o que o pipeline de AI raciocina: o corpo do alerta, os obse
 
 ## Ele substitui meus analistas?
 
-Não. O SocTalk é posicionado como um **copiloto**, não um substituto. O nó de veredito decide `escalate | close | needs_more_info`; a escalação sempre passa por um gate de [revisão humana](/pt-br/human-review). Sem o humano, um MSSP de alto volume ainda precisaria de analistas para lidar com as decisões que o SocTalk encaminha a eles.
+Não. O SocTalk é posicionado como um **copiloto**, não um substituto. O nó de verdict decide `escalate | close | needs_more_info`; a escalação sempre passa por um gate de [revisão humana](/pt-br/human-review). Sem o humano, um MSSP de alto volume ainda precisaria de analistas para lidar com as decisões que o SocTalk encaminha a eles.
 
 O valor está na compressão, a mesma equipe de analistas consegue lidar com 5 a 10× o volume de alertas, porque casos rotineiros se fecham automaticamente e apenas os pouco claros chegam à revisão humana.
 

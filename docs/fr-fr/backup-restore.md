@@ -129,7 +129,7 @@ Pour les utilisateurs de Velero, `velero backup create tenant-<slug>-daily --inc
 
 ## Restauration par Tenant
 
-1. Décommissionnez le Tenant existant (le cas échéant), cela supprime le namespace.
+1. Décommissionnez le Tenant existant (le cas échéant) ; cela supprime le namespace.
 2. Restaurez les PVC dans un nouveau namespace à partir de l'instantané.
 3. Intégrez un Tenant avec le même slug et le même profil via `POST /api/mssp/tenants/onboard`: le provisionnement est idempotent sur le namespace, de sorte que l'installation Helm adoptera les PVC restaurés.
 4. Vérifiez que Wazuh voit les agents existants (aucun réenrôlement nécessaire si la restauration des PVC s'est déroulée proprement).

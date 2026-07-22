@@ -188,7 +188,7 @@ sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' \
 sudo systemctl reload ssh
 ```
 
-L'AMI AWS est construite à partir d'une source Packer distincte (`amazon-ebs`) qui n'inclut pas le seed et utilise plutôt l'injection de paire de clés d'EC2, elle ne comporte pas l'identifiant `ubuntu:packer`. La liste de vérification du durcissement s'applique tout de même à elle pour l'utilisateur `ubuntu` standard de l'image cloud de l'AMI.
+L'AMI AWS est construite à partir d'une source Packer distincte (`amazon-ebs`) qui n'inclut pas le seed et utilise plutôt l'injection de paire de clés d'EC2 ; elle ne comporte pas l'identifiant `ubuntu:packer`. La liste de vérification du durcissement s'applique tout de même à elle pour l'utilisateur `ubuntu` standard de l'image cloud de l'AMI.
 
 ## Étape suivante : intégrer des clients avec Launchpad
 

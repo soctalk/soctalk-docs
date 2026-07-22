@@ -101,7 +101,7 @@ Quando um alerta chega, a investigação é triada pelo modelo local, o **Agent 
 
 ## Escolhendo um modelo
 
-O pipeline do SocTalk faz **tool-calling + vereditos em JSON estruturado**, então escolha um modelo instruct com suporte sólido a tools, `qwen2.5`, `llama3.1`, `mistral-nemo`. Modelos pequenos/antigos frequentemente falham na saída estruturada. O tier de raciocínio se beneficia mais de um modelo mais forte; você pode dividi-los com `fast_model` / `reasoning_model` (um roteador rápido pequeno + um modelo de veredito maior).
+O pipeline do SocTalk faz **tool-calling + verdicts em JSON estruturado**, então escolha um modelo instruct com suporte sólido a tools, `qwen2.5`, `llama3.1`, `mistral-nemo`. Modelos pequenos/antigos frequentemente falham na saída estruturada. O tier de raciocínio se beneficia mais de um modelo mais forte; você pode dividi-los com `fast_model` / `reasoning_model` (um roteador rápido pequeno + um modelo de verdict maior).
 
 ::: tip CPU é lento
 Em CPU, um modelo de 7B roda a ~dezenas de tokens/seg, e uma única triagem faz várias chamadas de LLM, espere **minutos** por investigação. Use um host com GPU para uma latência utilizável, ou um modelo rápido menor.

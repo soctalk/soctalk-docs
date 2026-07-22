@@ -91,7 +91,7 @@ sudo /opt/scripts/run-attack.sh T1110
 sudo /opt/scripts/run-attack.sh T1027.001
 ```
 
-`run-attack.sh` est le point d'entrée, il redirige vers les scripts propres à chaque TTP. Utile pour les démonstrations en direct où vous souhaitez déclencher une alerte spécifique sur commande.
+`run-attack.sh` est le point d'entrée ; il redirige vers les scripts propres à chaque TTP. Utile pour les démonstrations en direct où vous souhaitez déclencher une alerte spécifique sur commande.
 
 ## Retirer le simulateur
 

@@ -20,7 +20,7 @@ SOCTALK_AUTH_MODE = internal | proxy
   Sitzungen und Passwortspeicherung. Die Ingress-Handoff-Middleware ist
   deaktiviert.
 - `proxy`: bewahrt das bestehende Ingress-Handoff-Verhalten. Interne
-  Endpunkte antworten mit 404.
+  Endpoints antworten mit 404.
 
 Kein Hybridmodus. Föderation (JIT-Provisionierung, OIDC SP usw.) ist eine
 eigene Spezifikation.
@@ -71,7 +71,7 @@ Keine neue Audit-Tabelle. Keine Signierschlüssel-Tabelle (Sitzungen sind
 opake DB-Zeilen, keine JWTs; die bestehende HMAC-Signierung in
 `src/soctalk/core/tenancy/auth.py:167` ist davon unabhängig).
 
-## 3. Endpunkte
+## 3. Endpoints
 
 Alle unter `/api/auth/*`. JSON. Zustandsändernde Routen gemäß §6 geschützt.
 
@@ -85,11 +85,11 @@ Alle unter `/api/auth/*`. JSON. Zustandsändernde Routen gemäß §6 geschützt.
 
 `/api/auth/me` gibt die Identität plus eine berechnete `permissions[]`-Liste zurück, die Capabilities, die die angemeldete Rolle hält, abgeleitet aus der Single-Source-of-Truth-Rollen-zu-Berechtigungs-Map. Das Frontend gated Navigation und Aktionen anhand dieser Berechtigungen, statt sie aus dem Rollen-String abzuleiten.
 
-Der Admin-Reset-Endpunkt erzeugt serverseitig ein starkes zufälliges
+Der Admin-Reset-Endpoint erzeugt serverseitig ein starkes zufälliges
 Passwort und gibt es einmalig im Antworttext zurück; der Admin übergibt es
 dem Benutzer out-of-band. Ein Self-Service-Reset per E-Mail ist zurückgestellt (§12).
 
-In `AUTH_MODE=proxy` antwortet jeder Endpunkt in dieser Tabelle mit 404.
+In `AUTH_MODE=proxy` antwortet jeder Endpoint in dieser Tabelle mit 404.
 
 ## 4. Cookie und Sitzung
 
@@ -128,7 +128,7 @@ Wert: url-safe base64 der Sitzungs-UUID. Keine Claims im Cookie.
 - Mindestlänge: 12. Keine Zusammensetzungsregeln.
 - Sperre: 10 aufeinanderfolgende Fehlversuche innerhalb von 15 min setzen `locked_until = now() + 15m`. Der Zähler wird bei erfolgreicher Anmeldung zurückgesetzt.
 - `must_change`: vom Admin-Reset gesetzt. Zwingt den Benutzer durch den
-  Passwortänderungs-Flow, bevor irgendein anderer Endpunkt erreichbar ist.
+  Passwortänderungs-Flow, bevor irgendein anderer Endpoint erreichbar ist.
 
 ## 6. CSRF
 
@@ -313,14 +313,14 @@ Verpflichtende Backend-Suite (Stil postgres-rls §9):
 2. Ein falsches Passwort erhöht `consecutive_failures`; zehn
    aufeinanderfolgende lösen `locked_until` aus; weitere Versuche werden
    selbst mit dem richtigen Passwort abgewiesen.
-3. `must_change` blockiert jeden Nicht-Passwort-Endpunkt bis zu einer
+3. `must_change` blockiert jeden Nicht-Passwort-Endpoint bis zu einer
    erfolgreichen Änderung.
 4. Die Passwortänderung widerruft alle anderen Sitzungen des Benutzers,
    bewahrt aber die aktuelle.
 5. Das Abmelden widerruft nur die aktuelle Sitzung.
 6. Der Admin-Reset widerruft alle Sitzungen des Zielbenutzers und erzwingt
    `must_change`.
-7. `AUTH_MODE=proxy`: `/api/auth/*` und der Admin-Reset-Endpunkt geben
+7. `AUTH_MODE=proxy`: `/api/auth/*` und der Admin-Reset-Endpoint geben
    404 zurück. Der Ingress-Handoff-Pfad funktioniert weiterhin.
 8. CSRF: eine zustandsändernde Anfrage mit einem fremden `Origin` wird mit
    403 abgewiesen.

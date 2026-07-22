@@ -6,7 +6,7 @@ A maior parte do que um SOC escala não é maliciosa. É uma pessoa ou sistema r
 
 Autorização é a camada que dá ao SocTalk esse contexto de estado organizacional. Ela vincula registros tipados (tickets de mudança, baselines permanentes, congelamentos de mudança, proibições e fatos de entidade sobre ativos e contas) à atividade em um alerta, e raciocina sobre se um único registro a cobre totalmente. Ela só reduz a suspeita ao encontrar evidência de cobertura. Nunca a aumenta, e nunca sobrepõe um sinal malicioso.
 
-Não é uma etapa separada aparafusada à triagem. É contexto que o loop agêntico reúne enquanto investiga, e resolve para um de três estados que moldam o veredito. Tudo a jusante ainda passa pelo piso de segurança, que a autorização nunca pode enfraquecer.
+Não é uma etapa separada aparafusada à triagem. É contexto que o loop agêntico reúne enquanto investiga, e resolve para um de três estados que moldam o verdict. Tudo a jusante ainda passa pelo piso de segurança, que a autorização nunca pode enfraquecer.
 
 ![Onde a autorização se encaixa no fluxo de trabalho de triagem](/diagrams/authorization-in-triage.svg)
 

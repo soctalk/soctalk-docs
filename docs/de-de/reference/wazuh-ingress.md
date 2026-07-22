@@ -17,7 +17,7 @@ Randbedingungen:
 
 ## Gewähltes Muster: mandantenspezifische Adresse am MSSP-Edge
 
-Jeder Mandant erhält einen dedizierten DNS-Namen (`acme.soc.mssp.example.com`), der auf einen mandantenspezifischen L4-Endpunkt am MSSP-Edge aufgelöst wird. Das Routing zum richtigen Wazuh-Manager erfolgt über die Zieladresse, nicht über die Inspektion des Hostnamens.
+Jeder Mandant erhält einen dedizierten DNS-Namen (`acme.soc.mssp.example.com`), der auf einen mandantenspezifischen L4-Endpoint am MSSP-Edge aufgelöst wird. Das Routing zum richtigen Wazuh-Manager erfolgt über die Zieladresse, nicht über die Inspektion des Hostnamens.
 
 **Warum kein SNI-basiertes L4-Routing.** Wazuhs Agent-Protokoll auf 1514/TCP ist ein proprietärer, AES-verschlüsselter Stream, kein Standard-TLS, sodass Verbindungen kein SNI-ClientHello mitführen. Ein L4-Proxy, der auf `req.ssl_sni` verzweigt, sieht keines, und der Agent-Verkehr fällt auf das Standard-Backend zurück. Der Anmeldekanal 1515/TCP handelt zwar TLS aus, aber das Routing muss denselben Diskriminator wie 1514 verwenden, sonst laufen die beiden Ports auseinander.
 

@@ -20,7 +20,7 @@ SOCTALK_AUTH_MODE = internal | proxy
   gère la connexion, les sessions, le stockage des mots de passe. Le
   middleware de relais d'ingress est désactivé.
 - `proxy` : préserve le comportement de relais d'ingress existant. Les
-  points de terminaison internes répondent par un 404.
+  endpoints internes répondent par un 404.
 
 Pas de mode hybride. La fédération (provisionnement JIT, SP OIDC, etc.)
 fait l'objet d'une spécification distincte.
@@ -72,7 +72,7 @@ sessions sont des lignes opaques en base, pas des JWT ; la signature
 HMAC existante à `src/soctalk/core/tenancy/auth.py:167` n'a aucun
 rapport).
 
-## 3. Points de terminaison
+## 3. Endpoints
 
 Tous sous `/api/auth/*`. JSON. Routes modifiant l'état protégées selon §6.
 
@@ -86,12 +86,12 @@ Tous sous `/api/auth/*`. JSON. Routes modifiant l'état protégées selon §6.
 
 `/api/auth/me` renvoie l'identité plus une liste `permissions[]` calculée, les capacités que détient le rôle connecté, dérivée de la source unique de vérité qu'est la table de correspondance rôle-vers-permission. Le frontend conditionne la navigation et les actions sur ces permissions plutôt que de les déduire de la chaîne du rôle.
 
-Le point de terminaison de réinitialisation admin génère côté serveur
+L'endpoint de réinitialisation admin génère côté serveur
 un mot de passe aléatoire robuste et le renvoie une seule fois dans le
 corps de la réponse ; l'admin le transmet à l'utilisateur hors bande.
 La réinitialisation en libre-service par e-mail est reportée (§12).
 
-En `AUTH_MODE=proxy`, chaque point de terminaison de ce tableau répond
+En `AUTH_MODE=proxy`, chaque endpoint de ce tableau répond
 par un 404.
 
 ## 4. Cookie et session
@@ -139,7 +139,7 @@ dans le cookie.
   connexion réussie.
 - `must_change` : défini par la réinitialisation admin. Force
   l'utilisateur à suivre le flux de changement de mot de passe avant
-  tout autre point de terminaison.
+  tout autre endpoint.
 
 ## 6. CSRF
 
@@ -336,14 +336,14 @@ Suite backend obligatoire (style postgres-rls §9) :
 2. Un mauvais mot de passe incrémente `consecutive_failures` ; dix
    consécutifs déclenchent `locked_until` ; les tentatives suivantes
    sont rejetées même avec le bon mot de passe.
-3. `must_change` bloque tout point de terminaison hors mot de passe
+3. `must_change` bloque tout endpoint hors mot de passe
    jusqu'à un changement réussi.
 4. Le changement de mot de passe révoque toutes les autres sessions de
    l'utilisateur mais préserve la session en cours.
 5. La déconnexion révoque uniquement la session en cours.
 6. La réinitialisation admin révoque toutes les sessions de
    l'utilisateur cible et force `must_change`.
-7. `AUTH_MODE=proxy` : `/api/auth/*` et le point de terminaison de
+7. `AUTH_MODE=proxy` : `/api/auth/*` et l'endpoint de
    réinitialisation admin renvoient un 404. Le chemin de relais
    d'ingress fonctionne toujours.
 8. CSRF : une requête modifiant l'état avec une `Origin` étrangère est

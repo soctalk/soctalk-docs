@@ -1,8 +1,8 @@
 # Sicherheitsmodell
 
-Prinzipal-Katalog, Akteur×Ressource-Matrix, RLS-Policy-Matrix, Postgres-Rollenmodell, Endpunkt-Klassifizierung, Token-Claim-Schemata, Audit-Anforderungen, Secret-Platzierung.
+Prinzipal-Katalog, Akteur×Ressource-Matrix, RLS-Policy-Matrix, Postgres-Rollenmodell, Endpoint-Klassifizierung, Token-Claim-Schemata, Audit-Anforderungen, Secret-Platzierung.
 
-> **V1-Deployment-Hinweis.** Die folgenden Endpunkt-Beispiele (z. B. `/api/mssp/impersonate/:tenant_id`, `/api/mssp/users` POST/list, `/api/mssp/fleet/summary`) sowie mehrere Prinzipal-Einträge (Cloud-Lizenzaussteller; der Impersonation-Akteur) beschreiben die **angestrebte Sicherheitsoberfläche**. Zu den eingebundenen MSSP-Endpunkten gehören: Mandanten-CRUD, Audit (`/api/audit`), Verwaltung von Staff-Benutzern (`/api/mssp/users` create/list/patch/deactivate und `/{id}/password/reset`) sowie `/api/auth/assume-tenant` für das Session-Mandanten-Scoping (keine Benutzer-Impersonation). Die Self-Service-Benutzerverwaltung des Mandanten liegt unter `/api/tenant/users`. Verwende die untenstehenden Matrizen als Design-Absicht; konsultiere die [REST API](/de-de/reference/api) für das, was tatsächlich live ist.
+> **V1-Deployment-Hinweis.** Die folgenden Endpoint-Beispiele (z. B. `/api/mssp/impersonate/:tenant_id`, `/api/mssp/users` POST/list, `/api/mssp/fleet/summary`) sowie mehrere Prinzipal-Einträge (Cloud-Lizenzaussteller; der Impersonation-Akteur) beschreiben die **angestrebte Sicherheitsoberfläche**. Zu den eingebundenen MSSP-Endpoints gehören: Mandanten-CRUD, Audit (`/api/audit`), Verwaltung von Staff-Benutzern (`/api/mssp/users` create/list/patch/deactivate und `/{id}/password/reset`) sowie `/api/auth/assume-tenant` für das Session-Mandanten-Scoping (keine Benutzer-Impersonation). Die Self-Service-Benutzerverwaltung des Mandanten liegt unter `/api/tenant/users`. Verwende die untenstehenden Matrizen als Design-Absicht; konsultiere die [REST API](/de-de/reference/api) für das, was tatsächlich live ist.
 
 ## Prinzipal-Katalog
 
@@ -30,7 +30,7 @@ MSSP-seitig (`tenant_id` NULL):
 | `platform_admin` | configure (super) | Jede MSSP-Capability, installationsweit. |
 | `mssp_admin` | configure | Das System konfigurieren, Staff-Benutzer verwalten, plus alles darunter. |
 | `mssp_manager` | authorize-risk | Engagements deklarieren, Autorisierungsfakten kuratieren, Aktionen mit hohem Blast-Radius abzeichnen, plus operate. |
-| `analyst` | operate | Triage, Verdikte prüfen, entscheiden, chatten; bearbeitet einen Mandanten über einen Open-SOC-Pin. |
+| `analyst` | operate | Triage, Verdicts prüfen, entscheiden, chatten; bearbeitet einen Mandanten über einen Open-SOC-Pin. |
 
 Mandanten-seitig (`tenant_id` gesetzt):
 
@@ -38,7 +38,7 @@ Mandanten-seitig (`tenant_id` gesetzt):
 |---|---|---|
 | `tenant_admin` | configure | Benutzer der eigenen Organisation und LLM-Einstellungen verwalten, plus alles darunter. |
 | `tenant_manager` | authorize-risk | Eigene Engagements deklarieren, Autorisierungsfakten geltend machen (MSSP-geprüft), plus operate. |
-| `tenant_analyst` | operate | Den SOC des eigenen Mandanten bearbeiten: Triage, Verdikte prüfen, entscheiden, chatten. |
+| `tenant_analyst` | operate | Den SOC des eigenen Mandanten bearbeiten: Triage, Verdicts prüfen, entscheiden, chatten. |
 | `customer_viewer` | nur lesen | Schreibgeschützte Dashboards und Untersuchungen; kann nicht handeln oder die Prüf-Queue öffnen. |
 
 Scope-Ableitung: `role ∈ {platform_admin, mssp_admin, mssp_manager, analyst}` ⇒ `tenant_id` NULL in der DB, mandantenübergreifender Zugriff über eine erhöhte Postgres-Rolle oder Session-Mandanten-Scoping (`/api/auth/assume-tenant`). `role ∈ {tenant_admin, tenant_manager, tenant_analyst, customer_viewer}` ⇒ `tenant_id` erforderlich in der Benutzerzeile und im JWT. MSSP-Capabilities und Mandanten-Capabilities überschneiden sich nie; der Guard auf jeder Route prüft Capability und Zielgruppe gemeinsam.
@@ -61,7 +61,7 @@ Alle haben eine `tenant_id`-FK und unterliegen RLS:
 - `InvestigationReadModel`: projizierter Untersuchungszustand
 - `MetricsHourly`, `IOCStats`, `RuleStats`, `AnalyzerStats`: Projektionen pro Mandant
 - `PendingReview`: HIL-Queue
-- `IntegrationConfig`: Integrations-URLs, Endpunkte, Schwellenwerte pro Mandant
+- `IntegrationConfig`: Integrations-URLs, Endpoints, Schwellenwerte pro Mandant
 - `BrandingConfig`: App-Name, Logo, Farben pro Mandant
 - `TenantSecret`: Referenzen (ns + name + version) auf K8s Secrets; kein Rohmaterial
 - `TenantLifecycleEvent`: append-only-Log von Mandanten-Zustandsübergängen, Konfigurationsrevisionen
@@ -104,7 +104,7 @@ Keine `tenant_id`; Organization-bezogen oder global:
 Hinweise:
 - Die Spalten zeigen eine repräsentative Teilmenge der Rollen. `mssp_manager` liegt zwischen `mssp_admin` und `analyst` (authorize-risk-Ebene); `tenant_manager` und `tenant_analyst` liegen auf der Mandantenseite über `customer_viewer`. Jede hält jede Capability der darunterliegenden Ebene.
 - Die Benutzerverwaltung ist per Zielgruppe capability-gewallt, eine **Aufgabentrennung**. MSSP-Staff-Benutzer werden nur von `mssp_admin`/`platform_admin` über `/api/mssp/users` verwaltet; Mandanten-Benutzer werden nur vom `tenant_admin` des jeweiligen Mandanten über `/api/tenant/users` verwaltet. Ein MSSP-Admin verwaltet keine Mandanten-Benutzer und umgekehrt. Das Zuweisen von `platform_admin` sowie das Mutieren eines bestehenden `platform_admin` erfordern einen `platform_admin`.
-- „nur via API" bedeutet, dass das menschliche Prinzipal K8s-Operationen durch Aufruf von SocTalk-API-Endpunkten auslöst, nicht direkt. API-Handler verwenden das SocTalk K8s ServiceAccount.
+- „nur via API" bedeutet, dass das menschliche Prinzipal K8s-Operationen durch Aufruf von SocTalk-API-Endpoints auslöst, nicht direkt. API-Handler verwenden das SocTalk K8s ServiceAccount.
 - `analyst`, der auf einen Mandanten einwirkt, schreibt Audit-Zeilen mit sowohl `user_id` als auch der `tenant_id` des Mandanten; die kundenseitige Audit-Ansicht zeigt diese als Impersonation-Einträge.
 
 ## RLS-Policy-Matrix
@@ -120,9 +120,9 @@ Siehe [Postgres RLS](/de-de/reference/postgres-rls) für SQL. Zusammenfassung:
 
 Alle mandantenbezogenen Tabellen haben `FORCE ROW LEVEL SECURITY`, sodass der Tabelleneigentümer (`soctalk_admin`) ebenfalls RLS-unterworfen ist. Das System-Prinzipal verwendet die Rolle `soctalk_mssp` (`BYPASSRLS`), um absichtlich mandantenübergreifend zu agieren.
 
-## Klassifizierung der API-Endpunkte
+## Klassifizierung der API-Endpoints
 
-Drei Kategorien. Niemals ein Endpunkt, der zwei Kategorien bedient.
+Drei Kategorien. Niemals ein Endpoint, der zwei Kategorien bedient.
 
 ### `/api/mssp/*`: MSSP-seitig (erfordert eine MSSP-Rolle; die spezifische Capability variiert je Route)
 
@@ -140,7 +140,7 @@ Beispiele: `GET /api/tenant/overview`, `GET /api/tenant/incidents`, `GET /api/te
 
 Nicht benutzerorientiert. Kurzlebige Service-JWTs mit explizitem Mandantenkontext. Beispiele: `POST /api/internal/adapter/health`, `POST /api/internal/adapter/bootstrap`, `GET /api/internal/adapter/config`.
 
-Kein Endpunkt akzeptiert sowohl `/api/mssp/*`- als auch `/api/tenant/*`-Semantik. Wird eine Capability auf beiden Seiten benötigt, wird sie als zwei Endpunkte mit unterschiedlicher Authz und unterschiedlichen Kontextflüssen implementiert.
+Kein Endpoint akzeptiert sowohl `/api/mssp/*`- als auch `/api/tenant/*`-Semantik. Wird eine Capability auf beiden Seiten benötigt, wird sie als zwei Endpoints mit unterschiedlicher Authz und unterschiedlichen Kontextflüssen implementiert.
 
 ## Token-Claim-Schemata
 
@@ -226,7 +226,7 @@ Die Aufbewahrung beträgt 90 Tage; in einem zukünftigen Release pro Installatio
 
 ## Test-Anforderungen
 
-1. **Mandantenübergreifende API-Sonde.** Erstelle für jeden `/api/tenant/*`- und `/api/mssp/*`-Endpunkt, der auf mandantenbezogene Daten zugreift, Requests als Mandant A, die Lese- oder Schreibvorgänge auf Ressourcen von Mandant B versuchen. Prüfe auf 0 Zeilen oder 403.
+1. **Mandantenübergreifende API-Sonde.** Erstelle für jeden `/api/tenant/*`- und `/api/mssp/*`-Endpoint, der auf mandantenbezogene Daten zugreift, Requests als Mandant A, die Lese- oder Schreibvorgänge auf Ressourcen von Mandant B versuchen. Prüfe auf 0 Zeilen oder 403.
 2. **Raw-SQL-RLS-Sonde.** Verbinde dich als `soctalk_app`, setze `app.current_tenant_id = A`, führe `SELECT * FROM events` (ungefiltert) aus; prüfe, dass nur Zeilen von Mandant A zurückgegeben werden.
 3. **Worker-Kontext-Standard.** Dispatche einen Worker-Job, ohne den Mandantenkontext zu setzen; prüfe, dass Abfragen 0 Zeilen zurückgeben (Defensive-Zero-Verhalten).
 4. **SSE-Isolation.** Abonniere als Mandant A den Events-SSE; mutiere in Mandant B; prüfe, dass kein Event auf dem Stream von A ausgeliefert wird.

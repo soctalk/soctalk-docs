@@ -540,7 +540,7 @@ fazendo.
 Cada chamada carrega um token com escopo de tenant que a API gera no
 provisionamento e **renova automaticamente** antes de expirar (tokens de adapter
 duram 7 dias, tokens de worker 30 dias; o control plane os regenera bem dentro
-dessa janela). Os tokens são vinculados ao tenant, um adapter só pode atuar nas
+dessa janela). Os tokens são vinculados ao tenant; um adapter só pode atuar nas
 URLs do seu próprio tenant.
 
 ## Limites de taxa

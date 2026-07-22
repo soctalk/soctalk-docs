@@ -8,7 +8,7 @@ O acesso está migrando para um modelo de capacidades. Cada função é um pacot
 
 As funções são organizadas em camadas, e as mesmas camadas de operação existem em ambos os lados do negócio:
 
-- **operate**: trabalhar a fila. Visualizar e triar investigações, revisar os vereditos da AI, decidir, aprovar propostas de standard-blast, usar o chat.
+- **operate**: trabalhar a fila. Visualizar e triar investigações, revisar os verdicts da AI, decidir, aprovar propostas de standard-blast, usar o chat.
 - **authorize risk**: tudo o que operate pode fazer, mais declarar engajamentos de pentest, curar fatos de autorização e aprovar ações de high-blast que gravam em um sistema externo.
 - **configure**: tudo o que o manager pode fazer, mais as configurações que essa função controla e o gerenciamento de usuários.
 
@@ -25,7 +25,7 @@ O público é uma barreira separada sobre as camadas. As funções do MSSP detê
 | `platform_admin` | configure (super) | Todas as capacidades do MSSP, em toda a instalação. |
 | `mssp_admin` | configure | Configurar o sistema, gerenciar usuários, mais tudo abaixo. |
 | `mssp_manager` | authorize risk | Declarar engajamentos, curar fatos de autorização, aprovar ações de high-blast, mais operate. |
-| `analyst` | operate | Triar investigações, revisar vereditos, decidir, usar o chat. Trabalha um cliente por vez fixando um tenant (veja Impersonação abaixo); somente leitura nas configurações. |
+| `analyst` | operate | Triar investigações, revisar verdicts, decidir, usar o chat. Trabalha um cliente por vez fixando um tenant (veja Impersonação abaixo); somente leitura nas configurações. |
 
 **Lado do tenant** (equipe de um cliente; `tenant_id` definido; restrito àquele único tenant):
 
@@ -33,7 +33,7 @@ O público é uma barreira separada sobre as camadas. As funções do MSSP detê
 |---|---|---|
 | `tenant_admin` | configure | Gerenciar os usuários da própria organização e as próprias configurações de LLM, mais tudo abaixo. Provisionado automaticamente durante o onboarding do tenant pelo fluxo `_mint_tenant_admin_user` do runtime. |
 | `tenant_manager` | authorize risk | Declarar os próprios engajamentos de pentest, afirmar fatos de autorização (que ficam pendentes de revisão do MSSP antes de entrar em vigor), aprovar ações de high-blast, mais operate. |
-| `tenant_analyst` | operate | Trabalhar o SOC do próprio tenant: triar, revisar vereditos, decidir, aprovar propostas de standard-blast, usar o chat. Esta é a função de SOC cogerenciado, o espelho do lado do tenant de `analyst`. |
+| `tenant_analyst` | operate | Trabalhar o SOC do próprio tenant: triar, revisar verdicts, decidir, aprovar propostas de standard-blast, usar o chat. Esta é a função de SOC cogerenciado, o espelho do lado do tenant de `analyst`. |
 | `customer_viewer` | view only | Stakeholder somente leitura. Vê o dashboard e as investigações do próprio SOC do cliente, mas não pode agir sobre eles nem abrir a fila de revisão. |
 
 A camada "configure" do `tenant_admin` é estreita: sobre o manager, ela acrescenta a configuração de LLM da própria organização e o gerenciamento de usuários, e nada mais. Branding e integrações permanecem no lado do MSSP.

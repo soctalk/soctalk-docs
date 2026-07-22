@@ -8,7 +8,7 @@ Der Zugriff wird auf ein Capability-Modell umgestellt. Jede Rolle ist ein benann
 
 Rollen sind in Stufen organisiert, und dieselben Betriebsstufen existieren auf beiden Seiten des Geschäfts:
 
-- **operate**: die Warteschlange abarbeiten. Untersuchungen ansehen und triagieren, die Verdikte der AI prüfen, entscheiden, Standard-Blast-Vorschläge genehmigen, Chat nutzen.
+- **operate**: die Warteschlange abarbeiten. Untersuchungen ansehen und triagieren, die Verdicts der AI prüfen, entscheiden, Standard-Blast-Vorschläge genehmigen, Chat nutzen.
 - **authorize risk**: alles, was operate kann, plus Pentest-Engagements deklarieren, Autorisierungsfakten kuratieren und High-Blast-Aktionen abzeichnen, die in ein externes System schreiben.
 - **configure**: alles, was der Manager kann, plus die Einstellungen, die diese Rolle steuert, und die Benutzerverwaltung.
 
@@ -25,7 +25,7 @@ Die Zielgruppe ist eine separate Trennwand über den Stufen. MSSP-Rollen halten 
 | `platform_admin` | configure (super) | Jede MSSP-Capability, installationsweit. |
 | `mssp_admin` | configure | Das System konfigurieren, Benutzer verwalten, plus alles darunter. |
 | `mssp_manager` | authorize risk | Engagements deklarieren, Autorisierungsfakten kuratieren, High-Blast-Aktionen abzeichnen, plus operate. |
-| `analyst` | operate | Untersuchungen triagieren, Verdikte prüfen, entscheiden, chatten. Arbeitet jeweils an einem Kunden, indem ein Mandant angeheftet wird (siehe Impersonation weiter unten); schreibgeschützt bei Einstellungen. |
+| `analyst` | operate | Untersuchungen triagieren, Verdicts prüfen, entscheiden, chatten. Arbeitet jeweils an einem Kunden, indem ein Mandant angeheftet wird (siehe Impersonation weiter unten); schreibgeschützt bei Einstellungen. |
 
 **Mandantenseite** (Personal eines Kunden; `tenant_id` gesetzt; auf diesen einen Mandanten beschränkt):
 
@@ -33,7 +33,7 @@ Die Zielgruppe ist eine separate Trennwand über den Stufen. MSSP-Rollen halten 
 |---|---|---|
 | `tenant_admin` | configure | Die Benutzer und LLM-Einstellungen der eigenen Organisation verwalten, plus alles darunter. Wird während des Mandanten-Onboardings durch den `_mint_tenant_admin_user`-Ablauf der Laufzeitumgebung automatisch bereitgestellt. |
 | `tenant_manager` | authorize risk | Eigene Pentest-Engagements deklarieren, Autorisierungsfakten geltend machen (die zur MSSP-Prüfung eingehen, bevor sie wirksam werden), High-Blast-Aktionen abzeichnen, plus operate. |
-| `tenant_analyst` | operate | Den SOC des eigenen Mandanten betreiben: triagieren, Verdikte prüfen, entscheiden, Standard-Blast-Vorschläge genehmigen, chatten. Dies ist die Co-Managed-SOC-Rolle, das mandantenseitige Gegenstück zu `analyst`. |
+| `tenant_analyst` | operate | Den SOC des eigenen Mandanten betreiben: triagieren, Verdicts prüfen, entscheiden, Standard-Blast-Vorschläge genehmigen, chatten. Dies ist die Co-Managed-SOC-Rolle, das mandantenseitige Gegenstück zu `analyst`. |
 | `customer_viewer` | view only | Schreibgeschützter Stakeholder. Sieht das eigene SOC-Dashboard und die Untersuchungen des Kunden, kann aber nicht darauf handeln und kann die Prüfungs-Warteschlange nicht öffnen. |
 
 Die „configure"-Stufe von `tenant_admin` ist eng gefasst: gegenüber dem Manager fügt sie die LLM-Konfiguration und Benutzerverwaltung der eigenen Organisation hinzu, und sonst nichts. Branding und Integrationen bleiben auf der MSSP-Seite.
@@ -65,7 +65,7 @@ Hinweise:
 - Die zuweisbaren Rollen sind `customer_viewer`, `tenant_analyst`, `tenant_manager` und `tenant_admin`. Eine MSSP-Rolle kann hier nicht zugewiesen werden; die Anfrage wird abgelehnt. Dies ist die Zielgruppen-Trennwand.
 - Der neue Benutzer wird immer im eigenen Mandanten des Aufrufers platziert. Der Mandant wird aus der Sitzung des Aufrufers übernommen, niemals aus dem Anfragetext, und die Datenbank erzwingt dies, sodass ein Mandantenadministrator nur jemals Benutzer im eigenen Mandanten anlegen kann.
 - Eine doppelte E-Mail-Adresse wird abgelehnt. E-Mail-Adressen sind über die gesamte Installation hinweg eindeutig.
-- `GET /api/tenant/users` listet die eigenen Benutzer des Mandanten auf. Beide Endpunkte erfordern die Capability `tenant_manage_users`, die nur `tenant_admin` hält.
+- `GET /api/tenant/users` listet die eigenen Benutzer des Mandanten auf. Beide Endpoints erfordern die Capability `tenant_manage_users`, die nur `tenant_admin` hält.
 
 Das Kundenportal ist unter einem mandantenspezifischen Host erreichbar. Der feste Hostname stammt aus `ingress.hostnames.customer` in den Chart-Werten, und slug-gesteuerte mandantenspezifische Hosts stammen aus `ingress.tenantWildcard`. Siehe die [Installationsdokumentation](/de-de/install) für das Hostnamen-Layout.
 
@@ -82,7 +82,7 @@ curl -X POST 'https://mssp.your-mssp.example/api/mssp/users' \
 Hinweise:
 
 - Die zuweisbaren Rollen sind `analyst`, `mssp_manager`, `mssp_admin` und `platform_admin`. Eine Mandantenrolle kann hier nicht zugewiesen werden (die Zielgruppen-Trennwand). Das Zuweisen von `platform_admin` ist nur erlaubt, wenn der Aufrufer bereits ein `platform_admin` ist.
-- Der neue Benutzer ist MSSP-seitig (`tenant_id` ist null). Diese Endpunkte operieren immer nur auf MSSP-Personalzeilen, sodass ein Mandantenbenutzer niemals über sie erreicht werden kann.
+- Der neue Benutzer ist MSSP-seitig (`tenant_id` ist null). Diese Endpoints operieren immer nur auf MSSP-Personalzeilen, sodass ein Mandantenbenutzer niemals über sie erreicht werden kann.
 - Die Antwort trägt ein einmaliges temporäres Passwort; der Benutzer ändert es beim ersten Anmelden. Eine doppelte E-Mail-Adresse wird abgelehnt.
 - `GET /api/mssp/users` listet das Personal auf. All dies erfordert die Capability `manage_users`, die nur von `mssp_admin` und `platform_admin` gehalten wird.
 
@@ -116,7 +116,7 @@ curl -X POST 'https://mssp.your-mssp.example/api/mssp/users/<user-id>/password/r
 
 Das Ziel kann ein MSSP-Benutzer oder ein Mandantenbenutzer sein; der Akteur muss `mssp_admin` oder `platform_admin` sein. Die Antwort enthält ein neues `temporary_password`, markiert mit `must_change=true`, und das Zurücksetzen widerruft alle bestehenden Sitzungen dieses Benutzers. Teile das Passwort mit; der Benutzer wählt beim ersten Anmelden ein neues.
 
-Es gibt keine mandantenseitige Reset-Aktion, sodass ein `tenant_admin` das Passwort eines seiner eigenen Benutzer nicht über die UI zurücksetzen kann. Bis das ausgeliefert wird, setzt ein MSSP-Administrator es mit dem obigen Endpunkt zurück, oder ein Operator setzt es an der Datenbankzeile zurück.
+Es gibt keine mandantenseitige Reset-Aktion, sodass ein `tenant_admin` das Passwort eines seiner eigenen Benutzer nicht über die UI zurücksetzen kann. Bis das ausgeliefert wird, setzt ein MSSP-Administrator es mit dem obigen Endpoint zurück, oder ein Operator setzt es an der Datenbankzeile zurück.
 
 ## Impersonation und Mandantenkontext-Wechsel
 

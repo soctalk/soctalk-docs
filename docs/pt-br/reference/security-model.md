@@ -30,7 +30,7 @@ Lado MSSP (`tenant_id` NULL):
 | `platform_admin` | configure (super) | Toda capacidade MSSP, abrangente à instalação. |
 | `mssp_admin` | configure | Configurar o sistema, gerenciar usuários de staff, mais tudo abaixo. |
 | `mssp_manager` | authorize-risk | Declarar engagements, curar fatos de autorização, aprovar ações de alto impacto, mais operate. |
-| `analyst` | operate | Triagem, revisar vereditos, decidir, conversar; atua num tenant via um pin de Open-SOC. |
+| `analyst` | operate | Triagem, revisar verdicts, decidir, conversar; atua num tenant via um pin de Open-SOC. |
 
 Lado tenant (`tenant_id` definido):
 
@@ -38,7 +38,7 @@ Lado tenant (`tenant_id` definido):
 |---|---|---|
 | `tenant_admin` | configure | Gerenciar usuários da própria organização e configurações de LLM, mais tudo abaixo. |
 | `tenant_manager` | authorize-risk | Declarar os próprios engagements, afirmar fatos de autorização (revisados pelo MSSP), mais operate. |
-| `tenant_analyst` | operate | Trabalhar o SOC do próprio tenant: triagem, revisar vereditos, decidir, conversar. |
+| `tenant_analyst` | operate | Trabalhar o SOC do próprio tenant: triagem, revisar verdicts, decidir, conversar. |
 | `customer_viewer` | somente visualização | Dashboards e investigações somente-leitura; não pode agir nem abrir a fila de revisão. |
 
 Derivação de escopo: `role ∈ {platform_admin, mssp_admin, mssp_manager, analyst}` ⇒ `tenant_id` NULL no banco, acesso cross-tenant via papel Postgres elevado ou escopo de sessão-tenant (`/api/auth/assume-tenant`). `role ∈ {tenant_admin, tenant_manager, tenant_analyst, customer_viewer}` ⇒ `tenant_id` obrigatório na linha do usuário e no JWT. Capacidades MSSP e capacidades de tenant nunca se sobrepõem; o guard em cada rota verifica capacidade e audiência em conjunto.

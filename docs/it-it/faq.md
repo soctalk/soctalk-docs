@@ -45,7 +45,7 @@ Molto variabile, dipende da:
 - Volume di alert (una indagine per ogni alert che sopravvive alla correlazione)
 - Budget di token per esecuzione (`case_runs.tokens_budget`, default del modello 200.000)
 - Selezione del modello (`fast_model` + `reasoning_model`)
-- Con quale frequenza il verdetto indica `needs_more_info` (che causa una nuova esecuzione)
+- Con quale frequenza il verdict indica `needs_more_info` (che causa una nuova esecuzione)
 
 Ordine di grandezza con il budget predefinito di 200.000 token per esecuzione e un uso tipico: 30 alert/giorno × circa 60k token/indagine × 5 $/Mtok in input ≈ 9 $/giorno per tenant su una configurazione economica compatibile con OpenAI. Scende di 5–10× con un fast model più economico. Vedi [Osservabilità, Costo per tenant](/it-it/observability#per-tenant-cost) per misurarlo.
 
@@ -63,9 +63,9 @@ Solo ciò su cui ragiona la pipeline AI: il corpo dell'alert, gli observable est
 
 ## Sostituisce i miei analisti?
 
-No. SocTalk è posizionato come **copilot**, non come sostituto. Il nodo di verdetto decide `escalate | close | needs_more_info`; l'escalation passa sempre attraverso un gate di [revisione umana](/it-it/human-review). Senza l'intervento umano, un MSSP ad alto volume avrebbe comunque bisogno di analisti per gestire le decisioni che SocTalk instrada verso di loro.
+No. SocTalk è posizionato come **copilot**, non come sostituto. Il nodo di verdict decide `escalate | close | needs_more_info`; l'escalation passa sempre attraverso un gate di [revisione umana](/it-it/human-review). Senza l'intervento umano, un MSSP ad alto volume avrebbe comunque bisogno di analisti per gestire le decisioni che SocTalk instrada verso di loro.
 
-Il valore sta nella compressione, lo stesso team di analisti può gestire 5–10× il volume di alert perché i casi di routine si chiudono automaticamente e solo quelli poco chiari arrivano alla revisione umana.
+Il valore sta nella compressione: lo stesso team di analisti può gestire 5–10× il volume di alert perché i casi di routine si chiudono automaticamente e solo quelli poco chiari arrivano alla revisione umana.
 
 ## Funziona senza Wazuh?
 

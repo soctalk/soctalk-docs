@@ -12,7 +12,7 @@ Esta ruta es para **evaluadores y demostraciones**: para una instalación en pro
 
 ## Requisitos previos
 
-- Una suscripción de Azure (`az account list` debe mostrar una, el acceso al directorio a nivel de tenant no es suficiente).
+- Una suscripción de Azure (`az account list` debe mostrar una; el acceso al directorio a nivel de tenant no es suficiente).
 - [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) (`az`) y [AzCopy](https://learn.microsoft.com/azure/storage/common/storage-use-azcopy-v10) (`azcopy`). En macOS: `brew install azure-cli azcopy`.
 - ~61 GB de disco local libre para el VHD descomprimido.
 - Un par de claves SSH (`~/.ssh/id_ed25519.pub` en los ejemplos de abajo).
@@ -46,7 +46,7 @@ az group create -n $RG -l $LOC
 
 ## 3. Subir el VHD directamente a un disco administrado
 
-No se necesita cuenta de almacenamiento, Azure admite la subida directa a un disco administrado. Crea un disco vacío dimensionado al conteo exacto de bytes del archivo VHD, obtén un SAS de escritura de corta duración, sube con `azcopy` y luego revoca el SAS:
+No se necesita cuenta de almacenamiento; Azure admite la subida directa a un disco administrado. Crea un disco vacío dimensionado al conteo exacto de bytes del archivo VHD, obtén un SAS de escritura de corta duración, sube con `azcopy` y luego revoca el SAS:
 
 ```bash
 VHD=soctalk-demo-$VER.vhd
@@ -78,7 +78,7 @@ az image create -g $RG -n soctalk-demo-image \
 
 ## 5. Arrancar una VM
 
-Limita el grupo de seguridad de red a tu propia IP, la máquina expone SSH (22), la UI de SocTalk (443) y el asistente de configuración (8443), ninguno de los cuales debería estar abierto a internet:
+Limita el grupo de seguridad de red a tu propia IP; la máquina expone SSH (22), la UI de SocTalk (443) y el asistente de configuración (8443), ninguno de los cuales debería estar abierto a internet:
 
 ```bash
 MYIP=$(curl -s https://ifconfig.me)
@@ -147,8 +147,8 @@ Esto elimina la VM, la NIC, la IP pública, el NSG, el disco administrado y la i
 
 | Síntoma | Comprobación |
 |---|---|
-| `az disk create --for-upload` rechazado | `--upload-size-bytes` debe ser el tamaño **exacto** del archivo en bytes del `.vhd` descomprimido, footer incluido, vuelve a ejecutar el comando `stat` |
-| `azcopy` falla con 403 | El SAS de escritura expiró (24 h en el ejemplo) o ya fue revocado, vuelve a ejecutar `az disk grant-access` |
+| `az disk create --for-upload` rechazado | `--upload-size-bytes` debe ser el tamaño **exacto** del archivo en bytes del `.vhd` descomprimido, footer incluido; vuelve a ejecutar el comando `stat` |
+| `azcopy` falla con 403 | El SAS de escritura expiró (24 h en el ejemplo) o ya fue revocado; vuelve a ejecutar `az disk grant-access` |
 | La VM nunca obtiene la clave SSH | Confirma que la imagen y el disco se crearon con `--hyper-v-generation V1`; una imagen V2 a partir de este VHD no arrancará, y un arranque fallido nunca llega a cloud-init |
 | La URL del asistente nunca carga | Falta la regla del NSG para el 8443 o tu IP pública cambió (`curl ifconfig.me` y compara); luego `systemctl status soctalk-setup-wizard` por SSH |
 | Cualquier cosa después del asistente | Igual que en cada plataforma, consulta la [tabla de solución de problemas del Quickstart](/es-419/quickstart-vm#troubleshooting) |

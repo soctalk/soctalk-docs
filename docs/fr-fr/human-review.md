@@ -38,7 +38,7 @@ La soumission met à jour la ligne d'examen en attente dans la base de données 
 
 ## Backend Slack bidirectionnel
 
-Le Socket Mode de Slack est utilisé pour que SocTalk n'ait pas besoin d'un point de terminaison webhook public, l'installation SocTalk initie un WebSocket sortant vers Slack.
+Le Socket Mode de Slack est utilisé pour que SocTalk n'ait pas besoin d'un endpoint webhook public ; l'installation SocTalk initie un WebSocket sortant vers Slack.
 
 ### Prérequis
 
@@ -58,7 +58,7 @@ Dans l'UI MSSP → Settings → Slack :
 - **Notify on escalation** → activé (envoie chaque verdict d'escalade)
 - **Notify on verdict** → facultatif (envoie aussi les verdicts de clôture ; volume élevé)
 
-Toute la configuration Slack (tokens, canal, bascules de notification) est uniquement basée sur l'environnement en V1, l'ancienne route `PUT /api/settings` n'est pas montée par le chart V1. Voir [Slack, Configurer](/fr-fr/integrate/slack#configure) pour le motif d'injection de variables d'environnement.
+Toute la configuration Slack (tokens, canal, bascules de notification) est uniquement basée sur l'environnement en V1 ; l'ancienne route `PUT /api/settings` n'est pas montée par le chart V1. Voir [Slack, Configurer](/fr-fr/integrate/slack#configure) pour le motif d'injection de variables d'environnement.
 
 ### Expérience de l'opérateur
 
@@ -87,7 +87,7 @@ Les mêmes identifiants Slack alimenteraient des notifications webhook unidirect
 
 ## Comptabilité des résultats
 
-Les décisions d'examen écrivent une ligne d'audit. La jauge `soctalk_tenant_pending_reviews` est **définie** dans le code d'observabilité mais **n'est pas activement mise à jour** en V1, elle reste à 0. Le suivi de la profondeur réelle de la file d'examen est sur la feuille de route. Un compteur `human_review_decisions_total` prévu (par analyste) n'est pas non plus encore instrumenté.
+Les décisions d'examen écrivent une ligne d'audit. La jauge `soctalk_tenant_pending_reviews` est **définie** dans le code d'observabilité mais **n'est pas activement mise à jour** en V1 ; elle reste à 0. Le suivi de la profondeur réelle de la file d'examen est sur la feuille de route. Un compteur `human_review_decisions_total` prévu (par analyste) n'est pas non plus encore instrumenté.
 
 ## Contournement : mode AI seul
 

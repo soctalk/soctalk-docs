@@ -78,7 +78,7 @@ az image create -g $RG -n soctalk-demo-image \
 
 ## 5. Démarrer une VM
 
-Restreignez le groupe de sécurité réseau à votre propre adresse IP, la machine expose SSH (22), l'interface SocTalk (443) et l'assistant de configuration (8443), dont aucun ne devrait être ouvert sur Internet :
+Restreignez le groupe de sécurité réseau à votre propre adresse IP ; la machine expose SSH (22), l'interface SocTalk (443) et l'assistant de configuration (8443), dont aucun ne devrait être ouvert sur Internet :
 
 ```bash
 MYIP=$(curl -s https://ifconfig.me)

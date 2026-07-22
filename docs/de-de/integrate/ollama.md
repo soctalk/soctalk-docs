@@ -95,14 +95,14 @@ ollama ps                                   # model loaded while triaging
 journalctl -u ollama | grep /v1/chat/completions   # 200s during a triage
 ```
 
-Wenn eine Warnung eintrifft, wird die Untersuchung vom lokalen Modell triagiert, der Wert **Agent Run / Token Spend** in der Untersuchung spiegelt die von Ollama generierten Tokens wider:
+Wenn eine Warnung eintrifft, wird die Untersuchung vom lokalen Modell triagiert; der Wert **Agent Run / Token Spend** in der Untersuchung spiegelt die von Ollama generierten Tokens wider:
 
 ![Untersuchung durch Ollama triagiert](/screenshots/ollama-investigation.png)
 
 ## Ein Modell auswählen
 
-Die Pipeline von SocTalk führt **Tool-Calling + strukturierte JSON-Verdikte** aus, wähle also ein Instruct-Modell mit solider Tool-Unterstützung, `qwen2.5`, `llama3.1`, `mistral-nemo`. Kleine/ältere Modelle scheitern oft an der strukturierten Ausgabe. Die Reasoning-Ebene profitiert am meisten von einem stärkeren Modell; du kannst sie mit `fast_model` / `reasoning_model` aufteilen (ein kleiner, schneller Router + ein größeres Verdikt-Modell).
+Die Pipeline von SocTalk führt **Tool-Calling + strukturierte JSON-Verdicts** aus, wähle also ein Instruct-Modell mit solider Tool-Unterstützung, `qwen2.5`, `llama3.1`, `mistral-nemo`. Kleine/ältere Modelle scheitern oft an der strukturierten Ausgabe. Die Reasoning-Ebene profitiert am meisten von einem stärkeren Modell; du kannst sie mit `fast_model` / `reasoning_model` aufteilen (ein kleiner, schneller Router + ein größeres Verdict-Modell).
 
 ::: tip CPU ist langsam
-Auf einer CPU läuft ein 7B-Modell mit ~zig Tokens/Sek., und eine einzige Triage macht mehrere LLM-Aufrufe, rechne mit **Minuten** pro Untersuchung. Verwende einen GPU-Host für nutzbare Latenz oder ein kleineres schnelles Modell.
+Auf einer CPU läuft ein 7B-Modell mit ~zig Tokens/Sek., und eine einzige Triage macht mehrere LLM-Aufrufe; rechne mit **Minuten** pro Untersuchung. Verwende einen GPU-Host für nutzbare Latenz oder ein kleineres schnelles Modell.
 :::

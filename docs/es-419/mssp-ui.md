@@ -146,7 +146,7 @@ curl 'https://mssp.your-mssp.example/api/audit?since=2026-01-01&tenant=<id>' > a
 
 ![Settings](/screenshots/settings.png)
 
-Página de configuración a nivel de todo el MSSP. **En V1 esta página muestra valores de stub codificados de forma fija**: `GET /api/settings` devuelve un payload estático de solo lectura que no refleja la configuración real de la instalación. La página es solo informativa; **no** es una ventana a la configuración de la instalación en vivo, y el botón **Save Changes** no hace nada. Una superficie de configuración real que refleje el estado derivado del entorno está en el roadmap. La mutación de LLM por tenant es la única superficie de configuración que realmente funciona en V1, consulta la [página de detalle de LLM](#llm-detail-page).
+Página de configuración a nivel de todo el MSSP. **En V1 esta página muestra valores de stub codificados de forma fija**: `GET /api/settings` devuelve un payload estático de solo lectura que no refleja la configuración real de la instalación. La página es solo informativa; **no** es una ventana a la configuración de la instalación en vivo, y el botón **Save Changes** no hace nada. Una superficie de configuración real que refleje el estado derivado del entorno está en el roadmap. La mutación de LLM por tenant es la única superficie de configuración que realmente funciona en V1; consulta la [página de detalle de LLM](#llm-detail-page).
 
 Secciones:
 

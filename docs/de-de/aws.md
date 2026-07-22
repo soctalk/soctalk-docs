@@ -97,7 +97,7 @@ Wenn `Status` gleich `completed` ist, ist das letzte Feld Ihre AMI-ID.
 
 ## Eine Instanz starten
 
-Erstellen Sie ein Schlüsselpaar und eine Sicherheitsgruppe, die auf Ihre eigene IP beschränkt ist, die Box stellt SSH (22), die SocTalk-UI (443) und den Setup-Assistenten (8443) bereit, von denen keiner zum Internet hin offen sein sollte:
+Erstellen Sie ein Schlüsselpaar und eine Sicherheitsgruppe, die auf Ihre eigene IP beschränkt ist; die Box stellt SSH (22), die SocTalk-UI (443) und den Setup-Assistenten (8443) bereit, von denen keiner zum Internet hin offen sein sollte:
 
 ```bash
 AMI=<ami-id-from-A-or-B>
@@ -126,10 +126,10 @@ IP=$(aws ec2 describe-instances --region $REGION --instance-ids $IID \
 echo "instance at $IP"
 ```
 
-`t3.xlarge` (4 vCPU / 16 GiB) deckt die [Mindestdimensionierung](/de-de/reference/sizing) von 4 vCPU / 8 GB bequem ab. Verkleinern Sie das Root-Volume nicht, die virtuelle Festplatte des Images ist 60 GB groß, daher verlangt EC2 mindestens diese Größe.
+`t3.xlarge` (4 vCPU / 16 GiB) deckt die [Mindestdimensionierung](/de-de/reference/sizing) von 4 vCPU / 8 GB bequem ab. Verkleinern Sie das Root-Volume nicht; die virtuelle Festplatte des Images ist 60 GB groß, daher verlangt EC2 mindestens diese Größe.
 
 ::: tip Keine Seed-ISO nötig
-Bei Hypervisoren hängen Sie eine NoCloud-`seed.iso` an, um einen SSH-Schlüssel einzuspeisen ([Schnellstart](/de-de/quickstart-vm#optional-cloud-init-seed)). Auf EC2 entfällt dieser Schritt: Das cloud-init des Images greift auf die EC2-Metadaten-Datenquelle zu und speist Ihr Schlüsselpaar automatisch ein, das funktioniert auch für die importierte `.vmdk`, obwohl sie für VMware paketiert wurde. Der Standardbenutzer auf EC2 ist **`ubuntu`**.
+Bei Hypervisoren hängen Sie eine NoCloud-`seed.iso` an, um einen SSH-Schlüssel einzuspeisen ([Schnellstart](/de-de/quickstart-vm#optional-cloud-init-seed)). Auf EC2 entfällt dieser Schritt: Das cloud-init des Images greift auf die EC2-Metadaten-Datenquelle zu und speist Ihr Schlüsselpaar automatisch ein; das funktioniert auch für die importierte `.vmdk`, obwohl sie für VMware paketiert wurde. Der Standardbenutzer auf EC2 ist **`ubuntu`**.
 :::
 
 ## Den Assistenten ausführen und sich anmelden

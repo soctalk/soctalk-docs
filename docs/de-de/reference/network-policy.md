@@ -7,7 +7,7 @@
 Cilium ist das unterstützte CNI für SocTalk. Begründung:
 
 1. **NetworkPolicy-Durchsetzung**. Das Standard-Flannel von K3s setzt `NetworkPolicy` nicht durch: Ohne Durchsetzung ist Mandantenisolation auf Netzwerkebene eine Behauptung ohne Deckung. Cilium setzt Standard-`NetworkPolicy` von Haus aus durch.
-2. **FQDN-Egress-Policies**: Standard-`NetworkPolicy` erlaubt nur IP-/CIDR-basierten Egress. BYO-LLM-Endpunkte sind Hostnamen (`api.openai.com`, kundenseitig selbst gehostete Endpunkte hinter CDNs mit dynamischen IPs). Ciliums `CiliumNetworkPolicy` mit `toFQDNs` gleicht Hostnamen ab. Dies ist die einzige Möglichkeit, mandantenspezifischen LLM-Egress auf Netzwerkebene durchzusetzen, ohne einen Forward-Proxy einzuführen.
+2. **FQDN-Egress-Policies**: Standard-`NetworkPolicy` erlaubt nur IP-/CIDR-basierten Egress. BYO-LLM-Endpoints sind Hostnamen (`api.openai.com`, kundenseitig selbst gehostete Endpoints hinter CDNs mit dynamischen IPs). Ciliums `CiliumNetworkPolicy` mit `toFQDNs` gleicht Hostnamen ab. Dies ist die einzige Möglichkeit, mandantenspezifischen LLM-Egress auf Netzwerkebene durchzusetzen, ohne einen Forward-Proxy einzuführen.
 3. **eBPF-basierte Durchsetzung**: höhere Performance, geringere Latenz, kein iptables-Ballast.
 4. **Observability (Hubble)**: Sichtbarkeit auf Flow-Ebene; operativ nützlich für das Debugging der Mandantenisolation.
 5. **Reife**. CNCF Graduated, breit in Produktion im Einsatz.
@@ -59,7 +59,7 @@ Default-Deny-Baseline auf jedem Namespace, den SocTalk verwaltet. Allow-Regeln w
 | Quelle | Ziel | Warum |
 |---|---|---|
 | `soctalk-system` → `tenant-<slug>` (Wazuh :55000, Indexer :9200) | Ost-West | Die MCP-Subprozesse des SocTalk-Orchestrators rufen die Wazuh-Data-Plane des Mandanten auf |
-| `soctalk-system` → externe TheHive-/Cortex-Endpunkte | Egress | TheHive und Cortex sind externe Integrationen, über das Netzwerk erreicht, keine In-Namespace-Mandanten-Pods |
+| `soctalk-system` → externe TheHive-/Cortex-Endpoints | Egress | TheHive und Cortex sind externe Integrationen, über das Netzwerk erreicht, keine In-Namespace-Mandanten-Pods |
 | `tenant-<slug>` (Adapter) → `soctalk-system` (SocTalk-API :8000) | Ost-West | Der Adapter meldet Zustand und ruft Konfiguration ab |
 | `soctalk-system` → externer mandantenspezifischer LLM-FQDN | Egress | LLM-Aufrufe während der Triage (mit dem LLM-Schlüssel des Mandanten im Worker-Kontext) |
 | Externe Wazuh-Agents → `tenant-<slug>` Wazuh-Manager (:1514, :1515) | Ingress | Telemetrie von Kunden-Endpunkten |
@@ -167,7 +167,7 @@ spec:
 
 > Wenn die Controller-Logik innerhalb des API-Pods statt als eigenständiges Deployment läuft, integriere die kube-apiserver-Regel in die obige `api-egress`-Policy, anstatt eine zweite Policy zu verwenden.
 
-> Die apiserver-Adresse unterscheidet sich je Cluster. Verwende auf Managed Clusters die kubelet-sichtbare Service-IP (`kubectl get svc kubernetes -n default`) und die zugrunde liegenden Control-Plane-Endpunkte. Mit Cilium ist `toEntities: [kube-apiserver]` in einer `CiliumNetworkPolicy` eine Alternative, die die apiserver-Identität dynamisch auflöst.
+> Die apiserver-Adresse unterscheidet sich je Cluster. Verwende auf Managed Clusters die kubelet-sichtbare Service-IP (`kubectl get svc kubernetes -n default`) und die zugrunde liegenden Control-Plane-Endpoints. Mit Cilium ist `toEntities: [kube-apiserver]` in einer `CiliumNetworkPolicy` eine Alternative, die die apiserver-Identität dynamisch auflöst.
 
 **4.1.3 Orchestrator erlauben, Mandanten-Namespaces + DNS + LLM-FQDNs zu erreichen**
 
@@ -350,7 +350,7 @@ spec:
 
 **4.3.5 Wazuh-Agent-Ingress zum Mandanten-Manager erlauben**
 
-Agent-Telemetrie auf 1514/1515 trifft über den in [Wazuh Ingress](/de-de/reference/wazuh-ingress) dokumentierten Pfad ein. Die Referenzbereitstellung ist ein mandantenspezifischer LoadBalancer-Service (Cloud-LB oder MetalLB) mit einem clusterinternen HAProxy-Deployment in `soctalk-system` als Single-IP-Fallback. Die NetworkPolicy muss denjenigen dieser Pfade erlauben, den die Installation tatsächlich betreibt, `ingress-system` ist für keinen von beiden die richtige Quelle, verwende das Stock-Template des Charts also nicht ohne Bearbeitung.
+Agent-Telemetrie auf 1514/1515 trifft über den in [Wazuh Ingress](/de-de/reference/wazuh-ingress) dokumentierten Pfad ein. Die Referenzbereitstellung ist ein mandantenspezifischer LoadBalancer-Service (Cloud-LB oder MetalLB) mit einem clusterinternen HAProxy-Deployment in `soctalk-system` als Single-IP-Fallback. Die NetworkPolicy muss denjenigen dieser Pfade erlauben, den die Installation tatsächlich betreibt; `ingress-system` ist für keinen von beiden die richtige Quelle, verwende das Stock-Template des Charts also nicht ohne Bearbeitung.
 
 Wähle je nach Installation einen Block:
 
@@ -412,7 +412,7 @@ Das `soctalk-tenant`-Chart rendert die Variante, die zu `tenant.wazuhIngress.mod
 
 - Cilium muss mit aktiviertem `hubble` konfiguriert werden, um DNS-Abfragen zu beobachten (nützlich für das Debugging von FQDN-Policy-Matches).
 - `toFQDNs`-Policies funktionieren, indem sie DNS-Antworten abfangen und die aufgelösten IPs zu kurzlebigen Regeln hinzufügen. Die TTL der DNS-Antwort bestimmt die Aktualität des Policy-Caches; wenn ein LLM-Anbieter extrem kurze TTLs hat (~60s), sind gelegentliche kurze Verbindungsfehler bei IP-Rotation zu erwarten. Abhilfe: Ciliums `dnsProxy` kann auf eine längere `minTTL` eingestellt werden: auf 300s setzen.
-- Unternehmens-DNS (kundenintern gehostetes LLM): Wenn der LLM-Endpunkt des Mandanten nur über einen internen DNS-Server auflösbar ist, muss Cilium so konfiguriert werden, dass es diesen Server nutzt, oder der Mandant verwendet IP-basierten Egress (verliert die FQDN-of-Intent-Semantik).
+- Unternehmens-DNS (kundenintern gehostetes LLM): Wenn der LLM-Endpoint des Mandanten nur über einen internen DNS-Server auflösbar ist, muss Cilium so konfiguriert werden, dass es diesen Server nutzt, oder der Mandant verwendet IP-basierten Egress (verliert die FQDN-of-Intent-Semantik).
 
 ## Observability
 

@@ -14,7 +14,7 @@ Dieser Leitfaden beschreibt, was jedes Teil leistet, was das Zusammenstellen tat
 
 **[TheHive](https://thehive-project.org/)** ist die Fallmanagement-Schicht: eine Incident-Response-Plattform, in der Warnungen zu Fällen werden, Fälle Aufgaben und Observables tragen und Analystenteams mit einem Audit-Trail zusammenarbeiten. Wenn Wazuh der Ort ist, an dem Warnungen entstehen, ist TheHive der Ort, an dem Untersuchungen leben und enden.
 
-**Cortex** ist der Begleiter von TheHive für die Analyse von Observables. Sie übergeben eine IP, einen Hash, eine Domain oder eine URL, und seine Analyzer-Plugins fächern die Anfrage auf Reputations- und Sandbox-Dienste auf, von VirusTotal und AbuseIPDB bis Hybrid Analysis und Dutzenden weiteren, und liefern ein Verdikt zurück. Aus "hier ist ein Hash" wird "hier ist, was die Welt über diesen Hash weiß".
+**Cortex** ist der Begleiter von TheHive für die Analyse von Observables. Sie übergeben eine IP, einen Hash, eine Domain oder eine URL, und seine Analyzer-Plugins fächern die Anfrage auf Reputations- und Sandbox-Dienste auf, von VirusTotal und AbuseIPDB bis Hybrid Analysis und Dutzenden weiteren, und liefern ein Verdict zurück. Aus "hier ist ein Hash" wird "hier ist, was die Welt über diesen Hash weiß".
 
 **[MISP](https://www.misp-project.org/)** ist die Threat-Intelligence-Plattform: sie aggregiert, korreliert und teilt Kompromittierungsindikatoren über Feeds und Sharing-Communities hinweg. Der Abgleich eines Observables gegen MISP zeigt, ob es zu einer bekannten Kampagne oder einem bekannten Akteur gehört, ein Kontext, den keines der anderen drei Tools von sich aus mitbringt.
 

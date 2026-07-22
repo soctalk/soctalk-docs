@@ -231,7 +231,7 @@ kubectl -n soctalk-system exec -it deploy/soctalk-system-api -- \
   soctalk-auth set-password <admin-email>
 ```
 
-Im Auth-Modus `proxy` sind die Passwort-Endpunkte nicht eingebunden. **JIT-Benutzerbereitstellung bei der ersten authentifizierten Anfrage ist in V1 nicht implementiert**: du musst den ersten MSSP-Benutzer manuell anlegen (z. B. per `kubectl exec` auf dem API-Pod und direktem SQL-`INSERT` gegen die `users`-Tabelle), bevor irgendeine proxy-authentifizierte Anfrage erfolgreich sein kann. Ein echter JIT-Pfad ist auf der Roadmap.
+Im Auth-Modus `proxy` sind die Passwort-Endpoints nicht eingebunden. **JIT-Benutzerbereitstellung bei der ersten authentifizierten Anfrage ist in V1 nicht implementiert**: du musst den ersten MSSP-Benutzer manuell anlegen (z. B. per `kubectl exec` auf dem API-Pod und direktem SQL-`INSERT` gegen die `users`-Tabelle), bevor irgendeine proxy-authentifizierte Anfrage erfolgreich sein kann. Ein echter JIT-Pfad ist auf der Roadmap.
 
 ## Installation überprüfen
 

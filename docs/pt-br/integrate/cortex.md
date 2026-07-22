@@ -51,7 +51,7 @@ Sequência:
 4. Faz polling em `/api/job/{id}/report` até o job terminar ou disparar um timeout por job.
 5. Anexa o veredito (`safe`, `info`, `suspicious`, `malicious`) e o corpo do relatório ao estado do caso. Jobs que falham registram o erro em log e continuam.
 
-Chamadas ao Cortex que falham não fazem a execução falhar, o worker registra a falha em log e retorna ao supervisor sem enriquecimento para aquele observável. O nó de veredito raciocina sobre qualquer contexto que esteja disponível.
+Chamadas ao Cortex que falham não fazem a execução falhar, o worker registra a falha em log e retorna ao supervisor sem enriquecimento para aquele observável. O nó de verdict raciocina sobre qualquer contexto que esteja disponível.
 
 ## Cortex incluído: não nesta versão
 

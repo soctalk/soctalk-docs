@@ -16,7 +16,7 @@ Das „Onboarding“ eines Kunden in einen mandantenfähigen Wazuh-Dienst zerfä
 
 **Dimensionierung.** Planen Sie grob 6–8 GB RAM und ca. 1,5 vCPU pro `persistent`-Mandant; der Wazuh-Indexer pro Mandant ist in der Regel der Engpass und bestimmt den Plattenbedarf (50-GB-PVC als Standard, 30 Tage Hot-Retention, noch kein Hot→Cold-Tiering). SocTalk ist bis ca. 50 Mandanten auf einem 3-Node-Cluster mit Nodes zu 16 vCPU / 64 GB getestet; alles jenseits von ca. 5 Mandanten auf einem einzelnen Host gilt als nicht validiert. Details unter [Dimensionierung](/de-de/reference/sizing).
 
-**LLM pro Mandant.** Die Triage läuft auf einer LLM-Konfiguration pro Mandant: Anthropic oder ein beliebiger OpenAI-kompatibler Endpunkt (Azure OpenAI, vLLM, Ollama, LiteLLM). Ein Kunde kann für die Abrechnungstrennung einen eigenen API-Schlüssel mitbringen. Der Schlüssel wird als Kubernetes Secret in seinem Namespace gemountet, mit der dokumentierten V1-Einschränkung, dass er zusätzlich im Klartext in der SocTalk-Datenbank liegt ([Secrets](/de-de/reference/secrets)). Alternativ können Sie den Mandanten auf einen vollständig lokalen Ollama-Endpunkt zeigen lassen, für einen Betrieb ohne Cloud und ohne Kosten pro Token (rechnen Sie mit langsamer CPU-Inferenz). Siehe [LLM-Anbieter](/de-de/integrate/llm-providers).
+**LLM pro Mandant.** Die Triage läuft auf einer LLM-Konfiguration pro Mandant: Anthropic oder ein beliebiger OpenAI-kompatibler Endpoint (Azure OpenAI, vLLM, Ollama, LiteLLM). Ein Kunde kann für die Abrechnungstrennung einen eigenen API-Schlüssel mitbringen. Der Schlüssel wird als Kubernetes Secret in seinem Namespace gemountet, mit der dokumentierten V1-Einschränkung, dass er zusätzlich im Klartext in der SocTalk-Datenbank liegt ([Secrets](/de-de/reference/secrets)). Alternativ können Sie den Mandanten auf einen vollständig lokalen Ollama-Endpoint zeigen lassen, für einen Betrieb ohne Cloud und ohne Kosten pro Token (rechnen Sie mit langsamer CPU-Inferenz). Siehe [LLM-Anbieter](/de-de/integrate/llm-providers).
 
 ## Bereitstellung: die neun geordneten Phasen
 
@@ -28,7 +28,7 @@ Schlägt eine Phase fehl, landet der Mandant in `degraded`, mit dem fehlgeschlag
 
 ## Agent-Registrierung: Endpunkte in den richtigen Mandanten bringen
 
-Jeder Mandant erhält einen eigenen DNS-Namen (`acme.soc.mssp.example.com`), der auf einen L4-Endpunkt pro Mandant für 1514/TCP (Events) und 1515/TCP (Registrierung) auflöst. Das Routing erfolgt über die Zieladresse statt über SNI, da das Agent-Protokoll von Wazuh auf 1514 kein Standard-TLS ist und nie ein ClientHello präsentiert.
+Jeder Mandant erhält einen eigenen DNS-Namen (`acme.soc.mssp.example.com`), der auf einen L4-Endpoint pro Mandant für 1514/TCP (Events) und 1515/TCP (Registrierung) auflöst. Das Routing erfolgt über die Zieladresse statt über SNI, da das Agent-Protokoll von Wazuh auf 1514 kein Standard-TLS ist und nie ein ClientHello präsentiert.
 
 **V1-Einschränkung:** Das Chart legt den Service des Wazuh-Managers nur als `ClusterIP` an. In diesem Release gibt es **keine automatische LoadBalancer- oder DNS-Bereitstellung**. Die Edge verdrahten Sie selbst: ein LoadBalancer-Service pro Mandant, den Sie manuell anwenden, ein Edge-HAProxy mit Portpaaren pro Mandant an einer einzigen IP oder ein Mesh-VPN-Pfad. DNS-Einträge werden ebenfalls vom Betreiber verwaltet.
 
@@ -52,7 +52,7 @@ Jeder angelegte Benutzer erhält ein einmaliges temporäres Passwort, das nur ei
 - **Heartbeat.** Beobachten Sie `soctalk_tenant_adapter_heartbeat_age_seconds` auf `/metrics`. In V1 ist das die einzige aktiv aktualisierte Gauge, und sie stuft den Mandantenzustand *nicht* automatisch herab, alarmieren Sie also selbst darauf.
 - **Prüfungswarteschlange.** Neue Mandanten erzeugen Prüfaufkommen, während sich die Baselines einpendeln; jede AI-Eskalation wartet auf einen Menschen in der Dashboard-Warteschlange; einen Auto-Approve-Bypass gibt es nicht.
 - **Engagement-Fenster.** Hat der Kunde einen Pentest geplant, deklarieren Sie das Engagement-Fenster (Quelle, Host, Technik, Zeit) vor dessen Beginn, damit genehmigte Aktivität markiert und auditiert statt eskaliert wird. Tester-Aktivität außerhalb des Scopes erzwingt weiterhin einen menschlichen Blick.
-- **Grundlagen zu Suspend/Decommission.** Suspend ändert den DB-Zustand und stoppt neue Untersuchungen, skaliert Workloads aber **nicht** herunter; die Notabschaltung ist ein manuelles Runbook. Decommission baut die Data Plane ab und behält die Mandantenzeile samt Audit-Historie in `archived`; einen `:purge`-API-Endpunkt gibt es noch nicht.
+- **Grundlagen zu Suspend/Decommission.** Suspend ändert den DB-Zustand und stoppt neue Untersuchungen, skaliert Workloads aber **nicht** herunter; die Notabschaltung ist ein manuelles Runbook. Decommission baut die Data Plane ab und behält die Mandantenzeile samt Audit-Historie in `archived`; einen `:purge`-API-Endpoint gibt es noch nicht.
 
 ## Onboarding-Checkliste
 
@@ -60,7 +60,7 @@ Jeder angelegte Benutzer erhält ein einmaliges temporäres Passwort, das nur ei
 - [ ] Cluster-Reserven geprüft (ca. 6–8 GB RAM, ca. 1,5 vCPU pro `persistent`-Mandant)
 - [ ] LLM pro Mandant entschieden (BYO-Schlüssel / Installationsstandard / lokales Ollama)
 - [ ] Mandant angelegt; Lifecycle-Events haben `active` erreicht
-- [ ] Edge manuell verdrahtet: LB- oder Edge-Proxy-Endpunkt + DNS-Eintrag für `<slug>.soc.<domain>`
+- [ ] Edge manuell verdrahtet: LB- oder Edge-Proxy-Endpoint + DNS-Eintrag für `<slug>.soc.<domain>`
 - [ ] `authd`-Secret abgerufen und über einen sicheren Kanal geteilt
 - [ ] Erster Agent registriert und im Wazuh-Dashboard des Mandanten sichtbar
 - [ ] `tenant_admin` übergeben; `customer_viewer`-Konten nach Bedarf angelegt

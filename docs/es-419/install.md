@@ -10,7 +10,7 @@ Para administradores de clúster de MSSP. Cubre los requisitos previos del clús
 
 Para un plano de control de MSSP de un solo nodo en una VM Ubuntu 24.04 limpia (en la nube u on-prem), el mismo `install.sh` que la [VM de demostración](/es-419/quickstart-vm) incluye está disponible como instalador de un solo comando. Arranca k3s + Helm, descarga el chart OCI soctalk-system desde GHCR y siembra los secretos de admin / LLM en un solo paso.
 
-Configura la instalación mediante variables de entorno (cualquier subconjunto; el resto se solicita), cuando **las tres** variables `SOCTALK_MSSP_NAME`, `SOCTALK_ADMIN_EMAIL`, `SOCTALK_ADMIN_PASSWORD` están presentes, el instalador omite su solicitud de consentimiento para que los flujos desatendidos de `curl | bash` funcionen sin `-y`:
+Configura la instalación mediante variables de entorno (cualquier subconjunto; el resto se solicita); cuando **las tres** variables `SOCTALK_MSSP_NAME`, `SOCTALK_ADMIN_EMAIL`, `SOCTALK_ADMIN_PASSWORD` están presentes, el instalador omite su solicitud de consentimiento para que los flujos desatendidos de `curl | bash` funcionen sin `-y`:
 
 ```bash
 export SOCTALK_MSSP_NAME="Acme MSSP"
@@ -250,7 +250,7 @@ Para un recorrido por cada pantalla que verás de aquí en adelante, lee el [Rec
 
 ## Incorporar el primer cliente
 
-En la UI de MSSP ve a **Tenants → New tenant**. El formulario de incorporación recopila: slug, nombre para mostrar, perfil (`poc` | `persistent` | `provided`), correo de contacto, branding y, opcionalmente, la URL base del LLM + overrides de modelo. Las invitaciones de customer-viewer **no** están en el formulario, eso se configura después de que el tenant llega a `active`. El aprovisionamiento se ejecuta de forma asíncrona; actualiza la página de detalle para ver aparecer nuevos eventos de ciclo de vida en la tabla de eventos. (Un stream de eventos en vivo está en el roadmap; `/api/events/stream` existe pero solo emite pings en esta versión.) Si eliges `provided` (BYO Wazuh), el formulario además requiere las URLs del indexador externo + la Manager API y las credenciales, más una clave de LLM por tenant, consulta [ciclo de vida del tenant / provided](/es-419/tenant-lifecycle#provided).
+En la UI de MSSP ve a **Tenants → New tenant**. El formulario de incorporación recopila: slug, nombre para mostrar, perfil (`poc` | `persistent` | `provided`), correo de contacto, branding y, opcionalmente, la URL base del LLM + overrides de modelo. Las invitaciones de customer-viewer **no** están en el formulario; eso se configura después de que el tenant llega a `active`. El aprovisionamiento se ejecuta de forma asíncrona; actualiza la página de detalle para ver aparecer nuevos eventos de ciclo de vida en la tabla de eventos. (Un stream de eventos en vivo está en el roadmap; `/api/events/stream` existe pero solo emite pings en esta versión.) Si eliges `provided` (BYO Wazuh), el formulario además requiere las URLs del indexador externo + la Manager API y las credenciales, más una clave de LLM por tenant; consulta [ciclo de vida del tenant / provided](/es-419/tenant-lifecycle#provided).
 
 ![Tenants list](/screenshots/tenants-list.png)
 

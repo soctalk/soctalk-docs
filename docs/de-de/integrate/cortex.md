@@ -47,11 +47,11 @@ Ablauf:
 
 1. Liest die aktuelle Observable-Liste des Falls aus dem State.
 2. Schlägt für jedes Observable die Analyzer-Liste in `ANALYZER_MAP` für dessen Typ nach.
-3. Übermittelt an den ersten zugeordneten Analyzer über den `/api/observable`-Endpunkt von Cortex.
+3. Übermittelt an den ersten zugeordneten Analyzer über den `/api/observable`-Endpoint von Cortex.
 4. Fragt `/api/job/{id}/report` ab, bis der Job abgeschlossen ist oder ein Timeout pro Job auslöst.
-5. Hängt das Verdikt (`safe`, `info`, `suspicious`, `malicious`) und den Report-Body an den Fall-State an. Fehlgeschlagene Jobs protokollieren den Fehler und fahren fort.
+5. Hängt das Verdict (`safe`, `info`, `suspicious`, `malicious`) und den Report-Body an den Fall-State an. Fehlgeschlagene Jobs protokollieren den Fehler und fahren fort.
 
-Fehlgeschlagene Cortex-Aufrufe lassen den Run nicht fehlschlagen, der Worker protokolliert den Fehler und kehrt ohne Anreicherung für dieses Observable zum Supervisor zurück. Der Verdikt-Node schließt auf Basis des jeweils verfügbaren Kontexts.
+Fehlgeschlagene Cortex-Aufrufe lassen den Run nicht fehlschlagen, der Worker protokolliert den Fehler und kehrt ohne Anreicherung für dieses Observable zum Supervisor zurück. Der Verdict-Node schließt auf Basis des jeweils verfügbaren Kontexts.
 
 ## Gebündeltes Cortex: nicht in diesem Release
 

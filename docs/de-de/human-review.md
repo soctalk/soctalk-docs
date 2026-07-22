@@ -12,8 +12,8 @@ Jede Prüfung folgt unabhängig vom Backend demselben Drei-Entscheidungs-Vertrag
 
 | Entscheidung | Wirkung in dieser Version |
 |---|---|
-| `approve` | Die ausstehende Zeile der Prüfung wird als abgeschlossen markiert und der `feedback`-Text an den Audit-Trail angehängt. Der Fall wird durch approve **nicht** automatisch wieder aufgenommen oder geschlossen, das ist heute analystenseitige Nachverfolgung. |
-| `reject` | Der Fall wird als Falsch-Positiv geschlossen (`auto_closed_fp`). Terminal, der Graph wird nicht erneut mit dem `feedback` des Menschen aufgerufen. |
+| `approve` | Die ausstehende Zeile der Prüfung wird als abgeschlossen markiert und der `feedback`-Text an den Audit-Trail angehängt. Der Fall wird durch approve **nicht** automatisch wieder aufgenommen oder geschlossen; das ist heute analystenseitige Nachverfolgung. |
+| `reject` | Der Fall wird als Falsch-Positiv geschlossen (`auto_closed_fp`). Terminal; der Graph wird nicht erneut mit dem `feedback` des Menschen aufgerufen. |
 | `more_info` | Die Prüfungszeile wird mit der Fragenliste auf `info_requested` aktualisiert. Der Graph wird **nicht** automatisch erneut aufgerufen; der Analyst nimmt den Fall manuell wieder auf. |
 
 Entscheidungen schreiben reine Anhänge-Audit-Zeilen, die mit der Identität des Menschen, dem Zeitstempel und einer freitextlichen Begründung versehen sind. Nach dem Absenden sind sie nie mehr editierbar.
@@ -23,7 +23,7 @@ Entscheidungen schreiben reine Anhänge-Audit-Zeilen, die mit der Identität des
 Die [Prüfungs-Warteschlange](/de-de/mssp-ui#reviews-human-in-the-loop) unter `/review` zeigt jede ausstehende Prüfung über alle Mandanten hinweg. Karten zeigen:
 
 - Titel der Untersuchung + Mandant
-- KI-Verdikt-Chip (`AI: Escalate / Close / Needs More Info`)
+- KI-Verdict-Chip (`AI: Escalate / Close / Needs More Info`)
 - Schweregrad
 - Warnungsanzahl + Frist (falls eine SLA konfiguriert ist)
 
@@ -38,7 +38,7 @@ Beim Absenden wird die ausstehende Prüfungszeile in der Datenbank aktualisiert 
 
 ## Slack-Zwei-Wege-Backend
 
-Slacks Socket Mode wird verwendet, damit SocTalk keinen öffentlichen Webhook-Endpunkt benötigt, die SocTalk-Installation initiiert einen ausgehenden WebSocket zu Slack.
+Slacks Socket Mode wird verwendet, damit SocTalk keinen öffentlichen Webhook-Endpoint benötigt; die SocTalk-Installation initiiert einen ausgehenden WebSocket zu Slack.
 
 ### Voraussetzungen
 
@@ -55,10 +55,10 @@ In der MSSP-UI → Settings → Slack:
 - **Bot token** → `xoxb-…`
 - **App token** → `xapp-…`
 - **Channel** → `#soc-reviews` (oder ein beliebiger anderer)
-- **Notify on escalation** → an (sendet jedes Escalate-Verdikt)
-- **Notify on verdict** → optional (sendet auch Close-Verdikte; hohes Volumen)
+- **Notify on escalation** → an (sendet jedes Escalate-Verdict)
+- **Notify on verdict** → optional (sendet auch Close-Verdicts; hohes Volumen)
 
-Die gesamte Slack-Konfiguration (Tokens, Channel, Benachrichtigungs-Toggles) ist in V1 nur über die Umgebung möglich, die veraltete Route `PUT /api/settings` wird vom V1-Chart nicht eingebunden. Siehe [Slack, Konfigurieren](/de-de/integrate/slack#configure) für das Muster zur Einschleusung von Umgebungsvariablen.
+Die gesamte Slack-Konfiguration (Tokens, Channel, Benachrichtigungs-Toggles) ist in V1 nur über die Umgebung möglich; die veraltete Route `PUT /api/settings` wird vom V1-Chart nicht eingebunden. Siehe [Slack, Konfigurieren](/de-de/integrate/slack#configure) für das Muster zur Einschleusung von Umgebungsvariablen.
 
 ### Operator-Erfahrung
 
@@ -71,7 +71,7 @@ Observables: 198.51.100.7 (Cortex: malicious, 8/12), sshd, alice@linux-ep-1
 [Approve]  [Reject]  [Needs more info]  [View in UI →]
 ```
 
-Die Schaltflächen senden über Socket Mode zurück; die SocTalk-Installation zeichnet die Entscheidung anhand des Idempotenzschlüssels des Vorschlags auf. Derselbe Vorschlag in der Dashboard-Warteschlange wird in Echtzeit aktualisiert, eine Genehmigung in Slack schließt die Dashboard-Karte.
+Die Schaltflächen senden über Socket Mode zurück; die SocTalk-Installation zeichnet die Entscheidung anhand des Idempotenzschlüssels des Vorschlags auf. Derselbe Vorschlag in der Dashboard-Warteschlange wird in Echtzeit aktualisiert; eine Genehmigung in Slack schließt die Dashboard-Karte.
 
 Klickt der Analyst auf **Reject** oder **Needs more info**, öffnet sich ein Slack-Dialog für die Begründung (erforderlich).
 
@@ -83,7 +83,7 @@ In dieser Version gehen alle Prüfungen an den einen installationsweiten Channel
 
 ### Ausgehende (Ein-Weg-)Benachrichtigungen
 
-Dieselben Slack-Anmeldeinformationen würden in einer künftigen Version Ein-Weg-Webhook-Benachrichtigungen (Fallschließungen, Verdikt-Entscheidungen) antreiben. Der Webhook-Notifier-Code existiert in `src/soctalk/notifications/slack_webhook.py`, ist aber nur im veralteten Einstiegspunkt eingebunden; die `app_v1` des V1-Charts ruft ihn nicht auf. In keiner Version existiert ein `notify_on_capacity`-Toggle.
+Dieselben Slack-Anmeldeinformationen würden in einer künftigen Version Ein-Weg-Webhook-Benachrichtigungen (Fallschließungen, Verdict-Entscheidungen) antreiben. Der Webhook-Notifier-Code existiert in `src/soctalk/notifications/slack_webhook.py`, ist aber nur im veralteten Einstiegspunkt eingebunden; die `app_v1` des V1-Charts ruft ihn nicht auf. In keiner Version existiert ein `notify_on_capacity`-Toggle.
 
 ## Ergebnisabrechnung
 
@@ -91,7 +91,7 @@ Prüfungsentscheidungen schreiben eine Audit-Zeile. Die Metrik `soctalk_tenant_p
 
 ## Umgehung: KI-only-Modus
 
-Ein Modus ohne menschliches Gate im Sinne von „jedes Escalate automatisch genehmigen“ ist in dieser Version **nicht** implementiert. Der Verdikt-Knoten leitet `escalate` immer durch `human_review`. Das Entfernen des menschlichen Gates steht auf der Roadmap als expliziter Toggle, der ausschließlich auf `platform_admin` beschränkt ist und dessen Begründung auditiert wird, nicht als stiller Standard.
+Ein Modus ohne menschliches Gate im Sinne von „jedes Escalate automatisch genehmigen“ ist in dieser Version **nicht** implementiert. Der Verdict-Knoten leitet `escalate` immer durch `human_review`. Das Entfernen des menschlichen Gates steht auf der Roadmap als expliziter Toggle, der ausschließlich auf `platform_admin` beschränkt ist und dessen Begründung auditiert wird, nicht als stiller Standard.
 
 ## Quellverweise
 

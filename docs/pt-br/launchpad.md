@@ -156,7 +156,7 @@ Se o MagicDNS estiver desabilitado no seu tailnet, `lp-<key>.<tailnet>.ts.net` n
 
 ## 4. Use seu piloto: faça o onboarding de clientes e pergunte à AI
 
-O Launchpad entrega a você um MSSP funcional com seu primeiro tenant já integrado, a partir daqui você o conduz exatamente como um MSSP faria. O **Dashboard** é uma visão de frota cross-tenant: revisões pendentes, casos travados, tenants degradados e a saúde por tenant.
+O Launchpad entrega a você um MSSP funcional com seu primeiro tenant já integrado; a partir daqui você o conduz exatamente como um MSSP faria. O **Dashboard** é uma visão de frota cross-tenant: revisões pendentes, casos travados, tenants degradados e a saúde por tenant.
 
 ![O dashboard do MSSP, visão de frota cross-tenant](/screenshots/pilot-final-dashboard.png)
 
@@ -181,7 +181,7 @@ Aprofunde em um tenant para ver suas investigações abertas, revisões e a saú
 ![Ask AI, com escopo em um único tenant](/screenshots/pilot-chat-tenant-reply.png)
 
 ::: tip
-A AI precisa de um [provedor de LLM](/pt-br/integrate/llm-providers) real configurado, a chave de placeholder do smoke test não responderá perguntas.
+A AI precisa de um [provedor de LLM](/pt-br/integrate/llm-providers) real configurado; a chave de placeholder do smoke test não responderá perguntas.
 :::
 
 ## 5. Ajuste fino com um arquivo de configuração
@@ -307,7 +307,7 @@ A VM inicializou mas nunca se juntou ao tailnet. O cloud-init na VM não consegu
 A instalação do chart rodou mas os pods não convergiram em 15 minutos. Normalmente image pulls em conexões lentas.
 
 - Faça SSH na VM do MSSP: `sudo k3s kubectl -n soctalk-system get pods` e verifique se há `ImagePullBackOff` ou `CrashLoopBackOff`
-- Se os pods ainda estiverem baixando, aguarde e relance, a segunda tentativa pula o passo de instalação assim que a API estiver respondendo
+- Se os pods ainda estiverem baixando, aguarde e relance; a segunda tentativa pula o passo de instalação assim que a API estiver respondendo
 
 ### O agente do tenant registra `no such host` em `/api/agent/register`
 
@@ -326,7 +326,7 @@ Faça asserções sobre esses eventos a partir do seu CI. Veja o [esquema de eve
 
 ## Para onde ir a seguir
 
-- **Adicione um tenant real.** Faça o onboarding a partir do dashboard do MSSP, veja o [piloto faça-você-mesmo §3](/pt-br/mssp-pilot#3-onboard-tenants) para o passo a passo do assistente.
+- **Adicione um tenant real.** Faça o onboarding a partir do dashboard do MSSP; veja o [piloto faça-você-mesmo §3](/pt-br/mssp-pilot#3-onboard-tenants) para o passo a passo do assistente.
 - **Gere alguns alertas.** O [Simulador de ataque](/pt-br/mssp-pilot#5-3-generate-alerts) tem o runbook.
 - **Aponte a AI para dados reais.** Configure seu [provedor de LLM](/pt-br/integrate/llm-providers) adequadamente (a chave de placeholder do smoke test não responderá perguntas).
 - **Vá para produção.** [Install](/pt-br/install) é o caminho não-launchpad, capaz de HA.

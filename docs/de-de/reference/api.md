@@ -14,7 +14,7 @@ Katalog unten wird **aus diesem Schema generiert**: er kann nicht vom Code
 abweichen.
 
 ::: tip Den Katalog neu generieren
-Der Endpunkt-Katalog wird von `npm run gen:api` erzeugt, das
+Der Endpoint-Katalog wird von `npm run gen:api` erzeugt, das
 `docs/public/openapi.json` liest. Aktualisiere das Schema zuerst aus dem
 API-Code:
 
@@ -29,7 +29,7 @@ Alles zwischen den `GENERATED`-Markern wird überschrieben; die Prosa drumherum
 wird von Hand gepflegt.
 :::
 
-## Endpunkt-Katalog
+## Endpoint-Katalog
 
 Die Spalte **Auth** leitet sich aus dem `require_role`- /
 `require_tenant_role`-Guard jeder Route ab. Die Kennzeichnung `session cookie`
@@ -371,7 +371,7 @@ wird. Programmatische Clients können entweder:
    verfügbar). Heute sind die einzigen Nicht-Cookie-Aufrufer die
    mandantenspezifischen **Adapter**- und **runs-worker**-Pods, die sich mit
    mandantengebundenen Tokens, die die API ausstellt und rotiert, gegenüber
-   `/api/internal/*` authentifizieren (siehe [Interne Endpunkte](#internal-endpoints)).
+   `/api/internal/*` authentifizieren (siehe [Interne Endpoints](#internal-endpoints)).
 
 Im Modus `SOCTALK_AUTH_MODE=proxy` vertraut die API den vorgelagerten Headern
 `X-Forwarded-User` / `X-Forwarded-Email` / `X-Forwarded-Groups`, und die
@@ -440,7 +440,7 @@ Der Audit-Router liegt auf oberster Ebene (`/api/audit`), nicht unter
 
 ### Eine Entscheidung zur menschlichen Prüfung übermitteln
 
-Der Review-Router stellt einen Endpunkt pro Entscheidung bereit (keinen
+Der Review-Router stellt einen Endpoint pro Entscheidung bereit (keinen
 einzelnen `/decision`-Pfad). Wähle den passenden:
 
 ```bash
@@ -465,7 +465,7 @@ curl -b jar -X POST https://mssp.../api/review/<review-id>/expire \
 Alle vier liefern 409, wenn die Prüfung nicht mehr `pending` ist.
 
 Für IR-Proposals (die Fallmanagement-Oberfläche) sind die entsprechenden
-Endpunkte `/api/mssp/proposals/{id}/approve` und
+Endpoints `/api/mssp/proposals/{id}/approve` und
 `/api/mssp/proposals/{id}/reject`.
 
 ### Ereignisse streamen
@@ -477,7 +477,7 @@ curl -N -b jar 'https://mssp.../api/events/stream'
 Server-Sent Events. **In diesem Release gibt der Stream nur Keep-Alive-Pings aus**
 (ein `ping` etwa alle 25 s), das Broadcasten von Domänenereignissen
 (Untersuchungs-Updates, Mandanten-Lebenszyklus usw.) steht auf der Roadmap.
-Behandle den Endpunkt heute als Konnektivitätstest auf Wire-Ebene.
+Behandle den Endpoint heute als Konnektivitätstest auf Wire-Ebene.
 
 ## Einen Python-Client generieren
 
@@ -526,7 +526,7 @@ detail = get_investigation.sync(client=client, investigation_id=str(page.items[0
 print(detail.phase, detail.alert_count, detail.verdict_decision)
 ```
 
-Die Endpunkt-Funktionen sind nach der operationId benannt, die FastAPI aus der
+Die Endpoint-Funktionen sind nach der operationId benannt, die FastAPI aus der
 Route ableitet (`list_investigations_api_investigations_get`), versieh sie beim
 Import mit Aliassen, wie oben, zur besseren Lesbarkeit. `sync()` liefert das
 deserialisierte Modell (`InvestigationList`, dessen `.items` vom Typ
@@ -540,7 +540,7 @@ ausgeliefert, den die Deploy-Pipeline gegen die Live-API ausführt, sodass ein
 Schema, das keinen funktionierenden Client mehr generiert, den Build scheitern
 lässt.
 
-## Interne Endpunkte (`/api/internal/*`)
+## Interne Endpoints (`/api/internal/*`)
 
 Werden vom mandantenspezifischen Adapter und runs-worker genutzt (siehe die
 Gruppen `internal-adapter` und `internal-worker` im Katalog oben). Nicht für den

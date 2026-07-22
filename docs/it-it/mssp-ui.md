@@ -36,12 +36,12 @@ La UI dell'applicazione è distribuita localizzata in sette lingue, commutabili 
 
 ![Dashboard MSSP](/screenshots/mssp-dashboard.png)
 
-Riquadri KPI nella riga superiore (Indagini aperte, Revisioni in attesa, Tempo medio al Triage, Tempo medio al Verdetto) e una seconda riga di contatori operativi (Create oggi, Chiuse oggi, Escalation, Chiuse automaticamente, IOC malevoli).
+Riquadri KPI nella riga superiore (Indagini aperte, Revisioni in attesa, Tempo medio al Triage, Tempo medio al Verdict) e una seconda riga di contatori operativi (Create oggi, Chiuse oggi, Escalation, Chiuse automaticamente, IOC malevoli).
 
 Sotto i riquadri:
 
 - **Throughput delle indagini (24h)**: grafico a barre+linea di casi creati / chiusi manualmente / chiusi automaticamente / in escalation / backlog.
-- **Verdetti oggi**: conteggio progressivo dei verdetti AI della giornata.
+- **Verdict oggi**: conteggio progressivo dei verdict AI della giornata.
 - **Indagini attive**: breve elenco dei casi in corso con un collegamento diretto a ciascuno.
 
 Il grafico è il widget più osservato per la pianificazione della capacità; se il backlog (linea rossa) tende a salire mentre il throughput resta piatto, l'MSSP è sotto-dimensionato oppure il modello lascia passare troppi casi alla revisione umana.
@@ -74,7 +74,7 @@ Per il resto la pagina è di sola lettura; il SOC per-tenant si apre in una fine
 
 ![Elenco delle indagini](/screenshots/investigations-list.png)
 
-Coda cross-tenant. Filtri: stato (Pending / Active / Awaiting Enrichment / Awaiting Verdict / Awaiting Human / Escalated / Closed) e fase (Triage / Enrichment / Analysis / Verdict / Escalation / Closed). Ogni riga mostra Tenant, Titolo, Stato, Fase, Gravità (Critical / High / Medium / Low), numero di Alert, numero di IOC malevoli, Verdetto, Creato, Azioni.
+Coda cross-tenant. Filtri: stato (Pending / Active / Awaiting Enrichment / Awaiting Verdict / Awaiting Human / Escalated / Closed) e fase (Triage / Enrichment / Analysis / Verdict / Escalation / Closed). Ogni riga mostra Tenant, Titolo, Stato, Fase, Gravità (Critical / High / Medium / Low), numero di Alert, numero di IOC malevoli, Verdict, Creato, Azioni.
 
 Fai clic su **Visualizza** (o sul titolo) per aprire la pagina di dettaglio.
 
@@ -85,7 +85,7 @@ Fai clic su **Visualizza** (o sul titolo) per aprire la pagina di dettaglio.
 Layout:
 
 - **Intestazione**: titolo, badge di stato (Active/Closed, Fase corrente, Gravità).
-- **Riquadri KPI**: Alert, Osservabili (totali/malevoli/sospetti), Tempo al Triage, Tempo al Verdetto.
+- **Riquadri KPI**: Alert, Osservabili (totali/malevoli/sospetti), Tempo al Triage, Tempo al Verdict.
 - **Dettagli**: ID, Creato, Aggiornato.
 - **Timeline degli eventi**: inbox cronologica degli eventi del caso (immutabile, append-only).
 - **Esecuzione dell'agente**: spesa di token rispetto al budget per esecuzione configurato (`case_runs.tokens_budget`, valore predefinito del modello 200.000) e disposizione (`pending | active | failed | completed`).
@@ -97,7 +97,7 @@ Il pulsante flottante **Chiedi all'AI** apre una conversazione laterale che oper
 
 ![Coda di revisione](/screenshots/review-queue.png)
 
-La coda cross-tenant delle proposte AI in attesa di un gate umano. Ogni riga mostra il titolo della proposta, il numero di alert, la scadenza, la gravità, il chip del verdetto AI (`AI: Escalate / Close / Needs More Info`) e un pulsante **Revisiona**.
+La coda cross-tenant delle proposte AI in attesa di un gate umano. Ogni riga mostra il titolo della proposta, il numero di alert, la scadenza, la gravità, il chip del verdict AI (`AI: Escalate / Close / Needs More Info`) e un pulsante **Revisiona**.
 
 La revisione registra la decisione (`approve | reject | more_info`) che aggiorna la riga della revisione in attesa nel database. In V1 **non esiste alcuna pipeline downstream basata su outbox**; la decisione si ferma alla riga della revisione + audit log. Qualsiasi creazione di caso in TheHive o notifica Slack deve avvenire inline durante l'esecuzione del grafo AI.
 
@@ -146,7 +146,7 @@ curl 'https://mssp.your-mssp.example/api/audit?since=2026-01-01&tenant=<id>' > a
 
 ![Impostazioni](/screenshots/settings.png)
 
-Pagina delle impostazioni a livello dell'intero MSSP. **In V1 questa pagina mostra valori segnaposto hard-coded**: `GET /api/settings` restituisce un payload statico di sola lettura che non riflette la configurazione effettiva dell'installazione. La pagina è solo informativa; **non** è una finestra sulle impostazioni live dell'installazione, e il pulsante **Salva modifiche** non ha alcun effetto. Una vera superficie delle impostazioni che rispecchi lo stato derivato dall'ambiente è in roadmap. La mutazione LLM per-tenant è l'unica superficie delle impostazioni che funziona realmente in V1, vedi [Pagina di dettaglio LLM](#llm-detail-page).
+Pagina delle impostazioni a livello dell'intero MSSP. **In V1 questa pagina mostra valori segnaposto hard-coded**: `GET /api/settings` restituisce un payload statico di sola lettura che non riflette la configurazione effettiva dell'installazione. La pagina è solo informativa; **non** è una finestra sulle impostazioni live dell'installazione, e il pulsante **Salva modifiche** non ha alcun effetto. Una vera superficie delle impostazioni che rispecchi lo stato derivato dall'ambiente è in roadmap. La mutazione LLM per-tenant è l'unica superficie delle impostazioni che funziona realmente in V1; vedi [Pagina di dettaglio LLM](#llm-detail-page).
 
 Sezioni:
 

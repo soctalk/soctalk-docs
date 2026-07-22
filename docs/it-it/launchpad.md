@@ -44,7 +44,7 @@ Procurati prima questi elementi:
 - [ ] **Una tailnet Tailscale.** Il tier gratuito va bene. Ti serviranno:
       - Il nome della tailnet (es. `taila1b2c3.ts.net`)
       - Un [token di accesso API Tailscale](https://login.tailscale.com/admin/settings/keys) con scope `keys:write`: il launchpad lo usa per generare chiavi di autenticazione dispositivo effimere per ogni VM
-      - La proprietà dei tag che utilizzerai, aggiungi questi alla tua ACL:
+      - La proprietà dei tag che utilizzerai; aggiungi questi alla tua ACL:
         ```json
         "tagOwners": {
           "tag:mssp":        ["autogroup:admin"],
@@ -156,7 +156,7 @@ Se MagicDNS è disabilitato sulla tua tailnet, `lp-<key>.<tailnet>.ts.net` non v
 
 ## 4. Usa il tuo pilot: onboarding dei clienti e domande all'AI
 
-Launchpad ti consegna un MSSP funzionante con il tuo primo tenant già onboarded, da qui lo guidi esattamente come farebbe un MSSP. La **Dashboard** è una vista di flotta cross-tenant: revisioni in attesa, casi bloccati, tenant degradati e salute per tenant.
+Launchpad ti consegna un MSSP funzionante con il tuo primo tenant già onboarded; da qui lo guidi esattamente come farebbe un MSSP. La **Dashboard** è una vista di flotta cross-tenant: revisioni in attesa, casi bloccati, tenant degradati e salute per tenant.
 
 ![La dashboard MSSP, vista di flotta cross-tenant](/screenshots/pilot-final-dashboard.png)
 
@@ -181,7 +181,7 @@ Approfondisci un tenant per le sue indagini aperte, le revisioni e la salute di 
 ![Ask AI, limitato a un singolo tenant](/screenshots/pilot-chat-tenant-reply.png)
 
 ::: tip
-L'AI ha bisogno di un vero [provider LLM](/it-it/integrate/llm-providers) configurato, la chiave segnaposto dello smoke test non risponderà alle domande.
+L'AI ha bisogno di un vero [provider LLM](/it-it/integrate/llm-providers) configurato; la chiave segnaposto dello smoke test non risponderà alle domande.
 :::
 
 ## 5. Messa a punto con un file di configurazione
@@ -277,7 +277,7 @@ Le esecuzioni successive sono molto più veloci perché l'immagine di base è in
 
 ## 6. Itera, riprendi, smonta, riavvia
 
-Il launchpad è idempotente. Rilanciare un'esecuzione, di nuovo **Launch** dalla console, o `launchpad up`: riprende da dove si era interrotto:
+Il launchpad è idempotente. Rilanciare un'esecuzione (di nuovo **Launch** dalla console, o `launchpad up`) riprende da dove si era interrotto:
 
 - Le VM già esistenti vengono riutilizzate (nessun doppio provisioning)
 - Il passaggio di installazione dell'MSSP viene saltato se l'API risponde già
@@ -307,7 +307,7 @@ La VM è avviata ma non si è mai unita alla tailnet. Il cloud-init sulla VM non
 L'installazione del chart è partita ma i pod non sono convergiti in 15 minuti. Di solito il pull delle immagini su connessioni lente.
 
 - Collegati via SSH alla VM MSSP: `sudo k3s kubectl -n soctalk-system get pods` e controlla `ImagePullBackOff` o `CrashLoopBackOff`
-- Se i pod stanno ancora effettuando il pull, attendi e rilancia, il secondo tentativo salta il passaggio di installazione una volta che l'API risponde
+- Se i pod stanno ancora effettuando il pull, attendi e rilancia; il secondo tentativo salta il passaggio di installazione una volta che l'API risponde
 
 ### L'agente tenant registra `no such host` su `/api/agent/register`
 
@@ -326,7 +326,7 @@ Verifica gli assert su quegli eventi dalla tua CI. Vedi [Schema degli eventi Lau
 
 ## Dove andare adesso
 
-- **Aggiungi un tenant reale.** Fai l'onboarding dalla dashboard MSSP, vedi [pilot fai-da-te §3](/it-it/mssp-pilot#3-onboard-tenants) per la procedura guidata.
+- **Aggiungi un tenant reale.** Fai l'onboarding dalla dashboard MSSP; vedi [pilot fai-da-te §3](/it-it/mssp-pilot#3-onboard-tenants) per la procedura guidata.
 - **Genera alcuni alert.** [Simulatore di attacchi](/it-it/mssp-pilot#5-3-generate-alerts) contiene il runbook.
 - **Punta l'AI su dati reali.** Configura correttamente il tuo [provider LLM](/it-it/integrate/llm-providers) (la chiave segnaposto dello smoke test non risponderà alle domande).
 - **Passa alla produzione.** [Install](/it-it/install) è il percorso non-launchpad, HA-capable.

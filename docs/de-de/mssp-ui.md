@@ -36,12 +36,12 @@ Die Anwendungs-UI wird in sieben Sprachen lokalisiert ausgeliefert, in der App �
 
 ![MSSP-Dashboard](/screenshots/mssp-dashboard.png)
 
-KPI-Kacheln in der obersten Zeile (Offene Untersuchungen, Ausstehende Prüfungen, Durchschnittliche Zeit bis zur Triage, Durchschnittliche Zeit bis zum Verdikt) und eine zweite Zeile mit operativen Zählern (Heute erstellt, Heute geschlossen, Eskalationen, Automatisch geschlossen, Bösartige IOCs).
+KPI-Kacheln in der obersten Zeile (Offene Untersuchungen, Ausstehende Prüfungen, Durchschnittliche Zeit bis zur Triage, Durchschnittliche Zeit bis zum Verdict) und eine zweite Zeile mit operativen Zählern (Heute erstellt, Heute geschlossen, Eskalationen, Automatisch geschlossen, Bösartige IOCs).
 
 Unter den Kacheln:
 
 - **Untersuchungsdurchsatz (24h)**: Balken-/Liniendiagramm für erstellt / manuell geschlossen / automatisch geschlossen / eskaliert / Rückstand.
-- **Verdikte heute**: laufende Zählung der KI-Verdikte des Tages.
+- **Verdicts heute**: laufende Zählung der KI-Verdicts des Tages.
 - **Aktive Untersuchungen**: kurze Liste laufender Fälle mit einem Deep Link zu jedem.
 
 Das Diagramm ist das meistbeobachtete Widget für die Kapazitätsplanung; wenn der Rückstand (rote Linie) ansteigt, während der Durchsatz flach bleibt, ist der MSSP unterversorgt oder das Modell scheitert an zu vielen Fällen, die an die menschliche Prüfung durchgereicht werden.
@@ -74,7 +74,7 @@ Ansonsten ist die Seite schreibgeschützt; das mandantenspezifische SOC öffnet 
 
 ![Untersuchungsliste](/screenshots/investigations-list.png)
 
-Mandantenübergreifende Warteschlange. Filter: Status (Pending / Active / Awaiting Enrichment / Awaiting Verdict / Awaiting Human / Escalated / Closed) und Phase (Triage / Enrichment / Analysis / Verdict / Escalation / Closed). Jede Zeile zeigt Mandant, Titel, Status, Phase, Schweregrad (Critical / High / Medium / Low), Warnungsanzahl, Anzahl bösartiger IOCs, Verdikt, Erstellt, Aktionen.
+Mandantenübergreifende Warteschlange. Filter: Status (Pending / Active / Awaiting Enrichment / Awaiting Verdict / Awaiting Human / Escalated / Closed) und Phase (Triage / Enrichment / Analysis / Verdict / Escalation / Closed). Jede Zeile zeigt Mandant, Titel, Status, Phase, Schweregrad (Critical / High / Medium / Low), Warnungsanzahl, Anzahl bösartiger IOCs, Verdict, Erstellt, Aktionen.
 
 Klicke auf **View** (oder den Titel), um die Detailseite zu öffnen.
 
@@ -85,7 +85,7 @@ Klicke auf **View** (oder den Titel), um die Detailseite zu öffnen.
 Layout:
 
 - **Header**: Titel, Status-Badges (Active/Closed, aktuelle Phase, Schweregrad).
-- **KPI-Kacheln**: Warnungen, Observables (gesamt/bösartig/verdächtig), Zeit bis zur Triage, Zeit bis zum Verdikt.
+- **KPI-Kacheln**: Warnungen, Observables (gesamt/bösartig/verdächtig), Zeit bis zur Triage, Zeit bis zum Verdict.
 - **Details**: ID, Erstellt, Aktualisiert.
 - **Ereignis-Zeitleiste**: chronologischer Ereignis-Posteingang für den Fall (unveränderlich, nur anfügend).
 - **Agent Run**: Token-Verbrauch gegenüber dem konfigurierten Budget pro Lauf (`case_runs.tokens_budget`, Modell-Voreinstellung 200.000) und Disposition (`pending | active | failed | completed`).
@@ -97,7 +97,7 @@ Die schwebende Schaltfläche **Ask AI** öffnet eine Seitenkonversation, die im 
 
 ![Prüfungswarteschlange](/screenshots/review-queue.png)
 
-Die mandantenübergreifende Warteschlange von KI-Vorschlägen, die auf ein menschliches Gate warten. Jede Zeile zeigt den Vorschlagstitel, die Warnungsanzahl, die Frist, den Schweregrad, den KI-Verdikt-Chip (`AI: Escalate / Close / Needs More Info`) und eine Schaltfläche **Review**.
+Die mandantenübergreifende Warteschlange von KI-Vorschlägen, die auf ein menschliches Gate warten. Jede Zeile zeigt den Vorschlagstitel, die Warnungsanzahl, die Frist, den Schweregrad, den KI-Verdict-Chip (`AI: Escalate / Close / Needs More Info`) und eine Schaltfläche **Review**.
 
 Beim Prüfen wird die Entscheidung (`approve | reject | more_info`) gebucht, was die ausstehende Prüfungszeile in der Datenbank aktualisiert. In V1 gibt es **keine outbox-basierte nachgelagerte Pipeline**; die Entscheidung endet bei der Prüfungszeile + dem Audit-Log. Jegliche TheHive-Fallerstellung oder Slack-Benachrichtigung muss inline während des KI-Graph-Laufs erfolgen.
 
@@ -162,7 +162,7 @@ Der Link **Bring your own LLM key →** führt zur mandantenspezifischen LLM-Sch
 
 ![LLM-Einstellungsdetail](/screenshots/settings-llm.png)
 
-Eigenständige Seite, erreichbar über Settings → **Bring your own LLM key →**. In V1 ist dies **ausschließlich die mandantenspezifische BYOK-Schlüsseleingabe**: das Formular nimmt den API-Schlüssel für den **aktuell im Geltungsbereich befindlichen Mandanten** entgegen und übermittelt ihn über `PUT /api/tenant/llm/api-key` (den mandantenseitigen Endpunkt; MSSP-Admins können auch `PUT /api/mssp/tenants/{tenant_id}/llm/api-key` verwenden). Die anderen auf der übergeordneten Einstellungsseite angezeigten LLM-Felder (Provider, Modell, Temperature) sind Stub-Werte; sie sind auch hier nicht editierbar. Siehe [Täglicher Betrieb → Mandantenspezifischen LLM-Schlüssel rotieren](/de-de/operations#rotate-per-tenant-llm-key) für das Rotationsverfahren.
+Eigenständige Seite, erreichbar über Settings → **Bring your own LLM key →**. In V1 ist dies **ausschließlich die mandantenspezifische BYOK-Schlüsseleingabe**: das Formular nimmt den API-Schlüssel für den **aktuell im Geltungsbereich befindlichen Mandanten** entgegen und übermittelt ihn über `PUT /api/tenant/llm/api-key` (den mandantenseitigen Endpoint; MSSP-Admins können auch `PUT /api/mssp/tenants/{tenant_id}/llm/api-key` verwenden). Die anderen auf der übergeordneten Einstellungsseite angezeigten LLM-Felder (Provider, Modell, Temperature) sind Stub-Werte; sie sind auch hier nicht editierbar. Siehe [Täglicher Betrieb → Mandantenspezifischen LLM-Schlüssel rotieren](/de-de/operations#rotate-per-tenant-llm-key) für das Rotationsverfahren.
 
 ## Siehe auch
 

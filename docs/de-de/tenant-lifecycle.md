@@ -23,18 +23,18 @@ stateDiagram-v2
     purged --> [*]
 ```
 
-Übergänge nach `degraded` erfolgen **ausschließlich über den Fehlerpfad des Provisioning-Controllers** (eine Phase hat einen `ProvisionError` ausgelöst). Es gibt keinen API-Endpunkt, um einen Mandanten manuell als `degraded` zu markieren, keine automatische Degradierungsschleife, die das Heartbeat-Alter des Adapters überwacht, und keine metrikbasierte Degradierung. Die Metrik `soctalk_tenant_adapter_heartbeat_age_seconds` aktualisiert sich bei Heartbeats, wirkt aber nicht auf den Mandantenzustand zurück. Übergänge zurück nach `active` erfolgen als Nebeneffekt einer erfolgreichen `:retry`-Neuprovisionierung.
+Übergänge nach `degraded` erfolgen **ausschließlich über den Fehlerpfad des Provisioning-Controllers** (eine Phase hat einen `ProvisionError` ausgelöst). Es gibt keinen API-Endpoint, um einen Mandanten manuell als `degraded` zu markieren, keine automatische Degradierungsschleife, die das Heartbeat-Alter des Adapters überwacht, und keine metrikbasierte Degradierung. Die Metrik `soctalk_tenant_adapter_heartbeat_age_seconds` aktualisiert sich bei Heartbeats, wirkt aber nicht auf den Mandantenzustand zurück. Übergänge zurück nach `active` erfolgen als Nebeneffekt einer erfolgreichen `:retry`-Neuprovisionierung.
 
 | Zustand | Bedeutung | Was läuft |
 |---|---|---|
 | `pending` | Onboarding akzeptiert, der Controller hat mit der Provisionierung noch nicht begonnen. | nichts in `tenant-<slug>` |
-| `provisioning` | Der Controller erstellt den Namespace, die Secrets und installiert den Mandanten-Chart per Helm. | teilweise, Pods erscheinen |
+| `provisioning` | Der Controller erstellt den Namespace, die Secrets und installiert den Mandanten-Chart per Helm. | teilweise; Pods erscheinen |
 | `active` | Der Mandant wechselte nach `active`, nachdem der Provisioning-Controller gesehen hat, dass die Data-Plane-Pods den Ready-Zustand erreicht haben. | Wazuh manager + indexer + dashboard + soctalk-adapter + runs-worker |
 | `degraded` | Der Provisioning-Controller hat den Mandanten nach einem Provisionierungsfehler als `degraded` markiert (oder ein Operator hat manuell umgeschaltet). **Die Plattform schaltet derzeit nicht automatisch active→degraded auf Basis des Adapter-Heartbeat-Alters**; die Metrik `soctalk_tenant_adapter_heartbeat_age_seconds` dient Ihrem Alerting | unbestimmt; Pods prüfen |
-| `suspended` | Der MSSP-Admin hat den Mandanten in der Datenbank als suspendiert markiert. **Workloads werden durch die Suspend-Aktion selbst in diesem Release NICHT herunterskaliert**: das erfordert die manuelle Notfall-Deaktivierungsprozedur (siehe [Täglicher Betrieb → Notfall-Deaktivierung](/de-de/operations#emergency-disable-a-tenant-immediately)). Das Zustandsflag verhindert, dass neue Untersuchungen eingeplant werden. | unverändert, Pods laufen weiter, sofern der Operator sie nicht herunterskaliert |
+| `suspended` | Der MSSP-Admin hat den Mandanten in der Datenbank als suspendiert markiert. **Workloads werden durch die Suspend-Aktion selbst in diesem Release NICHT herunterskaliert**: das erfordert die manuelle Notfall-Deaktivierungsprozedur (siehe [Täglicher Betrieb → Notfall-Deaktivierung](/de-de/operations#emergency-disable-a-tenant-immediately)). Das Zustandsflag verhindert, dass neue Untersuchungen eingeplant werden. | unverändert; Pods laufen weiter, sofern der Operator sie nicht herunterskaliert |
 | `decommissioning` | Abbau läuft. Helm-Release wird deinstalliert, PVCs werden gelöscht. | schrumpfend |
 | `archived` | Helm-Release entfernt; PVCs gelöscht; die Mandantenzeile bleibt zu Audit-Zwecken erhalten. | nichts |
-| `purged` | Mandantenzeile hart gelöscht. | nichts, nur Audit-Log-Einträge bleiben erhalten |
+| `purged` | Mandantenzeile hart gelöscht. | nichts; nur Audit-Log-Einträge bleiben erhalten |
 
 Zulässige Übergänge werden in `TenantController.VALID_TRANSITIONS` erzwungen. Der Versuch, einen Mandanten im Zustand `decommissioning` zu suspendieren, liefert HTTP 409 mit einer Liste gültiger Folgezustände.
 
@@ -54,7 +54,7 @@ Die Methode `provision()` des Controllers läuft in neun geordneten Phasen ab. J
 | 8 | `integration_config_written` | Schreiben mandantenspezifischer Integrationskonfigurationen (LLM, TheHive-URLs usw.) in die Datenbank. |
 | 9 | `active` | Zustandsübergang nach `active`. |
 
-Ein Fehler in einer beliebigen Phase überführt den Mandanten nach `degraded`, wobei der Fehler in der Ereigniszeile festgehalten wird. **Retry Provisioning** (`POST /api/mssp/tenants/{id}:retry`) ist ein gültiger Übergang von `degraded` zurück nach `provisioning` (und ist von `pending` aus **nicht** zulässig, `pending → provisioning` erfolgt nur automatisch, wenn der Controller den ersten Versuch startet). `provision()` ist in jeder Phase idempotent.
+Ein Fehler in einer beliebigen Phase überführt den Mandanten nach `degraded`, wobei der Fehler in der Ereigniszeile festgehalten wird. **Retry Provisioning** (`POST /api/mssp/tenants/{id}:retry`) ist ein gültiger Übergang von `degraded` zurück nach `provisioning` (und ist von `pending` aus **nicht** zulässig; `pending → provisioning` erfolgt nur automatisch, wenn der Controller den ersten Versuch startet). `provision()` ist in jeder Phase idempotent.
 
 ## Profile
 
@@ -86,7 +86,7 @@ Wählen Sie `persistent` für alles Kundenseitige. Der Standard ist `poc`, falls
 
 Für Mandanten, die ihren eigenen extern bereitgestellten Wazuh-Stack mitbringen ("BYO-SIEM"). Der Mandanten-Chart installiert nur den SocTalk-Adapter + runs-worker; kein Wazuh/TheHive/Cortex läuft innerhalb des Mandanten-Namespace.
 
-- StorageClass: irrelevant, nur die Checkpoint-PVC des Adapters wird bereitgestellt
+- StorageClass: irrelevant; nur die Checkpoint-PVC des Adapters wird bereitgestellt
 - Wazuh: das eigene Deployment des Mandanten, über das Netzwerk erreichbar via Indexer (:9200) und Manager-API-URLs (:55000), die beim Onboarding angegeben werden
 - Verbindungsmaterial für das externe SIEM (`wazuh_indexer_url`, `wazuh_api_url`, Basic-Auth-Credentials) ist beim Onboarding **erforderlich** und wird serverseitig validiert (422, falls unvollständig)
 - Mandantenspezifische LLM-Credentials sind beim Onboarding ebenfalls **erforderlich** (kein installationsweiter Fallback für `provided`)
@@ -106,13 +106,13 @@ Jeder `tenant-<slug>`-Namespace erhält bei der Erstellung eine `ResourceQuota` 
 
 (Die genauen Zahlen befinden sich in `_profile_tenant_overrides` in [`render.py`](https://github.com/soctalk/soctalk/blob/main/src/soctalk/core/provisioning/render.py).)
 
-Wenn eine reale Workload das Profilbudget überschreitet (z. B. der Wazuh-Indexer verlangsamt sich bei starker Ingest-Last), erhöhen Sie die ResourceQuota per `helm upgrade` mit überschriebenen Werten. Bearbeiten Sie das ResourceQuota-Objekt nicht direkt, das nächste Chart-Upgrade überschreibt es.
+Wenn eine reale Workload das Profilbudget überschreitet (z. B. der Wazuh-Indexer verlangsamt sich bei starker Ingest-Last), erhöhen Sie die ResourceQuota per `helm upgrade` mit überschriebenen Werten. Bearbeiten Sie das ResourceQuota-Objekt nicht direkt; das nächste Chart-Upgrade überschreibt es.
 
 ## Wiederherstellungspfade
 
 ### Mandant nach Onboarding in `pending` steckengeblieben
 
-Der Controller ist abgestürzt oder wurde mitten in der Provisionierung neu geplant, bevor die erste Phase lief. Ein Retry ist direkt aus `pending` nicht zulässig, warten Sie zuerst, bis der Provisionierungsversuch nach `degraded` übergeht (in den Lifecycle Events sichtbar), und klicken Sie dann auf der Mandanten-Detailseite auf **Retry Provisioning** (oder `POST /api/mssp/tenants/{id}:retry`). Die Provisionierung wird ab Phase 1 fortgesetzt; jede Phase ist idempotent.
+Der Controller ist abgestürzt oder wurde mitten in der Provisionierung neu geplant, bevor die erste Phase lief. Ein Retry ist direkt aus `pending` nicht zulässig; warten Sie zuerst, bis der Provisionierungsversuch nach `degraded` übergeht (in den Lifecycle Events sichtbar), und klicken Sie dann auf der Mandanten-Detailseite auf **Retry Provisioning** (oder `POST /api/mssp/tenants/{id}:retry`). Die Provisionierung wird ab Phase 1 fortgesetzt; jede Phase ist idempotent.
 
 ### Mandant länger als 15 Minuten in `provisioning`
 
@@ -120,11 +120,11 @@ Meist ein hängender Pod (ImagePullBackOff, PVC `Pending`, ResourceQuota zu klei
 
 ### Mandant in `degraded`
 
-In V1 wird `degraded` nur nach einem **Provisionierungsfehler** erreicht, nicht bei Heartbeat-Verlust. Befindet sich ein Mandant in `degraded`, ist der Provisioning-Controller an einem der 9 obigen Schritte gescheitert, lesen Sie die Lifecycle-Event-Zeile, um zu sehen, an welchem. Die Data Plane (Wazuh) läuft je nach fehlgeschlagenem Schritt möglicherweise noch. Siehe [Täglicher Betrieb, Mandant im Zustand degraded](/de-de/operations#tenant-in-degraded-state).
+In V1 wird `degraded` nur nach einem **Provisionierungsfehler** erreicht, nicht bei Heartbeat-Verlust. Befindet sich ein Mandant in `degraded`, ist der Provisioning-Controller an einem der 9 obigen Schritte gescheitert; lesen Sie die Lifecycle-Event-Zeile, um zu sehen, an welchem. Die Data Plane (Wazuh) läuft je nach fehlgeschlagenem Schritt möglicherweise noch. Siehe [Täglicher Betrieb, Mandant im Zustand degraded](/de-de/operations#tenant-in-degraded-state).
 
 ### Mandant in `suspended`
 
-Das haben Sie bewusst getan. Nehmen Sie den Betrieb über die UI oder `POST /api/mssp/tenants/<id>:resume` wieder auf, beachten Sie jedoch, dass in diesem Release **resume nur den DB-Zustand aktualisiert**, es stellt die Replica-Anzahl nicht wieder her. Wenn Sie Workloads während der Suspendierung (über den Notfall-Deaktivierungs-Flow) auf null skaliert haben, müssen Sie sie von Hand wieder hochskalieren.
+Das haben Sie bewusst getan. Nehmen Sie den Betrieb über die UI oder `POST /api/mssp/tenants/<id>:resume` wieder auf; beachten Sie jedoch, dass in diesem Release **resume nur den DB-Zustand aktualisiert**; es stellt die Replica-Anzahl nicht wieder her. Wenn Sie Workloads während der Suspendierung (über den Notfall-Deaktivierungs-Flow) auf null skaliert haben, müssen Sie sie von Hand wieder hochskalieren.
 
 ### Mandant länger als 30 Minuten in `decommissioning`
 
@@ -139,7 +139,7 @@ Anschließend das Decommission erneut auslösen. Dokumentieren Sie dies im Audit
 
 ## Decommission vs. Purge
 
-`decommission` baut die Data Plane ab und überführt den Mandanten nach `archived`: die Mandantenzeile und die Audit-Historie bleiben erhalten. `purged` ist der terminale Endzustand im Zustandsautomaten (`archived → purged`), aber es gibt in diesem Release **keinen `:purge`-API-Endpunkt**. Heute erfordert der Übergang nach `purged` eine Aktualisierung auf Datenbankebene; ein admin-gesperrter `POST /api/mssp/tenants/{id}:purge` ist auf der Roadmap. Bis er ausgeliefert wird, belassen Sie dekommissionierte Mandanten in `archived` und behandeln Sie archivierte Zeilen als langfristige Aufbewahrungsfläche.
+`decommission` baut die Data Plane ab und überführt den Mandanten nach `archived`: die Mandantenzeile und die Audit-Historie bleiben erhalten. `purged` ist der terminale Endzustand im Zustandsautomaten (`archived → purged`), aber es gibt in diesem Release **keinen `:purge`-API-Endpoint**. Heute erfordert der Übergang nach `purged` eine Aktualisierung auf Datenbankebene; ein admin-gesperrter `POST /api/mssp/tenants/{id}:purge` ist auf der Roadmap. Bis er ausgeliefert wird, belassen Sie dekommissionierte Mandanten in `archived` und behandeln Sie archivierte Zeilen als langfristige Aufbewahrungsfläche.
 
 ## Quellverweise
 

@@ -23,7 +23,7 @@ stateDiagram-v2
     purged --> [*]
 ```
 
-Les transitions vers `degraded` ne se produisent **que via le chemin d'échec du contrôleur de provisioning** (une phase a levé `ProvisionError`). Il n'existe aucun point de terminaison d'API permettant de marquer manuellement un tenant comme `degraded`, aucune boucle d'auto-dégradation surveillant l'ancienneté du heartbeat de l'adaptateur, ni aucune dégradation fondée sur des métriques. La jauge `soctalk_tenant_adapter_heartbeat_age_seconds` se met à jour lors des heartbeats mais n'a aucune rétroaction sur l'état du tenant. Le retour à `active` se produit comme effet secondaire d'un re-provisioning `:retry` réussi.
+Les transitions vers `degraded` ne se produisent **que via le chemin d'échec du contrôleur de provisioning** (une phase a levé `ProvisionError`). Il n'existe aucun endpoint d'API permettant de marquer manuellement un tenant comme `degraded`, aucune boucle d'auto-dégradation surveillant l'ancienneté du heartbeat de l'adaptateur, ni aucune dégradation fondée sur des métriques. La jauge `soctalk_tenant_adapter_heartbeat_age_seconds` se met à jour lors des heartbeats mais n'a aucune rétroaction sur l'état du tenant. Le retour à `active` se produit comme effet secondaire d'un re-provisioning `:retry` réussi.
 
 | État | Ce que cela signifie | Ce qui tourne |
 |---|---|---|
@@ -139,7 +139,7 @@ Puis relancez le decommission. Documentez-le dans le journal d'audit afin que la
 
 ## Decommission ou purge
 
-`decommission` démantèle le plan de données et fait passer le tenant à `archived`: la ligne du tenant et l'historique d'audit subsistent. `purged` est l'état terminal de la machine à états (`archived → purged`), mais il n'existe **aucun point de terminaison d'API `:purge` dans cette version**. Aujourd'hui, la transition vers `purged` nécessite une mise à jour au niveau de la base de données ; un `POST /api/mssp/tenants/{id}:purge` restreint aux administrateurs est prévu dans la feuille de route. Jusqu'à sa livraison, laissez les tenants décommissionnés en `archived` et considérez les lignes archivées comme la surface de rétention à long terme.
+`decommission` démantèle le plan de données et fait passer le tenant à `archived`: la ligne du tenant et l'historique d'audit subsistent. `purged` est l'état terminal de la machine à états (`archived → purged`), mais il n'existe **aucun endpoint d'API `:purge` dans cette version**. Aujourd'hui, la transition vers `purged` nécessite une mise à jour au niveau de la base de données ; un `POST /api/mssp/tenants/{id}:purge` restreint aux administrateurs est prévu dans la feuille de route. Jusqu'à sa livraison, laissez les tenants décommissionnés en `archived` et considérez les lignes archivées comme la surface de rétention à long terme.
 
 ## Pointeurs vers les sources
 

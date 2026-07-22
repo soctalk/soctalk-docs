@@ -2,7 +2,7 @@
 
 Il modello Postgres a tre ruoli, i template delle policy RLS, la disciplina `FORCE ROW LEVEL SECURITY` e i test di isolamento che SocTalk esegue in CI.
 
-> **Nota sul deployment V1.** Il testo che segue fa riferimento a "pod API" e "pod orchestrator" come workload separati, il modello dei ruoli e le regole di accesso restano corretti. Nel chart V1 sono **co-locati in un unico Deployment `soctalk-system-api`**, quindi in questa release ogni riferimento a "pod orchestrator" corrisponde a quell'unico set di pod.
+> **Nota sul deployment V1.** Il testo che segue fa riferimento a "pod API" e "pod orchestrator" come workload separati; il modello dei ruoli e le regole di accesso restano corretti. Nel chart V1 sono **co-locati in un unico Deployment `soctalk-system-api`**, quindi in questa release ogni riferimento a "pod orchestrator" corrisponde a quell'unico set di pod.
 
 ## Ruoli
 

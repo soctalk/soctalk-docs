@@ -2,7 +2,7 @@
 
 Le modèle Postgres à trois rôles, les modèles de politiques RLS, la discipline `FORCE ROW LEVEL SECURITY` et les tests d'isolation que SocTalk exécute en CI.
 
-> **Note de déploiement V1.** Le texte ci-dessous fait référence aux « pods API » et aux « pods orchestrateur » en tant que charges de travail distinctes, le modèle de rôles et les règles d'accès restent corrects. Dans le chart V1, ils sont **co-localisés dans un unique Deployment `soctalk-system-api`**, de sorte que chaque référence à un « pod orchestrateur » correspond à cet unique jeu de pods dans cette version.
+> **Note de déploiement V1.** Le texte ci-dessous fait référence aux « pods API » et aux « pods orchestrateur » en tant que charges de travail distinctes ; le modèle de rôles et les règles d'accès restent corrects. Dans le chart V1, ils sont **co-localisés dans un unique Deployment `soctalk-system-api`**, de sorte que chaque référence à un « pod orchestrateur » correspond à cet unique jeu de pods dans cette version.
 
 ## Rôles
 

@@ -24,7 +24,7 @@ xz -d soctalk-demo-$VER.qcow2.xz
 
 ## 2. Das cloud-init-Seed-ISO erstellen
 
-Ein NoCloud-Seed-ISO legt einen `ops`-Benutzer mit Ihrem SSH-Schlüssel an. Ohne ihn können Sie sich weiterhin als der zur Build-Zeit erstellte `ubuntu:packer`-Benutzer anmelden (siehe [SSH-Zugriff](/de-de/quickstart-vm#ssh-access-credentials)), doch diese Zugangsdaten liegen im öffentlichen Quellcode-Baum, stellen Sie das Seed bereit, bevor Sie die VM einem Netzwerk aussetzen, dem Sie nicht vertrauen. Auf dem Node oder einem beliebigen Linux-Rechner:
+Ein NoCloud-Seed-ISO legt einen `ops`-Benutzer mit Ihrem SSH-Schlüssel an. Ohne ihn können Sie sich weiterhin als der zur Build-Zeit erstellte `ubuntu:packer`-Benutzer anmelden (siehe [SSH-Zugriff](/de-de/quickstart-vm#ssh-access-credentials)), doch diese Zugangsdaten liegen im öffentlichen Quellcode-Baum; stellen Sie das Seed bereit, bevor Sie die VM einem Netzwerk aussetzen, dem Sie nicht vertrauen. Auf dem Node oder einem beliebigen Linux-Rechner:
 
 ```bash
 cat > user-data <<'EOF'
@@ -63,7 +63,7 @@ Klicken Sie auf **Create VM** (oben rechts) und arbeiten Sie den Assistenten dur
 
 ![Create VM, OS](/screenshots/proxmox-create-os.png)
 
-**System**: behalten Sie die Standardwerte bei (SeaBIOS, i440fx, das Image bootet über BIOS-Firmware).
+**System**: behalten Sie die Standardwerte bei (SeaBIOS, i440fx; das Image bootet über BIOS-Firmware).
 
 **Disks**: löschen Sie die Standardfestplatte über das Papierkorb-Symbol neben `scsi0`; das importierte qcow2 ersetzt sie:
 
@@ -91,7 +91,7 @@ Der einzige CLI-Schritt. Auf dem Node (passen Sie die VM-ID und den Zielspeicher
 qm disk import 100 soctalk-demo-<ver>.qcow2 local --format qcow2
 ```
 
-Bei LVM-thin-Speicher (`local-lvm`) lassen Sie das `--format`-Flag weg, Block-Speicher speichern raw. Der Import erscheint an der VM als **Unused Disk 0**.
+Bei LVM-thin-Speicher (`local-lvm`) lassen Sie das `--format`-Flag weg; Block-Speicher speichern raw. Der Import erscheint an der VM als **Unused Disk 0**.
 
 ## 5. Festplatte, Seed-ISO und Boot-Reihenfolge zuweisen
 
@@ -123,7 +123,7 @@ Die **Console** zeigt, wie die Appliance bis zur Anmeldeaufforderung bootet:
 
 ![Console, booted](/screenshots/proxmox-vm-console.png)
 
-Die VM bezieht ein DHCP-Lease von Ihrer LAN-Bridge. Ermitteln Sie ihre IP über die Konsole (`login: ops` funktioniert nur per SSH-Schlüssel, verwenden Sie die Konsolenausgabe oder Ihren DHCP-Server/Router) oder über den Node:
+Die VM bezieht ein DHCP-Lease von Ihrer LAN-Bridge. Ermitteln Sie ihre IP über die Konsole (`login: ops` funktioniert nur per SSH-Schlüssel; verwenden Sie die Konsolenausgabe oder Ihren DHCP-Server/Router) oder über den Node:
 
 ```bash
 # die MAC steht am Network Device (net0) der VM

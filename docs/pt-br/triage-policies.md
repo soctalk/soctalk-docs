@@ -1,8 +1,8 @@
 # Políticas de Triagem
 
-Um LLM fazendo a triagem de um alerta `sudo` é um analista brilhante e uma garantia fraca. Faça a mesma pergunta duas vezes e você pode obter duas respostas. Diga a ele para sempre puxar o registro de mudança antes de decidir e ele o fará, geralmente, na maioria das vezes. Mas parte da triagem não é uma questão de julgamento. Uma etapa de evidência *tem* que rodar antes que um veredito conte. Um fechamento em um ativo PCI *deve* pausar para um humano. Uma enxurrada de ruído de saúde de agente *não deveria* custar uma chamada de modelo sequer. Para esses casos, você não quer raciocínio. Você quer uma regra.
+Um LLM fazendo a triagem de um alerta `sudo` é um analista brilhante e uma garantia fraca. Faça a mesma pergunta duas vezes e você pode obter duas respostas. Diga a ele para sempre puxar o registro de mudança antes de decidir e ele o fará, geralmente, na maioria das vezes. Mas parte da triagem não é uma questão de julgamento. Uma etapa de evidência *tem* que rodar antes que um verdict conte. Um fechamento em um ativo PCI *deve* pausar para um humano. Uma enxurrada de ruído de saúde de agente *não deveria* custar uma chamada de modelo sequer. Para esses casos, você não quer raciocínio. Você quer uma regra.
 
-Uma **política de triagem** é essa regra, escrita como dados. Ela não substitui o agente, ela envolve alguns gates determinísticos em torno do **loop agêntico** (o ciclo de supervisor-e-ferramentas que enriquece, investiga e raciocina até chegar a um veredito). Cada um deles obedece à mesma lei:
+Uma **política de triagem** é essa regra, escrita como dados. Ela não substitui o agente; ela envolve alguns gates determinísticos em torno do **loop agêntico** (o ciclo de supervisor-e-ferramentas que enriquece, investiga e raciocina até chegar a um verdict). Cada um deles obedece à mesma lei:
 
 > **O LLM propõe. Um gate determinístico dispõe.**
 
@@ -12,7 +12,7 @@ O modelo permanece livre para raciocinar. Uma função pura decide se sua saída
 
 Leia de cima para baixo: um alerta é resolvido contra o registro, roda o loop agêntico sob os gates da política, e chega a uma **disposição**: a decisão final sobre o caso (fechamento automático, escalar para um humano, ou pedir mais evidências). Sob cada fechamento automático existe um **piso de segurança**: um conjunto de vetos não sobrescrevíveis, em nível de código, que nenhuma política pode enfraquecer, definido por completo [abaixo](#the-safety-floor). Os gates numerados são toda a superfície, e a próxima seção percorre cada um deles.
 
-A única propriedade que torna tudo isso seguro: uma política de triagem **de autoria do tenant** pode tornar a triagem **mais rigorosa**, nunca mais frouxa, seus guardrails só elevam, e o piso rígido sob cada fechamento não pode ser enfraquecido. (Políticas *de arquivo* embutidas e vetadas e gerenciadas por operadores são código confiável e não estão sujeitas a essa restrição.) O código fica em [`src/soctalk/triage_policy/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/triage_policy).
+A única propriedade que torna tudo isso seguro: uma política de triagem **de autoria do tenant** pode tornar a triagem **mais rigorosa**, nunca mais frouxa; seus guardrails só elevam, e o piso rígido sob cada fechamento não pode ser enfraquecido. (Políticas *de arquivo* embutidas e vetadas e gerenciadas por operadores são código confiável e não estão sujeitas a essa restrição.) O código fica em [`src/soctalk/triage_policy/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/triage_policy).
 
 
 ## Onde uma política de triagem atua
@@ -20,9 +20,9 @@ A única propriedade que torna tudo isso seguro: uma política de triagem **de a
 Uma política de triagem governa uma execução em quatro pontos, os gates numerados no diagrama acima.
 
 1. **Resolver.** Um nó de entrada compara o alerta contra o registro e escreve a política de triagem ativa no estado da execução. Se o alerta pertence a uma classe operacional conhecida sem indicadores de segurança, a execução pode fechar deterministicamente aqui sem nunca chamar o modelo.
-2. **Gate de pré-decisão.** Uma política pode exigir etapas determinísticas (por exemplo, reunir contexto de autorização) antes que um veredito seja legal. Se o supervisor propõe um veredito cedo demais, o gate o redireciona primeiro para a etapa exigida. Uma política também pode restringir quais ações do supervisor são legais em cada fase, e essa restrição é aplicada à saída estruturada do modelo antes da chamada, de modo que uma ação ilegal não pode sequer ser amostrada.
-3. **Guard de pós-veredito.** Depois que o modelo rascunha um veredito, uma função pura decide se ele é efetivado. Ela pode sobrescrever o rascunho (elevar um fechamento a um escalonamento), interrompê-lo (manter o rascunho mas roteá-lo para aprovação humana), ou deixá-lo prevalecer. Toda sobrescrita é registrada.
-4. **Piso de segurança.** Um conjunto não sobrescrevível de verificações protege todo caminho de fechamento automático. Ele *não* é uma única etapa, os vetos de IOC/autorização rodam dentro do guard de pós-veredito, e os vetos de kill switch, teto de volume e incidente ativo rodam novamente quando um fechamento é efetivado nos planos de worker, servidor e ingestão. O diagrama o desenha como um único nó por clareza; nada em uma política de triagem pode enfraquecê-lo onde quer que ele rode.
+2. **Gate de pré-decisão.** Uma política pode exigir etapas determinísticas (por exemplo, reunir contexto de autorização) antes que um verdict seja legal. Se o supervisor propõe um verdict cedo demais, o gate o redireciona primeiro para a etapa exigida. Uma política também pode restringir quais ações do supervisor são legais em cada fase, e essa restrição é aplicada à saída estruturada do modelo antes da chamada, de modo que uma ação ilegal não pode sequer ser amostrada.
+3. **Guard de pós-verdict.** Depois que o modelo rascunha um verdict, uma função pura decide se ele é efetivado. Ela pode sobrescrever o rascunho (elevar um fechamento a um escalonamento), interrompê-lo (manter o rascunho mas roteá-lo para aprovação humana), ou deixá-lo prevalecer. Toda sobrescrita é registrada.
+4. **Piso de segurança.** Um conjunto não sobrescrevível de verificações protege todo caminho de fechamento automático. Ele *não* é uma única etapa; os vetos de IOC/autorização rodam dentro do guard de pós-verdict, e os vetos de kill switch, teto de volume e incidente ativo rodam novamente quando um fechamento é efetivado nos planos de worker, servidor e ingestão. O diagrama o desenha como um único nó por clareza; nada em uma política de triagem pode enfraquecê-lo onde quer que ele rode.
 
 ## O piso de segurança
 
@@ -30,7 +30,7 @@ O piso é imposto em código, não em dados de política, e se aplica em todo pl
 
 | Veto | Quando dispara |
 |---|---|
-| IOC presente | No caminho de veredito, um veredito de enriquecimento malicioso ou uma correspondência MISP; nos caminhos rápidos de ingestão, qualquer IOC bruto no alerta. |
+| IOC presente | No caminho de verdict, um veredito de enriquecimento malicioso ou uma correspondência MISP; nos caminhos rápidos de ingestão, qualquer IOC bruto no alerta. |
 | Autorização contraditada | Registros existem mas não cobrem a atividade (expirados, fora da janela, escopo errado, proibidos por política). |
 | IOC não verificado | Um fechamento de camada de roteador com observáveis que nenhum enriquecimento jamais verificou. |
 | Incidente ativo | Outra investigação ativa compartilha uma entidade elegível para anexação com esta. |
@@ -45,7 +45,7 @@ O kill switch e o teto de volume valem a pena conhecer pelo nome. `SOCTALK_AUTO_
 
 Duas vêm com o produto. Ambas são código vetado e somente leitura.
 
-**`dual-use-privileged-exec`** trata de atividade de autenticação em host como `sudo` e `su`, onde o mesmo evento é administração rotineira sob um registro de mudança cobrindo-a e um incidente sem tal registro. Ela exige a etapa `gather_authorization_context` antes de qualquer veredito, remove `CLOSE` das ações legais do supervisor (para que a camada barata do roteador não possa dar curto-circuito em um caso cujo ponto principal é que benigno e hostil parecem idênticos), e exige aprovação humana em qualquer fechamento que toque um ativo classificado como PCI.
+**`dual-use-privileged-exec`** trata de atividade de autenticação em host como `sudo` e `su`, onde o mesmo evento é administração rotineira sob um registro de mudança cobrindo-a e um incidente sem tal registro. Ela exige a etapa `gather_authorization_context` antes de qualquer verdict, remove `CLOSE` das ações legais do supervisor (para que a camada barata do roteador não possa dar curto-circuito em um caso cujo ponto principal é que benigno e hostil parecem idênticos), e exige aprovação humana em qualquer fechamento que toque um ativo classificado como PCI.
 
 **`agent-health-operational`** trata do ruído de automonitoramento de agentes Wazuh, como a regra 202 "Agent event queue is flooded." Isso é uma condição de infraestrutura, não um evento de segurança, então a política a fecha deterministicamente sem nenhuma chamada de modelo, o que também torna o resultado consistente em vez de variar de execução para execução. Qualquer indicador de segurança no alerta (uma técnica MITRE, um IOC, um sinal malicioso, uma classe não atestada, ou um nível crítico do Wazuh, 12+) veta o fechamento determinístico e envia o alerta para triagem completa.
 
@@ -85,7 +85,7 @@ Leia essa condição como: se a classe de autorização resultou em `contradicte
 | Campo | Significado |
 |---|---|
 | `applies_to` | Quais alertas a política governa. Correspondido por grupos de regras, ids de regras, ou o track de autorização da atividade do alerta, os três são combinados por OR. |
-| `required_steps` | Nós determinísticos que devem rodar antes que um veredito seja legal. |
+| `required_steps` | Nós determinísticos que devem rodar antes que um verdict seja legal. |
 | `decision_modules` | Declara os engines vetados dos quais a política depende (hoje: `authorization_engine`), validados contra módulos conhecidos. A consulta em runtime é atualmente conduzida por `required_steps` (por exemplo, `gather_authorization_context`), não por este campo. |
 | `legal_actions` | As ações do supervisor permitidas por fase (`triage` até que as etapas exigidas tenham rodado, depois `decide`). Uma fase não listada é irrestrita. |
 | `close_signoff_data_classes` | Um fechamento efetivado em um ativo em uma dessas classes é interrompido para aprovação humana. |
@@ -95,7 +95,7 @@ Leia essa condição como: se a classe de autorização resultou em `contradicte
 Algumas capacidades são restringidas por onde uma política se origina:
 
 - **Disposições determinísticas** (aquilo que `agent-health-operational` usa para fechar sem um modelo) são **exclusivas de embutidas**: cunhar uma nova classe de fechamento automático é uma decisão de revisão de código, não de configuração.
-- **Políticas de autoria não podem conceder `CLOSE`** em `legal_actions`. Concedê-lo não adiciona nada além de uma fase irrestrita (a linha de base já permite o fechamento do roteador), mas permitiria que o remapeamento de ação ilegal forçasse toda proposta a um fechamento automático sem veredito, sustentado apenas pelo piso grosseiro. Decisões terminais são roteadas através de `VERDICT` em vez disso; a validação rejeita `CLOSE` em qualquer fase. Políticas embutidas e de arquivo ainda podem listar o conjunto completo de ações.
+- **Políticas de autoria não podem conceder `CLOSE`** em `legal_actions`. Concedê-lo não adiciona nada além de uma fase irrestrita (a linha de base já permite o fechamento do roteador), mas permitiria que o remapeamento de ação ilegal forçasse toda proposta a um fechamento automático sem verdict, sustentado apenas pelo piso grosseiro. Decisões terminais são roteadas através de `VERDICT` em vez disso; a validação rejeita `CLOSE` em qualquer fase. Políticas embutidas e de arquivo ainda podem listar o conjunto completo de ações.
 
 ## Condições de guardrail
 
@@ -115,7 +115,7 @@ Os campos que uma condição pode ler:
 | `enrichment.ioc` | Se um sinal malicioso está presente. |
 | `correlation.active_incident` | Se um incidente ativo se sobrepõe. |
 
-Um `effect` é ou `override` ou `interrupt`. Supressão não é expressável: `close` não é um alvo válido, e uma sobrescrita só pode elevar uma decisão pela escada `close < needs_more_info < escalate`, nunca descê-la. Uma condição que referencia um campo não declarado ou um operador desconhecido é rejeitada quando a política é validada, antes que possa sequer rodar. Note que `enrichment.ioc` e `correlation.active_incident` também são impostos pelo piso rígido independentemente de qualquer guardrail, em uma execução de worker em produção `correlation.active_incident` geralmente só é populado no piso em tempo de efetivação, então apoie-se no piso para esses em vez de re-derivá-los em um guardrail.
+Um `effect` é ou `override` ou `interrupt`. Supressão não é expressável: `close` não é um alvo válido, e uma sobrescrita só pode elevar uma decisão pela escada `close < needs_more_info < escalate`, nunca descê-la. Uma condição que referencia um campo não declarado ou um operador desconhecido é rejeitada quando a política é validada, antes que possa sequer rodar. Note que `enrichment.ioc` e `correlation.active_incident` também são impostos pelo piso rígido independentemente de qualquer guardrail; em uma execução de worker em produção `correlation.active_incident` geralmente só é populado no piso em tempo de efetivação, então apoie-se no piso para esses em vez de re-derivá-los em um guardrail.
 
 ## Crie uma no editor no-code
 
@@ -133,7 +133,7 @@ Abra **“+ New triage policy”** (ou `/triage-policies/editor`). O editor tem 
 
 ![Matchers](/screenshots/triage-policy-editor-03-matchers.png)
 
-**3. Requisitos de investigação.** Exija a etapa `gather_authorization_context`, declare dependência do módulo `authorization_engine`, e restrinja a fase `decide` a somente `VERDICT`. Note que `CLOSE` não é oferecido, políticas de autoria não podem concedê-lo.
+**3. Requisitos de investigação.** Exija a etapa `gather_authorization_context`, declare dependência do módulo `authorization_engine`, e restrinja a fase `decide` a somente `VERDICT`. Note que `CLOSE` não é oferecido; políticas de autoria não podem concedê-lo.
 
 ![Requisitos de investigação](/screenshots/triage-policy-editor-04-requirements.png)
 
@@ -149,7 +149,7 @@ Abra **“+ New triage policy”** (ou `/triage-policies/editor`). O editor tem 
 
 ![A mesma condição no construtor visual](/screenshots/triage-policy-editor-07-guardrail-visual.png)
 
-Mais dois completam a política: uma sobrescrita de baixa confiança para `needs_more_info`, e um `interrupt` que retém um fechamento PCI para revisão humana. A ordem importa, o primeiro guardrail correspondente dispõe.
+Mais dois completam a política: uma sobrescrita de baixa confiança para `needs_more_info`, e um `interrupt` que retém um fechamento PCI para revisão humana. A ordem importa; o primeiro guardrail correspondente dispõe.
 
 ![Todos os três guardrails](/screenshots/triage-policy-editor-08-guardrails-all.png)
 

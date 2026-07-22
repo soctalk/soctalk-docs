@@ -12,7 +12,7 @@ Dieser Weg richtet sich an **Evaluatoren und Demos**: für eine Produktionsinsta
 
 ## Voraussetzungen
 
-- Ein Azure-Abonnement (`az account list` muss eines anzeigen, Verzeichniszugriff auf Mandantenebene reicht nicht aus).
+- Ein Azure-Abonnement (`az account list` muss eines anzeigen; Verzeichniszugriff auf Mandantenebene reicht nicht aus).
 - [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) (`az`) und [AzCopy](https://learn.microsoft.com/azure/storage/common/storage-use-azcopy-v10) (`azcopy`). Unter macOS: `brew install azure-cli azcopy`.
 - ~61 GB freier lokaler Festplattenspeicher für das dekomprimierte VHD.
 - Ein SSH-Schlüsselpaar (`~/.ssh/id_ed25519.pub` in den folgenden Beispielen).
@@ -46,7 +46,7 @@ az group create -n $RG -l $LOC
 
 ## 3. Das VHD direkt auf eine verwaltete Festplatte hochladen
 
-Kein Speicherkonto nötig, Azure unterstützt den direkten Upload auf eine verwaltete Festplatte. Erstelle eine leere Festplatte in der exakten Byte-Anzahl der VHD-Datei, hole dir ein kurzlebiges Schreib-SAS, lade mit `azcopy` hoch und widerrufe dann das SAS:
+Kein Speicherkonto nötig; Azure unterstützt den direkten Upload auf eine verwaltete Festplatte. Erstelle eine leere Festplatte in der exakten Byte-Anzahl der VHD-Datei, hole dir ein kurzlebiges Schreib-SAS, lade mit `azcopy` hoch und widerrufe dann das SAS:
 
 ```bash
 VHD=soctalk-demo-$VER.vhd
@@ -78,7 +78,7 @@ az image create -g $RG -n soctalk-demo-image \
 
 ## 5. Eine VM starten
 
-Beschränke die Netzwerksicherheitsgruppe auf deine eigene IP, die Maschine stellt SSH (22), die SocTalk-UI (443) und den Setup-Assistenten (8443) bereit, von denen keiner im Internet offen sein sollte:
+Beschränke die Netzwerksicherheitsgruppe auf deine eigene IP; die Maschine stellt SSH (22), die SocTalk-UI (443) und den Setup-Assistenten (8443) bereit, von denen keiner im Internet offen sein sollte:
 
 ```bash
 MYIP=$(curl -s https://ifconfig.me)

@@ -2,7 +2,7 @@
 
 Un LLM que hace triaje de una alerta de `sudo` es un analista brillante y una garantía deficiente. Hazle la misma pregunta dos veces y podrás obtener dos respuestas. Dile que siempre consulte el registro de cambios antes de decidir y lo hará, casi siempre, la mayoría de las veces. Pero parte del triaje no es una cuestión de criterio. Un paso de recolección de evidencia *tiene* que ejecutarse antes de que un veredicto cuente. Un cierre sobre un activo PCI *debe* pausarse para una revisión humana. Una avalancha de ruido de salud de agentes *no debería* costar siquiera una llamada al modelo. Para esos casos no quieres razonamiento. Quieres una regla.
 
-Una **política de triaje** es esa regla, escrita como datos. No reemplaza al agente, envuelve unas cuantas compuertas deterministas alrededor del **bucle agéntico** (el ciclo de supervisor y herramientas que enriquece, investiga y razona hasta llegar a un veredicto). Cada una de ellas obedece la misma ley:
+Una **política de triaje** es esa regla, escrita como datos. No reemplaza al agente; envuelve unas cuantas compuertas deterministas alrededor del **bucle agéntico** (el ciclo de supervisor y herramientas que enriquece, investiga y razona hasta llegar a un veredicto). Cada una de ellas obedece la misma ley:
 
 > **El LLM propone. Una compuerta determinista dispone.**
 
@@ -12,7 +12,7 @@ El modelo permanece libre para razonar. Una función pura decide si su salida su
 
 Léelo de arriba abajo: una alerta se resuelve contra el registro, ejecuta el bucle agéntico bajo las compuertas de la política y aterriza en una **disposición**: la decisión final del caso (autocierre, escalar a un humano o solicitar más evidencia). Debajo de cada cierre automático hay un **piso de seguridad**: un conjunto de vetos no anulables, a nivel de código, que ninguna política puede debilitar, definidos por completo [más abajo](#the-safety-floor). Las compuertas numeradas son toda la superficie, y la siguiente sección las recorre una por una.
 
-La única propiedad que hace que todo esto sea seguro: una política de triaje **redactada por el tenant** puede hacer el triaje **más estricto**, nunca más laxo, sus guardrails solo elevan, y el piso duro debajo de cada cierre no puede debilitarse. (Las políticas *de archivo* integradas y verificadas o gestionadas por el operador son código de confianza y no están sujetas a esa restricción.) El código vive en [`src/soctalk/triage_policy/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/triage_policy).
+La única propiedad que hace que todo esto sea seguro: una política de triaje **redactada por el tenant** puede hacer el triaje **más estricto**, nunca más laxo; sus guardrails solo elevan, y el piso duro debajo de cada cierre no puede debilitarse. (Las políticas *de archivo* integradas y verificadas o gestionadas por el operador son código de confianza y no están sujetas a esa restricción.) El código vive en [`src/soctalk/triage_policy/`](https://github.com/soctalk/soctalk/tree/main/src/soctalk/triage_policy).
 
 
 ## Dónde actúa una política de triaje
@@ -22,7 +22,7 @@ Una política de triaje gobierna una ejecución en cuatro puntos, las compuertas
 1. **Resolver.** Un nodo de entrada compara la alerta contra el registro y escribe la política de triaje activa en el estado de la ejecución. Si la alerta pertenece a una clase operacional conocida sin indicadores de seguridad, la ejecución puede cerrarse de forma determinista aquí mismo sin llegar a llamar al modelo.
 2. **Compuerta previa a la decisión.** Una política puede requerir pasos deterministas (por ejemplo, recopilar contexto de autorización) antes de que un veredicto sea legal. Si el supervisor propone un veredicto demasiado pronto, la compuerta lo redirige primero al paso requerido. Una política también puede restringir qué acciones del supervisor son legales en cada fase, y esa restricción se aplica a la salida estructurada del modelo antes de la llamada, de modo que una acción ilegal ni siquiera puede muestrearse.
 3. **Guardia posterior al veredicto.** Después de que el modelo redacta un veredicto, una función pura decide si se confirma. Puede anular el borrador (elevar un cierre a un escalamiento), interrumpirlo (mantener el borrador pero enrutarlo a la aprobación de un humano) o dejarlo en pie. Cada anulación queda registrada.
-4. **Piso de seguridad.** Un conjunto no anulable de verificaciones protege cada ruta de autocierre. *No* es un único paso, los vetos de IOC/autorización se ejecutan dentro de la guardia posterior al veredicto, y los vetos de kill-switch, tope de volumen e incidente activo se ejecutan de nuevo cuando un cierre se confirma en los planos del worker, el servidor y la ingesta. El diagrama lo dibuja como un solo nodo por claridad; nada en una política de triaje puede debilitarlo, dondequiera que se ejecute.
+4. **Piso de seguridad.** Un conjunto no anulable de verificaciones protege cada ruta de autocierre. *No* es un único paso; los vetos de IOC/autorización se ejecutan dentro de la guardia posterior al veredicto, y los vetos de kill-switch, tope de volumen e incidente activo se ejecutan de nuevo cuando un cierre se confirma en los planos del worker, el servidor y la ingesta. El diagrama lo dibuja como un solo nodo por claridad; nada en una política de triaje puede debilitarlo, dondequiera que se ejecute.
 
 ## El piso de seguridad
 
@@ -84,7 +84,7 @@ Lee esa condición así: si la clase de autorización resultó `contradicted` y 
 
 | Campo | Significado |
 |---|---|
-| `applies_to` | Qué alertas gobierna la política. Se compara por grupos de reglas, ids de reglas o el track de autorización de la actividad de la alerta, los tres se combinan con OR. |
+| `applies_to` | Qué alertas gobierna la política. Se compara por grupos de reglas, ids de reglas o el track de autorización de la actividad de la alerta; los tres se combinan con OR. |
 | `required_steps` | Nodos deterministas que deben ejecutarse antes de que un veredicto sea legal. |
 | `decision_modules` | Declara los motores verificados de los que depende la política (hoy: `authorization_engine`), validado contra los módulos conocidos. La consulta en tiempo de ejecución hoy la impulsan los `required_steps` (por ejemplo, `gather_authorization_context`), no este campo. |
 | `legal_actions` | Las acciones del supervisor permitidas por fase (`triage` hasta que se hayan ejecutado los pasos requeridos, luego `decide`). Una fase no listada queda sin restricciones. |
@@ -115,7 +115,7 @@ Los campos que una condición puede leer:
 | `enrichment.ioc` | Si hay presente una señal maliciosa. |
 | `correlation.active_incident` | Si un incidente activo se solapa. |
 
-Un `effect` es o bien `override` o bien `interrupt`. La supresión no es expresable: `close` no es un objetivo válido, y una anulación solo puede elevar una decisión hacia arriba en la escalera `close < needs_more_info < escalate`, nunca hacia abajo. Una condición que referencia un campo no declarado o un operador desconocido se rechaza cuando la política se valida, antes de que pueda siquiera ejecutarse. Ten en cuenta que `enrichment.ioc` y `correlation.active_incident` también los aplica el piso duro con independencia de cualquier guardrail, en una ejecución del worker ya desplegada `correlation.active_incident` normalmente solo se puebla en el piso al momento de confirmar, así que apóyate en el piso para esos en lugar de volver a derivarlos en un guardrail.
+Un `effect` es o bien `override` o bien `interrupt`. La supresión no es expresable: `close` no es un objetivo válido, y una anulación solo puede elevar una decisión hacia arriba en la escalera `close < needs_more_info < escalate`, nunca hacia abajo. Una condición que referencia un campo no declarado o un operador desconocido se rechaza cuando la política se valida, antes de que pueda siquiera ejecutarse. Ten en cuenta que `enrichment.ioc` y `correlation.active_incident` también los aplica el piso duro con independencia de cualquier guardrail; en una ejecución del worker ya desplegada `correlation.active_incident` normalmente solo se puebla en el piso al momento de confirmar, así que apóyate en el piso para esos en lugar de volver a derivarlos en un guardrail.
 
 ## Redacta una en el editor sin código
 
@@ -133,7 +133,7 @@ Abre **"+ New triage policy"** (o `/triage-policies/editor`). El editor tiene do
 
 ![Matchers](/screenshots/triage-policy-editor-03-matchers.png)
 
-**3. Requisitos de investigación.** Requiere el paso `gather_authorization_context`, declara dependencia del módulo `authorization_engine` y acota la fase `decide` a solo `VERDICT`. Nota que `CLOSE` no se ofrece, las políticas redactadas no pueden otorgarlo.
+**3. Requisitos de investigación.** Requiere el paso `gather_authorization_context`, declara dependencia del módulo `authorization_engine` y acota la fase `decide` a solo `VERDICT`. Nota que `CLOSE` no se ofrece; las políticas redactadas no pueden otorgarlo.
 
 ![Requisitos de investigación](/screenshots/triage-policy-editor-04-requirements.png)
 
@@ -149,7 +149,7 @@ Abre **"+ New triage policy"** (o `/triage-policies/editor`). El editor tiene do
 
 ![La misma condición en el constructor visual](/screenshots/triage-policy-editor-07-guardrail-visual.png)
 
-Dos más completan la política: una anulación por baja confianza a `needs_more_info`, y un `interrupt` que retiene un cierre PCI para revisión humana. El orden importa, el primer guardrail que coincide dispone.
+Dos más completan la política: una anulación por baja confianza a `needs_more_info`, y un `interrupt` que retiene un cierre PCI para revisión humana. El orden importa; el primer guardrail que coincide dispone.
 
 ![Los tres guardrails](/screenshots/triage-policy-editor-08-guardrails-all.png)
 
@@ -161,7 +161,7 @@ El panel **"Try it"** previsualiza la lógica de guardrail + piso que el editor 
 
 ![El simulador Try-it mostrando el escalamiento del piso](/screenshots/triage-policy-editor-10-try-it.png)
 
-`Create (shadow)` la guarda. El formulario y el documento almacenado son el mismo artefacto, "View as JSON" muestra exactamente lo que se persiste.
+`Create (shadow)` la guarda. El formulario y el documento almacenado son el mismo artefacto; "View as JSON" muestra exactamente lo que se persiste.
 
 ![La política completada](/screenshots/triage-policy-editor-11-complete.png)
 
@@ -173,7 +173,7 @@ Una política redactada tiene cuatro estados, **draft**, **shadow**, **active**,
 
 En **shadow**, la política se compara y sus guardrails se evalúan exactamente como lo haría una activa, y sus decisiones que se dispararían se escriben en el rastro de auditoría, pero no cambia ninguna disposición. Esto te da evidencia real de lo que haría contra tráfico en vivo antes de que decida nada.
 
-**Activarla** (la acción **Activate** en la página Triage Policies) la hace gobernar. Como el worker es un proceso separado cuyo registro se carga una sola vez al arrancar, la activación no puede simplemente cambiar un flag en la base de datos, materializa la definición en el ConfigMap del worker del tenant en el siguiente `tenant.reconcile`, y el **rollout del worker es la compuerta de activación**: la política empieza a gobernar solo cuando un worker fresco la lee. Editar una política activa la mantiene activa y vuelve a hacer el rollout con la nueva definición; desactivarla la devuelve a shadow.
+**Activarla** (la acción **Activate** en la página Triage Policies) la hace gobernar. Como el worker es un proceso separado cuyo registro se carga una sola vez al arrancar, la activación no puede simplemente cambiar un flag en la base de datos; materializa la definición en el ConfigMap del worker del tenant en el siguiente `tenant.reconcile`, y el **rollout del worker es la compuerta de activación**: la política empieza a gobernar solo cuando un worker fresco la lee. Editar una política activa la mantiene activa y vuelve a hacer el rollout con la nueva definición; desactivarla la devuelve a shadow.
 
 ![El ciclo de vida de la política redactada: shadow, luego activar para gobernar](/diagrams/triage-policy-lifecycle.svg)
 

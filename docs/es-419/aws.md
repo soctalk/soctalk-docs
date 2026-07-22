@@ -8,7 +8,7 @@ Pon en marcha el appliance de demostración de SocTalk como una instancia EC2. H
 Ambas terminan en el mismo punto: una AMI que lanzas y luego el flujo estándar del [asistente de configuración](/es-419/setup-wizard). Esta ruta es para **evaluadores y demostraciones**: para una instalación en producción sobre tu propio clúster, consulta [Instalar](/es-419/install).
 
 ::: info ¿Por qué no hay una AMI pública prediseñada?
-Las AMI son recursos por cuenta y por región, a diferencia de los archivos `.qcow2`/`.vhd`/`.vmdk`, no pueden adjuntarse a una GitHub Release. Construyes o importas una en tu propia cuenta.
+Las AMI son recursos por cuenta y por región; a diferencia de los archivos `.qcow2`/`.vhd`/`.vmdk`, no pueden adjuntarse a una GitHub Release. Construyes o importas una en tu propia cuenta.
 :::
 
 ## Requisitos previos
@@ -97,7 +97,7 @@ Cuando `Status` sea `completed`, el último campo es el ID de tu AMI.
 
 ## Lanzar una instancia
 
-Crea un par de claves y un grupo de seguridad restringido a tu propia IP, la máquina expone SSH (22), la UI de SocTalk (443) y el asistente de configuración (8443), ninguno de los cuales debería estar abierto a Internet:
+Crea un par de claves y un grupo de seguridad restringido a tu propia IP; la máquina expone SSH (22), la UI de SocTalk (443) y el asistente de configuración (8443), ninguno de los cuales debería estar abierto a Internet:
 
 ```bash
 AMI=<ami-id-from-A-or-B>
@@ -126,10 +126,10 @@ IP=$(aws ec2 describe-instances --region $REGION --instance-ids $IID \
 echo "instance at $IP"
 ```
 
-`t3.xlarge` (4 vCPU / 16 GiB) cubre holgadamente el [dimensionamiento mínimo](/es-419/reference/sizing) de 4 vCPU / 8 GB. No reduzcas el volumen raíz, el disco virtual de la imagen es de 60 GB, así que EC2 requiere al menos ese tamaño.
+`t3.xlarge` (4 vCPU / 16 GiB) cubre holgadamente el [dimensionamiento mínimo](/es-419/reference/sizing) de 4 vCPU / 8 GB. No reduzcas el volumen raíz; el disco virtual de la imagen es de 60 GB, así que EC2 requiere al menos ese tamaño.
 
 ::: tip No se necesita seed ISO
-En los hipervisores adjuntas un `seed.iso` NoCloud para inyectar una clave SSH ([Quickstart](/es-419/quickstart-vm#optional-cloud-init-seed)). En EC2 ese paso desaparece: el cloud-init de la imagen detecta el datasource de metadatos de EC2 e inyecta tu par de claves automáticamente, esto también funciona para el `.vmdk` importado, aunque se haya empaquetado para VMware. El usuario predeterminado en EC2 es **`ubuntu`**.
+En los hipervisores adjuntas un `seed.iso` NoCloud para inyectar una clave SSH ([Quickstart](/es-419/quickstart-vm#optional-cloud-init-seed)). En EC2 ese paso desaparece: el cloud-init de la imagen detecta el datasource de metadatos de EC2 e inyecta tu par de claves automáticamente; esto también funciona para el `.vmdk` importado, aunque se haya empaquetado para VMware. El usuario predeterminado en EC2 es **`ubuntu`**.
 :::
 
 ## Ejecutar el asistente e iniciar sesión
@@ -152,7 +152,7 @@ Después navega a `https://<IP>/` (puerto 443, no 8443), inicia sesión con las 
 
 ## Desmontar
 
-A diferencia del grupo de recursos único de Azure, los recursos de EC2 son individuales, elimina cada uno:
+A diferencia del grupo de recursos único de Azure, los recursos de EC2 son individuales; elimina cada uno:
 
 ```bash
 aws ec2 terminate-instances --region $REGION --instance-ids $IID

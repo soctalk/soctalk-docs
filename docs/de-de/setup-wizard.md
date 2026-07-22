@@ -107,7 +107,7 @@ Nach einem erfolgreichen Submit schreibt der Assistent das Sentinel und beendet 
 
 ## Missbrauchsschutz
 
-- **Token-Gate** an jedem authentifizierten Endpunkt. Konstantzeit-Vergleich.
+- **Token-Gate** an jedem authentifizierten Endpoint. Konstantzeit-Vergleich.
 - **CSRF** über HMAC-gebundene Double-Submit-Cookies bei jedem statusändernden POST.
 - **Rate-Limit**: mindestens 30 s zwischen Authentifizierungsversuchen pro Quell-IP; 10 Fehlschläge innerhalb einer Stunde sperren die IP für eine Stunde. (Codex kennzeichnete dies als trivialen DoS-Vektor hinter NAT, Operatoren hinter einem gemeinsam genutzten NAT können sehen, dass legitimes Setup blockiert wird. Starten Sie die Unit neu, um dies zurückzusetzen.)
 - **Nur selbstsigniertes TLS**. Der Assistent liefert niemals Klartext-HTTP aus. Kunden akzeptieren das selbstsignierte Zertifikat einmalig; Produktionsnutzer sollten den Assistenten überhaupt nie erreichen.

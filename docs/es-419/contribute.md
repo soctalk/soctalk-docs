@@ -19,7 +19,7 @@ cd soctalk
 - cert-manager instalado
 - k3d local-path como el StorageClass predeterminado
 
-**No** compila las imágenes de SocTalk, ni instala el chart de SocTalk, ni incorpora tenants, ni carga datos iniciales, versiones anteriores de esta página afirmaban que sí lo hacía. Ejecuta los siguientes pasos tú mismo. Secuencia típica después de `dev-up.sh`:
+**No** compila las imágenes de SocTalk, ni instala el chart de SocTalk, ni incorpora tenants, ni carga datos iniciales; versiones anteriores de esta página afirmaban que sí lo hacía. Ejecuta los siguientes pasos tú mismo. Secuencia típica después de `dev-up.sh`:
 
 ```bash
 just build-api build-frontend  # api image embeds the orchestrator in V1
@@ -73,7 +73,7 @@ pytest tests/                          # full suite
 pytest tests/v1/test_rls_isolation.py  # Postgres Row-Level Security suite
 ```
 
-Las pruebas de RLS son innegociables, verifican el aislamiento de datos entre tenants que promete el [Modelo de seguridad](/es-419/reference/security-model). CI ejecuta la suite completa de pytest en cada PR.
+Las pruebas de RLS son innegociables; verifican el aislamiento de datos entre tenants que promete el [Modelo de seguridad](/es-419/reference/security-model). CI ejecuta la suite completa de pytest en cada PR.
 
 ## Estilo
 

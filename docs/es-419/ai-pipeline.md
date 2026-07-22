@@ -31,7 +31,7 @@ flowchart LR
 | **cortex_worker** | Envía los observables a los analizadores de Cortex (VirusTotal, AbuseIPDB, etc.) para reputación/enriquecimiento. | modelo rápido |
 | **misp_worker** | Busca los observables en los feeds de inteligencia de amenazas de MISP para obtener contexto de campañas/actores conocidos. | modelo rápido |
 | **verdict** | Razona sobre todo lo que reunieron los workers. Produce `escalate | close | needs_more_info` + confianza + una justificación breve. | **modelo de razonamiento** |
-| **human_review** | Pausa la ejecución; emite una solicitud de revisión a la cola del dashboard y/o a Slack. Espera una `HumanDecision` (`approve | reject | more_info`). |, (humanos) |
+| **human_review** | Pausa la ejecución; emite una solicitud de revisión a la cola del dashboard y/o a Slack. Espera una `HumanDecision` (`approve | reject | more_info`). | (humanos) |
 | **close** | Genera el informe de cierre y escribe la disposición (`close_fp | escalate | leave_open`). **En V1, el nodo close no publica en integraciones salientes.** Actualmente ningún nodo del grafo publica en TheHive en V1 (el nodo `thehive_worker` referenciado en borradores anteriores no está cableado en el constructor del grafo V1). La publicación por webhook de Slack desde close tampoco está cableada. La integración saliente desde el nodo close está en el roadmap. | modelo rápido |
 
 ## Enrutamiento del supervisor

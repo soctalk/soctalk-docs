@@ -81,7 +81,7 @@ Füge diese Passage in **Access Controls** → **Access Controls (JSON)** ein. P
 ]
 ```
 
-Die erste Regel lässt **deine Operator-Geräte** (deinen Laptop, jeden admin-eigenen, ungetaggten Knoten im Tailnet) die MSSP-UI erreichen. Ohne sie blockiert Tailscales Default-Deny deinen eigenen Browser. Die zweite Regel lässt den MSSP jeden Mandanten für Chat-Tool-Aufrufe erreichen (Wazuh API, Observability). Die dritte lässt den Cloud-Agent jedes Mandanten den HTTPS-Endpunkt des MSSP erreichen, um sich zu registrieren und Events zu streamen. Mandanten können sich nicht gegenseitig erreichen.
+Die erste Regel lässt **deine Operator-Geräte** (deinen Laptop, jeden admin-eigenen, ungetaggten Knoten im Tailnet) die MSSP-UI erreichen. Ohne sie blockiert Tailscales Default-Deny deinen eigenen Browser. Die zweite Regel lässt den MSSP jeden Mandanten für Chat-Tool-Aufrufe erreichen (Wazuh API, Observability). Die dritte lässt den Cloud-Agent jedes Mandanten den HTTPS-Endpoint des MSSP erreichen, um sich zu registrieren und Events zu streamen. Mandanten können sich nicht gegenseitig erreichen.
 
 Überprüfe es im ACL-Preview-Bereich, bevor du speicherst. Bestätige, dass `tag:tenant-acme` `tag:tenant-globex` auf keinem Port erreichen kann.
 
@@ -223,7 +223,7 @@ Das Ändern des Profils, nachdem der Mandant bereitgestellt wurde, erfordert ein
 
 #### Schritt 3: External SIEM (nur provided)
 
-Dieser Schritt ist ausgeblendet, es sei denn, du hast in Schritt 2 Provided gewählt. Fülle zwei Endpunkt-plus-Zugangsdaten-Paare aus:
+Dieser Schritt ist ausgeblendet, es sei denn, du hast in Schritt 2 Provided gewählt. Fülle zwei Endpoint-plus-Zugangsdaten-Paare aus:
 
 - **Wazuh Indexer URL** (z. B. `https://wazuh.acme.example:9200`) + Indexer-Benutzer + Indexer-Passwort (Basic Auth)
 - **Wazuh Manager API URL** (z. B. `https://wazuh.acme.example:55000`) + API-Benutzer + API-Passwort (verwendet, um JWTs auszustellen)
@@ -259,7 +259,7 @@ Zum Zeitpunkt der Erstellung stellt die Mandanten-Detailseite nur die Lebenszykl
 
 ![Mandanten-Detail: nur Lebenszyklus-Aktionen, kein Issue-Agent-Button](/screenshots/mssp-tenant-detail.png)
 
-Melde dich von der MSSP-VM aus einmal an, um ein Session-Cookie zu erhalten, dann sende ein POST gegen den `:issue-agent`-Endpunkt des Mandanten:
+Melde dich von der MSSP-VM aus einmal an, um ein Session-Cookie zu erhalten, dann sende ein POST gegen den `:issue-agent`-Endpoint des Mandanten:
 
 ```bash
 # Replace <mssp-host> with your MSSP UI hostname (e.g. soctalk-mssp.<tailnet>.ts.net)
@@ -292,7 +292,7 @@ Die obige `0.1.x`-Chart-Version und der Bootstrap-Token dienen nur zur Veranscha
 :::
 
 ::: warning TTL des Bootstrap-Tokens
-Der Bootstrap-Token läuft ab (Standard: 24 h). Wenn der Mandant den Befehl nicht vorher ausführt, stelle ihn erneut gegen denselben `:issue-agent`-Endpunkt aus. Ein erneutes Ausstellen widerruft jeden nicht verbrauchten vorherigen Token.
+Der Bootstrap-Token läuft ab (Standard: 24 h). Wenn der Mandant den Befehl nicht vorher ausführt, stelle ihn erneut gegen denselben `:issue-agent`-Endpoint aus. Ein erneutes Ausstellen widerruft jeden nicht verbrauchten vorherigen Token.
 :::
 
 ### 3.3 An den Mandantenkontakt übergeben
@@ -323,7 +323,7 @@ Ablauf:
    - Wazuh Manager API URL + Benutzer + Passwort (verwendet, um JWTs auszustellen)
    - Einer Erreichbarkeitsentscheidung: Ist ihr Wazuh im selben Tailnet wie die Mandanten-VM, die du in §4 aufsetzen wirst? Falls nicht, müssen sie `--advertise-routes` aus §4.2 verwenden (siehe §4.7a für das Menü).
 2. Sie folgen §4.7a auf ihrer Seite, um die Erreichbarkeit zu bestätigen.
-3. Sie senden dir beide Endpunkt-plus-Zugangsdaten-Paare (gemeinsam genutzter Passwortmanager).
+3. Sie senden dir beide Endpoint-plus-Zugangsdaten-Paare (gemeinsam genutzter Passwortmanager).
 4. Du führst §3.1 mit **Provided** in Schritt 2 aus und fügst die Zugangsdaten in Schritt 3 ein.
 
 Wenn sich die Erreichbarkeitssituation des Mandanten nach §3.1 ändert (z. B. verlagern sie Wazuh auf einen anderen Host), aktualisiere das External-SIEM-Panel auf der Mandanten-Detailseite. Der Controller übernimmt die Änderung beim nächsten Reconcile (~30 s).
@@ -483,7 +483,7 @@ Es bedeutet **noch nicht**, dass der Wazuh-Stack des Mandanten läuft oder die C
 Nach der Agent-Registrierung steuert der MSSP-Controller die Mandanten-Chart-Installation auf dem Cluster des Mandanten:
 
 - **`poc`-Profil**: Wazuh + linux-ep-Simulator kommen hoch. Gesamtdauer ~5-7 Minuten.
-- **`provided`-Profil**: Der SocTalk-Adapter kommt sofort hoch. Wazuh-Chat-Tool-Aufrufe werden aufgelöst, sobald der Adapter die External-SIEM-Endpunkte erreicht, die der MSSP in §3.1 Schritt 3 angegeben hat. Falls nicht, prüfe die Erreichbarkeit gemäß §3.4.
+- **`provided`-Profil**: Der SocTalk-Adapter kommt sofort hoch. Wazuh-Chat-Tool-Aufrufe werden aufgelöst, sobald der Adapter die External-SIEM-Endpoints erreicht, die der MSSP in §3.1 Schritt 3 angegeben hat. Falls nicht, prüfe die Erreichbarkeit gemäß §3.4.
 
 Beobachte von der Mandanten-VM aus:
 
@@ -572,7 +572,7 @@ Symptomgetriebene Tabelle für Fehler, die spezifisch für die Piloten-Topologie
 | Chat sagt „keine Wazuh-Warnungen", aber Mandant hat Warnungen | Fall mit bestehendem Wazuh: Manager API vom MSSP-Tailnet nicht erreichbar | Von MSSP-VM: `curl -k -u <user>:<pw> "https://<wazuh-mgr>:55000/security/user/authenticate?raw=true"` (GET; sollte einen JWT zurückgeben) |
 | Das Tool `get_wazuh_alert_summary` gibt einen Fehler zurück | Fall mit bestehendem Wazuh: Indexer-Zugangsdaten falsch | Von Mandanten-VM: `curl -ku <user>:<pw> https://<wazuh-indexer>:9200/wazuh-alerts-*/_search?size=1` |
 | Adapter-Heartbeat funktioniert, aber Agent erreicht nie „Online" | NetworkPolicies in §4.5 aktiviert gelassen | `kubectl -n soctalk-agent get networkpolicies`; sollte leer sein |
-| `helm install` mit values-schema-Fehler abgelehnt | Chart-Versions-Schieflage zwischen Control Plane und Agent-Chart | Die vom issue-agent-Endpunkt ausgegebene Chart-Version verwenden, nicht „latest" |
+| `helm install` mit values-schema-Fehler abgelehnt | Chart-Versions-Schieflage zwischen Control Plane und Agent-Chart | Die vom issue-agent-Endpoint ausgegebene Chart-Version verwenden, nicht „latest" |
 
 ## 8. Den Piloten außer Betrieb nehmen
 

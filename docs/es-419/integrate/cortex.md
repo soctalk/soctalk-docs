@@ -31,7 +31,7 @@ Para cada observable, el worker prueba el **primer nombre de analyzer** en un `A
 
 ## Costo
 
-Cortex en sí es gratuito; los proveedores de analyzers cobran por las consultas. SocTalk no mide las llamadas a Cortex directamente, mídelas en el proveedor:
+Cortex en sí es gratuito; los proveedores de analyzers cobran por las consultas. SocTalk no mide las llamadas a Cortex directamente; mídelas en el proveedor:
 
 - VirusTotal: cuota por clave
 - AbuseIPDB: cuota por clave
@@ -51,7 +51,7 @@ Secuencia:
 4. Sondea `/api/job/{id}/report` hasta que el job termina o se dispara un timeout por job.
 5. Añade el veredicto (`safe`, `info`, `suspicious`, `malicious`) y el cuerpo del reporte al estado del caso. Los jobs fallidos registran el error y continúan.
 
-Las llamadas a Cortex que fallan no hacen fallar la ejecución, el worker registra el fallo y retorna al supervisor sin enriquecimiento para ese observable. El nodo de veredicto razona sobre cualquier contexto que esté disponible.
+Las llamadas a Cortex que fallan no hacen fallar la ejecución; el worker registra el fallo y retorna al supervisor sin enriquecimiento para ese observable. El nodo de veredicto razona sobre cualquier contexto que esté disponible.
 
 ## Cortex incluido: no en esta versión
 

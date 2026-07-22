@@ -81,7 +81,7 @@ Collez cette clause dans **Access Controls** → **Access Controls (JSON)**. Aju
 ]
 ```
 
-La première règle permet à **vos appareils d'opérateur** (votre ordinateur portable, tout nœud non taggé appartenant à l'admin sur le tailnet) d'atteindre l'interface MSSP. Sans elle, le refus par défaut de Tailscale bloque votre propre navigateur. La deuxième règle permet au MSSP d'atteindre chaque tenant pour les appels d'outils de chat (Wazuh API, observabilité). La troisième permet au cloud-agent de chaque tenant d'atteindre le point de terminaison HTTPS du MSSP pour s'enregistrer et diffuser des événements. Les tenants ne peuvent pas s'atteindre les uns les autres.
+La première règle permet à **vos appareils d'opérateur** (votre ordinateur portable, tout nœud non taggé appartenant à l'admin sur le tailnet) d'atteindre l'interface MSSP. Sans elle, le refus par défaut de Tailscale bloque votre propre navigateur. La deuxième règle permet au MSSP d'atteindre chaque tenant pour les appels d'outils de chat (Wazuh API, observabilité). La troisième permet au cloud-agent de chaque tenant d'atteindre l'endpoint HTTPS du MSSP pour s'enregistrer et diffuser des événements. Les tenants ne peuvent pas s'atteindre les uns les autres.
 
 Vérifiez dans le volet ACL Preview avant d'enregistrer. Confirmez que `tag:tenant-acme` ne peut pas atteindre `tag:tenant-globex` sur aucun port.
 
@@ -223,7 +223,7 @@ Changer le profil après le provisionnement du tenant nécessite un décommissio
 
 #### Étape 3 : External SIEM (provided uniquement)
 
-Cette étape est masquée sauf si vous avez choisi Provided à l'étape 2. Remplissez deux paires point de terminaison + identifiants :
+Cette étape est masquée sauf si vous avez choisi Provided à l'étape 2. Remplissez deux paires endpoint + identifiants :
 
 - **Wazuh Indexer URL** (par ex. `https://wazuh.acme.example:9200`) + utilisateur indexer + mot de passe indexer (authentification Basic)
 - **Wazuh Manager API URL** (par ex. `https://wazuh.acme.example:55000`) + utilisateur API + mot de passe API (utilisé pour émettre les JWT)
@@ -259,7 +259,7 @@ Au moment de la rédaction, la page de détail du tenant n'expose que les action
 
 ![Détail du tenant : actions du cycle de vie uniquement, pas de bouton Issue Agent](/screenshots/mssp-tenant-detail.png)
 
-Depuis la VM MSSP, connectez-vous une fois pour obtenir un cookie de session, puis effectuez un POST vers le point de terminaison `:issue-agent` du tenant :
+Depuis la VM MSSP, connectez-vous une fois pour obtenir un cookie de session, puis effectuez un POST vers l'endpoint `:issue-agent` du tenant :
 
 ```bash
 # Replace <mssp-host> with your MSSP UI hostname (e.g. soctalk-mssp.<tailnet>.ts.net)
@@ -292,7 +292,7 @@ La version de chart `0.1.x` et le jeton bootstrap ci-dessus sont illustratifs ; 
 :::
 
 ::: warning TTL du jeton bootstrap
-Le jeton bootstrap expire (par défaut : 24 h). Si le tenant n'exécute pas la commande avant, réémettez vers le même point de terminaison `:issue-agent`. La réémission révoque tout jeton antérieur non consommé.
+Le jeton bootstrap expire (par défaut : 24 h). Si le tenant n'exécute pas la commande avant, réémettez vers le même endpoint `:issue-agent`. La réémission révoque tout jeton antérieur non consommé.
 :::
 
 ### 3.3 Transmettre au contact tenant
@@ -323,7 +323,7 @@ Séquence :
    - Wazuh Manager API URL + utilisateur + mot de passe (utilisé pour émettre les JWT)
    - Une décision de joignabilité : leur Wazuh est-il sur le même tailnet que la VM tenant que vous mettrez en place au §4 ? Sinon, ils devront `--advertise-routes` depuis le §4.2 (voir §4.7a pour le menu).
 2. Ils suivent le §4.7a de leur côté pour confirmer la joignabilité.
-3. Ils vous envoient les deux paires point de terminaison + identifiants (gestionnaire de mots de passe partagé).
+3. Ils vous envoient les deux paires endpoint + identifiants (gestionnaire de mots de passe partagé).
 4. Vous exécutez le §3.1 avec **Provided** à l'étape 2 et collez les identifiants à l'étape 3.
 
 Si la situation de joignabilité du tenant change après le §3.1 (par ex. ils déplacent Wazuh vers un hôte différent), mettez à jour le panneau External SIEM sur la page de détail du tenant. Le contrôleur prend en compte le changement lors de la prochaine réconciliation (~30 s).
@@ -483,7 +483,7 @@ Cela ne signifie **pas encore** que la pile Wazuh du tenant est opérationnelle 
 Après l'enregistrement de l'agent, le contrôleur MSSP pilote l'installation du chart tenant sur le cluster du tenant :
 
 - **Profil `poc`** : Wazuh + simulateur linux-ep démarrent. Temps réel ~5-7 minutes.
-- **Profil `provided`** : l'adaptateur SocTalk démarre immédiatement. Les appels d'outils de chat Wazuh se résolvent dès que l'adaptateur atteint les points de terminaison External SIEM que le MSSP a fournis au §3.1 étape 3. Si ce n'est pas le cas, vérifiez la joignabilité conformément au §3.4.
+- **Profil `provided`** : l'adaptateur SocTalk démarre immédiatement. Les appels d'outils de chat Wazuh se résolvent dès que l'adaptateur atteint les endpoints External SIEM que le MSSP a fournis au §3.1 étape 3. Si ce n'est pas le cas, vérifiez la joignabilité conformément au §3.4.
 
 Observez depuis la VM tenant :
 
@@ -572,7 +572,7 @@ Tableau orienté symptômes pour les défaillances spécifiques à la topologie 
 | Le chat dit « no Wazuh alerts » mais le tenant a des alertes | Cas Wazuh existant : Manager API non joignable depuis le tailnet MSSP | Depuis la VM MSSP : `curl -k -u <user>:<pw> "https://<wazuh-mgr>:55000/security/user/authenticate?raw=true"` (GET ; devrait renvoyer un JWT) |
 | L'outil `get_wazuh_alert_summary` renvoie une erreur | Cas Wazuh existant : identifiants Indexer incorrects | Depuis la VM tenant : `curl -ku <user>:<pw> https://<wazuh-indexer>:9200/wazuh-alerts-*/_search?size=1` |
 | Le heartbeat de l'adaptateur fonctionne mais l'agent n'atteint jamais « Online » | NetworkPolicies laissées activées au §4.5 | `kubectl -n soctalk-agent get networkpolicies` ; devrait être vide |
-| `helm install` rejeté avec une erreur values-schema | Décalage de version de chart entre le plan de contrôle et le chart de l'agent | Utiliser la version de chart affichée par le point de terminaison issue-agent, et non « latest » |
+| `helm install` rejeté avec une erreur values-schema | Décalage de version de chart entre le plan de contrôle et le chart de l'agent | Utiliser la version de chart affichée par l'endpoint issue-agent, et non « latest » |
 
 ## 8. Décommissionner le pilote
 

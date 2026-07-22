@@ -151,7 +151,7 @@ CREATE POLICY users_tenant_scoped ON users
 
 Der Zugriff auf MSSP-seitige Benutzer (CRUD auf Zeilen mit `tenant_id IS NULL`) ist ausschließlich unter der Rolle `soctalk_mssp` erreichbar, die `BYPASSRLS` besitzt und ausschließlich über den `System`-Kontextmanager in MSSP-API-Handlern betreten wird. Eine mandantengebundene `soctalk_app`-Sitzung, selbst eine, die eine lose gefilterte users-Query ausführt, kann MSSP-Benutzerzeilen unter dieser Policy weder sehen noch verändern.
 
-Warum das wichtig ist: Ein früherer Entwurf der Policy ließ `tenant_id IS NULL` in `USING`/`WITH CHECK` zu, „damit MSSP-Joins funktionieren“. Das war unsicher; `soctalk_mssp` benötigt kein RLS, um MSSP-Zeilen zu sehen (es umgeht RLS), und dasselbe Fenster auch `soctalk_app` zu gewähren, öffnet einen Pfad, über den Mandanten-Endpunkte MSSP-Benutzerdaten via einer unzureichend gefilterten Query leaken könnten.
+Warum das wichtig ist: Ein früherer Entwurf der Policy ließ `tenant_id IS NULL` in `USING`/`WITH CHECK` zu, „damit MSSP-Joins funktionieren“. Das war unsicher; `soctalk_mssp` benötigt kein RLS, um MSSP-Zeilen zu sehen (es umgeht RLS), und dasselbe Fenster auch `soctalk_app` zu gewähren, öffnet einen Pfad, über den Mandanten-Endpoints MSSP-Benutzerdaten via einer unzureichend gefilterten Query leaken könnten.
 
 ## Installationsbezogene Tabellen (kein RLS)
 
@@ -178,9 +178,9 @@ Grund: Ohne dies würde eine Kollision externer Alert-IDs zwischen zwei Mandante
 
 ## Isolationstests
 
-### Test 1, Sondierung des Anwendungs-Endpunkts
+### Test 1, Sondierung des Anwendungs-Endpoints
 
-Für jeden Endpunkt in `/api/tenant/*` und `/api/mssp/*`:
+Für jeden Endpoint in `/api/tenant/*` und `/api/mssp/*`:
 
 ```python
 async def test_no_cross_tenant_access(client, seed_two_tenants):

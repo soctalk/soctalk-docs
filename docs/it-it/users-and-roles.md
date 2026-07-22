@@ -8,7 +8,7 @@ L'accesso sta passando a un modello a capacità. Ogni ruolo è un insieme denomi
 
 I ruoli sono organizzati in livelli (tier) e gli stessi tier operativi esistono su entrambi i lati del business:
 
-- **operate**: lavorare la coda. Visualizzare e fare triage delle indagini, revisionare i verdetti dell'AI, decidere, approvare le proposte standard-blast, usare la chat.
+- **operate**: lavorare la coda. Visualizzare e fare triage delle indagini, revisionare i verdict dell'AI, decidere, approvare le proposte standard-blast, usare la chat.
 - **authorize risk**: tutto ciò che può fare operate, più dichiarare le engagement di pentest, curare gli authorization fact e approvare le azioni high-blast che scrivono su un sistema esterno.
 - **configure**: tutto ciò che può fare il manager, più le impostazioni che quel ruolo controlla e la gestione degli utenti.
 
@@ -25,7 +25,7 @@ L'audience è una barriera separata sopra i tier. I ruoli MSSP possiedono solo c
 | `platform_admin` | configure (super) | Ogni capacità MSSP, a livello di installazione. |
 | `mssp_admin` | configure | Configurare il sistema, gestire gli utenti, più tutto ciò che è sotto. |
 | `mssp_manager` | authorize risk | Dichiarare engagement, curare gli authorization fact, approvare le azioni high-blast, più operate. |
-| `analyst` | operate | Fare triage delle indagini, revisionare i verdetti, decidere, chattare. Lavora un cliente alla volta fissando (pinning) un tenant (vedi Impersonation più sotto); sola lettura sulle impostazioni. |
+| `analyst` | operate | Fare triage delle indagini, revisionare i verdict, decidere, chattare. Lavora un cliente alla volta fissando (pinning) un tenant (vedi Impersonation più sotto); sola lettura sulle impostazioni. |
 
 **Lato tenant** (personale di un cliente; `tenant_id` impostato; ambito limitato a quel singolo tenant):
 
@@ -33,7 +33,7 @@ L'audience è una barriera separata sopra i tier. I ruoli MSSP possiedono solo c
 |---|---|---|
 | `tenant_admin` | configure | Gestire gli utenti della propria organizzazione e le proprie impostazioni LLM, più tutto ciò che è sotto. Provisioning automatico durante l'onboarding del tenant tramite il flow `_mint_tenant_admin_user` del runtime. |
 | `tenant_manager` | authorize risk | Dichiarare le proprie engagement di pentest, asserire authorization fact (che vengono sottoposti a revisione MSSP prima di avere effetto), approvare le azioni high-blast, più operate. |
-| `tenant_analyst` | operate | Lavorare il SOC del proprio tenant: triage, revisione dei verdetti, decisione, approvazione delle proposte standard-blast, chat. Questo è il ruolo del SOC co-gestito, lo specchio lato tenant di `analyst`. |
+| `tenant_analyst` | operate | Lavorare il SOC del proprio tenant: triage, revisione dei verdict, decisione, approvazione delle proposte standard-blast, chat. Questo è il ruolo del SOC co-gestito, lo specchio lato tenant di `analyst`. |
 | `customer_viewer` | view only | Stakeholder in sola lettura. Vede la dashboard SOC e le indagini del proprio cliente, ma non può agire su di esse e non può aprire la coda di revisione. |
 
 Il tier "configure" di `tenant_admin` è ristretto: rispetto al manager aggiunge la configurazione LLM della propria organizzazione e la gestione degli utenti, nient'altro. Branding e integrazioni restano sul lato MSSP.
