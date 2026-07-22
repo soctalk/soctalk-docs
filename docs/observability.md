@@ -4,7 +4,7 @@ Metrics and logs for an MSSP running SocTalk. Two consumers in mind: capacity-pl
 
 ## Prometheus endpoint
 
-`GET /metrics` on the `soctalk-system-api` Service exposes the install's metrics in Prometheus exposition format. Unauthenticated by design, scope it via NetworkPolicy or an Ingress with `auth-basic`/IP allowlist if you don't want it world-readable.
+`GET /metrics` on the `soctalk-system-api` Service exposes the install's metrics in Prometheus exposition format. Unauthenticated by design; scope it via NetworkPolicy or an Ingress with `auth-basic`/IP allowlist if you don't want it world-readable.
 
 ## V1 instrumentation status
 
@@ -46,7 +46,7 @@ All labeled with `tenant_id`. Cardinality is bounded by the number of tenants in
 
 - `rate(soctalk_tenant_llm_tokens_total[1h])` stacked by tenant, top spenders this hour
 - Daily total tokens × your provider's $/Mtok = cost projection
-- Burn-down vs the per-run token budget (`case_runs.tokens_budget`, model default 200,000; `SOCTALK_CASE_RUN_TOKEN_BUDGET` env fallback default 15,000 only applies when the row has no value), how often does a single run blow the budget?
+- Burn-down vs the per-run token budget (`case_runs.tokens_budget`, model default 200,000; `SOCTALK_CASE_RUN_TOKEN_BUDGET` env fallback default 15,000 only applies when the row has no value): how often does a single run blow the budget?
 
 ### Service-level
 

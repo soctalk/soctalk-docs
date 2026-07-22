@@ -43,8 +43,8 @@ Gather these first:
       - Passwordless SSH from your workstation as a user in the `kvm` group
 - [ ] **A Tailscale tailnet.** Free tier is fine. You'll need:
       - The tailnet name (e.g. `taila1b2c3.ts.net`)
-      - A [Tailscale API access token](https://login.tailscale.com/admin/settings/keys) with `keys:write` scope, the launchpad uses it to mint per-VM ephemeral device auth keys
-      - Tag ownership for the tags you'll use, add these to your ACL:
+      - A [Tailscale API access token](https://login.tailscale.com/admin/settings/keys) with `keys:write` scope; the launchpad uses it to mint per-VM ephemeral device auth keys
+      - Tag ownership for the tags you'll use; add these to your ACL:
         ```json
         "tagOwners": {
           "tag:mssp":        ["autogroup:admin"],
@@ -156,7 +156,7 @@ If MagicDNS is disabled on your tailnet, `lp-<key>.<tailnet>.ts.net` won't resol
 
 ## 4. Use your pilot: onboard customers and ask the AI
 
-Launchpad hands you a working MSSP with your first tenant already onboarded, from here you drive it exactly like an MSSP would. The **Dashboard** is a cross-tenant fleet view: pending reviews, stuck cases, degraded tenants, and per-tenant health.
+Launchpad hands you a working MSSP with your first tenant already onboarded; from here you drive it exactly like an MSSP would. The **Dashboard** is a cross-tenant fleet view: pending reviews, stuck cases, degraded tenants, and per-tenant health.
 
 ![The MSSP dashboard, cross-tenant fleet view](/screenshots/pilot-final-dashboard.png)
 
@@ -181,7 +181,7 @@ Drill into a tenant for its open investigations, reviews, and Wazuh health:
 ![Ask AI, scoped to a single tenant](/screenshots/pilot-chat-tenant-reply.png)
 
 ::: tip
-The AI needs a real [LLM provider](/integrate/llm-providers) configured, the smoke-test placeholder key won't answer questions.
+The AI needs a real [LLM provider](/integrate/llm-providers) configured; the smoke-test placeholder key won't answer questions.
 :::
 
 ## 5. Fine-tune with a config file
@@ -277,7 +277,7 @@ Subsequent runs are much faster because the base image is cached on the VM host.
 
 ## 6. Iterate, resume, tear down, restart
 
-The launchpad is idempotent. Re-launching a run, the console **Launch** again, or `launchpad up`: picks up where it left off:
+The launchpad is idempotent. Re-launching a run (the console **Launch** again, or `launchpad up`) picks up where it left off:
 
 - VMs that already exist are reused (no double-provisioning)
 - The MSSP install step is skipped if the API is already answering
@@ -307,7 +307,7 @@ The VM booted but never joined the tailnet. Cloud-init on the VM couldn't reach 
 The chart install ran but pods didn't converge in 15 minutes. Usually image pulls on slow connections.
 
 - SSH into the MSSP VM: `sudo k3s kubectl -n soctalk-system get pods` and check for `ImagePullBackOff` or `CrashLoopBackOff`
-- If pods are still pulling, wait and re-launch, the second attempt skips the install step once the API is answering
+- If pods are still pulling, wait and re-launch; the second attempt skips the install step once the API is answering
 
 ### Tenant agent logs `no such host` on `/api/agent/register`
 
@@ -326,7 +326,7 @@ Assert on those events from your CI. See [Launchpad event schema](/reference/lau
 
 ## Where to next
 
-- **Add a real tenant.** Onboard from the MSSP dashboard, see [do-it-yourself pilot §3](/mssp-pilot#3-onboard-tenants) for the wizard walkthrough.
+- **Add a real tenant.** Onboard from the MSSP dashboard; see [do-it-yourself pilot §3](/mssp-pilot#3-onboard-tenants) for the wizard walkthrough.
 - **Generate some alerts.** [Attack simulator](/mssp-pilot#5-3-generate-alerts) has the runbook.
 - **Point the AI at real data.** Configure your [LLM provider](/integrate/llm-providers) properly (the smoke-test placeholder key won't answer questions).
 - **Move to production.** [Install](/install) is the non-launchpad, HA-capable path.

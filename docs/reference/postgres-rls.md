@@ -2,7 +2,7 @@
 
 The three-role Postgres model, RLS policy templates, `FORCE ROW LEVEL SECURITY` discipline, and the isolation tests SocTalk runs in CI.
 
-> **V1 deployment note.** The text below refers to "API pods" and "orchestrator pods" as separate workloads, the role model and access rules remain correct. In the V1 chart they are **co-located in a single `soctalk-system-api` Deployment**, so every "orchestrator pod" reference maps to that one pod set in this release.
+> **V1 deployment note.** The text below refers to "API pods" and "orchestrator pods" as separate workloads; the role model and access rules remain correct. In the V1 chart they are **co-located in a single `soctalk-system-api` Deployment**, so every "orchestrator pod" reference maps to that one pod set in this release.
 
 ## Roles
 

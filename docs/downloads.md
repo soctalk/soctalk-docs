@@ -67,7 +67,7 @@ Builds in ~1 minute on a modern host with KVM acceleration. Outputs land in `bui
 
 ## CI workflow
 
-`build-packer-images.yml` is `workflow_dispatch`-only, Packer builds aren't fired on every push because they're slow and consume runner minutes. Fire intentionally for a new release:
+`build-packer-images.yml` is `workflow_dispatch`-only; Packer builds aren't fired on every push because they're slow and consume runner minutes. Fire intentionally for a new release:
 
 ```bash
 gh workflow run build-packer-images.yml -f version=0.2.0

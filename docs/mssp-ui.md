@@ -146,7 +146,7 @@ curl 'https://mssp.your-mssp.example/api/audit?since=2026-01-01&tenant=<id>' > a
 
 ![Settings](/screenshots/settings.png)
 
-MSSP-wide settings page. **In V1 this page shows hard-coded stub values**: `GET /api/settings` returns a static read-only payload that does not reflect the install's actual configuration. The page is informational only; it is **not** a window into the live install settings, and the **Save Changes** button is a no-op. A real settings surface that mirrors env-derived state is on the roadmap. Per-tenant LLM mutation is the one settings surface that actually works in V1, see [LLM detail page](#llm-detail-page).
+MSSP-wide settings page. **In V1 this page shows hard-coded stub values**: `GET /api/settings` returns a static read-only payload that does not reflect the install's actual configuration. The page is informational only; it is **not** a window into the live install settings, and the **Save Changes** button is a no-op. A real settings surface that mirrors env-derived state is on the roadmap. Per-tenant LLM mutation is the one settings surface that actually works in V1; see [LLM detail page](#llm-detail-page).
 
 Sections:
 

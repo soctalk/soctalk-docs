@@ -65,7 +65,7 @@ Only what the AI pipeline reasons about: the alert body, extracted observables, 
 
 No. SocTalk is positioned as a **copilot**, not a replacement. The verdict node decides `escalate | close | needs_more_info`; escalation always passes through a [human review](/human-review) gate. Without the human, a high-volume MSSP would still need analysts to handle the decisions SocTalk routes to them.
 
-The value is in compression, the same analyst team can handle 5–10× the alert volume because routine cases auto-close and only the unclear ones reach human review.
+The value is in compression: the same analyst team can handle 5–10× the alert volume because routine cases auto-close and only the unclear ones reach human review.
 
 ## Does it work without Wazuh?
 
@@ -87,7 +87,7 @@ Yes, the chart targets stock Kubernetes 1.30+. Plug in your cloud's StorageClass
 
 ## Does it scale to N customers?
 
-Tested up to ~50 tenants on a 3-node cluster (16 vCPU / 64 GB / node). Bottleneck is usually the Wazuh indexer per tenant (each indexer is a Java process with its own heap) rather than the SocTalk control plane. Plan ~6–8 GB RAM and ~1.5 vCPU per `persistent`-profile tenant, see [Sizing](/reference/sizing).
+Tested up to ~50 tenants on a 3-node cluster (16 vCPU / 64 GB / node). Bottleneck is usually the Wazuh indexer per tenant (each indexer is a Java process with its own heap) rather than the SocTalk control plane. Plan ~6–8 GB RAM and ~1.5 vCPU per `persistent`-profile tenant; see [Sizing](/reference/sizing).
 
 ## What about compliance (SOC 2, HIPAA, PCI)?
 
