@@ -53,6 +53,8 @@ Per triage completo, il self-hosting su una GPU consumer noleggiata è risultato
 
 La latenza è rimasta pratica. L'insieme di 12 casi si è concluso in circa un minuto su una Modal A10G e in circa 11 secondi su una RunPod 4090, entrambe a otto vie di concorrenza, invece dei diversi minuti che una stima a flusso singolo suggerisce, perché la concorrenza sovrappone le chiamate e i verdict reali stanno dentro il budget di token.
 
+Per le tabelle complete dietro questi numeri, gli sweep di throughput, i prezzi delle RTX reali e i tempi di triage per esecuzione, vedi [quanto costa davvero l'inferenza di triage, misurato](/it-it/guides/inference-cost-benchmark).
+
 ## Se un modello piccolo è abbastanza buono
 
 Il costo conta solo se il modello economico regge. Nei nostri run un modello aperto 7B ha mantenuto il contratto di triage strutturato di SocTalk: output router e verdict valido, nessun errore di schema, e verdict che hanno coinciso con un modello di ragionamento più grande su circa il 58-75 per cento di un piccolo campione di benchmark. Era più debole sull'instradamento, e sui casi sensibili all'autorizzazione a volte ha chiuso attività che non aveva alcuna autorizzazione agli atti e che sarebbe dovuta andare in escalation.

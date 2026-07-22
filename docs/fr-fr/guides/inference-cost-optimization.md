@@ -53,6 +53,8 @@ Par triage complet, l'auto-hébergement sur une GPU grand public louée est ress
 
 La latence est restée pratique. L'ensemble de 12 cas s'est terminé en environ une minute sur une Modal A10G et en environ 11 secondes sur une RunPod 4090, toutes deux à huit voies de concurrence, au lieu des plusieurs minutes qu'une estimation en flux unique laisse supposer, parce que la concurrence chevauche les appels et que les verdicts réels tiennent dans le budget de tokens.
 
+Pour les tableaux complets derrière ces chiffres, les balayages de débit, les prix des RTX réelles et les temps de triage par exécution, voir [ce que coûte réellement l'inférence de triage, mesuré](/fr-fr/guides/inference-cost-benchmark).
+
 ## Si un petit modèle suffit
 
 Le coût ne compte que si le modèle bon marché tient. Dans nos exécutions, un modèle ouvert 7B a tenu le contrat de triage structuré de SocTalk : sortie router et verdict valide, aucune erreur de schéma, et des verdicts qui ont concordé avec un modèle de raisonnement plus grand sur environ 58 à 75 pour cent d'un petit échantillon de benchmark. Il était plus faible sur le routage, et sur les cas sensibles à l'autorisation il a parfois clôturé une activité qui n'avait aucune autorisation au dossier et aurait dû être escaladée.
