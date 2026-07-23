@@ -28,6 +28,24 @@ I fatti raggiungono l'archivio in tre modi, a livelli crescenti di attendibilit�
 - **I sistemi inviano fatti tramite l'API di ingest.** Script di provisioning, hook CI e connettori inviano fatti tipizzati con una credenziale per-tenant. L'attendibilità viene apposta a partire dalla credenziale, mai dal payload, perché chi può inviare un fatto può sopprimere un rilevamento.
 - **Gli analisti rispondono a una domanda di autorizzazione.** Quando il triage si arena specificamente perché l'autorizzazione è assente, l'analista risponde una volta e la risposta diventa un record riutilizzabile. È il flusso descritto di seguito.
 
+## Registrare un fatto dalla console: un esempio pratico
+
+I fatti non devono per forza provenire da un connettore o da un'indagine. Un analista MSSP o un amministratore del tenant può registrarne uno direttamente, e il form della console è costruito attorno al modello del fatto, così l'unica cosa che si può inviare è un fatto valido.
+
+Prendiamo un caso comune. Il service account `svc-deploy` di Acme eseguirà comandi privilegiati su `db-01` durante la manutenzione di venerdì, approvata dal change ticket CHG-1001. Se non dichiarato, il `sudo` che quei comandi attivano assomiglia esattamente al tipo di uso di privilegi che un SOC escala. Registrare il change ticket come una concessione è ciò che dice a SocTalk che l'attività è coperta.
+
+Apri l'area **Autorizzazione**. Sul lato MSSP, scegli prima il cliente dal selettore di tenant; un amministratore del tenant vede direttamente la propria organizzazione. L'elenco mostra ogni fatto registrato con un riepilogo in linguaggio naturale, la sua fonte e il suo livello di attendibilità, la sua validità e il suo stato di revisione.
+
+![L'elenco dei fatti di autorizzazione: un change ticket coperto, un'asserzione del tenant in sospeso in attesa di revisione e un blocco delle modifiche](/screenshots/authz-facts-list.png)
+
+Scegli **New fact** per aprire l'editor guidato. Scegli prima il **kind** (concessione, divieto, blocco delle modifiche o contesto entità) e il **track** (account, per l'attività su host descritta come soggetto, target e azione; oppure FIM, per le modifiche ai file descritte come un percorso e un tipo di modifica). Il form mostra quindi solo i campi legali per quella combinazione, così non puoi costruire un fatto che il motore rifiuterebbe: una concessione da change ticket richiede una data di fine, un divieto FIM non può portare un'azione di account, un blocco di account ha come ambito l'ambiente anziché la classe di configurazione. Una riga **Reads as** riformula il fatto in linguaggio naturale mentre digiti, e la fonte e il livello di attendibilità vengono apposti automaticamente anziché digitati a mano.
+
+![L'editor guidato New fact, compilato per la concessione da change ticket, con l'anteprima dal vivo in linguaggio naturale](/screenshots/authz-new-fact.png)
+
+Per il caso della manutenzione: kind **Grant**, track **Account**, soggetto `svc-deploy`, target `db-01`, azione `sudo-exec`, classe di concessione **Change ticket**, riferimento `CHG-1001`, valido fino alla fine della finestra. **Create fact** lo scrive, e compare nell'elenco con attendibilità asserita dall'analista. Da quel momento fino alla scadenza, un alert per quell'account, quell'azione e quell'host si risolve in coperto e il suo sospetto cala; dopo la scadenza lo stesso alert è di nuovo assente, e SocTalk torna a chiedere anziché presumere.
+
+Un amministratore del tenant registra i fatti nello stesso modo, con una differenza: un'asserzione del tenant arriva **awaiting review** al livello di attendibilità più basso e non influenza il triage finché un analista MSSP non la approva da questo stesso elenco (la riga in sospeso qui sopra). Gli analisti che preferiscono lavorare in blocco, o pilotare l'archivio dall'automazione, possono passare l'editor a **Advanced: edit JSON** e inviare il fatto grezzo; la stessa validazione si applica in entrambi i casi.
+
 ## Rispondere a una domanda di autorizzazione
 
 Quando un'indagine non può essere decisa perché l'autorizzazione è assente, e non c'è alcun segnale malevolo, la revisione porta con sé una domanda di autorizzazione tipizzata anziché una generica richiesta di maggiori informazioni. All'analista viene chiesta una sola cosa: questa attività era autorizzata?
@@ -46,7 +64,9 @@ Una regola è deliberata: un fatto viene creato solo da questa risposta esplicit
 
 Un fatto risponde a una domanda permanente: questo account è autorizzato a fare questo su questo host? Alcune autorizzazioni non sono affatto permanenti, sono circoscritte a una finestra di tempo durante la quale un'attività altrimenti sospetta è attesa. Un pentest autorizzato, un'esercitazione red-team o una finestra di manutenzione sono un'autorizzazione che si apre e poi si chiude. SocTalk modella questo come un engagement, e un engagement è semplicemente un tipo di autorizzazione: una finestra di autorizzazione circoscritta e limitata nel tempo durante la quale l'attività che descrive è attesa anziché allarmante.
 
-Gli engagement risiedono nella stessa area Autorizzazione del tenant in cui vivono i fatti, in una loro scheda Engagement dedicata. Il vecchio percorso `/engagements` funziona ancora e rimanda direttamente a quella scheda, dal momento che gli engagement sono stati integrati nell'area Autorizzazione unificata anziché mantenuti come superficie separata.
+Gli engagement risiedono nella stessa area Autorizzazione del tenant in cui vivono i fatti, in una loro scheda Engagement dedicata. Il vecchio percorso `/engagements` funziona ancora e rimanda direttamente a quella scheda, dal momento che gli engagement sono stati integrati nell'area Autorizzazione unificata anziché mantenuti come superficie separata. Dichiararne uno è un form strutturato: un nome e un tipo, l'inizio e la fine della finestra, e l'ambito che copre come IP di source validati, host in-scope e ID di tecnica ATT&CK.
+
+![Dichiarare un engagement: una finestra di pentest circoscritta con ambito per source, host e tecnica ATT&CK](/screenshots/authz-engagement.png)
 
 Un engagement funziona però in modo diverso da un fatto. Non è soggetto a gating: un utente autorizzato dal tenant lo dichiara, e può revocarlo, direttamente, senza alcun passaggio di revisione MSSP. Ciò che un engagement fa è deconfliggere l'attività per source, target e finestra temporale validati. L'attività degli alert che ricade all'interno di un engagement dichiarato, una source in-scope che agisce su un target in-scope durante la finestra, viene attribuita al tester: SocTalk registra l'osservazione, toglie l'alert dalla coda aperta e salta il triage LLM per esso. Non viene mai chiuso automaticamente né marcato come falso positivo, la riga dell'osservazione resta interrogabile e conteggiata. L'attività del tester che ricade al di fuori dell'ambito dichiarato viene segnalata per un esame più attento anziché lasciata passare. Quando la finestra si chiude, la deconflittazione non si applica più e l'attività viene nuovamente sottoposta a triage in modo normale.
 

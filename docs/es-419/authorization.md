@@ -28,6 +28,24 @@ Los hechos llegan al almacén de tres maneras, con confianza creciente:
 - **Los sistemas envían hechos a través de la API de ingesta.** Los scripts de aprovisionamiento, los hooks de CI y los conectores envían hechos tipados con una credencial por tenant. La confianza se estampa a partir de la credencial, nunca del payload, porque quien puede enviar un hecho puede suprimir una detección.
 - **Los analistas responden una pregunta de autorización.** Cuando el triaje se estanca específicamente porque la autorización está ausente, el analista responde una vez y la respuesta se convierte en un registro reutilizable. Este es el flujo que se describe a continuación.
 
+## Registrar un hecho desde la consola: un ejemplo práctico
+
+Los hechos no tienen que provenir de un conector o de una investigación. Un analista de MSSP o un administrador del tenant puede registrar uno directamente, y el formulario de la consola está construido en torno al modelo de hechos, de modo que un hecho válido es lo único que puedes enviar.
+
+Tomemos un caso común. La cuenta de servicio `svc-deploy` de Acme ejecutará comandos privilegiados en `db-01` durante el mantenimiento del viernes, aprobado bajo el ticket de cambio CHG-1001. Sin declararlo, el `sudo` que esos comandos disparan se parece exactamente al tipo de uso de privilegios que un SOC escala. Registrar el ticket de cambio como una concesión es lo que le indica a SocTalk que la actividad está cubierta.
+
+Abre el área de **Autorización**. En el lado del MSSP, primero elige el cliente desde el conmutador de tenant; un administrador del tenant ve su propia organización directamente. La lista muestra cada hecho archivado con un resumen en lenguaje sencillo, su fuente y nivel de confianza, su validez y su estado de revisión.
+
+![La lista de hechos de Autorización: un ticket de cambio cubierto, una afirmación de tenant pendiente en espera de revisión, y un congelamiento de cambios](/screenshots/authz-facts-list.png)
+
+Elige **Nuevo hecho** para abrir el editor guiado. Primero eliges el **tipo** (concesión, prohibición, congelamiento de cambios o contexto de entidad) y la **vía** (cuenta, para actividad de host descrita como sujeto, objetivo y acción; o FIM, para cambios de archivos descritos como una ruta y un tipo de cambio). El formulario entonces muestra solo los campos que son válidos para esa combinación, de modo que no puedes construir un hecho que el motor rechazaría: una concesión de ticket de cambio requiere una fecha de fin, una prohibición de FIM no puede llevar una acción de cuenta, un congelamiento de cuenta se acota por entorno en lugar de por clase de configuración. Una línea **Se lee como** reformula el hecho en lenguaje sencillo a medida que escribes, y la fuente y el nivel de confianza se estampan automáticamente en lugar de escribirse a mano.
+
+![El editor guiado de Nuevo hecho, completado para la concesión de ticket de cambio, con la vista previa en vivo en lenguaje sencillo](/screenshots/authz-new-fact.png)
+
+Para el caso de mantenimiento: tipo **Concesión**, vía **Cuenta**, sujeto `svc-deploy`, objetivo `db-01`, acción `sudo-exec`, clase de concesión **Ticket de cambio**, referencia `CHG-1001`, válido hasta el fin de la ventana. **Crear hecho** lo escribe, y aparece en la lista con confianza afirmada por el analista. Desde ese momento y hasta la expiración, una alerta para esa cuenta, acción y host se resuelve como cubierta y su sospecha baja; después de la expiración la misma alerta vuelve a estar ausente, y SocTalk regresa a preguntar en lugar de asumir.
+
+Un administrador del tenant registra hechos de la misma manera, con una diferencia: una afirmación del tenant queda **en espera de revisión** en el nivel de confianza más bajo y no influye en el triaje hasta que un analista de MSSP la aprueba desde esta misma lista (la fila pendiente de arriba). Los analistas que prefieren trabajar en lote, o gobernar el almacén desde la automatización, pueden cambiar el editor a **Avanzado: editar JSON** y enviar el hecho en bruto; la misma validación se aplica en cualquier caso.
+
 ## Responder una pregunta de autorización
 
 Cuando una investigación no puede decidirse porque la autorización está ausente, y no hay señal maliciosa, la revisión lleva una pregunta de autorización tipada en lugar de una solicitud genérica de más información. Al analista se le pregunta una sola cosa: ¿esta actividad estaba autorizada?
@@ -46,7 +64,9 @@ Una regla es deliberada: un hecho se crea únicamente mediante esta respuesta ex
 
 Un hecho responde una pregunta permanente, ¿está permitido que esta cuenta haga esto en este host? Algunas autorizaciones no son permanentes en absoluto, están acotadas a una ventana de tiempo durante la cual se espera una actividad que de otro modo sería sospechosa. Un pentest autorizado, un ejercicio de red team o una ventana de mantenimiento son autorizaciones que se abren y luego se cierran. SocTalk modela esto como un compromiso (engagement), y un compromiso es simplemente un tipo de autorización: una ventana de autorización acotada y limitada en el tiempo durante la cual la actividad que describe se espera en lugar de alarmar.
 
-Los compromisos viven en la misma área de Autorización del tenant que los hechos, en su propia pestaña de Compromisos. La antigua ruta `/engagements` sigue funcionando y enlaza directamente a esa pestaña, ya que los compromisos se integraron en el área unificada de Autorización en lugar de mantenerse como una superficie separada.
+Los compromisos viven en la misma área de Autorización del tenant que los hechos, en su propia pestaña de Compromisos. La antigua ruta `/engagements` sigue funcionando y enlaza directamente a esa pestaña, ya que los compromisos se integraron en el área unificada de Autorización en lugar de mantenerse como una superficie separada. Declararlo es un formulario estructurado: un nombre y un tipo, el inicio y el fin de la ventana, y el alcance que cubre como IPs de origen validadas, hosts dentro del alcance e IDs de técnica de ATT&CK.
+
+![Declarar un compromiso: una ventana de pentest acotada, delimitada por origen, host y técnica de ATT&CK](/screenshots/authz-engagement.png)
 
 Sin embargo, un compromiso funciona de manera diferente a un hecho. No está sujeto a revisión: un usuario autorizado por el tenant lo declara, y puede revocarlo, directamente, sin ningún paso de revisión del MSSP. Lo que hace un compromiso es desconflictuar la actividad por fuente, objetivo y ventana de tiempo validados. La actividad de alerta que cae dentro de un compromiso declarado, una fuente dentro del alcance actuando sobre un objetivo dentro del alcance durante la ventana, se atribuye al tester: SocTalk registra la observación, retira la alerta de la cola abierta y omite el triaje por LLM para ella. Nunca se cierra automáticamente ni se marca como falso positivo, la fila de la observación permanece consultable y contabilizada. La actividad del tester que cae fuera del alcance declarado se marca para una revisión más cercana en lugar de dejarse pasar. Cuando la ventana se cierra, la desconflicción deja de aplicarse y la actividad vuelve a triarse normalmente.
 
