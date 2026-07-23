@@ -69,6 +69,7 @@ kubectl -n tenant-<slug> get secret wazuh-<slug>-wazuh-creds \
 
 ## 深入阅读
 
+- [接入租户](/zh-cn/tenant-onboarding)：向导与下述各阶段的分步操作指南
 - [租户生命周期](/zh-cn/tenant-lifecycle)：状态机、阶段、恢复路径
 - [Wazuh 代理接入](/zh-cn/reference/wazuh-ingress)：边缘拓扑、证书、吊销
 - [用户与角色](/zh-cn/users-and-roles)：完整角色目录与受众墙

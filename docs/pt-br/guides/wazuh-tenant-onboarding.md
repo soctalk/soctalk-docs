@@ -69,6 +69,7 @@ Todo usuário criado recebe uma senha temporária de uso único, exibida uma ún
 
 ## Aprofunde-se
 
+- [Onboarding de tenant](/pt-br/tenant-onboarding): o passo a passo do assistente e das fases abaixo
 - [Ciclo de vida do tenant](/pt-br/tenant-lifecycle): máquina de estados, fases, caminhos de recuperação
 - [Ingress de agentes Wazuh](/pt-br/reference/wazuh-ingress): topologias de borda, certificados, revogação
 - [Usuários e papéis](/pt-br/users-and-roles): o catálogo completo de papéis e a parede de audiência

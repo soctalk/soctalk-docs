@@ -191,65 +191,17 @@ Para cada tenant en su piloto, hará esto en el dashboard del MSSP, luego entreg
 
 ### 3.1 Ejecutar el asistente Create Customer
 
-En el dashboard del MSSP, haga clic en **Tenants** en la barra izquierda, luego **New tenant** en la parte superior de la página de la lista. Esto abre el asistente **Create Customer**. Para los perfiles `poc` y `persistent` son 4 pasos (Identity → Profile → Branding → Review); para `provided` son 5 (un paso **External SIEM** aparece entre Profile y Branding).
+En el dashboard del MSSP, haga clic en **Tenants** en la barra izquierda, luego en **New tenant**. Esto abre el asistente **Create Customer**. El paso a paso completo (Identity, Profile, el paso External SIEM exclusivo de `provided`, Branding, Review) está documentado una sola vez en [Onboarding de un tenant](/es-419/tenant-onboarding#run-the-create-customer-wizard). Esta sección cubre únicamente lo que es específico del piloto de tailnet.
 
-::: tip Reúna la información del tenant por adelantado
-Para tenants de perfil `provided`, el asistente requiere las **credenciales de Wazuh existentes** del tenant en el paso 3. Obténgalas de su contacto del tenant (fuera de banda, por el mismo canal seguro que §3.3) **antes** de iniciar el asistente para no dejar un formulario a medio llenar. Para `poc` / `persistent` solo necesita lo básico.
+::: warning El slug debe coincidir con su etiqueta de tailnet
+En el paso Identity, configure el **Slug** para que coincida con su etiqueta de tailnet de §1.1 (así que `tag:tenant-acme` → slug `acme`). Los pasos posteriores sustituyen el slug directamente en `tag:tenant-<slug>` para la clave de autenticación (§3.3) y el comando `tailscale up` del tenant (§4.2 / §4.7a); un desajuste significa que el nodo del tenant anuncia una etiqueta que sus ACLs de §1.2 no otorgan.
 :::
 
-#### Paso 1: Identity
-
-- **Display name**: p. ej. `Acme Corp`
-- **Slug**: corto, en minúsculas, separado por guiones (3–32 caracteres, validado `[a-z0-9-]+`). **Debe coincidir** con su etiqueta de tailnet de §1.1 (así que `tag:tenant-acme` → slug `acme`). Los pasos posteriores sustituyen el slug directamente en `tag:tenant-<slug>` para la clave de autenticación (§3.3) y el comando `tailscale up` del tenant (§4.2 / §4.7a); un desajuste significa que el nodo del tenant anuncia una etiqueta que sus ACLs de §1.2 no otorgan.
-- **Contact email**
-
-![Create Customer: paso Identity](/screenshots/mssp-add-tenant-step1-identity.png)
-
-#### Paso 2: Profile
-
-Elija una de tres opciones de radio. La API valida contra `poc | persistent | provided`:
-
-- **PoC**: el chart instala Wazuh + un simulador linux-ep en el clúster del tenant, con almacenamiento `local-path` y presupuestos de recursos ajustados. Elija esto para pilotos de corta duración donde el tenant no tiene Wazuh existente. Consulte [ciclo de vida del tenant / poc](/es-419/tenant-lifecycle#poc).
-- **Persistent**: la misma forma con Wazuh incluido que `poc`, pero dimensionada para carga de producción sostenida con la StorageClass por defecto del clúster y rangos completos de recursos del chart. Consulte [ciclo de vida del tenant / persistent](/es-419/tenant-lifecycle#persistent).
-- **Provided (traiga su propio Wazuh)**: el chart instala solo el adaptador de SocTalk; lo apunta al Wazuh existente del tenant a través del paso **External SIEM** (abajo). Consulte [ciclo de vida del tenant / provided](/es-419/tenant-lifecycle#provided).
-
-Hay una divulgación **LLM (advanced)** en el mismo paso para sobrescribir el proveedor de LLM compartido de la instalación, la URL base, la clave y (opcionalmente) los IDs de modelo Fast / Thinking. Para `poc` / `persistent` esto es opcional; déjelo colapsado para heredar los valores por defecto de la instalación. Para `provided` las credenciales de LLM son **requeridas** (no hay fallback compartido de la instalación) y condicionan el paso.
-
-![Create Customer: paso Profile](/screenshots/mssp-add-tenant-step2-profile.png)
-
-::: warning La elección de perfil es fija
-Cambiar el perfil después de que el tenant se ha aprovisionado requiere darlo de baja y volver a incorporarlo. Confirme con su contacto del tenant antes de enviar.
+::: tip Reúna las credenciales de provided por adelantado
+Para un tenant de perfil `provided`, el paso External SIEM del asistente necesita las credenciales de Wazuh existentes del tenant, y esos endpoints deben ser alcanzables desde la VM del tenant que levantará en §4. Obténgalas primero de su contacto del tenant, fuera de banda; consulte [§3.4](#_3-4-coordinating-external-wazuh-creds-for-provided-tenants).
 :::
 
-#### Paso 3: External SIEM (solo provided)
-
-Este paso está oculto a menos que haya elegido Provided en el paso 2. Complete dos pares de endpoint + credencial:
-
-- **Wazuh Indexer URL** (p. ej. `https://wazuh.acme.example:9200`) + usuario del indexer + contraseña del indexer (autenticación Basic)
-- **Wazuh Manager API URL** (p. ej. `https://wazuh.acme.example:55000`) + usuario de API + contraseña de API (usado para emitir JWTs)
-
-Estos deben ser alcanzables desde la VM del tenant que levantará en §4. El controlador del lado MSSP convierte las URLs en una lista de permitidos de salida FQDN de Cilium en el namespace del tenant; el adaptador nunca alcanza Wazuh directamente desde su clúster MSSP.
-
-Verifique las credenciales del manager desde la VM del MSSP antes de enviar:
-
-```bash
-curl -k -u <user>:<pw> "https://<wazuh-mgr>:55000/security/user/authenticate?raw=true"
-# expected: a JWT (long base64 string)
-```
-
-Si esto devuelve 200, las herramientas del chat del tenant se resolverán una vez que §4 se complete.
-
-#### Paso 4 (o 3 para poc/persistent): Branding
-
-Opcional. Nombre de visualización + carga de un logo pequeño que aparece en el encabezado del tenant. Puede saltar esto por completo.
-
-![Create Customer: paso Branding](/screenshots/mssp-add-tenant-step3-branding.png)
-
-#### Paso final: Review
-
-Confirme todo, luego haga clic en **Create**. La API responde 202 y regresa a la lista de tenants; el nuevo tenant comienza en `pending` y avanza por `provisioning → active`. Actualice la página de detalle para ver cómo se acumulan los eventos de ciclo de vida.
-
-![Create Customer: paso Review](/screenshots/mssp-add-tenant-step4-review.png)
+Cuando el asistente termina, el tenant comienza en `pending` y avanza por `provisioning → active`; observe cómo se acumulan los eventos de ciclo de vida en la página de detalle del tenant.
 
 ### 3.2 Emitir el comando de registro del agente
 

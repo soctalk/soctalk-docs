@@ -31,6 +31,7 @@ export const SIDEBAR = [
       { id: 'aws', link: '/aws', en: 'Run on AWS' },
       { id: 'azure', link: '/azure', en: 'Run on Azure' },
       { id: 'mssp-ui', link: '/mssp-ui', en: 'MSSP UI Tour' },
+      { id: 'tenant-onboarding', link: '/tenant-onboarding', en: 'Onboard a tenant' },
     ],
   },
   {

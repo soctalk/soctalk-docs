@@ -69,6 +69,7 @@ Jeder angelegte Benutzer erhält ein einmaliges temporäres Passwort, das nur ei
 
 ## Vertiefung
 
+- [Mandanten onboarden](/de-de/tenant-onboarding): die Schritt-für-Schritt-Anleitung des Assistenten und der Phasen unten
 - [Mandanten-Lebenszyklus](/de-de/tenant-lifecycle): State Machine, Phasen, Wiederherstellungspfade
 - [Wazuh-Agent-Ingress](/de-de/reference/wazuh-ingress): Edge-Topologien, Zertifikate, Widerruf
 - [Benutzer und Rollen](/de-de/users-and-roles): der vollständige Rollenkatalog und die Audience-Wall

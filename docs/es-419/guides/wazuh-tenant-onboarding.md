@@ -69,6 +69,7 @@ Cada usuario creado recibe una contraseña temporal de un solo uso, mostrada una
 
 ## Para profundizar
 
+- [Onboarding de un tenant](/es-419/tenant-onboarding): el recorrido paso a paso del asistente y de las fases siguientes
 - [Ciclo de vida del tenant](/es-419/tenant-lifecycle): máquina de estados, fases, rutas de recuperación
 - [Ingreso de agentes Wazuh](/es-419/reference/wazuh-ingress): topologías de borde, certificados, revocación
 - [Usuarios y roles](/es-419/users-and-roles): el catálogo completo de roles y el muro de audiencias

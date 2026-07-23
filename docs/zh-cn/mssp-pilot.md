@@ -191,65 +191,17 @@ curl -k https://soctalk-mssp.<your-tailnet>.ts.net/health/ready
 
 ### 3.1 运行创建客户向导
 
-在 MSSP 仪表盘中，点击左侧栏的 **Tenants**，再点击列表页顶部的 **New tenant**。这会打开 **Create Customer** 向导。对于 `poc` 和 `persistent` 配置，它是 4 步（Identity → Profile → Branding → Review）；对于 `provided`，它是 5 步（在 Profile 和 Branding 之间会出现一个 **External SIEM** 步骤）。
+在 MSSP 仪表盘中，点击左侧栏的 **Tenants**，再点击 **New tenant**。这会打开 **Create Customer** 向导。完整的分步操作（Identity、Profile、仅 `provided` 的 External SIEM 步骤、Branding、Review）在[接入租户](/zh-cn/tenant-onboarding#run-the-create-customer-wizard)中统一记录。本节只涵盖 tailnet 试点特有的内容。
 
-::: tip 提前收集租户信息
-对于 `provided` 配置的租户，向导在第 3 步需要租户的**现有 Wazuh 凭据**。在开始向导**之前**，从你的租户联系人处获取它们（带外传递，使用与 §3.3 相同的安全渠道），这样你就不会中途停在一个填了一半的表单上。对于 `poc` / `persistent`，你只需要基本信息。
+::: warning Slug 必须匹配你的 tailnet 标签
+在 Identity 步骤，将 **Slug** 设为匹配 §1.1 中你的 tailnet 标签（因此 `tag:tenant-acme` → slug `acme`）。后续步骤会把该 slug 直接代入认证密钥（§3.3）和租户 `tailscale up` 命令（§4.2 / §4.7a）中的 `tag:tenant-<slug>`；不匹配意味着租户节点通告的标签得不到 §1.2 ACL 的授权。
 :::
 
-#### 第 1 步：Identity
-
-- **Display name**：例如 `Acme Corp`
-- **Slug**：短、小写、用短横线分隔（3–32 个字符，按 `[a-z0-9-]+` 校验）。**必须匹配** §1.1 中你的 tailnet 标签（因此 `tag:tenant-acme` → slug `acme`）。后续步骤会将该 slug 直接代入认证密钥（§3.3）和租户的 `tailscale up` 命令（§4.2 / §4.7a）中的 `tag:tenant-<slug>`；不匹配意味着租户节点通告的标签得不到 §1.2 ACL 的授权。
-- **Contact email**
-
-![Create Customer: Identity step](/screenshots/mssp-add-tenant-step1-identity.png)
-
-#### 第 2 步：Profile
-
-从三个单选项中选择一个。API 按 `poc | persistent | provided` 校验：
-
-- **PoC**：chart 会在租户集群上安装 Wazuh + 一个 linux-ep 模拟器，使用 `local-path` 存储并采用紧凑的资源预算。为租户没有现有 Wazuh 的短期试点选择此项。参阅 [租户生命周期 / poc](/zh-cn/tenant-lifecycle#poc)。
-- **Persistent**：与 `poc` 相同的含 Wazuh 形态，但按持续的生产负载进行规格设定，使用集群的默认 StorageClass 和完整的 chart 资源区间。参阅 [租户生命周期 / persistent](/zh-cn/tenant-lifecycle#persistent)。
-- **Provided（自带 Wazuh）**：chart 只安装 SocTalk 适配器；你通过 **External SIEM** 步骤（如下）将其指向租户的现有 Wazuh。参阅 [租户生命周期 / provided](/zh-cn/tenant-lifecycle#provided)。
-
-同一步骤上有一个 **LLM (advanced)** 展开项，用于覆盖安装时共享的 LLM 提供方、base URL、密钥以及（可选的）Fast / Thinking 模型 ID。对于 `poc` / `persistent`，这是可选的；保持折叠即可继承安装默认值。对于 `provided`，LLM 凭据是**必填的**（没有安装时共享的回退值）并会作为该步骤的门槛。
-
-![Create Customer: Profile step](/screenshots/mssp-add-tenant-step2-profile.png)
-
-::: warning 配置选择具有粘性
-在租户已置备后更改配置需要停用并重新接入。提交前请与你的租户联系人确认。
+::: tip 提前收集 provided 凭据
+对于 `provided` 配置档的租户，向导的 External SIEM 步骤需要租户现有的 Wazuh 凭据，且这些端点必须能从你在 §4 中搭建的租户 VM 访问到。请先带外从你的租户联系人处收集它们；参见 [§3.4](#_3-4-coordinating-external-wazuh-creds-for-provided-tenants)。
 :::
 
-#### 第 3 步：External SIEM（仅 provided）
-
-除非你在第 2 步选择了 Provided，否则此步骤隐藏。填写两对端点 + 凭据：
-
-- **Wazuh Indexer URL**（例如 `https://wazuh.acme.example:9200`）+ indexer 用户 + indexer 密码（Basic 认证）
-- **Wazuh Manager API URL**（例如 `https://wazuh.acme.example:55000`）+ API 用户 + API 密码（用于签发 JWT）
-
-这些必须能从你将在 §4 中搭建的租户 VM 访问到。MSSP 一侧的控制器会将这些 URL 转换为租户命名空间上的 Cilium FQDN 出站白名单；适配器绝不会从你的 MSSP 集群直接访问 Wazuh。
-
-在提交前，从 MSSP VM 对 manager 凭据做一次健全性检查：
-
-```bash
-curl -k -u <user>:<pw> "https://<wazuh-mgr>:55000/security/user/authenticate?raw=true"
-# expected: a JWT (long base64 string)
-```
-
-如果返回 200，那么在 §4 完成后，租户聊天工具就能解析查询。
-
-#### 第 4 步（poc/persistent 则为第 3 步）：Branding
-
-可选。Display name + 一个小型 logo 上传，会显示在租户页头。你可以完全跳过此步。
-
-![Create Customer: Branding step](/screenshots/mssp-add-tenant-step3-branding.png)
-
-#### 最后一步：Review
-
-确认所有内容，然后点击 **Create**。API 返回 202，你会被带回租户列表；新租户以 `pending` 开始，并经过 `provisioning → active`。刷新详情页可观察生命周期事件的累积。
-
-![Create Customer: Review step](/screenshots/mssp-add-tenant-step4-review.png)
+向导完成后，租户以 `pending` 开始，并经过 `provisioning → active`；在租户详情页观察生命周期事件的累积。
 
 ### 3.2 签发 agent 注册命令
 

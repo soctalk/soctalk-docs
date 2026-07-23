@@ -69,6 +69,7 @@ Chaque utilisateur créé reçoit un mot de passe temporaire à usage unique, af
 
 ## Pour aller plus loin
 
+- [Intégrer un tenant](/fr-fr/tenant-onboarding) : la procédure pas à pas de l'assistant et des phases ci-dessous
 - [Cycle de vie des tenants](/fr-fr/tenant-lifecycle) : machine à états, phases, chemins de récupération
 - [Ingress des agents Wazuh](/fr-fr/reference/wazuh-ingress) : topologies de bordure, certificats, révocation
 - [Utilisateurs et rôles](/fr-fr/users-and-roles) : le catalogue complet des rôles et le mur d'audience

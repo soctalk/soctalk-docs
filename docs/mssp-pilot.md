@@ -191,65 +191,17 @@ For each tenant in your pilot, you'll do this in the MSSP dashboard, then hand t
 
 ### 3.1 Run the Create Customer wizard
 
-In the MSSP dashboard, click **Tenants** in the left rail, then **New tenant** at the top of the list page. This opens the **Create Customer** wizard. For `poc` and `persistent` profiles it's 4 steps (Identity → Profile → Branding → Review); for `provided` it's 5 (an **External SIEM** step appears between Profile and Branding).
+In the MSSP dashboard, click **Tenants** in the left rail, then **New tenant**. This opens the **Create Customer** wizard. The full step-by-step (Identity, Profile, the `provided`-only External SIEM step, Branding, Review) is documented once in [Onboard a tenant](/tenant-onboarding#run-the-create-customer-wizard). This section covers only what is specific to the tailnet pilot.
 
-::: tip Collect tenant info up front
-For `provided`-profile tenants, the wizard requires the tenant's **existing Wazuh credentials** at step 3. Get them from your tenant contact (out-of-band, same secure channel as §3.3) **before** starting the wizard so you don't park a half-filled form. For `poc` / `persistent` you only need the basics.
+::: warning Slug must match your tailnet tag
+On the Identity step, set the **Slug** to match your tailnet tag from §1.1 (so `tag:tenant-acme` → slug `acme`). Later steps substitute the slug directly into `tag:tenant-<slug>` for the auth key (§3.3) and the tenant `tailscale up` command (§4.2 / §4.7a); a mismatch means the tenant node advertises a tag your §1.2 ACLs don't grant.
 :::
 
-#### Step 1: Identity
-
-- **Display name**: e.g. `Acme Corp`
-- **Slug**: short, lowercase, dash-separated (3–32 chars, validated `[a-z0-9-]+`). **Must match** your tailnet tag from §1.1 (so `tag:tenant-acme` → slug `acme`). Later steps substitute the slug directly into `tag:tenant-<slug>` for the auth key (§3.3) and the tenant `tailscale up` command (§4.2 / §4.7a); a mismatch means the tenant node advertises a tag your §1.2 ACLs don't grant.
-- **Contact email**
-
-![Create Customer: Identity step](/screenshots/mssp-add-tenant-step1-identity.png)
-
-#### Step 2: Profile
-
-Pick one of three radio options. The API validates against `poc | persistent | provided`:
-
-- **PoC**: chart installs Wazuh + a linux-ep simulator on the tenant cluster, with `local-path` storage and tight resource budgets. Choose this for short-lived pilots where the tenant has no existing Wazuh. See [tenant lifecycle / poc](/tenant-lifecycle#poc).
-- **Persistent**: same Wazuh-included shape as `poc`, but sized for sustained production load with the cluster's default StorageClass and full chart resource ranges. See [tenant lifecycle / persistent](/tenant-lifecycle#persistent).
-- **Provided (bring your own Wazuh)**: chart installs only the SocTalk adapter; you point it at the tenant's existing Wazuh via the **External SIEM** step (below). See [tenant lifecycle / provided](/tenant-lifecycle#provided).
-
-There's an **LLM (advanced)** disclosure on the same step for overriding the install-shared LLM provider, base URL, key, and (optionally) Fast / Thinking model IDs. For `poc` / `persistent` this is optional; leave it collapsed to inherit the install defaults. For `provided` the LLM credentials are **required** (there's no install-shared fallback) and gate the step.
-
-![Create Customer: Profile step](/screenshots/mssp-add-tenant-step2-profile.png)
-
-::: warning Profile choice is sticky
-Changing the profile after the tenant has provisioned requires decommissioning and re-onboarding. Confirm with your tenant contact before submitting.
+::: tip Collect provided creds up front
+For a `provided`-profile tenant, the wizard's External SIEM step needs the tenant's existing Wazuh credentials, and those endpoints must be reachable from the tenant VM you stand up in §4. Gather them from your tenant contact out-of-band first; see [§3.4](#_3-4-coordinating-external-wazuh-creds-for-provided-tenants).
 :::
 
-#### Step 3: External SIEM (provided only)
-
-This step is hidden unless you picked Provided on step 2. Fill in two endpoint + credential pairs:
-
-- **Wazuh Indexer URL** (e.g. `https://wazuh.acme.example:9200`) + indexer user + indexer password (Basic auth)
-- **Wazuh Manager API URL** (e.g. `https://wazuh.acme.example:55000`) + API user + API password (used to mint JWTs)
-
-These need to be reachable from the tenant VM you'll stand up in §4. The MSSP-side controller turns the URLs into a Cilium FQDN egress allow-list on the tenant namespace; the adapter never reaches Wazuh directly from your MSSP cluster.
-
-Sanity-check the manager creds from the MSSP VM before you submit:
-
-```bash
-curl -k -u <user>:<pw> "https://<wazuh-mgr>:55000/security/user/authenticate?raw=true"
-# expected: a JWT (long base64 string)
-```
-
-If this 200s, the tenant chat tools will resolve once §4 completes.
-
-#### Step 4 (or 3 for poc/persistent): Branding
-
-Optional. Display name + small logo upload that surfaces in the tenant header. You can skip this entirely.
-
-![Create Customer: Branding step](/screenshots/mssp-add-tenant-step3-branding.png)
-
-#### Final step: Review
-
-Confirm everything, then click **Create**. The API responds 202 and you're returned to the tenants list; the new tenant starts in `pending` and runs through `provisioning → active`. Refresh the detail page to watch lifecycle events accumulate.
-
-![Create Customer: Review step](/screenshots/mssp-add-tenant-step4-review.png)
+When the wizard finishes, the tenant starts in `pending` and runs through `provisioning → active`; watch the lifecycle events accumulate on the tenant detail page.
 
 ### 3.2 Issue the agent registration command
 

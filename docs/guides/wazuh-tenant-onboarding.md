@@ -69,6 +69,7 @@ Every created user receives a one-time temporary password, shown once and forced
 
 ## Go deeper
 
+- [Onboard a tenant](/tenant-onboarding): the step-by-step operator walkthrough of the wizard and the phases below
 - [Tenant lifecycle](/tenant-lifecycle): state machine, phases, recovery paths
 - [Wazuh agent ingress](/reference/wazuh-ingress): edge topologies, certs, revocation
 - [Users and roles](/users-and-roles): the full role catalog and audience wall

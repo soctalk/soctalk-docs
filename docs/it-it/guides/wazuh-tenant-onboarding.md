@@ -69,6 +69,7 @@ Ogni utente creato riceve una password temporanea monouso, mostrata una sola vol
 
 ## Per approfondire
 
+- [Onboarding di un tenant](/it-it/tenant-onboarding): la procedura passo passo della procedura guidata e delle fasi seguenti
 - [Lifecycle del tenant](/it-it/tenant-lifecycle): macchina a stati, fasi, percorsi di recovery
 - [Ingress degli agent Wazuh](/it-it/reference/wazuh-ingress): topologie edge, certificati, revoca
 - [Utenti e ruoli](/it-it/users-and-roles): il catalogo completo dei ruoli e il muro di audience

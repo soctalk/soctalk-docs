@@ -191,65 +191,17 @@ Für jeden Mandanten in deinem Piloten machst du dies im MSSP-Dashboard und übe
 
 ### 3.1 Den Assistenten „Create Customer" ausführen
 
-Klicke im MSSP-Dashboard in der linken Leiste auf **Tenants**, dann oben auf der Listenseite auf **New tenant**. Dies öffnet den Assistenten **Create Customer**. Für die Profile `poc` und `persistent` sind es 4 Schritte (Identity → Profile → Branding → Review); für `provided` sind es 5 (ein Schritt **External SIEM** erscheint zwischen Profile und Branding).
+Klicke im MSSP-Dashboard in der linken Leiste auf **Tenants**, dann auf **New tenant**. Dies öffnet den Assistenten **Create Customer**. Die vollständige Schritt-für-Schritt-Anleitung (Identity, Profile, der nur für `provided` sichtbare Schritt External SIEM, Branding, Review) ist einmalig unter [Mandanten onboarden](/de-de/tenant-onboarding#run-the-create-customer-wizard) dokumentiert. Dieser Abschnitt behandelt nur das, was für den Tailnet-Piloten spezifisch ist.
 
-::: tip Mandanteninformationen vorab sammeln
-Für Mandanten mit `provided`-Profil verlangt der Assistent die **bestehenden Wazuh-Zugangsdaten** des Mandanten in Schritt 3. Hole sie von deinem Mandantenkontakt (out-of-band, über denselben sicheren Kanal wie §3.3) **bevor** du den Assistenten startest, damit du kein halb ausgefülltes Formular parken musst. Für `poc` / `persistent` brauchst du nur die Grundlagen.
+::: warning Der Slug muss deinem Tailnet-Tag entsprechen
+Setze im Schritt Identity den **Slug** so, dass er deinem Tailnet-Tag aus §1.1 entspricht (sodass `tag:tenant-acme` → Slug `acme`). Spätere Schritte setzen den Slug direkt in `tag:tenant-<slug>` für den Auth-Schlüssel (§3.3) und den `tailscale up`-Befehl des Mandanten (§4.2 / §4.7a) ein; eine Nichtübereinstimmung bedeutet, dass der Mandantenknoten ein Tag ankündigt, das deine ACLs aus §1.2 nicht gewähren.
 :::
 
-#### Schritt 1: Identity
-
-- **Display name**: z. B. `Acme Corp`
-- **Slug**: kurz, kleingeschrieben, mit Bindestrichen getrennt (3–32 Zeichen, validiert `[a-z0-9-]+`). **Muss** deinem Tailnet-Tag aus §1.1 entsprechen (sodass `tag:tenant-acme` → Slug `acme`). Spätere Schritte setzen den Slug direkt in `tag:tenant-<slug>` für den Auth-Schlüssel (§3.3) und den `tailscale up`-Befehl des Mandanten (§4.2 / §4.7a) ein; eine Nichtübereinstimmung bedeutet, dass der Mandantenknoten ein Tag ankündigt, das deine ACLs aus §1.2 nicht gewähren.
-- **Contact email**
-
-![Create Customer: Identity-Schritt](/screenshots/mssp-add-tenant-step1-identity.png)
-
-#### Schritt 2: Profile
-
-Wähle eine von drei Radiooptionen. Die API validiert gegen `poc | persistent | provided`:
-
-- **PoC**: Das Chart installiert Wazuh + einen linux-ep-Simulator auf dem Mandanten-Cluster, mit `local-path`-Speicher und knappen Ressourcenbudgets. Wähle dies für kurzlebige Piloten, bei denen der Mandant kein bestehendes Wazuh hat. Siehe [Mandanten-Lebenszyklus / poc](/de-de/tenant-lifecycle#poc).
-- **Persistent**: dieselbe Wazuh-inklusive Form wie `poc`, aber dimensioniert für dauerhafte Produktionslast mit der Standard-StorageClass des Clusters und vollen Chart-Ressourcenbereichen. Siehe [Mandanten-Lebenszyklus / persistent](/de-de/tenant-lifecycle#persistent).
-- **Provided (Bring your own Wazuh)**: Das Chart installiert nur den SocTalk-Adapter; du richtest ihn über den Schritt **External SIEM** (unten) auf das bestehende Wazuh des Mandanten aus. Siehe [Mandanten-Lebenszyklus / provided](/de-de/tenant-lifecycle#provided).
-
-Im selben Schritt gibt es eine Aufklappoption **LLM (advanced)**, um den installationsweit geteilten LLM-Provider, die Base-URL, den Schlüssel und (optional) die Fast-/Thinking-Modell-IDs zu überschreiben. Für `poc` / `persistent` ist dies optional; lass es eingeklappt, um die Installationsstandards zu übernehmen. Für `provided` sind die LLM-Zugangsdaten **erforderlich** (es gibt keinen installationsweiten Fallback) und blockieren den Schritt.
-
-![Create Customer: Profile-Schritt](/screenshots/mssp-add-tenant-step2-profile.png)
-
-::: warning Die Profilwahl bleibt haften
-Das Ändern des Profils, nachdem der Mandant bereitgestellt wurde, erfordert eine Außerbetriebnahme und ein erneutes Onboarding. Bestätige es mit deinem Mandantenkontakt, bevor du absendest.
+::: tip Provided-Zugangsdaten vorab sammeln
+Für einen Mandanten mit `provided`-Profil verlangt der Schritt External SIEM des Assistenten die bestehenden Wazuh-Zugangsdaten des Mandanten, und diese Endpunkte müssen von der Mandanten-VM aus erreichbar sein, die du in §4 aufsetzt. Sammle sie zuerst out-of-band von deinem Mandantenkontakt ein; siehe [§3.4](#_3-4-coordinating-external-wazuh-creds-for-provided-tenants).
 :::
 
-#### Schritt 3: External SIEM (nur provided)
-
-Dieser Schritt ist ausgeblendet, es sei denn, du hast in Schritt 2 Provided gewählt. Fülle zwei Endpoint-plus-Zugangsdaten-Paare aus:
-
-- **Wazuh Indexer URL** (z. B. `https://wazuh.acme.example:9200`) + Indexer-Benutzer + Indexer-Passwort (Basic Auth)
-- **Wazuh Manager API URL** (z. B. `https://wazuh.acme.example:55000`) + API-Benutzer + API-Passwort (verwendet, um JWTs auszustellen)
-
-Diese müssen von der Mandanten-VM aus erreichbar sein, die du in §4 aufsetzen wirst. Der MSSP-seitige Controller wandelt die URLs in eine Cilium-FQDN-Egress-Allow-List auf dem Mandanten-Namespace um; der Adapter erreicht Wazuh niemals direkt aus deinem MSSP-Cluster.
-
-Prüfe die Manager-Zugangsdaten von der MSSP-VM aus, bevor du absendest:
-
-```bash
-curl -k -u <user>:<pw> "https://<wazuh-mgr>:55000/security/user/authenticate?raw=true"
-# expected: a JWT (long base64 string)
-```
-
-Wenn dies mit 200 antwortet, werden die Chat-Tools des Mandanten aufgelöst, sobald §4 abgeschlossen ist.
-
-#### Schritt 4 (oder 3 für poc/persistent): Branding
-
-Optional. Anzeigename + Upload eines kleinen Logos, das im Mandanten-Header erscheint. Du kannst dies vollständig überspringen.
-
-![Create Customer: Branding-Schritt](/screenshots/mssp-add-tenant-step3-branding.png)
-
-#### Letzter Schritt: Review
-
-Bestätige alles, dann klicke auf **Create**. Die API antwortet mit 202 und du wirst zur Mandantenliste zurückgeführt; der neue Mandant startet in `pending` und durchläuft `provisioning → active`. Aktualisiere die Detailseite, um zuzusehen, wie sich Lebenszyklus-Events ansammeln.
-
-![Create Customer: Review-Schritt](/screenshots/mssp-add-tenant-step4-review.png)
+Wenn der Assistent fertig ist, startet der Mandant in `pending` und durchläuft `provisioning → active`; sieh auf der Mandanten-Detailseite zu, wie sich die Lebenszyklus-Events ansammeln.
 
 ### 3.2 Den Agent-Registrierungsbefehl ausstellen
 
