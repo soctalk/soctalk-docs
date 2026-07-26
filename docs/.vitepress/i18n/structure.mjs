@@ -22,6 +22,7 @@ export const SIDEBAR = [
       { id: 'launchpad', link: '/launchpad', en: 'MSSP pilot rollout' },
       { id: 'mssp-pilot', link: '/mssp-pilot', en: 'MSSP pilot: do it yourself' },
       { id: 'install', link: '/install', en: 'Production install' },
+      { id: 'os-packages', link: '/os-packages', en: 'Install from an OS package' },
       { id: 'downloads', link: '/downloads', en: 'Downloads' },
       { id: 'setup-wizard', link: '/setup-wizard', en: 'Setup wizard' },
       { id: 'virtualbox', link: '/virtualbox', en: 'Run on VirtualBox' },
