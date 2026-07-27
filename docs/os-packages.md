@@ -4,11 +4,16 @@ Every SocTalk release ships native OS packages alongside the VM images, attached
 to the same GitHub Release as the version tag. One package per format covers the
 major Linux families:
 
-| File | Package manager | Distributions |
-|---|---|---|
-| `soctalk-<ver>-1.x86_64.rpm` | dnf / yum / zypper | RHEL, Fedora, AlmaLinux, Rocky, openSUSE |
-| `soctalk_<ver>_amd64.deb` | apt / dpkg | Debian, Ubuntu |
-| `soctalk_<ver>_x86_64.apk` | apk | Alpine |
+| File | Package manager | Distributions | `soctalk install` supported |
+|---|---|---|---|
+| `soctalk-<ver>-1.x86_64.rpm` | dnf / yum / zypper | RHEL, Fedora, AlmaLinux, Rocky, openSUSE | Yes |
+| `soctalk_<ver>_amd64.deb` | apt / dpkg | Debian, Ubuntu | Yes |
+| `soctalk_<ver>_x86_64.apk` | apk | Alpine | No, see [Alpine](#alpine-cli-only) |
+
+The `.rpm` and `.deb` paths are verified end to end (install the package, run
+`soctalk install`, reach the web app). On Alpine the package installs and the
+CLI runs, but `soctalk install` does not work because SocTalk's installer
+requires systemd; see the Alpine note below.
 
 They are published on the [`soctalk/soctalk`](https://github.com/soctalk/soctalk/releases)
 releases page. The current release is **v0.2.0**:
@@ -61,6 +66,9 @@ configured repositories. On a minimal image without `apt` you can use
 `sudo dpkg -i soctalk_0.2.0_amd64.deb && sudo apt-get -f install`.
 
 ### Alpine
+
+The Alpine package installs the CLI but cannot run `soctalk install` (see
+[Alpine](#alpine-cli-only) below). Install it only to manage an existing cluster.
 
 ```bash
 wget https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk_0.2.0_x86_64.apk
@@ -144,6 +152,43 @@ sudo soctalk uninstall --purge  # also run k3s-uninstall.sh and tear down the cl
 Removing the OS package (`dnf remove soctalk`, `apt remove soctalk`,
 `apk del soctalk`) deletes the CLI and installer but does not touch a running
 cluster. Run `soctalk uninstall` first if you want the SOC stack gone.
+
+## OS-specific notes
+
+### RHEL, Fedora, AlmaLinux, Rocky
+
+Verified end to end on Rocky Linux 9 with SELinux in **Enforcing** mode. No
+manual SELinux work is needed: the K3s installer pulls in the `k3s-selinux` and
+`container-selinux` policy packages automatically during `soctalk install`, so
+the cluster comes up under Enforcing.
+
+If **firewalld** is active (common on a full RHEL server install, though not on
+the minimal cloud images), it can block the K3s pod and service networks, which
+shows up as pods stuck `ContainerCreating` or the web app being unreachable. K3s
+manages its own iptables rules; the simplest fix is to let it, by trusting the
+cluster networks:
+
+```bash
+sudo firewall-cmd --permanent --zone=trusted --add-source=10.42.0.0/16   # pods
+sudo firewall-cmd --permanent --zone=trusted --add-source=10.43.0.0/16   # services
+sudo firewall-cmd --reload
+```
+
+### Alpine (CLI only) {#alpine-cli-only}
+
+The `.apk` installs cleanly and the `soctalk` CLI runs, but **`soctalk install`
+does not work on Alpine**. Two Alpine characteristics block it:
+
+- SocTalk's installer brings K3s up as a **systemd** service. Alpine uses
+  OpenRC, so the `systemctl` calls have nothing to talk to.
+- The installer's preflight uses GNU `coreutils` `df` options that Alpine's
+  BusyBox `df` does not accept, so it aborts during the disk check before it
+  even reaches K3s.
+
+Use the `.apk` only to get the `soctalk` CLI onto an Alpine box that already has
+a working cluster reachable via `kubectl`. To stand up SocTalk from scratch, use
+a systemd-based host (the `.deb` or `.rpm` path) or the prebuilt
+[demo VM image](/quickstart-vm).
 
 ## Which path should I use?
 
