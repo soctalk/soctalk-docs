@@ -206,9 +206,7 @@ con systemd (la vía `.deb` o `.rpm` anterior) o la
 - **Paquete del sistema operativo (esta página)**: un host Linux que administras,
   controlado por el gestor de paquetes del sistema. Bueno para instalaciones
   repetibles y gestionadas por configuración.
-- **[Instalación con un solo comando](/es-419/install)**: `curl … | install.sh |
-  bash` en una VM de Ubuntu limpia, el mismo instalador sin el envoltorio del
-  paquete.
+- **[Instalación con un solo comando](/es-419/install)**: `curl … | install.sh | bash` en una VM de Ubuntu limpia, el mismo instalador sin el envoltorio del paquete.
 - **[Imagen de VM de demostración](/es-419/quickstart-vm)**: appliance
   precompilado con un asistente de configuración por navegador, la vía más rápida
   a un sistema en ejecución para evaluación.

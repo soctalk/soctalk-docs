@@ -3,13 +3,13 @@
 Jedes SocTalk-Release liefert native OS-Pakete zusätzlich zu den VM-Images, angehängt
 an dasselbe GitHub-Release wie der Versions-Tag, für die beiden systemd-basierten Linux-Familien:
 
-| File | Package manager | Verified on | Also expected to work |
+| Datei | Paketmanager | Verifiziert auf | Voraussichtlich auch lauffähig |
 |---|---|---|---|
 | `soctalk-<ver>-1.x86_64.rpm` | dnf / yum | Rocky Linux 9 | RHEL, Fedora, AlmaLinux |
 | `soctalk_<ver>_amd64.deb` | apt / dpkg | Ubuntu 24.04 | Debian |
 
 Beide sind Ende zu Ende verifiziert: Paket installieren, `soctalk install` ausführen, die
-Web-App erreichen und sich anmelden. Die Spalte "Also expected" bezeichnet dieselbe Paketfamilie,
+Web-App erreichen und sich anmelden. Die Spalte "Voraussichtlich auch lauffähig" bezeichnet dieselbe Paketfamilie,
 wurde aber auf diesen Distributionen nicht spezifisch getestet.
 
 **Alpine wird nicht unterstützt** und es wird kein `.apk` veröffentlicht: `soctalk install`

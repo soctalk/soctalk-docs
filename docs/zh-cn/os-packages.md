@@ -150,7 +150,7 @@ CLI 和安装程序，但不会触及正在运行的集群。如果你想彻底�
 已在 SELinux 处于 **Enforcing** 模式的 Rocky Linux 9 上验证。无需任何手动的
 SELinux 操作即可运行：K3s 安装程序会在 `soctalk install` 期间自动拉入
 `k3s-selinux` 和 `container-selinux` 策略包，因此集群会在 Enforcing 下正常启动。
-请注意，这意味着“在目标策略下正确运行”，而不是说 SELinux
+请注意，这意味着“在 targeted 策略下正确运行”，而不是说 SELinux
 正作为加固层来约束该工作负载；启用 K3s 自身的 SELinux 强制
 （`--selinux` / `K3S_SELINUX=true`）在此并未测试。RHEL 10 还需要为 K3s 安装
 `kernel-modules-extra` 包，这一点也未经测试。
