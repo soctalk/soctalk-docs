@@ -1,19 +1,23 @@
-# Install from an OS package (rpm / deb / apk)
+# Install from an OS package (rpm / deb)
 
 Every SocTalk release ships native OS packages alongside the VM images, attached
-to the same GitHub Release as the version tag. One package per format covers the
-major Linux families:
+to the same GitHub Release as the version tag, for the two systemd-based Linux
+families:
 
-| File | Package manager | Distributions | `soctalk install` supported |
+| File | Package manager | Verified on | Also expected to work |
 |---|---|---|---|
-| `soctalk-<ver>-1.x86_64.rpm` | dnf / yum / zypper | RHEL, Fedora, AlmaLinux, Rocky, openSUSE | Yes |
-| `soctalk_<ver>_amd64.deb` | apt / dpkg | Debian, Ubuntu | Yes |
-| `soctalk_<ver>_x86_64.apk` | apk | Alpine | No, see [Alpine](#alpine-cli-only) |
+| `soctalk-<ver>-1.x86_64.rpm` | dnf / yum | Rocky Linux 9 | RHEL, Fedora, AlmaLinux |
+| `soctalk_<ver>_amd64.deb` | apt / dpkg | Ubuntu 24.04 | Debian |
 
-The `.rpm` and `.deb` paths are verified end to end (install the package, run
-`soctalk install`, reach the web app). On Alpine the package installs and the
-CLI runs, but `soctalk install` does not work because SocTalk's installer
-requires systemd; see the Alpine note below.
+Both are verified end to end: install the package, run `soctalk install`, reach
+the web app and log in. The "also expected" column is the same package family
+but has not been tested on those distributions specifically.
+
+**Alpine is not supported** and no `.apk` is published: `soctalk install`
+requires systemd, and Alpine uses OpenRC. See [Alpine and other non-systemd
+hosts](#alpine-and-other-non-systemd-hosts) below. **openSUSE / zypper** and
+**RHEL 10** are untested; the RHEL/Fedora notes may not fully apply. **amd64
+only**: there is no arm64 package.
 
 They are published on the [`soctalk/soctalk`](https://github.com/soctalk/soctalk/releases)
 releases page. The current release is **v0.2.0**:
@@ -33,11 +37,11 @@ and the installer, then you run one command to bring the stack up:
   they are missing, then Helm-installs the `soctalk-system` chart from GHCR.
 - `/etc/soctalk/soctalk.env.example`, a template for unattended installs.
 
-The only dependencies are `curl` and `tar` (plus `bash` on Alpine); the installer
-fetches K3s and Helm itself. This is the right path when you are installing onto
-a Linux host you manage directly and want SocTalk registered in the system
-package database (so `dnf`/`apt`/`apk` track and upgrade it). If you just want to
-try SocTalk, the [demo VM image](/quickstart-vm) is faster.
+The only dependencies are `curl` and `tar`; the installer fetches K3s and Helm
+itself. This is the right path when you are installing onto a Linux host you
+manage directly and want SocTalk registered in the system package database (so
+`dnf`/`apt` track and upgrade it). If you just want to try SocTalk, the
+[demo VM image](/quickstart-vm) is faster.
 
 ## Install the package
 
@@ -65,19 +69,6 @@ sudo apt install ./soctalk_0.2.0_amd64.deb
 configured repositories. On a minimal image without `apt` you can use
 `sudo dpkg -i soctalk_0.2.0_amd64.deb && sudo apt-get -f install`.
 
-### Alpine
-
-The Alpine package installs the CLI but cannot run `soctalk install` (see
-[Alpine](#alpine-cli-only) below). Install it only to manage an existing cluster.
-
-```bash
-wget https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk_0.2.0_x86_64.apk
-sudo apk add --allow-untrusted ./soctalk_0.2.0_x86_64.apk
-```
-
-`--allow-untrusted` is required because the package is not signed with an Alpine
-repository key. Verify the checksum below instead.
-
 ## Verify the download
 
 Every release includes `SHA256SUMS.txt` covering all artifacts, including the
@@ -103,12 +94,15 @@ Interactive (prompts for MSSP name, admin, and LLM provider):
 sudo soctalk install
 ```
 
-Throwaway demo (random admin password, auto-onboards a demo tenant, no input
-required):
+Throwaway demo (random admin password, auto-onboards a demo tenant):
 
 ```bash
 sudo soctalk install --demo
 ```
+
+`--demo` still pauses once for a consent prompt. For a fully unattended run (no
+terminal attached, for example from a provisioning script) add `--yes`:
+`sudo soctalk install --demo --yes`.
 
 Unattended, driven by environment variables (copy the shipped template):
 
@@ -149,45 +143,49 @@ sudo soctalk uninstall          # remove the soctalk-system release, keep K3s
 sudo soctalk uninstall --purge  # also run k3s-uninstall.sh and tear down the cluster
 ```
 
-Removing the OS package (`dnf remove soctalk`, `apt remove soctalk`,
-`apk del soctalk`) deletes the CLI and installer but does not touch a running
-cluster. Run `soctalk uninstall` first if you want the SOC stack gone.
+Removing the OS package (`dnf remove soctalk` or `apt remove soctalk`) deletes
+the CLI and installer but does not touch a running cluster. Run
+`soctalk uninstall` first if you want the SOC stack gone.
 
 ## OS-specific notes
 
 ### RHEL, Fedora, AlmaLinux, Rocky
 
-Verified end to end on Rocky Linux 9 with SELinux in **Enforcing** mode. No
-manual SELinux work is needed: the K3s installer pulls in the `k3s-selinux` and
+Verified on Rocky Linux 9 with SELinux in **Enforcing** mode. No manual SELinux
+work is needed to get running: the K3s installer pulls in the `k3s-selinux` and
 `container-selinux` policy packages automatically during `soctalk install`, so
-the cluster comes up under Enforcing.
+the cluster comes up under Enforcing. Note this means "runs correctly under the
+targeted policy," not that SELinux is confining the workload as a hardening
+layer; enabling K3s's own SELinux enforcement (`--selinux` / `K3S_SELINUX=true`)
+was not tested here. RHEL 10 also needs the `kernel-modules-extra` package for
+K3s, which was not tested.
 
 If **firewalld** is active (common on a full RHEL server install, though not on
-the minimal cloud images), it can block the K3s pod and service networks, which
-shows up as pods stuck `ContainerCreating` or the web app being unreachable. K3s
-manages its own iptables rules; the simplest fix is to let it, by trusting the
-cluster networks:
+the minimal cloud images), it can block cluster traffic, which shows up as pods
+stuck `ContainerCreating` or the web app being unreachable. Trust the K3s pod
+and service networks, and open the ingress ports you actually reach the UI on:
 
 ```bash
 sudo firewall-cmd --permanent --zone=trusted --add-source=10.42.0.0/16   # pods
 sudo firewall-cmd --permanent --zone=trusted --add-source=10.43.0.0/16   # services
+sudo firewall-cmd --permanent --add-port=80/tcp --add-port=443/tcp       # web UI ingress
 sudo firewall-cmd --reload
 ```
 
-### Alpine (CLI only) {#alpine-cli-only}
+The `10.42.0.0/16` and `10.43.0.0/16` values are the K3s defaults; if you set a
+custom cluster or service CIDR, use those instead. A multi-node cluster needs
+more ports open between nodes (see the K3s networking requirements).
 
-The `.apk` installs cleanly and the `soctalk` CLI runs, but **`soctalk install`
-does not work on Alpine**. Two Alpine characteristics block it:
+### Alpine and other non-systemd hosts {#alpine-and-other-non-systemd-hosts}
 
-- SocTalk's installer brings K3s up as a **systemd** service. Alpine uses
-  OpenRC, so the `systemctl` calls have nothing to talk to.
-- The installer's preflight uses GNU `coreutils` `df` options that Alpine's
-  BusyBox `df` does not accept, so it aborts during the disk check before it
-  even reaches K3s.
+**SocTalk's installer requires systemd.** It brings K3s up as a systemd service
+and waits on the systemd-written kubeconfig, so it does not work on Alpine
+(OpenRC) or any other non-systemd init. On such a host `soctalk install` stops
+early with a clear message telling you so. For that reason no `.apk` is
+published.
 
-Use the `.apk` only to get the `soctalk` CLI onto an Alpine box that already has
-a working cluster reachable via `kubectl`. To stand up SocTalk from scratch, use
-a systemd-based host (the `.deb` or `.rpm` path) or the prebuilt
+To run SocTalk where you were considering Alpine, use a systemd distribution
+(the `.deb` or `.rpm` path above) or the prebuilt
 [demo VM image](/quickstart-vm).
 
 ## Which path should I use?

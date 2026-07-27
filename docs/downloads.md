@@ -22,7 +22,7 @@ All disk images are compressed with `xz -9`. Decompress with `xz -d <file>.xz`.
 The same release also carries a one-step VMware OVA and the native OS packages:
 
 - [`soctalk-demo-0.2.0.ova`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.ova), VMware ESXi / vSphere one-step "Deploy OVF Template". See [Run on VMware ESXi](/vmware)
-- [`soctalk-0.2.0-1.x86_64.rpm`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-0.2.0-1.x86_64.rpm) · [`soctalk_0.2.0_amd64.deb`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk_0.2.0_amd64.deb) · [`soctalk_0.2.0_x86_64.apk`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk_0.2.0_x86_64.apk), the `soctalk` CLI + installer for dnf/apt/apk hosts. See [Install from an OS package](/os-packages)
+- [`soctalk-0.2.0-1.x86_64.rpm`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-0.2.0-1.x86_64.rpm) · [`soctalk_0.2.0_amd64.deb`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk_0.2.0_amd64.deb), the `soctalk` CLI + installer for dnf/apt hosts. See [Install from an OS package](/os-packages)
 
 ## Format chooser
 
