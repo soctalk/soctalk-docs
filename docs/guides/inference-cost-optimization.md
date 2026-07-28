@@ -25,9 +25,17 @@ Turn both on and measure the new per-run cost before you consider anything below
 
 A triage run uses a model in two roles: a supervisor that routes the investigation, deciding what to enrich next and when to decide, and a verdict that weighs the evidence. Routing is the lighter task. SocTalk resolves each role to its own tier, and each tier points at its own provider, model, and endpoint, so the router can run on a smaller model while the verdict keeps the capable one. This is configuration, not new infrastructure.
 
-## Cheaper hosted models, with one caveat
+## Cheaper hosted models
 
-Several providers serve near-frontier open models that can undercut the frontier APIs, depending on provider, model, and workload. They fit the routine, lower-risk cases where a near-frontier open model is enough. For security work the constraint is data governance rather than price: sending customer alerts to a third-party API, especially one in another jurisdiction, moves that data outside your control. If that is a hard no for your tenants, the next section keeps the data inside your boundary.
+A model marketplace, for example OpenRouter, serves open models from many providers at low per-token prices. In our own measured runs over the triage golden set, three inexpensive open models held the structured triage contract with no schema errors and full routing accuracy, at a metered cost of roughly $0.09 to $0.30 per thousand triage nodes. The lowest-cost of the three was weaker on the verdict cases, which is the same split the tiering above relies on, a cheaper model on routing and a capable one on the verdict. The [benchmark page](/guides/inference-cost-benchmark) has the per-model table and the method.
+
+Two things decide whether a hosted model is cheap enough and good enough, and neither is obvious from the model card.
+
+The first is which model, and it is not the parameter count. A 12B open model held the full routing set in these runs, so choose by whether a model holds the triage contract on a representative benchmark, rather than by how many parameters it carries.
+
+The second is which provider and numeric precision serve it. A marketplace routes each request across providers that host the same model at different quantizations, and a lower-precision copy can score worse on the same prompts at a similar price. Pin the request to a named provider and quantization and measure that pairing, rather than trusting the per-call default. SocTalk pins the provider per tier for this reason.
+
+For security work the constraint that remains is data governance, not price. Sending customer alerts to a third-party API moves that data outside your perimeter, whichever provider serves it. You can pin the jurisdiction, a US provider or a model vendor's own European endpoint, so a hosted model need not sit in an unknown country, but the alert content still leaves your boundary to reach it. If that is a hard no for your tenants, the next section keeps the data inside it.
 
 ## Self-host the model
 
@@ -74,4 +82,4 @@ Three questions settle it. **Utilization.** A steady, high-utilization load favo
 
 For most teams the order is the same as this guide. Batching and caching first, the router on a cheaper model next, and a self-hosted tier only once the volume and the data-residency need justify operating it.
 
-**Disclaimer.** SocTalk is not affiliated with, endorsed by, or sponsored by any LLM or GPU service provider. Modal, RunPod, Anthropic, OpenAI, Ollama, and any other services named in this guide are mentioned only as examples of where a model can run. The cost and performance figures are our own benchmark observations, not vendor-published numbers, and all product names and trademarks belong to their respective owners.
+**Disclaimer.** SocTalk is not affiliated with, endorsed by, or sponsored by any LLM or GPU service provider. Modal, RunPod, OpenRouter, Anthropic, OpenAI, Ollama, and any other services named in this guide are mentioned only as examples of where a model can run. The cost and performance figures are our own benchmark observations, not vendor-published numbers, and all product names and trademarks belong to their respective owners.
