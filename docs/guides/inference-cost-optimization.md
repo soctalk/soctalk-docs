@@ -55,19 +55,17 @@ In our benchmarks, filling the batch to eight concurrent requests raised aggrega
 
 ## What it costs, measured
 
-These numbers are from our own benchmark runs of one 7B open model over a fixed set of triage cases at eight-way concurrency. They are guidance, not a guarantee. Your model, hardware, and alert mix will move them.
+Two cheap paths measured well, and they differ mainly on whether alert content leaves your perimeter. A hosted open model on a marketplace, with the provider pinned, held routing with no schema errors at roughly $0.09 to $0.30 per thousand triage nodes, and two of the three also matched on the full verdict set. Self-hosting a small model on a rented consumer GPU measured about $0.09 to $0.18 per 1,000 alerts at eight-way concurrency, and it is the only path that keeps alert content inside your boundary. These are guidance, not a guarantee, and your model, hardware, and alert mix will move them.
 
-Per full triage, self-hosting on a rented consumer GPU came out around two to three orders of magnitude cheaper than an unoptimized frontier API call, and several times cheaper than the same model on a managed serverless platform, because the tested rental card was both cheaper per hour and, in these runs, faster. The managed platform's higher rate buys scale-to-zero and no operations. The frontier API's higher price buys a managed model tier that may suit the harder cases, with no infrastructure to run.
-
-Latency stayed practical. The 12-case set finished in around a minute on a Modal A10G and in about 11 seconds on a RunPod 4090, both at eight-way concurrency, rather than the several minutes a single-stream estimate implies, because concurrency overlaps the calls and real verdicts fit inside the token budget.
+Latency stayed practical. The self-hosted 12-case set finished in around a minute on a Modal A10G and about 11 seconds on a RunPod 4090, both at eight-way concurrency, rather than the several minutes a single-stream estimate implies.
 
 For the full tables behind these numbers, the throughput sweeps, the real-RTX pricing, and the per-run triage times, see [what triage inference actually costs, measured](/guides/inference-cost-benchmark).
 
 ## Whether a small model is good enough
 
-Cost only matters if the cheap model holds up. In our runs a 7B open model kept SocTalk's structured triage contract: valid router and verdict output, no schema errors, and verdicts that matched a larger reasoning model on roughly 58 to 75 percent of a small benchmark sample. It was weaker on routing, and on the authorization-sensitive cases it sometimes closed activity that had no authorization on file and should have escalated.
+Cost only matters if the cheap model holds up, and the model matters more than its size. A raw 7B open model fell short where it matters most, routing: the two 7B models tested both took only two of three routing cases, and on the authorization-sensitive cases one closed activity that had no authorization on file and should have escalated. The models that held the full 16-case routing set with no schema errors were larger-family open models, Mistral-Nemo 12B, DeepSeek-V4-Flash, and Mistral-Small-24B, each measured hosted here with the provider pinned. Self-hosting them in-cluster is a later option once that serving lands. Choose by whether a model holds the triage contract on a representative benchmark, not by parameter count.
 
-A small self-hosted model is therefore a workable cheap tier for the routine middle, with a capable model behind it for the hard cases. Whether it is good enough for your environment is a measurement, not an assumption, and it belongs against a representative benchmark before a small model is trusted with any close decision. The safety floor still holds either way. No model can close over a known malicious signal or an active related case, however it was served.
+Even among those, the roles still split. The cheapest, Mistral-Nemo, held routing but was weaker on the verdict cases, so it fits the router tier with a more capable model on the verdict. The safety floor holds regardless of the model. No model can close over a known malicious signal or an active related case, however it was served.
 
 ## Limitations to plan around
 
@@ -80,6 +78,6 @@ A small self-hosted model is therefore a workable cheap tier for the routine mid
 
 Three questions settle it. **Utilization.** A steady, high-utilization load favors a rented card; sporadic bursty load favors a scale-to-zero platform or a managed API whose idle cost is zero. **Operations appetite.** A rental is cheapest but you run it; a serverless platform costs more and runs itself; an API costs the most with nothing to run. **Data sensitivity.** If alert content cannot leave your boundary, self-hosting is the only answer, and the work above is how you make it affordable.
 
-For most teams the order is the same as this guide. Batching and caching first, the router on a cheaper model next, and a self-hosted tier only once the volume and the data-residency need justify operating it.
+For most teams the order is the same as this guide. Batching and caching first, then the router on a cheaper model. For the cheap tier itself, a hosted open model with the provider pinned is the least-effort option that measured well: Mistral-Nemo on a European endpoint when you need EU residency, or Mistral-Small-24B and DeepSeek-V4-Flash on a US provider otherwise. A self-hosted tier earns its operational cost once the volume or a hard data-residency requirement justifies it.
 
 **Disclaimer.** SocTalk is not affiliated with, endorsed by, or sponsored by any LLM or GPU service provider. Modal, RunPod, OpenRouter, Anthropic, OpenAI, Ollama, and any other services named in this guide are mentioned only as examples of where a model can run. The cost and performance figures are our own benchmark observations, not vendor-published numbers, and all product names and trademarks belong to their respective owners.
