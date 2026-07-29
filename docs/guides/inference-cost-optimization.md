@@ -35,7 +35,29 @@ The first is which model, and it is not the parameter count. A 12B open model he
 
 The second is which provider and numeric precision serve it. A marketplace routes each request across providers that host the same model at different quantizations, and a lower-precision copy can score worse on the same prompts at a similar price. Pin the request to a named provider and quantization and measure that pairing, rather than trusting the per-call default. SocTalk pins the provider per tier for this reason.
 
-For security work the constraint that remains is data governance, not price. Sending customer alerts to a third-party API moves that data outside your perimeter, whichever provider serves it. You can pin the jurisdiction, a US provider or a model vendor's own European endpoint, so a hosted model need not sit in an unknown country, but the alert content still leaves your boundary to reach it. If that is a hard no for your tenants, the next section keeps the data inside it.
+For security work the constraint that remains is data governance, not price. Sending customer alerts to a third-party API moves that data outside your perimeter, whichever provider serves it. You can pin the jurisdiction, a US provider or a model vendor's own European endpoint, so a hosted model need not sit in an unknown country, but the alert content still leaves your boundary to reach it. If that is a hard no for your tenants, self-hosting below keeps the data inside it.
+
+## The hosted models, one by one
+
+Three open models held SocTalk's routing contract with no schema errors in our runs, and they differ enough that the right one depends on your residency need and on whether the cheap tier also has to carry the verdict. The [benchmark page](/guides/inference-cost-benchmark) has the scores and costs in full. Provider availability and prices move, so read the specifics below as a snapshot to re-check.
+
+### Mistral-Nemo 12B
+
+The cheapest of the three, and the only one of them with a first-party European endpoint. It scored 16/16 on routing at about $0.08 per thousand triage nodes and finished the set fastest, around 11 seconds, but took only 4/6 on the verdict cases, so it suits the router tier with a more capable model on the verdict rather than carrying both.
+
+Mistral serves it on its own European infrastructure, which is the endpoint to pin for EU data residency. DeepInfra and other providers also serve it, in the US and elsewhere and at different numeric precisions, so pin the jurisdiction and quantization you want and measure that pairing. Its fit is the EU-residency case, and the lowest per-token price when it runs as a router paired with a separate verdict model.
+
+### Mistral-Small-24B-2501
+
+The cheapest model that held both routing and the full verdict set: 16/16 routing and 6/6 verdict, no schema errors, at about $0.09 per thousand triage nodes and about 17 seconds for the set. It cost less and ran faster than DeepSeek-V4-Flash for the same scores.
+
+At the time we checked, this exact revision was served on the marketplace by a single US provider, DeepInfra, at fp8. That keeps the jurisdiction simple, US only, and it also means no first-party European option for this model and one provider to depend on. It was the lowest-cost model here that carried both routing and the verdict on its own, where US processing is acceptable.
+
+### DeepSeek-V4-Flash
+
+A flash model that also scored 16/16 on routing and 6/6 on the verdict cases with no schema errors. It was the priciest of the three at about $0.30 per thousand triage nodes and the slowest, around 53 seconds for the set, so Mistral-Small-24B-2501 undercut it on both cost and latency for the same scores.
+
+It is served across many providers, several of them in the US, while its first-party endpoint is outside the US, so provider pinning matters more here than usual. Pin a US provider, we measured it on Parasail at fp8, and check the quantization, since some providers serve it at a lower precision. Its role is a second US option with full verdict strength, and its wider provider spread offers availability a single-provider model does not.
 
 ## Self-host the model
 
