@@ -45,7 +45,7 @@ Three open models held SocTalk's routing contract with no schema errors in our r
 
 The cheapest of the three, and the only one of them with a first-party European endpoint. It scored 16/16 on routing at about $0.08 per thousand triage nodes and finished the set fastest, around 11 seconds, but took only 4/6 on the verdict cases, so it suits the router tier with a more capable model on the verdict rather than carrying both.
 
-Mistral serves it on its own European infrastructure, which is the endpoint to pin for EU data residency. DeepInfra and other providers also serve it, in the US and elsewhere and at different numeric precisions, so pin the jurisdiction and quantization you want and measure that pairing. Its fit is the EU-residency case, and the lowest per-token price when it runs as a router paired with a separate verdict model.
+Mistral serves it on its own European infrastructure, which is the endpoint to pin for EU data residency. DeepInfra and other providers also serve it, at different jurisdictions and numeric precisions, so pin the jurisdiction and quantization you want and measure that pairing. Its fit is the EU-residency case, and the lowest per-token price when it runs as a router paired with a separate verdict model. For end-to-end EU residency the verdict model has to sit on an EU endpoint too, which these runs did not cover.
 
 ### Mistral-Small-24B-2501
 
@@ -57,7 +57,7 @@ At the time we checked, this exact revision was served on the marketplace by a s
 
 A flash model that also scored 16/16 on routing and 6/6 on the verdict cases with no schema errors. It was the priciest of the three at about $0.30 per thousand triage nodes and the slowest, around 53 seconds for the set, so Mistral-Small-24B-2501 undercut it on both cost and latency for the same scores.
 
-It is served across many providers, several of them in the US, while its first-party endpoint is outside the US, so provider pinning matters more here than usual. Pin a US provider, we measured it on Parasail at fp8, and check the quantization, since some providers serve it at a lower precision. Its role is a second US option with full verdict strength, and its wider provider spread offers availability a single-provider model does not.
+It is served across many providers, several of them in the US, while its first-party endpoint is outside the US, so provider pinning matters more here than usual. Pin a US provider, we measured it on Parasail at fp8, and check the quantization, since some providers serve it at a lower precision. Its role is a second US option that also took 6/6 on the verdict cases in this run, and its wider provider spread offers availability a single-provider model does not.
 
 ## Self-host the model
 
@@ -77,7 +77,7 @@ In our benchmarks, filling the batch to eight concurrent requests raised aggrega
 
 ## What it costs, measured
 
-Two cheap paths measured well, and they differ mainly on whether alert content leaves your perimeter. A hosted open model on a marketplace, with the provider pinned, held routing with no schema errors at roughly $0.08 to $0.30 per thousand triage nodes, and two of the three also matched on the full verdict set. Self-hosting a small model on a rented consumer GPU measured about $0.09 to $0.18 per 1,000 alerts at eight-way concurrency, and it is the only path that keeps alert content inside your boundary. These are guidance, not a guarantee, and your model, hardware, and alert mix will move them.
+Two cheap paths measured well, and they differ mainly on whether alert content leaves your perimeter. A hosted open model on a marketplace, with the provider pinned, held routing with no schema errors at roughly $0.08 to $0.30 per thousand triage nodes, and two of the three also matched on the full verdict set. Self-hosting a small model measured about $0.09 to $0.18 per 1,000 alerts on a rented consumer GPU at eight-way concurrency. Only in-boundary self-hosting keeps alert content fully inside your perimeter, and its economics are not yet measured directly; the rented and serverless figures are the directional proxy until in-cluster serving ships. These are guidance, not a guarantee, and your model, hardware, and alert mix will move them.
 
 Latency stayed practical. The self-hosted 12-case set finished in around a minute on a Modal A10G and about 11 seconds on a RunPod 4090, both at eight-way concurrency, rather than the several minutes a single-stream estimate implies.
 
