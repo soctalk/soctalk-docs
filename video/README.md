@@ -4,6 +4,10 @@ Fully automated tutorial videos: Playwright drives the live demo UI, ElevenLabs
 narrates, Remotion adds the cinematic layer (crossfades, zoom/pan, title
 cards), ffmpeg encodes. One command, mp4 out, no manual steps.
 
+New videos follow the staged, human-gated process in [WORKFLOW.md](WORKFLOW.md)
+(discover → silent draft ⛔ → voice + final); the one-shot `run.mjs` below is
+for screenplays that already passed the gate.
+
 ## Run
 
 ```sh
