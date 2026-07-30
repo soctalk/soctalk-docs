@@ -87,8 +87,16 @@ const RiverScene = ({ scene, globalFrame }) => {
 	const ringP = dot
 		? interpolate(t, [tail, frames / FPS - 0.08], [0, 1], { easing: Easing.in(Easing.cubic), extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })
 		: 0;
-	const focus = dot && ringP > 0 ? { x: dot.x * 0.75, y: dot.y * 0.75, scale: RIVER_FOCUS.scale + 0.5 * ringP } : RIVER_FOCUS;
-	const { s, tx, ty } = zoomTransform(Math.max(p, ringP > 0 ? 1 : p), focus);
+	// interpolate the camera from the river framing toward the dot — no jump
+	const focus =
+		dot && ringP > 0
+			? {
+					x: RIVER_FOCUS.x + (dot.x * 0.75 - RIVER_FOCUS.x) * ringP,
+					y: RIVER_FOCUS.y + (dot.y * 0.75 - RIVER_FOCUS.y) * ringP,
+					scale: RIVER_FOCUS.scale + 0.5 * ringP
+				}
+			: RIVER_FOCUS;
+	const { s, tx, ty } = zoomTransform(ringP > 0 ? 1 : p, focus);
 	const ring = dot ? toScreen({ x: dot.x * 0.75, y: dot.y * 0.75 }, s, tx, ty) : null;
 	return (
 		<AbsoluteFill style={{ backgroundColor: '#0b0e14' }}>
@@ -112,15 +120,28 @@ const RiverScene = ({ scene, globalFrame }) => {
 				/>
 			) : null}
 			{scene.endCard ? <EndCardOverlay frames={frames} /> : null}
-			<Subtitle text={scene.narration} />
+			<SubtitleUnlessEndcard scene={scene} frames={frames} />
 			<DraftTag scene={scene} frame={globalFrame} />
 		</AbsoluteFill>
 	);
 };
 
+const SubtitleUnlessEndcard = ({ scene, frames }) => {
+	const frame = useCurrentFrame();
+	const fadeOut = scene.endCard
+		? interpolate(frame, [frames - 4.5 * FPS, frames - 4 * FPS], [1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })
+		: 1;
+	if (fadeOut <= 0) return null;
+	return (
+		<div style={{ opacity: fadeOut }}>
+			<Subtitle text={scene.narration} />
+		</div>
+	);
+};
+
 const EndCardOverlay = ({ frames }) => {
 	const frame = useCurrentFrame();
-	const inP = interpolate(frame, [frames - 5.5 * FPS, frames - 4 * FPS], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+	const inP = interpolate(frame, [frames - 4 * FPS, frames - 2.8 * FPS], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 	if (inP <= 0) return null;
 	return (
 		<AbsoluteFill style={{ alignItems: 'center', justifyContent: 'center', background: `rgba(7,9,13,${0.55 * inP})` }}>

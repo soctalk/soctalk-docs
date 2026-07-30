@@ -28,12 +28,12 @@ export default {
 			route: '/investigations/9060b022-8169-43e9-8a81-08ccadaf0ce5?view=replay',
 			ready: 'Auto-closed FP',
 			narration:
-				'Pick one out of the stream. A Wazuh alert the pipeline recognized as a false positive and closed on its own, without invoking a model at all. The investigation replay shows every step it took: hours of real time, played back in seconds. Evidence gathered, context checked, closed. Cost of this alert: nothing.',
+				'Any one of these dots opens the investigation behind it. This one: a Wazuh alert the pipeline recognized as a false positive and closed on its own, without invoking a model at all. The replay shows every step it took, played back in seconds. Evidence gathered, context checked, closed. Token spend on this alert: zero.',
 			focus: [
 				{ selector: ':text("Event Timeline")', frac: 0.35, scale: 1.35, hold: 2.6 },
-				{ selector: ':text("Verdict")', frac: 0.75, scale: 1.4, hold: 2.4 }
+				{ selector: ':text("0 / 200,000")', frac: 0.78, scale: 1.45, hold: 2.6 }
 			],
-			assert: ['Agent Run', 'Verdict']
+			assert: ['Agent Run', 'Verdict', '0 / 200,000']
 		},
 		{
 			id: 'river-swarm',
@@ -52,10 +52,10 @@ export default {
 			narration:
 				'This one, the model wanted to close. A successful sudo by a service account, judged routine with ninety percent confidence. The guard checked that verdict against the tenant’s authorization facts, found nothing that permits it, and vetoed the close. Hard floor. The alert stays alive, and a human gets the call.',
 			focus: [
-				{ selector: ':text("GUARD")', frac: 0.45, scale: 1.45, hold: 2.6 },
-				{ selector: ':text("Verdict")', frac: 0.8, scale: 1.35, hold: 2.2 }
+				{ selector: ':text("Verdict")', frac: 0.28, scale: 1.35, hold: 2.4 },
+				{ selector: ':text("HARD FLOOR")', frac: 0.68, scale: 1.5, hold: 2.8 }
 			],
-			assert: ['GUARD', 'Verdict']
+			assert: ['90%', 'HARD FLOOR', 'Verdict']
 		},
 		{
 			id: 'review-consequence',
@@ -63,10 +63,10 @@ export default {
 			route: '/review',
 			ready: 'Human Review Queue',
 			narration:
-				'Which is why a successful sudo to root on a finance host is sitting here, in front of a person, with the AI’s full reasoning attached, waiting for a decision only a human is allowed to make.',
+				'That same guard path is what leaves an alert like this one — a successful sudo to root on a finance host — in front of a person, with the AI’s full reasoning attached, waiting for a decision only a human is allowed to make.',
 			focus: [
 				{ selector: ':text("Successful sudo to ROOT")', frac: 0.3, scale: 1.45, hold: 3.0 },
-				{ selector: 'button:has-text("Review")', frac: 0.75, scale: 1.4, hold: 2.2, hoverOnly: true }
+				{ selector: 'button:has-text("Review")', nearRow: 'Successful sudo to ROOT', frac: 0.78, scale: 1.4, hold: 2.2, hoverOnly: true }
 			],
 			assert: ['Successful sudo to ROOT']
 		},
@@ -75,8 +75,8 @@ export default {
 			kind: 'river',
 			window: 'day-complete',
 			narration:
-				'By midnight: two hundred seventy-six alerts in. Two hundred thirty-two closed by the pipeline. Forty-four decided by people, with every risky close the guard caught along the way. That is the shape of a day with SocTalk. AI triage. Human judgment.',
-			assert: ['276', '232', '44'],
+				'By the end of the day: two hundred seventy-six alerts in. Two hundred thirty-two closed by the pipeline. Forty-four decided by people. Thirty-three risky closes blocked by the guard. That is the shape of a day with SocTalk. AI triage. Human judgment.',
+			assert: ['276', '232', '44', '33'],
 			endCard: true
 		}
 	]

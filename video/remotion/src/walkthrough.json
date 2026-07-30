@@ -1,23 +1,24 @@
 {
   "river": {
     "file": "scenes/walk-river.mp4",
-    "videoDur": 49.733008,
-    "segStart": 3.119007999999995,
-    "swarmAt": 25.699007999999996,
-    "plateauAt": 34.724008,
+    "videoDur": 60.8,
+    "segStart": 3.169999999999995,
+    "swarmAt": 25.770999999999994,
+    "plateauAt": 34.794,
     "counters": {
       "alertsIn": 276,
       "closed": 232,
-      "human": 44
+      "human": 44,
+      "blocked": 33
     },
     "dots": {
       "normal": {
-        "x": 1437,
-        "y": 472
+        "x": 1440,
+        "y": 476
       },
       "veto": {
-        "x": 1433,
-        "y": 351
+        "x": 1436,
+        "y": 347
       }
     }
   },
@@ -28,40 +29,40 @@
       "narration": "This is a real day at one SocTalk tenant, replayed. Two hundred seventy-six alerts will arrive before midnight. Each one flows through the same pipeline: a policy gate, a supervisor, a verdict, and a guard. Most will never need a human.",
       "estSec": 16.857142857142858,
       "window": [
-        3.119007999999995,
-        21.97615085714285
+        3.169999999999995,
+        22.027142857142852
       ],
       "endCard": false,
       "enterNextVia": {
         "clickDot": "normal",
         "dot": {
-          "x": 1437,
-          "y": 472
+          "x": 1440,
+          "y": 476
         }
       }
     },
     {
       "id": "dive-auto-closed",
       "kind": "dive",
-      "narration": "Pick one out of the stream. A Wazuh alert the pipeline recognized as a false positive and closed on its own, without invoking a model at all. The investigation replay shows every step it took: hours of real time, played back in seconds. Evidence gathered, context checked, closed. Cost of this alert: nothing.",
-      "estSec": 22.071428571428573,
+      "narration": "Any one of these dots opens the investigation behind it. This one: a Wazuh alert the pipeline recognized as a false positive and closed on its own, without invoking a model at all. The replay shows every step it took, played back in seconds. Evidence gathered, context checked, closed. Token spend on this alert: zero.",
+      "estSec": 22.714285714285715,
       "file": "scenes/walk-dive-auto-closed.mp4",
-      "videoDur": 25.8,
-      "audioStart": 2.228000000000001,
+      "videoDur": 26.433008,
+      "audioStart": 2.2170080000000008,
       "focus": [
         {
-          "atSec": 9.97,
+          "atSec": 10.197008,
           "x": 841,
           "y": 354,
           "scale": 1.35,
           "hold": 2.6
         },
         {
-          "atSec": 18.787000000000003,
-          "x": 1637,
-          "y": 241,
-          "scale": 1.4,
-          "hold": 2.4
+          "atSec": 19.947008,
+          "x": 675,
+          "y": 839,
+          "scale": 1.45,
+          "hold": 2.6
         }
       ],
       "enterVia": {
@@ -74,15 +75,15 @@
       "narration": "By mid-morning the stream is dense. Most alerts close themselves at machine speed. But watch the guard, because the model does not get the last word.",
       "estSec": 10.642857142857142,
       "window": [
-        23.699007999999996,
-        36.34186514285714
+        23.770999999999994,
+        36.41385714285714
       ],
       "endCard": false,
       "enterNextVia": {
         "clickDot": "veto",
         "dot": {
-          "x": 1433,
-          "y": 351
+          "x": 1436,
+          "y": 347
         }
       }
     },
@@ -92,22 +93,22 @@
       "narration": "This one, the model wanted to close. A successful sudo by a service account, judged routine with ninety percent confidence. The guard checked that verdict against the tenant’s authorization facts, found nothing that permits it, and vetoed the close. Hard floor. The alert stays alive, and a human gets the call.",
       "estSec": 22.214285714285715,
       "file": "scenes/walk-dive-veto.mp4",
-      "videoDur": 25.933008,
-      "audioStart": 2.2180079999999998,
+      "videoDur": 27.033333,
+      "audioStart": 3.3193329999999985,
       "focus": [
         {
-          "atSec": 12.247008000000001,
-          "x": 1540,
-          "y": 571,
-          "scale": 1.45,
-          "hold": 2.6
-        },
-        {
-          "atSec": 20.006008,
+          "atSec": 9.564333,
           "x": 1637,
           "y": 241,
           "scale": 1.35,
-          "hold": 2.2
+          "hold": 2.4
+        },
+        {
+          "atSec": 18.433332999999998,
+          "x": 1540,
+          "y": 586,
+          "scale": 1.5,
+          "hold": 2.8
         }
       ],
       "enterVia": {
@@ -117,23 +118,23 @@
     {
       "id": "review-consequence",
       "kind": "page",
-      "narration": "Which is why a successful sudo to root on a finance host is sitting here, in front of a person, with the AI’s full reasoning attached, waiting for a decision only a human is allowed to make.",
-      "estSec": 13.571428571428571,
+      "narration": "That same guard path is what leaves an alert like this one — a successful sudo to root on a finance host — in front of a person, with the AI’s full reasoning attached, waiting for a decision only a human is allowed to make.",
+      "estSec": 15.928571428571429,
       "file": "scenes/walk-review-consequence.mp4",
-      "videoDur": 17.8,
-      "audioStart": 2.509999999999999,
+      "videoDur": 20.033008,
+      "audioStart": 2.5040079999999993,
       "focus": [
         {
-          "atSec": 6.608999999999999,
+          "atSec": 7.306007999999999,
           "x": 531,
           "y": 883,
           "scale": 1.45,
           "hold": 3
         },
         {
-          "atSec": 12.700999999999999,
-          "x": 1004,
-          "y": 189,
+          "atSec": 14.933008,
+          "x": 1705,
+          "y": 893,
           "scale": 1.4,
           "hold": 2.2
         }
@@ -143,11 +144,11 @@
     {
       "id": "river-midnight",
       "kind": "river",
-      "narration": "By midnight: two hundred seventy-six alerts in. Two hundred thirty-two closed by the pipeline. Forty-four decided by people, with every risky close the guard caught along the way. That is the shape of a day with SocTalk. AI triage. Human judgment.",
-      "estSec": 17.642857142857142,
+      "narration": "By the end of the day: two hundred seventy-six alerts in. Two hundred thirty-two closed by the pipeline. Forty-four decided by people. Thirty-three risky closes blocked by the guard. That is the shape of a day with SocTalk. AI triage. Human judgment.",
+      "estSec": 17.857142857142858,
       "window": [
-        29.59015085714286,
-        49.733008
+        35.294,
+        60.8
       ],
       "endCard": true,
       "enterNextVia": null

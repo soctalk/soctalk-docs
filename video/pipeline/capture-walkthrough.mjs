@@ -142,12 +142,13 @@ async function captureRiver() {
 		} else stable = 0;
 		last = v;
 	}
-	// hold for the endcard window
-	await sleep(15000);
+	// hold long enough that the endcard window can start AT the plateau
+	await sleep(26000);
 	const counters = {
 		alertsIn: await readStat('ALERTS IN'),
 		closed: await readStat('CLOSED BY PIPELINE'),
-		human: await readStat('REACHED A HUMAN')
+		human: await readStat('REACHED A HUMAN'),
+		blocked: await readStat('BLOCKED AUTO-CLOSES')
 	};
 	const endAt = now();
 	const video = page.video();
@@ -161,7 +162,7 @@ async function captureRiver() {
 	const d = (t) => (t == null ? null : Math.max(0, t - offset));
 	console.log(`river: ${videoDur.toFixed(1)}s, counters ${JSON.stringify(counters)}, dots ${JSON.stringify(dots)}`);
 	// assert the numbers the narration speaks
-	const spoken = { alertsIn: 276, closed: 232, human: 44 };
+	const spoken = { alertsIn: 276, closed: 232, human: 44, blocked: 33 };
 	for (const k of Object.keys(spoken))
 		if (counters[k] !== spoken[k])
 			throw new Error(`river counters diverged from narration: ${k} observed ${counters[k]}, narration says ${spoken[k]} — update screenplay or re-discover`);
@@ -211,10 +212,34 @@ async function capturePage(scene) {
 	for (const f of [...(scene.focus ?? [])].sort((a, b) => a.frac - b.frac)) {
 		const at = audioStart + f.frac * est;
 		if (now() < at) await sleep((at - now()) * 1000);
-		const box = await page.locator(f.selector).first().boundingBox({ timeout: 2500 }).catch(() => null);
+		let box;
+		if (f.nearRow) {
+			// scope the target to the pinned row (e.g. the row's Review button)
+			box = await page.evaluate(
+				([rowText, btnText]) => {
+					const row = [...document.querySelectorAll('*')].find(
+						(e) => e.childElementCount === 0 && e.textContent.includes(rowText)
+					);
+					if (!row) return null;
+					const ry = row.getBoundingClientRect().y;
+					const btn = [...document.querySelectorAll('button')].find(
+						(b) => b.textContent.trim() === btnText && Math.abs(b.getBoundingClientRect().y - ry) < 40
+					);
+					if (!btn) return null;
+					const r = btn.getBoundingClientRect();
+					return { x: r.x, y: r.y, width: r.width, height: r.height };
+				},
+				[f.nearRow, 'Review']
+			);
+		} else {
+			box = await page.locator(f.selector).first().boundingBox({ timeout: 2500 }).catch(() => null);
+		}
 		if (!box) {
-			console.log(`capture: [${scene.id}] focus target missing (skipping): ${f.selector}`);
-			continue;
+			if (f.optional) {
+				console.log(`capture: [${scene.id}] optional focus target missing (skipping): ${f.selector}`);
+				continue;
+			}
+			throw new Error(`scene "${scene.id}": required focus target missing: ${f.selector} — demo drifted, re-discover`);
 		}
 		const cx = Math.round(box.x + box.width / 2);
 		const cy = Math.round(box.y + box.height / 2);
@@ -253,7 +278,12 @@ for (const scene of screenplay.scenes) {
 		else if (scene.window === 'mid-morning') {
 			const s = Math.max(river.segStart, (river.swarmAt ?? river.segStart + 20) - 2);
 			win = [s, Math.min(s + est + 2, river.videoDur)];
-		} else win = [Math.max(0, river.videoDur - est - 2.5), river.videoDur];
+		} else {
+			// day-complete: start AT the plateau so final counters are on screen
+			// for the whole closing line
+			const s = Math.min((river.plateauAt ?? river.videoDur - est - 2.5) + 0.5, Math.max(0, river.videoDur - est - 2));
+			win = [s, river.videoDur];
+		}
 		out.scenes.push({ id: scene.id, kind: 'river', narration: scene.narration, estSec: est, window: win, endCard: !!scene.endCard, enterNextVia: null });
 	} else {
 		const cap = await capturePage(scene);
