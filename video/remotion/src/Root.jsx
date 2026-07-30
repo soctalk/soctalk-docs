@@ -7,6 +7,7 @@ import { Presenter, presenterFrames } from './Presenter.jsx';
 import { ReplayTour, replayTourFrames } from './ReplayTour.jsx';
 import { FleetFlow, fleetFlowFrames } from './FleetFlow.jsx';
 import { FleetTour, fleetTourFrames } from './FleetTour.jsx';
+import { Walkthrough, walkthroughFrames } from './Walkthrough.jsx';
 import manifest from './manifest.json';
 
 export const Root = () => (
@@ -63,6 +64,14 @@ export const Root = () => (
 			id="FleetTour"
 			component={FleetTour}
 			durationInFrames={fleetTourFrames}
+			fps={manifest.fps}
+			width={1920}
+			height={1080}
+		/>
+		<Composition
+			id="Walkthrough"
+			component={Walkthrough}
+			durationInFrames={walkthroughFrames}
 			fps={manifest.fps}
 			width={1920}
 			height={1080}
