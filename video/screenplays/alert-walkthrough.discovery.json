@@ -1,0 +1,48 @@
+{
+	"brief": "Life of an alert: the fleet replay is the spine; dives follow one auto-closed alert, one guard-vetoed close, and the human review it causes.",
+	"capturedAt": "2026-07-30",
+	"expiryNote": "Live demo drifts (review queue content rotated between Jul 27 and Jul 30; UI copy 'Guard vetoes' became 'Blocked auto-closes'). Re-verify every pinned entity before capture; treat expected text as assertions.",
+	"river": {
+		"route": "/",
+		"enter": "button:has-text(\"Replay day\")",
+		"titlePattern": "The fleet —",
+		"fallbackBadge": "LAST ACTIVITY",
+		"observedDay": "Sat, Jul 25",
+		"finalCounters": { "alertsIn": 276, "closedByPipeline": 232, "reachedAHuman": 44 },
+		"dotSelector": "circle.fdot.clickable",
+		"vetoDotSelector": "circle.fdot.veto.clickable",
+		"vetoDotAppearsAround": "04:49 replay time (single veto dot); scan while playing"
+	},
+	"diveAutoClosed": {
+		"investigationId": "9060b022-8169-43e9-8a81-08ccadaf0ce5",
+		"route": "/investigations/9060b022-8169-43e9-8a81-08ccadaf0ce5?view=replay",
+		"title": "Auto-closed FP: wazuh rule 580",
+		"expect": ["Agent Run", "Observable Summary", "Event Timeline", "Narration", "Verdict"],
+		"story": "Pipeline closed a false positive on its own; operational close path — no model invoked."
+	},
+	"diveVeto": {
+		"investigationId": "ba961795-4d11-4b78-819a-2f1b58ed3457",
+		"route": "/investigations/ba961795-4d11-4b78-819a-2f1b58ed3457?view=replay",
+		"title": "wazuh rule 5402 on gztv8-app-09",
+		"expect": ["GUARD", "HARD FLOOR", "Narration", "Verdict"],
+		"story": "Model verdict: close (90% confidence, sudo judged routine). Guard hard floor contradicted the close against authorization facts; escalated instead. Replay stat line: tens of thousands of seconds of real time played in seconds.",
+		"relatedFact": {
+			"route": "/authorization",
+			"id": "e2emryd2t85-GRANT",
+			"expect": "Change ticket e2emryd2t85-GRANT permits svc-deploy → sudo-exec on db-01"
+		}
+	},
+	"review": {
+		"route": "/review",
+		"ready": "Human Review Queue",
+		"itemText": "Successful sudo to ROOT executed by svc-legacy on fin-v5fx",
+		"rowChips": ["Critical", "AI: Escalate"],
+		"hoverTarget": "button:has-text(\"Review\")",
+		"note": "READ-ONLY on camera: hover the Review action, never click through to a decision.",
+		"fallbackItemPattern": "sudo|SSH authentication success"
+	},
+	"rejected": {
+		"chatScene": "cut — demo LLM reliability unproven",
+		"mitreReviewItems": "gone from queue since Jul 27 — do not reference"
+	}
+}
