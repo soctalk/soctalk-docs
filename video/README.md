@@ -15,8 +15,12 @@ node run.mjs screenplays/quick-tour.mjs
 
 Secrets live in the gitignored `video/.env` (KEY=VALUE lines), auto-loaded by
 `config.mjs`: `SOCTALK_PASSWORD` (required for capture), `ELEVENLABS_API_KEY`
-(optional — falls back to macOS `say`), `HEYGEN_API_KEY` (optional, presenter
-avatar). Overrides: `SOCTALK_BASE`, `SOCTALK_EMAIL`, `ELEVENLABS_VOICE_ID`.
+(optional — falls back to macOS `say`). Overrides: `SOCTALK_BASE`,
+`SOCTALK_EMAIL`, `ELEVENLABS_VOICE_ID`.
+
+The `Presenter` composition's corner bubble uses the code-drawn, audio-reactive
+analyst by default. It can host a talking-head avatar clip instead: drop an mp4
+in `remotion/public/` and point `remotion/src/presenter-config.json` at it.
 
 Beyond the tutorial pipeline there are one-shot captures + compositions:
 `pipeline/capture-replay-tour.mjs` → `ReplayTour` (dashboard tour → zoom into
