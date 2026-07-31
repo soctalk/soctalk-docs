@@ -18,7 +18,7 @@ export default {
 			kind: 'river',
 			window: 'dawn',
 			narration:
-				'This is a real day at one SocTalk tenant, replayed. Two hundred seventy-six alerts will arrive before midnight. Each one flows through the same pipeline: a policy gate, a supervisor, a verdict, and a guard. Most will never need a human.',
+				'A full day of alerts at one tenant, replayed. Two hundred seventy-six events off the SIEM. Every one takes the same path: a deterministic policy gate, a supervisor that routes, a reasoning tier that issues the verdict, and a guard with the power to overrule it.',
 			assert: ['The fleet —']
 		},
 		{
@@ -28,7 +28,7 @@ export default {
 			route: '/investigations/9060b022-8169-43e9-8a81-08ccadaf0ce5?view=replay',
 			ready: 'Auto-closed FP',
 			narration:
-				'Any one of these dots opens the investigation behind it. This one: a Wazuh alert the pipeline recognized as a false positive and closed on its own, without invoking a model at all. The replay shows every step it took, played back in seconds. Evidence gathered, context checked, closed. Token spend on this alert: zero.',
+				'Each dot opens the investigation behind it. This one is a recurring Wazuh false positive: closed operationally at the policy gate — no model invoked. Disposition close, with a reopen window guarding against drift. The event timeline replays every pipeline step, and the agent run shows the cost: token spend zero, out of a two-hundred-thousand token budget.',
 			focus: [
 				{ selector: ':text("Event Timeline")', frac: 0.35, scale: 1.35, hold: 2.6 },
 				{ selector: ':text("0 / 200,000")', frac: 0.78, scale: 1.45, hold: 2.6 }
@@ -40,7 +40,7 @@ export default {
 			kind: 'river',
 			window: 'mid-morning',
 			narration:
-				'By mid-morning the stream is dense. Most alerts close themselves at machine speed. But watch the guard, because the model does not get the last word.',
+				'Mid-morning, intake peaks. Operational closes absorb the known-benign volume without ever touching the reasoning tier. Everything else gets a model verdict — and no verdict executes unchecked.',
 			assert: []
 		},
 		{
@@ -50,7 +50,7 @@ export default {
 			route: '/investigations/ba961795-4d11-4b78-819a-2f1b58ed3457?view=replay',
 			ready: 'wazuh rule 5402',
 			narration:
-				'This one, the model wanted to close. A successful sudo by a service account, judged routine with ninety percent confidence. The guard checked that verdict against the tenant’s authorization facts, found nothing that permits it, and vetoed the close. Hard floor. The alert stays alive, and a human gets the call.',
+				'Here the reasoning tier issued close at ninety percent confidence: a service-account sudo it judged routine. Before execution, the guard evaluated that verdict against the tenant’s authorization facts — grants, change tickets, baselines. No fact covers this activity, so the close is vetoed at the hard floor and the investigation routes to review instead.',
 			focus: [
 				{ selector: ':text("Verdict")', frac: 0.28, scale: 1.35, hold: 2.4 },
 				{ selector: ':text("HARD FLOOR")', frac: 0.68, scale: 1.5, hold: 2.8 }
@@ -63,7 +63,7 @@ export default {
 			route: '/review',
 			ready: 'Human Review Queue',
 			narration:
-				'That same guard path is what leaves an alert like this one — a successful sudo to root on a finance host — in front of a person, with the AI’s full reasoning attached, waiting for a decision only a human is allowed to make.',
+				'Guard escalations land in the review queue with the full case attached: alert chain, model verdict, reasoning, and the authorization gap that blocked the close. A successful sudo to root on a finance host is exactly the class of decision that stays with an analyst.',
 			focus: [
 				{ selector: ':text("Successful sudo to ROOT")', frac: 0.3, scale: 1.45, hold: 3.0 },
 				{ selector: 'button:has-text("Review")', nearRow: 'Successful sudo to ROOT', frac: 0.78, scale: 1.4, hold: 2.2, hoverOnly: true }
@@ -75,7 +75,7 @@ export default {
 			kind: 'river',
 			window: 'day-complete',
 			narration:
-				'By the end of the day: two hundred seventy-six alerts in. Two hundred thirty-two closed by the pipeline. Forty-four decided by people. Thirty-three risky closes blocked by the guard. That is the shape of a day with SocTalk. AI triage. Human judgment.',
+				'End-of-day totals: two hundred seventy-six alerts in. Two hundred thirty-two closed by the pipeline. Forty-four routed to analysts. Thirty-three auto-closes blocked by the guard. Every decision on this board is auditable, and every investigation replays exactly like the ones you just saw.',
 			assert: ['276', '232', '44', '33'],
 			endCard: true
 		}
