@@ -18,7 +18,7 @@ export default {
 			kind: 'river',
 			window: 'dawn',
 			narration:
-				'A full day of alerts at one tenant, replayed. Two hundred seventy-six events off the SIEM. Every one takes the same path: a deterministic policy gate, a supervisor that routes, a reasoning tier that issues the verdict, and a guard with the power to overrule it.',
+				'One tenant, one day, replayed. Two hundred seventy-six alerts. Every alert starts the same way: a first pass against known rules. What the rules cannot settle goes on for a model verdict — and a safety check runs before anything is acted on.',
 			assert: ['The fleet —']
 		},
 		{
@@ -28,19 +28,19 @@ export default {
 			route: '/investigations/9060b022-8169-43e9-8a81-08ccadaf0ce5?view=replay',
 			ready: 'Auto-closed FP',
 			narration:
-				'Each dot opens the investigation behind it. This one is a recurring Wazuh false positive: closed operationally at the policy gate — no model invoked. Disposition close, with a reopen window guarding against drift. The event timeline replays every pipeline step, and the agent run shows the cost: token spend zero, out of a two-hundred-thousand token budget.',
+				'Each dot is an investigation; click one to open it. This is a recurring Wazuh false positive. The rules caught it on the first pass and closed it as recurring benign activity — no model involved, with a reopen window in case the pattern returns. The timeline shows each step, and the agent run shows the cost: zero tokens of a two-hundred-thousand budget.',
 			focus: [
 				{ selector: ':text("Event Timeline")', frac: 0.35, scale: 1.35, hold: 2.6 },
 				{ selector: ':text("0 / 200,000")', frac: 0.78, scale: 1.45, hold: 2.6 }
 			],
-			assert: ['Agent Run', 'Verdict', '0 / 200,000']
+			assert: ['Agent Run', 'Verdict', '0 / 200,000', 'recurring benign activity', 'reopen window']
 		},
 		{
 			id: 'river-swarm',
 			kind: 'river',
 			window: 'mid-morning',
 			narration:
-				'Mid-morning, intake peaks. Operational closes absorb the known-benign volume without ever touching the reasoning tier. Everything else gets a model verdict — and no verdict executes unchecked.',
+				'By mid-morning the stream is dense. Known false positives keep closing on the first pass without using the model. The rest get a model verdict — and every verdict gets a safety check before it counts.',
 			assert: []
 		},
 		{
@@ -50,7 +50,7 @@ export default {
 			route: '/investigations/ba961795-4d11-4b78-819a-2f1b58ed3457?view=replay',
 			ready: 'wazuh rule 5402',
 			narration:
-				'Here the reasoning tier issued close at ninety percent confidence: a service-account sudo it judged routine. Before execution, the guard evaluated that verdict against the tenant’s authorization facts — grants, change tickets, baselines. No fact covers this activity, so the close is vetoed at the hard floor and the investigation routes to review instead.',
+				'Here the model’s verdict was close at ninety percent confidence: a service-account sudo it read as routine. The safety check compared that verdict with what is actually allowed — grants, change tickets, baselines. Nothing covers this sudo, so the close was blocked. A hard stop. The investigation went to review instead.',
 			focus: [
 				{ selector: ':text("Verdict")', frac: 0.28, scale: 1.35, hold: 2.4 },
 				{ selector: ':text("HARD FLOOR")', frac: 0.68, scale: 1.5, hold: 2.8 }
@@ -63,10 +63,31 @@ export default {
 			route: '/review',
 			ready: 'Human Review Queue',
 			narration:
-				'Guard escalations land in the review queue with the full case attached: alert chain, model verdict, reasoning, and the authorization gap that blocked the close. A successful sudo to root on a finance host is exactly the class of decision that stays with an analyst.',
+				'Escalations arrive here with the case attached: the alert chain, the verdict, why the model read it that way, and what was missing when the close was blocked. This one is a successful sudo to root on fin-v5fx. The queue is where an analyst makes the call.',
 			focus: [
-				{ selector: ':text("Successful sudo to ROOT")', frac: 0.3, scale: 1.45, hold: 3.0 },
-				{ selector: 'button:has-text("Review")', nearRow: 'Successful sudo to ROOT', frac: 0.78, scale: 1.4, hold: 2.2, hoverOnly: true }
+				{ selector: ':text("Successful sudo to ROOT")', frac: 0.35, scale: 1.45, hold: 3.4 }
+			],
+			assert: ['Successful sudo to ROOT']
+		},
+		{
+			id: 'review-detail',
+			kind: 'page',
+			route: '/review',
+			ready: 'Human Review Queue',
+			// filmed click: expands the case panel inline (read-only; decision
+			// buttons are never touched)
+			preClick: {
+				nearRow: 'Successful sudo to ROOT',
+				button: 'Review',
+				expect: ['AI Recommendation', 'Escalate (90%)', 'GUARD OVERRIDE', 'do not cover this activity', 'Key Findings', 'Request Info', 'Reject & Close', 'Approve & Escalate', 'Analyst Feedback (required for rejection)']
+			},
+			narration:
+				'Open the case. The recommendation is escalate at ninety percent, and the override is spelled out: the model drafted close, the safety check enforced escalate, because no authorization covers this activity. Key findings and enrichment sit below. The decision stays with the analyst: request info, reject and close, or approve and escalate — with written feedback required to reject.',
+			focus: [
+				{ selector: ':text("Escalate (90%)")', frac: 0.12, scale: 1.4, hold: 2.4 },
+				{ selector: ':text("GUARD OVERRIDE")', frac: 0.38, scale: 1.45, hold: 2.8 },
+				{ selector: ':text("Key Findings")', frac: 0.62, scale: 1.35, hold: 2.2 },
+				{ selector: 'button:has-text("Approve & Escalate")', frac: 0.84, scale: 1.4, hold: 2.4, hoverOnly: true }
 			],
 			assert: ['Successful sudo to ROOT']
 		},
@@ -75,9 +96,13 @@ export default {
 			kind: 'river',
 			window: 'day-complete',
 			narration:
-				'End-of-day totals: two hundred seventy-six alerts in. Two hundred thirty-two closed by the pipeline. Forty-four routed to analysts. Thirty-three auto-closes blocked by the guard. Every decision on this board is auditable, and every investigation replays exactly like the ones you just saw.',
-			assert: ['276', '232', '44', '33'],
-			endCard: true
+				'End of day: two hundred seventy-six alerts in, two hundred thirty-two closed by the pipeline before analyst review, forty-four handled by analysts, thirty-three auto-closes blocked. It is all in the audit trail, and any investigation replays the way you just saw.',
+			assert: ['276', '232', '44', '33']
+		},
+		{
+			id: 'outro-site',
+			kind: 'card',
+			narration: 'Visit us at soctalk dot A I.'
 		}
 	]
 };

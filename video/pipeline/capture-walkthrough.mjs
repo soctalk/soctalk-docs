@@ -1,7 +1,7 @@
 // Stage 2 capture for the alert-walkthrough silent draft.
 // Emits: scenes/walk-river.mp4, walk-<scene>.mp4 per dive/page scene, and
 // remotion/src/walkthrough.json (windows, focus beats, narration, dot coords).
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync, readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { createRequire } from 'node:module';
@@ -17,6 +17,17 @@ mkdirSync(sceneDir, { recursive: true });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const easeInOut = (p) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
 const estSec = (text) => text.length / 14;
+
+// If narrate.mjs has run (Stage 3), pace scenes to the REAL audio durations
+// and mark the output as final so the composition adds voice + drops chrome.
+let narr = {};
+try {
+	narr = JSON.parse(readFileSync(path.join(root2(), 'tmp', 'narration.json'), 'utf8'));
+} catch {}
+function root2() {
+	return path.join(import.meta.dirname, '..');
+}
+const paceSec = (scene) => narr[scene.id]?.dur ?? estSec(scene.narration);
 
 const CURSOR_JS = `
 (() => {
@@ -206,7 +217,40 @@ async function capturePage(scene) {
 			});
 	await page.mouse.move(960, 540);
 	await sleep(1000);
-	const est = estSec(scene.narration);
+	if (scene.preClick) {
+		// filmed, read-only click (e.g. expanding a case panel)
+		const box = await page.evaluate(
+			([rowText, btnText]) => {
+				const row = [...document.querySelectorAll('*')].find(
+					(e) => e.childElementCount === 0 && e.textContent.includes(rowText)
+				);
+				if (!row) return null;
+				const ry = row.getBoundingClientRect().y;
+				const btn = [...document.querySelectorAll('button')].find(
+					(b) => b.textContent.trim() === btnText && Math.abs(b.getBoundingClientRect().y - ry) < 40
+				);
+				if (!btn) return null;
+				const r = btn.getBoundingClientRect();
+				return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+			},
+			[scene.preClick.nearRow, scene.preClick.button]
+		);
+		if (!box) throw new Error(`scene "${scene.id}": preClick target not found — demo drifted, re-discover`);
+		await glide(box.x, box.y);
+		await sleep(250);
+		await page.mouse.down();
+		await page.mouse.up();
+		for (const t of scene.preClick.expect ?? [])
+			await page
+				.locator(`:text("${t}")`)
+				.first()
+				.waitFor({ timeout: 6000 })
+				.catch(() => {
+					throw new Error(`scene "${scene.id}": after click, expected "${t}" — not found`);
+				});
+		await sleep(900);
+	}
+	const est = paceSec(scene);
 	const audioStart = now() + 0.3;
 	const focusEvents = [];
 	for (const f of [...(scene.focus ?? [])].sort((a, b) => a.frac - b.frac)) {
@@ -269,9 +313,21 @@ async function capturePage(scene) {
 
 // ------------------------------------------------------------------ assemble
 const river = await captureRiver();
-const out = { river, scenes: [] };
+const out = { river, final: screenplay.scenes.every((s) => narr[s.id]), scenes: [] };
 for (const scene of screenplay.scenes) {
-	const est = estSec(scene.narration);
+	const est = paceSec(scene);
+	if (scene.kind === 'card') {
+		out.scenes.push({
+			id: scene.id,
+			kind: 'card',
+			narration: scene.narration,
+			estSec: est,
+			dur: est + 2.5,
+			audio: narr[scene.id]?.file ?? null,
+			audioStart: 0.6
+		});
+		continue;
+	}
 	if (scene.kind === 'river') {
 		let win;
 		if (scene.window === 'dawn') win = [river.segStart, Math.min(river.segStart + est + 2, river.videoDur)];
@@ -282,12 +338,31 @@ for (const scene of screenplay.scenes) {
 			// day-complete: start AT the plateau so final counters are on screen
 			// for the whole closing line
 			const s = Math.min((river.plateauAt ?? river.videoDur - est - 2.5) + 0.5, Math.max(0, river.videoDur - est - 2));
-			win = [s, river.videoDur];
+			// cap the tail: narration + a short beat, no dead air before the outro
+			win = [s, Math.min(river.videoDur, s + est + 2.3)];
 		}
-		out.scenes.push({ id: scene.id, kind: 'river', narration: scene.narration, estSec: est, window: win, endCard: !!scene.endCard, enterNextVia: null });
+		out.scenes.push({
+			id: scene.id,
+			kind: 'river',
+			narration: scene.narration,
+			estSec: est,
+			window: win,
+			endCard: !!scene.endCard,
+			enterNextVia: null,
+			audio: narr[scene.id]?.file ?? null,
+			audioStart: 0.3
+		});
 	} else {
 		const cap = await capturePage(scene);
-		out.scenes.push({ id: scene.id, kind: scene.kind, narration: scene.narration, estSec: est, ...cap, enterVia: scene.enterVia ?? null });
+		out.scenes.push({
+			id: scene.id,
+			kind: scene.kind,
+			narration: scene.narration,
+			estSec: est,
+			...cap,
+			enterVia: scene.enterVia ?? null,
+			audio: narr[scene.id]?.file ?? null
+		});
 	}
 }
 // mark river scenes that precede a clickDot dive (for the ring transition)

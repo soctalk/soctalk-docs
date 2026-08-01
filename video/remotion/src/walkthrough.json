@@ -1,10 +1,10 @@
 {
   "river": {
     "file": "scenes/walk-river.mp4",
-    "videoDur": 60.766016,
-    "segStart": 3.164016000000004,
-    "swarmAt": 25.725016000000004,
-    "plateauAt": 34.755016000000005,
+    "videoDur": 60.733333,
+    "segStart": 3.166333000000005,
+    "swarmAt": 25.693333000000006,
+    "plateauAt": 34.71533300000001,
     "counters": {
       "alertsIn": 276,
       "closed": 232,
@@ -13,52 +13,55 @@
     },
     "dots": {
       "normal": {
-        "x": 1447,
-        "y": 471
+        "x": 1438,
+        "y": 458
       },
       "veto": {
-        "x": 1431,
-        "y": 355
+        "x": 1445,
+        "y": 326
       }
     }
   },
+  "final": true,
   "scenes": [
     {
       "id": "river-dawn",
       "kind": "river",
-      "narration": "A full day of alerts at one tenant, replayed. Two hundred seventy-six events off the SIEM. Every one takes the same path: a deterministic policy gate, a supervisor that routes, a reasoning tier that issues the verdict, and a guard with the power to overrule it.",
-      "estSec": 18.642857142857142,
+      "narration": "One tenant, one day, replayed. Two hundred seventy-six alerts. Every alert starts the same way: a first pass against known rules. What the rules cannot settle goes on for a model verdict — and a safety check runs before anything is acted on.",
+      "estSec": 14.489252,
       "window": [
-        3.164016000000004,
-        23.806873142857146
+        3.166333000000005,
+        19.655585000000006
       ],
       "endCard": false,
       "enterNextVia": {
         "clickDot": "normal",
         "dot": {
-          "x": 1447,
-          "y": 471
+          "x": 1438,
+          "y": 458
         }
-      }
+      },
+      "audio": "audio/river-dawn.mp3",
+      "audioStart": 0.3
     },
     {
       "id": "dive-auto-closed",
       "kind": "dive",
-      "narration": "Each dot opens the investigation behind it. This one is a recurring Wazuh false positive: closed operationally at the policy gate — no model invoked. Disposition close, with a reopen window guarding against drift. The event timeline replays every pipeline step, and the agent run shows the cost: token spend zero, out of a two-hundred-thousand token budget.",
-      "estSec": 25.5,
+      "narration": "Each dot is an investigation; click one to open it. This is a recurring Wazuh false positive. The rules caught it on the first pass and closed it as recurring benign activity — no model involved, with a reopen window in case the pattern returns. The timeline shows each step, and the agent run shows the cost: zero tokens of a two-hundred-thousand budget.",
+      "estSec": 22.058957,
       "file": "scenes/walk-dive-auto-closed.mp4",
-      "videoDur": 29.033333,
-      "audioStart": 2.032332999999998,
+      "videoDur": 25.8,
+      "audioStart": 2.2409999999999988,
       "focus": [
         {
-          "atSec": 10.978332999999997,
+          "atSec": 9.992999999999999,
           "x": 841,
           "y": 354,
           "scale": 1.35,
           "hold": 2.6
         },
         {
-          "atSec": 21.931333,
+          "atSec": 19.461,
           "x": 675,
           "y": 839,
           "scale": 1.45,
@@ -67,44 +70,47 @@
       ],
       "enterVia": {
         "clickDot": "normal"
-      }
+      },
+      "audio": "audio/dive-auto-closed.mp3"
     },
     {
       "id": "river-swarm",
       "kind": "river",
-      "narration": "Mid-morning, intake peaks. Operational closes absorb the known-benign volume without ever touching the reasoning tier. Everything else gets a model verdict — and no verdict executes unchecked.",
-      "estSec": 13.714285714285714,
+      "narration": "By mid-morning the stream is dense. Known false positives keep closing on the first pass without using the model. The rest get a model verdict — and every verdict gets a safety check before it counts.",
+      "estSec": 10.959819,
       "window": [
-        23.725016000000004,
-        39.43930171428572
+        23.693333000000006,
+        36.653152000000006
       ],
       "endCard": false,
       "enterNextVia": {
         "clickDot": "veto",
         "dot": {
-          "x": 1431,
-          "y": 355
+          "x": 1445,
+          "y": 326
         }
-      }
+      },
+      "audio": "audio/river-swarm.mp3",
+      "audioStart": 0.3
     },
     {
       "id": "dive-veto",
       "kind": "dive",
-      "narration": "Here the reasoning tier issued close at ninety percent confidence: a service-account sudo it judged routine. Before execution, the guard evaluated that verdict against the tenant’s authorization facts — grants, change tickets, baselines. No fact covers this activity, so the close is vetoed at the hard floor and the investigation routes to review instead.",
-      "estSec": 25.428571428571427,
+      "narration": "Here the model’s verdict was close at ninety percent confidence: a service-account sudo it read as routine. The safety check compared that verdict with what is actually allowed — grants, change tickets, baselines. Nothing covers this sudo, so the close was blocked. A hard stop. The investigation went to review instead.",
+      "estSec": 20.2478,
       "file": "scenes/walk-dive-veto.mp4",
-      "videoDur": 30.233008,
-      "audioStart": 3.3030080000000015,
+      "videoDur": 25.233008,
+      "audioStart": 3.4830080000000025,
       "focus": [
         {
-          "atSec": 10.446008,
+          "atSec": 9.179008000000003,
           "x": 1637,
           "y": 241,
           "scale": 1.35,
           "hold": 2.4
         },
         {
-          "atSec": 20.608008,
+          "atSec": 17.274008000000002,
           "x": 1540,
           "y": 586,
           "scale": 1.5,
@@ -113,45 +119,92 @@
       ],
       "enterVia": {
         "clickDot": "veto"
-      }
+      },
+      "audio": "audio/dive-veto.mp3"
     },
     {
       "id": "review-consequence",
       "kind": "page",
-      "narration": "Guard escalations land in the review queue with the full case attached: alert chain, model verdict, reasoning, and the authorization gap that blocked the close. A successful sudo to root on a finance host is exactly the class of decision that stays with an analyst.",
-      "estSec": 18.928571428571427,
+      "narration": "Escalations arrive here with the case attached: the alert chain, the verdict, why the model read it that way, and what was missing when the close was blocked. This one is a successful sudo to root on fin-v5fx. The queue is where an analyst makes the call.",
+      "estSec": 17.182766,
       "file": "scenes/walk-review-consequence.mp4",
-      "videoDur": 22.866016,
-      "audioStart": 2.436015999999997,
+      "videoDur": 21.033333,
+      "audioStart": 2.3493329999999992,
       "focus": [
         {
-          "atSec": 8.134015999999997,
+          "atSec": 8.387333,
           "x": 531,
-          "y": 795,
+          "y": 707,
           "scale": 1.45,
-          "hold": 3
-        },
-        {
-          "atSec": 17.203015999999998,
-          "x": 1705,
-          "y": 805,
-          "scale": 1.4,
-          "hold": 2.2
+          "hold": 3.4
         }
       ],
-      "enterVia": null
+      "enterVia": null,
+      "audio": "audio/review-consequence.mp3"
+    },
+    {
+      "id": "review-detail",
+      "kind": "page",
+      "narration": "Open the case. The recommendation is escalate at ninety percent, and the override is spelled out: the model drafted close, the safety check enforced escalate, because no authorization covers this activity. Key findings and enrichment sit below. The decision stays with the analyst: request info, reject and close, or approve and escalate — with written feedback required to reject.",
+      "estSec": 26.470748,
+      "file": "scenes/walk-review-detail.mp4",
+      "videoDur": 32.566667,
+      "audioStart": 4.594667000000004,
+      "focus": [
+        {
+          "atSec": 7.791667000000004,
+          "x": 1674,
+          "y": 956,
+          "scale": 1.4,
+          "hold": 2.4
+        },
+        {
+          "atSec": 14.687667000000005,
+          "x": 1004,
+          "y": 820,
+          "scale": 1.45,
+          "hold": 2.8
+        },
+        {
+          "atSec": 21.040667000000003,
+          "x": 1004,
+          "y": 1118,
+          "scale": 1.35,
+          "hold": 2.2
+        },
+        {
+          "atSec": 26.854667000000003,
+          "x": 1642,
+          "y": 1446,
+          "scale": 1.4,
+          "hold": 2.4
+        }
+      ],
+      "enterVia": null,
+      "audio": "audio/review-detail.mp3"
     },
     {
       "id": "river-midnight",
       "kind": "river",
-      "narration": "End-of-day totals: two hundred seventy-six alerts in. Two hundred thirty-two closed by the pipeline. Forty-four routed to analysts. Thirty-three auto-closes blocked by the guard. Every decision on this board is auditable, and every investigation replays exactly like the ones you just saw.",
-      "estSec": 20.642857142857142,
+      "narration": "End of day: two hundred seventy-six alerts in, two hundred thirty-two closed by the pipeline before analyst review, forty-four handled by analysts, thirty-three auto-closes blocked. It is all in the audit trail, and any investigation replays the way you just saw.",
+      "estSec": 18.111565,
       "window": [
-        35.255016000000005,
-        60.766016
+        35.21533300000001,
+        55.626898000000004
       ],
-      "endCard": true,
-      "enterNextVia": null
+      "endCard": false,
+      "enterNextVia": null,
+      "audio": "audio/river-midnight.mp3",
+      "audioStart": 0.3
+    },
+    {
+      "id": "outro-site",
+      "kind": "card",
+      "narration": "Visit us at soctalk dot A I.",
+      "estSec": 1.625397,
+      "dur": 4.1253969999999995,
+      "audio": "audio/outro-site.mp3",
+      "audioStart": 0.6
     }
   ]
 }

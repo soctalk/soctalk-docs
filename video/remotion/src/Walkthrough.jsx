@@ -4,8 +4,10 @@
 // subtitles; scene id + timecode in the corner. The final (Stage 3) version
 // strips draft chrome and re-paces to real audio.
 import React from 'react';
-import { AbsoluteFill, Easing, OffthreadVideo, Sequence, interpolate, staticFile, useCurrentFrame } from 'remotion';
+import { AbsoluteFill, Audio, Easing, OffthreadVideo, Sequence, interpolate, staticFile, useCurrentFrame } from 'remotion';
 import data from './walkthrough.json';
+
+const FINAL = !!data.final; // Stage 3: voice on, draft chrome off
 
 const FPS = 30;
 const W = 1920;
@@ -15,7 +17,18 @@ const RIVER_FOCUS = { x: 993, y: 445, scale: 1.62 }; // FleetTour framing
 const RING_LEAD = 1.1; // seconds of ring/zoom at the end of a river scene
 
 const sceneFrames = (s) =>
-	s.kind === 'river' ? Math.round((s.window[1] - s.window[0]) * FPS) : Math.round(s.videoDur * FPS) - 1;
+	s.kind === 'river'
+		? Math.round((s.window[1] - s.window[0]) * FPS)
+		: s.kind === 'card'
+			? Math.round(s.dur * FPS)
+			: Math.round(s.videoDur * FPS) - 1;
+
+const SceneAudio = ({ scene }) =>
+	FINAL && scene.audio ? (
+		<Sequence from={Math.round((scene.audioStart ?? 0.3) * FPS)}>
+			<Audio src={staticFile(scene.audio)} />
+		</Sequence>
+	) : null;
 export const walkthroughFrames = data.scenes.reduce((a, s) => a + sceneFrames(s), 0);
 
 const clamp = (v, m) => Math.max(-m, Math.min(m, v));
@@ -120,8 +133,50 @@ const RiverScene = ({ scene, globalFrame }) => {
 				/>
 			) : null}
 			{scene.endCard ? <EndCardOverlay frames={frames} /> : null}
-			<SubtitleUnlessEndcard scene={scene} frames={frames} />
-			<DraftTag scene={scene} frame={globalFrame} />
+			{!FINAL ? <SubtitleUnlessEndcard scene={scene} frames={frames} /> : null}
+			{!FINAL ? <DraftTag scene={scene} frame={globalFrame} /> : null}
+			<SceneAudio scene={scene} />
+		</AbsoluteFill>
+	);
+};
+
+// closing slide: logo, lemma, and the site URL
+const CardScene = ({ scene, globalFrame }) => {
+	const frame = useCurrentFrame();
+	const frames = sceneFrames(scene);
+	const in1 = interpolate(frame, [0, 14], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+	const in2 = interpolate(frame, [10, 26], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+	const in3 = interpolate(frame, [22, 38], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+	const out = interpolate(frame, [frames - 10, frames - 2], [1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+	return (
+		<AbsoluteFill
+			style={{
+				backgroundColor: '#0b0e14',
+				alignItems: 'center',
+				justifyContent: 'center',
+				fontFamily: 'Helvetica, Arial, sans-serif',
+				color: '#f2f5fa',
+				opacity: out
+			}}
+		>
+			<AbsoluteFill style={{ background: 'radial-gradient(800px 520px at 50% 42%, rgba(251,60,78,0.13) 0%, rgba(251,60,78,0) 60%)' }} />
+			<div style={{ display: 'flex', alignItems: 'center', gap: 18, opacity: 0.9 * in1 }}>
+				<img src={staticFile('brand/logo.png')} width={56} />
+				<div style={{ fontSize: 44, fontWeight: 800, letterSpacing: -1 }}>SocTalk</div>
+			</div>
+			<div style={{ marginTop: 64, fontFamily: 'Menlo, monospace', fontSize: 22, letterSpacing: 8, color: '#8f9fb8', opacity: in2 }}>
+				VISIT US
+			</div>
+			<div style={{ marginTop: 18, fontSize: 76, fontWeight: 800, letterSpacing: -1, opacity: in2, transform: `translateY(${(1 - in2) * 16}px)` }}>
+				soctalk.ai
+			</div>
+			<div style={{ marginTop: 26, width: 220 * in3, height: 5, borderRadius: 3, background: BRAND, opacity: in3 }} />
+			<div style={{ marginTop: 30, fontSize: 28, fontWeight: 600, color: '#9fb0c8', opacity: in3 }}>
+				AI triage. <span style={{ color: BRAND }}>Human judgment.</span>
+			</div>
+			{!FINAL ? <SubtitleUnlessEndcard scene={scene} frames={frames} /> : null}
+			{!FINAL ? <DraftTag scene={scene} frame={globalFrame} /> : null}
+			<SceneAudio scene={scene} />
 		</AbsoluteFill>
 	);
 };
@@ -182,8 +237,9 @@ const PageScene = ({ scene, globalFrame }) => {
 			<AbsoluteFill style={{ transform: `scale(${s}) translate(${tx}px, ${ty}px)` }}>
 				<OffthreadVideo src={staticFile(scene.file)} muted style={{ width: '100%', height: '100%' }} />
 			</AbsoluteFill>
-			<Subtitle text={scene.narration} />
-			<DraftTag scene={scene} frame={globalFrame} />
+			{!FINAL ? <Subtitle text={scene.narration} /> : null}
+			{!FINAL ? <DraftTag scene={scene} frame={globalFrame} /> : null}
+			<SceneAudio scene={scene} />
 		</AbsoluteFill>
 	);
 };
@@ -197,6 +253,8 @@ export const Walkthrough = () => {
 			<Sequence key={scene.id} from={acc} durationInFrames={frames}>
 				{scene.kind === 'river' ? (
 					<RiverScene scene={scene} globalFrame={frame} />
+				) : scene.kind === 'card' ? (
+					<CardScene scene={scene} globalFrame={frame} />
 				) : (
 					<PageScene scene={scene} globalFrame={frame} />
 				)}

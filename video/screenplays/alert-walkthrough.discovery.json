@@ -38,8 +38,17 @@
 		"itemText": "Successful sudo to ROOT executed by svc-legacy on fin-v5fx",
 		"rowChips": ["Critical", "AI: Escalate"],
 		"hoverTarget": "button:has-text(\"Review\")",
-		"note": "READ-ONLY on camera: hover the Review action, never click through to a decision.",
+		"note": "READ-ONLY on camera: clicking Review only expands the case panel inline (no state change) and MAY be filmed; the decision buttons (Request Info / Reject & Close / Approve & Escalate) are hover-only, never clicked.",
 		"fallbackItemPattern": "sudo|SSH authentication success"
+	},
+	"reviewDetail": {
+		"verifiedAt": "2026-08-01",
+		"openVia": "click the row's Review button — inline expansion, same URL, no state change",
+		"recommendationChip": "Escalate (90%)",
+		"overrideText": "GUARD OVERRIDE: LLM drafted 'close', enforced 'escalate' — authorization records present but do not cover this activity",
+		"sections": ["AI Recommendation", "Key Findings", "Enrichment Results", "Analyst Feedback (required for rejection)"],
+		"decisionButtons": ["Cancel", "Request Info", "Reject & Close", "Approve & Escalate"],
+		"caveat": "Key Findings bullets look like generic demo data that may not match the row title — narration references the sections, never reads the bullets aloud."
 	},
 	"rejected": {
 		"chatScene": "cut — demo LLM reliability unproven",

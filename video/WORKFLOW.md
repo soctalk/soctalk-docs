@@ -7,7 +7,7 @@ pipeline, compositions are the house style) and only involves the human where
 listed. Don't ask questions a look at the repo or demo can answer.
 
 ```
-brief → 1 DISCOVER → 2 SILENT DRAFT  ⛔ human approval → 3 VOICE + FINAL
+brief → 1 DISCOVER → 2 SILENT DRAFT  ⛔ human approval → 3 VOICE + FINAL → 4 PUBLISH
 ```
 
 **Stage 1 — Discover.** Explore the demo read-only, off-camera. Find and
@@ -32,6 +32,60 @@ meaningfully diverges from what was approved (data changed on the live demo,
 timing shifted enough to alter a scene), show the human instead of shipping.
 Locales: translate the narration strings, reuse everything else; re-gate only
 if something material changed.
+
+**Narration voice (applies to every screenplay):**
+- Audience is SOC analysts. Write like an engineer explaining to a peer:
+  plain declarative sentences, grounded, zero promotional cadence. If a line
+  would fit in an ad, rewrite it.
+- Use everyday SOC vocabulary — alerts, rules, false positives, triage,
+  verdict, escalation, queue, grants, change tickets, baselines, audit
+  trail. Avoid software/design-doc jargon (deterministic, disposition,
+  operational, reasoning tier, router) unless plainly explaining a label
+  that is on screen at that moment.
+- Do not recite UI component names (Policy Gate, Supervisor, Guard, Hard
+  Floor). Describe the function — "a first pass against known rules",
+  "routing", "a safety check", "a hard stop" — and let the camera land on
+  the label so the viewer makes the mapping.
+- Every number or factual claim spoken must be visible on screen and
+  capture-asserted. Never imply causality between separate entities the
+  data doesn't prove ("that same path leaves alerts like this…", not
+  "which is why this one…").
+- The lemma "AI triage. Human judgment." is the visual end card only; it is
+  not spoken.
+- Voice: the ElevenLabs default in config.mjs (currently Chris), measured
+  read, no style exaggeration.
+- Captions: drafts burn the narration in (that is the review surface).
+  Finals ship CLEAN plus a sidecar `.srt` generated from the real audio
+  timings (`pipeline/make-srt.mjs`) — uploaded alongside the video via the
+  YouTube Captions API so viewers toggle, search and auto-translate them. A
+  burned-in variant is produced only for muted-autoplay feeds (e.g.
+  LinkedIn) when needed.
+
+**Bookends (the intro and the last slide follow the same principles):**
+- Open on the product, alive — a cold open on real UI (e.g. the fleet replay
+  already flowing) is the house default. If a title card is used at all, it
+  is minimal: logo + wordmark + video title on the app-dark background,
+  no taglines, no motion flourish. The first narration line obeys the
+  narration-voice rules like every other line.
+- Every video ends on the standing closing slide: logo + wordmark, the lemma
+  as visual text ("AI triage. Human judgment."), and `https://soctalk.ai`
+  displayed prominently (link-styled panel) with "Docs · Live demo" beneath,
+  on the app-dark background with the brand crimson. Optional one plain
+  spoken line (e.g. "Docs and a live demo are at soctalk dot A I.") —
+  nothing salesy.
+- An mp4 cannot carry a clickable link: the URL must be large and legible on
+  the slide, and the publish surface (docs page, YouTube description, post
+  text) carries the actual hyperlink.
+- Brand constants everywhere: crimson #fb3c4e, app-dark #0b0e14, logo from
+  `remotion/public/brand/logo.png`.
+
+**Stage 4 — Publish.** Upload the clean final + sidecar `.srt` to YouTube via
+`pipeline/upload-youtube.mjs <video.mp4> <captions.srt>` (videos.insert +
+captions.insert; unlisted by default — a human flips to public). The
+description carries the https://soctalk.ai link (the mp4 URL is not clickable)
+and an AI-narration disclosure. OAuth lives in `video/.env`
+(`YT_CLIENT_ID/SECRET/REFRESH_TOKEN`); `--auth` runs the one-time consent.
+Per-locale finals each upload their own caption track.
 
 **Hard rules (everything else is agent judgment):**
 - The shared demo tenant is read-only on camera — hover decisions, never
