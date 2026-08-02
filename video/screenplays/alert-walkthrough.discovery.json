@@ -8,7 +8,7 @@
 		"titlePattern": "The fleet —",
 		"fallbackBadge": "LAST ACTIVITY",
 		"observedDay": "Sat, Jul 25",
-		"finalCounters": { "alertsIn": 276, "closedByPipeline": 232, "reachedAHuman": 44 },
+		"finalCounters": { "alertsIn": 276, "closedByPipeline": 232, "reachedAHuman": 44, "blockedAutoCloses": 33 },
 		"dotSelector": "circle.fdot.clickable",
 		"vetoDotSelector": "circle.fdot.veto.clickable",
 		"vetoDotAppearsAround": "04:49 replay time (single veto dot); scan while playing"

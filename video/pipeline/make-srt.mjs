@@ -44,6 +44,6 @@ for (const scene of data.scenes) {
 	offset += sceneFrames(scene) / FPS;
 }
 const srt = cues.map((c, i) => `${i + 1}\n${fmt(c.start)} --> ${fmt(c.end)}\n${c.text}\n`).join('\n');
-const out = path.join(root, 'out', 'alert-walkthrough.srt');
+const out = path.join(root, 'out', `${process.argv[2] ?? 'alert-walkthrough'}.srt`);
 writeFileSync(out, srt);
 console.log(`make-srt: ${cues.length} cues → ${out} (video span ${fmt(offset)})`);

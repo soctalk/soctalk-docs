@@ -55,11 +55,12 @@ if something material changed.
 - Voice: the ElevenLabs default in config.mjs (currently Chris), measured
   read, no style exaggeration.
 - Captions: drafts burn the narration in (that is the review surface).
-  Finals ship CLEAN plus a sidecar `.srt` generated from the real audio
-  timings (`pipeline/make-srt.mjs`) — uploaded alongside the video via the
-  YouTube Captions API so viewers toggle, search and auto-translate them. A
-  burned-in variant is produced only for muted-autoplay feeds (e.g.
-  LinkedIn) when needed.
+  Finals ship CLEAN plus a sidecar `.srt` (`pipeline/make-srt.mjs`): clip
+  start/duration come from the real TTS audio; sentence cues within a clip
+  are proportionally timed by character share (upgrade path: ElevenLabs
+  character timestamps). Uploaded via the YouTube Captions API so viewers
+  toggle, search and auto-translate. A burned-in variant is produced only
+  for muted-autoplay feeds (e.g. LinkedIn) when needed.
 
 **Bookends (the intro and the last slide follow the same principles):**
 - Open on the product, alive — a cold open on real UI (e.g. the fleet replay
@@ -67,12 +68,12 @@ if something material changed.
   is minimal: logo + wordmark + video title on the app-dark background,
   no taglines, no motion flourish. The first narration line obeys the
   narration-voice rules like every other line.
-- Every video ends on the standing closing slide: logo + wordmark, the lemma
-  as visual text ("AI triage. Human judgment."), and `https://soctalk.ai`
-  displayed prominently (link-styled panel) with "Docs · Live demo" beneath,
-  on the app-dark background with the brand crimson. Optional one plain
-  spoken line (e.g. "Docs and a live demo are at soctalk dot A I.") —
-  nothing salesy.
+- Every video ends on the standing closing slide (the "URL hero" layout,
+  implemented in Walkthrough.jsx's CardScene): small logo + wordmark row, a
+  spaced "VISIT US" eyebrow, `soctalk.ai` large and plain (no container), a
+  crimson rule, and the lemma small and muted beneath — on the app-dark
+  background. Optional one plain spoken line ("Visit us at soctalk dot
+  A I.") — nothing salesy.
 - An mp4 cannot carry a clickable link: the URL must be large and legible on
   the slide, and the publish surface (docs page, YouTube description, post
   text) carries the actual hyperlink.
@@ -82,8 +83,10 @@ if something material changed.
 **Stage 4 — Publish.** Upload the clean final + sidecar `.srt` to YouTube via
 `pipeline/upload-youtube.mjs <video.mp4> <captions.srt>` (videos.insert +
 captions.insert; unlisted by default — a human flips to public). The
-description carries the https://soctalk.ai link (the mp4 URL is not clickable)
-and an AI-narration disclosure. OAuth lives in `video/.env`
+description is content-only and carries the https://soctalk.ai link (the mp4
+URL is not clickable); the AI-narration disclosure is YouTube's
+altered-content flag, set once per video in Studio (not writable via the
+Data API). OAuth lives in `video/.env`
 (`YT_CLIENT_ID/SECRET/REFRESH_TOKEN`); `--auth` runs the one-time consent.
 Per-locale finals each upload their own caption track.
 

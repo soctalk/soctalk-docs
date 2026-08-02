@@ -11,7 +11,12 @@ const { chromium } = createRequire(import.meta.url)('playwright');
 if (!PASSWORD) throw new Error('SOCTALK_PASSWORD not set — export it or add it to video/.env');
 
 const root = path.join(import.meta.dirname, '..');
-const screenplay = (await import(path.join(root, 'screenplays', 'alert-walkthrough.mjs'))).default;
+// screenplay path is parameterized for future tutorials; outputs keep the
+// walk-* / walkthrough.json names until a second tutorial needs its own set
+const screenplayPath = process.argv[2]
+	? path.resolve(process.argv[2])
+	: path.join(root, 'screenplays', 'alert-walkthrough.mjs');
+const screenplay = (await import(screenplayPath)).default;
 const sceneDir = path.join(root, 'remotion', 'public', 'scenes');
 mkdirSync(sceneDir, { recursive: true });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
