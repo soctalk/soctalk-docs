@@ -1,10 +1,10 @@
 {
   "river": {
     "file": "scenes/walk-river.mp4",
-    "videoDur": 61.266667,
-    "segStart": 3.687666999999999,
-    "swarmAt": 26.221667,
-    "plateauAt": 35.250667,
+    "videoDur": 60.833008,
+    "segStart": 3.1930079999999963,
+    "swarmAt": 25.777007999999995,
+    "plateauAt": 34.824008,
     "counters": {
       "alertsIn": 276,
       "closed": 232,
@@ -13,12 +13,12 @@
     },
     "dots": {
       "normal": {
-        "x": 1441,
-        "y": 463
+        "x": 1443,
+        "y": 480
       },
       "veto": {
-        "x": 1447,
-        "y": 322
+        "x": 1438,
+        "y": 344
       }
     }
   },
@@ -27,18 +27,18 @@
     {
       "id": "river-dawn",
       "kind": "river",
-      "narration": "One tenant, one day, replayed. Two hundred seventy-six alerts. Every alert starts the same way: a first pass against known rules. What the rules cannot settle goes on for a model verdict — and a safety check runs before anything is acted on.",
-      "estSec": 14.489252,
+      "narration": "Un tenant, un día, reproducido. Doscientas setenta y seis alertas. Cada alerta comienza igual: una primera pasada contra reglas conocidas. Lo que las reglas no pueden resolver pasa a un veredicto del modelo, y una verificación de seguridad se ejecuta antes de actuar.",
+      "estSec": 19.783401,
       "window": [
-        3.687666999999999,
-        20.176918999999998
+        3.1930079999999963,
+        24.976408999999997
       ],
       "endCard": false,
       "enterNextVia": {
         "clickDot": "normal",
         "dot": {
-          "x": 1441,
-          "y": 463
+          "x": 1443,
+          "y": 480
         }
       },
       "audio": "audio/river-dawn.mp3",
@@ -47,21 +47,21 @@
     {
       "id": "dive-auto-closed",
       "kind": "dive",
-      "narration": "Each dot is an investigation; click one to open it. This is a recurring Wazuh false positive. The rules caught it on the first pass and closed it as recurring benign activity — no model involved, with a reopen window in case the pattern returns. The timeline shows each step, and the agent run shows the cost: zero tokens of a two-hundred-thousand budget.",
-      "estSec": 22.058957,
+      "narration": "Cada punto es una investigación; haz clic para abrirla. Este es un falso positivo recurrente de Wazuh. Las reglas lo detectaron en la primera pasada y lo cerraron como actividad benigna recurrente: sin usar el modelo, con una ventana de reapertura por si el patrón regresa. La línea de tiempo muestra cada paso, y la ejecución del agente muestra el costo: cero tokens de un presupuesto de doscientos mil.",
+      "estSec": 28.281905,
       "file": "scenes/walk-dive-auto-closed.mp4",
-      "videoDur": 25.833333,
-      "audioStart": 2.2743329999999995,
+      "videoDur": 32.033008,
+      "audioStart": 2.2500080000000016,
       "focus": [
         {
-          "atSec": 10.028333,
+          "atSec": 12.170008000000001,
           "x": 841,
           "y": 354,
           "scale": 1.35,
           "hold": 2.6
         },
         {
-          "atSec": 19.496333,
+          "atSec": 24.321008000000003,
           "x": 675,
           "y": 839,
           "scale": 1.45,
@@ -76,18 +76,18 @@
     {
       "id": "river-swarm",
       "kind": "river",
-      "narration": "By mid-morning the stream is dense. Known false positives keep closing on the first pass without using the model. The rest get a model verdict — and every verdict gets a safety check before it counts.",
-      "estSec": 10.959819,
+      "narration": "A media mañana el flujo es denso. Los falsos positivos conocidos se siguen cerrando en la primera pasada sin usar el modelo. El resto recibe un veredicto del modelo, y cada veredicto pasa por una verificación de seguridad antes de que tenga efecto.",
+      "estSec": 16.393288,
       "window": [
-        24.221667,
-        37.181486
+        23.777007999999995,
+        42.17029599999999
       ],
       "endCard": false,
       "enterNextVia": {
         "clickDot": "veto",
         "dot": {
-          "x": 1447,
-          "y": 322
+          "x": 1438,
+          "y": 344
         }
       },
       "audio": "audio/river-swarm.mp3",
@@ -96,21 +96,21 @@
     {
       "id": "dive-veto",
       "kind": "dive",
-      "narration": "Here the model’s verdict was close at ninety percent confidence: a service-account sudo it read as routine. The safety check compared that verdict with what is actually allowed — grants, change tickets, baselines. Nothing covers this sudo, so the close was blocked. A hard stop. The investigation went to review instead.",
-      "estSec": 20.2478,
+      "narration": "Aquí el veredicto del modelo fue cerrar, con noventa por ciento de confianza: un sudo de una cuenta de servicio que interpretó como rutinario. La verificación de seguridad comparó ese veredicto con lo que realmente estaba autorizado: permisos, tickets de cambio, líneas base. Nada cubría este sudo, así que el cierre quedó bloqueado. Un bloqueo directo. La investigación pasó a revisión.",
+      "estSec": 26.238549,
       "file": "scenes/walk-dive-veto.mp4",
-      "videoDur": 25.8,
-      "audioStart": 4.051,
+      "videoDur": 31.333333,
+      "audioStart": 3.595332999999998,
       "focus": [
         {
-          "atSec": 9.738,
+          "atSec": 10.961332999999998,
           "x": 1637,
           "y": 241,
           "scale": 1.35,
           "hold": 2.4
         },
         {
-          "atSec": 17.833,
+          "atSec": 21.449333,
           "x": 1540,
           "y": 586,
           "scale": 1.5,
@@ -125,14 +125,14 @@
     {
       "id": "review-consequence",
       "kind": "page",
-      "narration": "Escalations arrive here with the case attached: the alert chain, the verdict, why the model read it that way, and what was missing when the close was blocked. This one is a successful sudo to root on fin-v5fx. The queue is where an analyst makes the call.",
-      "estSec": 17.182766,
+      "narration": "Los casos escalados llegan aquí con el contexto completo: la cadena de alertas, el veredicto, por qué el modelo lo interpretó así y qué faltaba cuando se bloqueó el cierre. Este es un sudo exitoso a root en fin-v5fx. En esta cola, el analista toma la decisión.",
+      "estSec": 19.040363,
       "file": "scenes/walk-review-consequence.mp4",
-      "videoDur": 21.233333,
-      "audioStart": 2.550332999999997,
+      "videoDur": 23.433333,
+      "audioStart": 2.8933330000000015,
       "focus": [
         {
-          "atSec": 8.595332999999997,
+          "atSec": 9.579333000000002,
           "x": 531,
           "y": 707,
           "scale": 1.45,
@@ -145,35 +145,35 @@
     {
       "id": "review-detail",
       "kind": "page",
-      "narration": "Open the case. The recommendation is escalate at ninety percent, and the override is spelled out: the model drafted close, the safety check enforced escalate, because no authorization covers this activity. Key findings and enrichment sit below. The decision stays with the analyst: request info, reject and close, or approve and escalate — with written feedback required to reject.",
-      "estSec": 26.470748,
+      "narration": "Abre el caso. La recomendación es escalar, con noventa por ciento, y la intervención queda clara: el modelo propuso cerrar; la verificación de seguridad forzó el escalamiento porque ninguna autorización cubre esta actividad. Debajo están los hallazgos clave y el enriquecimiento. La decisión queda en manos del analista: pedir información, rechazar y cerrar, o aprobar y escalar, con un comentario escrito obligatorio para rechazar.",
+      "estSec": 33.204535,
       "file": "scenes/walk-review-detail.mp4",
-      "videoDur": 32.666667,
-      "audioStart": 4.695666999999993,
+      "videoDur": 39.6,
+      "audioStart": 4.895000000000004,
       "focus": [
         {
-          "atSec": 7.902666999999994,
+          "atSec": 8.903000000000004,
           "x": 1674,
           "y": 956,
           "scale": 1.4,
           "hold": 2.4
         },
         {
-          "atSec": 14.782666999999993,
+          "atSec": 17.526000000000003,
           "x": 1004,
           "y": 820,
           "scale": 1.45,
           "hold": 2.8
         },
         {
-          "atSec": 21.122666999999993,
+          "atSec": 25.499000000000006,
           "x": 1004,
           "y": 1118,
           "scale": 1.35,
           "hold": 2.2
         },
         {
-          "atSec": 26.950666999999992,
+          "atSec": 32.794000000000004,
           "x": 1642,
           "y": 1446,
           "scale": 1.4,
@@ -186,11 +186,11 @@
     {
       "id": "river-midnight",
       "kind": "river",
-      "narration": "End of day: two hundred seventy-six alerts in, two hundred thirty-two closed by the pipeline before analyst review, forty-four handled by analysts, thirty-three auto-closes blocked. It is all in the audit trail, and any investigation replays the way you just saw.",
-      "estSec": 18.111565,
+      "narration": "Fin del día: doscientas setenta y seis alertas recibidas, doscientas treinta y dos cerradas por el pipeline antes de revisión humana, cuarenta y cuatro atendidas por analistas, treinta y tres cierres automáticos bloqueados. Todo queda en el registro de auditoría, y cualquier investigación se reproduce como acaban de ver.",
+      "estSec": 20.48,
       "window": [
-        35.750667,
-        56.162231999999996
+        35.324008,
+        58.10400799999999
       ],
       "endCard": false,
       "enterNextVia": null,
@@ -200,9 +200,9 @@
     {
       "id": "outro-site",
       "kind": "card",
-      "narration": "Visit us at soctalk dot A I.",
-      "estSec": 1.625397,
-      "dur": 4.1253969999999995,
+      "narration": "Visítanos en soctalk punto A I.",
+      "estSec": 1.857596,
+      "dur": 4.357596,
       "audio": "audio/outro-site.mp3",
       "audioStart": 0.6
     }

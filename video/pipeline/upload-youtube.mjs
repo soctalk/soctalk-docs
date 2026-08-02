@@ -97,22 +97,49 @@ if (AUTH_MODE) {
 	oauth2.setCredentials({ refresh_token: process.env.YT_REFRESH_TOKEN });
 	const yt = google.youtube({ version: 'v3', auth: oauth2 });
 
-	const TITLE = 'SocTalk: The Life of an Alert';
-	// Content-only description, plain punctuation (no em dashes). The
-	// altered-content disclosure is YouTube's Studio flag, not description
-	// text.
-	const DESCRIPTION = [
-		"One tenant, one day of alerts, replayed end to end. This walkthrough follows real alerts through SocTalk's triage pipeline and shows where automation stops and a human decides.",
-		'',
-		'0:00 The day, replayed: 276 alerts through the pipeline',
-		'0:16 A false positive closed on the first pass, zero model cost',
-		'0:55 A model verdict overruled: the guard blocks an auto-close with no authorization behind it',
-		'1:21 The human review queue, with the full case in front of an analyst',
-		'2:14 End of day: what closed automatically, what reached a person',
-		'',
-		'Built for SOC and MSSP teams drowning in alert volume.',
-		'Docs and a live demo: https://soctalk.ai'
-	].join('\n');
+	const LOCALES = {
+		en: {
+			title: 'SocTalk: The Life of an Alert',
+			captionLang: 'en',
+			captionName: 'English',
+			description: [
+				"One tenant, one day of alerts, replayed end to end. This walkthrough follows real alerts through SocTalk's triage pipeline and shows where automation stops and a human decides.",
+				'',
+				'0:00 The day, replayed: 276 alerts through the pipeline',
+				'0:16 A false positive closed on the first pass, zero model cost',
+				'0:55 A model verdict overruled: the guard blocks an auto-close with no authorization behind it',
+				'1:21 The human review queue, with the full case in front of an analyst',
+				'2:14 End of day: what closed automatically, what reached a person',
+				'',
+				'Built for SOC and MSSP teams drowning in alert volume.',
+				'Docs and a live demo: https://soctalk.ai'
+			].join('\n')
+		},
+		es: {
+			title: 'SocTalk: La vida de una alerta',
+			captionLang: 'es-419',
+			captionName: 'Español (Latinoamérica)',
+			description: [
+				'Un tenant, un día completo de alertas, reproducido de principio a fin. Este recorrido sigue alertas reales a través del pipeline de triaje de SocTalk y muestra dónde termina la automatización y decide una persona.',
+				'',
+				'0:00 El día, reproducido: 276 alertas por el pipeline',
+				'0:21 Un falso positivo cerrado en la primera pasada, costo cero del modelo',
+				'1:12 Un veredicto del modelo corregido: la verificación de seguridad bloquea un cierre automático sin autorización',
+				'1:43 La cola de revisión humana, con el caso completo frente al analista',
+				'2:46 Fin del día: qué se cerró automáticamente y qué llegó a una persona',
+				'',
+				'Hecho para equipos SOC y MSSP saturados de alertas.',
+				'Documentación y demo en vivo: https://soctalk.ai'
+			].join('\n')
+		}
+	};
+	const localeIdx = process.argv.indexOf('--locale');
+	const L = LOCALES[localeIdx > -1 ? process.argv[localeIdx + 1] : 'en'];
+	if (!L) throw new Error('unknown locale');
+	if (localeIdx > -1) process.argv.splice(localeIdx, 2);
+	const TITLE = L.title;
+	const DESCRIPTION = L.description;
+	if (DESCRIPTION.includes('CHAPTERS_ES')) throw new Error('ES chapters placeholder not filled — compute chapters from walkthrough.json first');
 	const TAGS = ['SocTalk', 'SOC', 'security operations', 'AI triage', 'MSSP', 'alert triage'];
 
 	// --delete <videoId>: remove a superseded upload
@@ -158,10 +185,10 @@ if (AUTH_MODE) {
 	if (srtFile) {
 		await yt.captions.insert({
 			part: ['snippet'],
-			requestBody: { snippet: { videoId, language: 'en', name: 'English' } },
+			requestBody: { snippet: { videoId, language: L.captionLang, name: L.captionName } },
 			media: { mimeType: 'application/octet-stream', body: createReadStream(srtFile) }
 		});
-		console.log('captions uploaded (en)');
+		console.log(`captions uploaded (${L.captionLang})`);
 	}
 	console.log('smoke test complete');
 }

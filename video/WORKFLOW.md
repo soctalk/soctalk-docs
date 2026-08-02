@@ -1,10 +1,13 @@
 # t2v workflow — brief to published video
 
-Operating prompt for producing SocTalk walkthrough/tutorial videos from the
-live demo (demo.soctalk.ai). Optimized for LOW HUMAN EFFORT: the agent infers
-sensible defaults and conventions from this repo (existing screenplays,
-pipeline, compositions are the house style) and only involves the human where
-listed. Don't ask questions a look at the repo or demo can answer.
+Operating prompt for producing ANY SocTalk video from the live demo
+(demo.soctalk.ai): walkthrough tutorials, screen tours, promo and social
+cuts. The stages, gate, voice, bookends and hard rules below apply to all of
+them; formats differ only in which pipeline films them (see Formats).
+Optimized for LOW HUMAN EFFORT: the agent infers sensible defaults and
+conventions from this repo (existing screenplays, pipeline, compositions are
+the house style) and only involves the human where listed. Don't ask
+questions a look at the repo or demo can answer.
 
 ```
 brief → 1 DISCOVER → 2 SILENT DRAFT  ⛔ human approval → 3 VOICE + FINAL → 4 PUBLISH
@@ -30,8 +33,10 @@ free.
 render with the house polish, deliver master + web encode. If the final
 meaningfully diverges from what was approved (data changed on the live demo,
 timing shifted enough to alter a scene), show the human instead of shipping.
-Locales: translate the narration strings, reuse everything else; re-gate only
-if something material changed.
+Locales (not automated yet): translate the narration strings, reuse
+everything else; re-gate only if something material changed. Automating a
+locale also needs per-locale output ids, caption language/name, and
+localized upload metadata in `upload-youtube.mjs`.
 
 **Narration voice (applies to every screenplay):**
 - Audience is SOC analysts. Write like an engineer explaining to a peer:
@@ -68,12 +73,11 @@ if something material changed.
   is minimal: logo + wordmark + video title on the app-dark background,
   no taglines, no motion flourish. The first narration line obeys the
   narration-voice rules like every other line.
-- Every video ends on the standing closing slide (the "URL hero" layout,
-  implemented in Walkthrough.jsx's CardScene): small logo + wordmark row, a
-  spaced "VISIT US" eyebrow, `soctalk.ai` large and plain (no container), a
-  crimson rule, and the lemma small and muted beneath — on the app-dark
-  background. Optional one plain spoken line ("Visit us at soctalk dot
-  A I.") — nothing salesy.
+- Every video ends on the standing closing slide: `Walkthrough.jsx`'s
+  `CardScene` is the normative implementation (URL-hero layout: brand row,
+  VISIT US eyebrow, plain `soctalk.ai`, crimson rule, muted lemma). Legacy
+  `Tour`/promo intro-outro cards are not normative. Optional one plain
+  spoken line ("Visit us at soctalk dot A I.") — nothing salesy.
 - An mp4 cannot carry a clickable link: the URL must be large and legible on
   the slide, and the publish surface (docs page, YouTube description, post
   text) carries the actual hyperlink.
@@ -90,16 +94,51 @@ Data API). OAuth lives in `video/.env`
 (`YT_CLIENT_ID/SECRET/REFRESH_TOKEN`); `--auth` runs the one-time consent.
 Per-locale finals each upload their own caption track.
 
-**Operations — the pipeline as actually run (alert-walkthrough, Jul–Aug 2026):**
+**Operations — the walkthrough format's command palette (as production-run on
+alert-walkthrough, Jul–Aug 2026; other formats swap the capture/render lines):**
+
+Preflight: run from `video/` after `npm install`; ffmpeg/ffprobe on PATH.
+`.env` needs `SOCTALK_PASSWORD` (capture), `ELEVENLABS_API_KEY` (Stage 3),
+`YT_*` (publish only).
+
+**Formats.** One process, several filming pipelines:
+- Narrative walkthrough (the flagship format): `capture-walkthrough.mjs` +
+  the `Walkthrough` composition — assertion-gated capture, filmed clicks,
+  river/dive scene kinds, real-audio pacing. Reference screenplay:
+  `screenplays/alert-walkthrough.mjs`; its `.discovery.json` shows what a
+  discovery file records (verified dates, IDs/routes, assertion text, spoken
+  numbers, read-only notes, rejected candidates, caveats).
+- Simple screen tour: `run.mjs` + the `Tour` composition (reference:
+  `screenplays/quick-tour.mjs`). Predates assertions/clicks; fine for
+  low-stakes tours, prefer the walkthrough engine for anything gated.
+- Promo/social cuts (`Promo*`, `FleetFlow`, `FleetTour`, …): remix existing
+  footage, no gate needed while internal — but anything PUBLISHED passes the
+  same hard rules and publish stage.
+The two capture engines stay separate until the second walkthrough exists;
+generalize from two real cases, not one (parameterize or fork
+`capture-walkthrough`'s outputs before reusing them).
 
 ```sh
-cd video                                             # everything runs from here
+# STAGE 2 — silent draft (no TTS; the gate lives here)
+rm -f tmp/narration.json                             # guarantees draft mode
+node pipeline/capture-walkthrough.mjs [screenplays/<id>.mjs]
+npx remotion render remotion/src/index.jsx Walkthrough out/<id>.draft.mp4 --public-dir=remotion/public
+
+# STAGE 3 — after explicit approval only
 node pipeline/narrate.mjs $(pwd)/screenplays/<id>.mjs   # TTS, hash-cached: unchanged lines are free
-node pipeline/capture-walkthrough.mjs [screenplays/<id>.mjs]  # live capture, assertion-gated
+node pipeline/capture-walkthrough.mjs [screenplays/<id>.mjs]  # re-paces to real audio; final mode
 npx remotion render remotion/src/index.jsx Walkthrough out/<id>.mp4 --public-dir=remotion/public
-node pipeline/make-srt.mjs [<id>]                    # sidecar captions from real audio timings
-node pipeline/upload-youtube.mjs out/<id>.mp4 out/<id>.srt   # unlisted upload + captions
-#   --auth (one-time consent)  --update <videoId>  --delete <videoId>
+node pipeline/make-srt.mjs [<id>]
+
+# STAGE 4 — publish
+# 1. edit TITLE/DESCRIPTION/TAGS in pipeline/upload-youtube.mjs; recompute
+#    description chapters from walkthrough.json cumulative scene frames
+node pipeline/upload-youtube.mjs out/<id>.mp4 out/<id>.srt   # unlisted + captions
+#    --auth (one-time consent)  --update <videoId>  --delete <videoId>
+# 2. Studio: set the altered-content flag; flip public when ready
+# 3. web embed encode when needed:
+#    ffmpeg -i out/<id>.mp4 -c:v libx264 -preset slow -crf 23 -pix_fmt yuv420p \
+#      -movflags +faststart -c:a aac -b:a 160k out/<id>.web.mp4
 ```
 
 - Stage 2 iterations are free and fast: capture+render only, ~8 min a cycle.
