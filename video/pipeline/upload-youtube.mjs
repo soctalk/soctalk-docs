@@ -102,6 +102,7 @@ if (AUTH_MODE) {
 			title: 'SocTalk: The Life of an Alert',
 			captionLang: 'en',
 			captionName: 'English',
+			linkComment: 'Docs and a live demo: https://soctalk.ai/',
 			description: [
 				"One tenant, one day of alerts, replayed end to end. This walkthrough follows real alerts through SocTalk's triage pipeline and shows where automation stops and a human decides.",
 				'',
@@ -112,13 +113,15 @@ if (AUTH_MODE) {
 				'2:14 End of day: what closed automatically, what reached a person',
 				'',
 				'Built for SOC and MSSP teams drowning in alert volume.',
-				'Docs and a live demo: https://soctalk.ai'
+				'En español: https://youtu.be/dTIXCcVF4v8',
+				'Docs and a live demo: https://soctalk.ai/'
 			].join('\n')
 		},
 		es: {
 			title: 'SocTalk: La vida de una alerta',
 			captionLang: 'es-419',
 			captionName: 'Español (Latinoamérica)',
+			linkComment: 'Documentación y demo en vivo: https://soctalk.ai/',
 			description: [
 				'Un tenant, un día completo de alertas, reproducido de principio a fin. Este recorrido sigue alertas reales a través del pipeline de triaje de SocTalk y muestra dónde termina la automatización y decide una persona.',
 				'',
@@ -129,7 +132,8 @@ if (AUTH_MODE) {
 				'2:46 Fin del día: qué se cerró automáticamente y qué llegó a una persona',
 				'',
 				'Hecho para equipos SOC y MSSP saturados de alertas.',
-				'Documentación y demo en vivo: https://soctalk.ai'
+				'In English: https://youtu.be/zXTcyIOf_Nc',
+				'Documentación y demo en vivo: https://soctalk.ai/'
 			].join('\n')
 		}
 	};
@@ -190,5 +194,12 @@ if (AUTH_MODE) {
 		});
 		console.log(`captions uploaded (${L.captionLang})`);
 	}
-	console.log('smoke test complete');
+	if (L.linkComment) {
+		await yt.commentThreads.insert({
+			part: ['snippet'],
+			requestBody: { snippet: { videoId, topLevelComment: { snippet: { textOriginal: L.linkComment } } } }
+		});
+		console.log('link comment posted (pin it in Studio — pinning has no API)');
+	}
+	console.log('upload complete');
 }

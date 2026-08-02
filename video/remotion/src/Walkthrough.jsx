@@ -154,6 +154,8 @@ const CardScene = ({ scene, globalFrame }) => {
 				backgroundColor: '#0b0e14',
 				alignItems: 'center',
 				justifyContent: 'center',
+				// bottom band left clear for a future YouTube end-screen overlay
+				paddingBottom: 220,
 				fontFamily: 'Helvetica, Arial, sans-serif',
 				color: '#f2f5fa',
 				opacity: out

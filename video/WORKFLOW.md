@@ -162,6 +162,23 @@ node pipeline/upload-youtube.mjs out/<id>.mp4 out/<id>.srt   # unlisted + captio
 - Long-running steps go in background tasks; anything invoking a CLI that
   might read stdin gets `< /dev/null` or it hangs silently.
 
+**YouTube links & CTA practice (verified against YouTube docs, Aug 2026):**
+- Video pixels are never clickable. The click surfaces, cheapest first:
+  description first line (full `https://soctalk.ai/` form), a language-
+  matched link comment (the uploader posts it automatically; PINNING has no
+  API — pin it in Studio), and the channel's first profile link. All of
+  these need the channel's "Advanced features" enabled (phone verification),
+  not YPP.
+- The real on-slide click is an end-screen Link element: YPP-only and
+  Studio-only. The closing card is kept end-screen-ready anyway: >=6s hold
+  and a clear bottom band reserved for the overlay.
+- External-link info cards: same YPP gate, worse visibility — skip. Branding
+  watermark links only to the channel — not a website CTA. QR on the slide
+  only if TV/conference viewing becomes a real channel (small, UTM'd).
+- Per-video Studio clicks after upload: pin the link comment, set the
+  altered-content flag. One-time channel setup: Advanced features,
+  `https://soctalk.ai/` as first profile link.
+
 **Hard rules (everything else is agent judgment):**
 - The shared demo tenant is read-only on camera — hover decisions, never
   submit state changes. Filmed mutations need a disposable tenant.

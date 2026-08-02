@@ -327,7 +327,8 @@ for (const scene of screenplay.scenes) {
 			kind: 'card',
 			narration: scene.narration,
 			estSec: est,
-			dur: est + 2.5,
+			// long enough to host a future end-screen Link element (needs >=5s)
+			dur: est + 4.5,
 			audio: narr[scene.id]?.file ?? null,
 			audioStart: 0.6
 		});
