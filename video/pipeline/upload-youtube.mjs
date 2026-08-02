@@ -114,6 +114,7 @@ if (AUTH_MODE) {
 				'',
 				'Built for SOC and MSSP teams drowning in alert volume.',
 				'En español: https://youtu.be/dTIXCcVF4v8',
+				'Em português: https://youtu.be/TEVrV3pulq0',
 				'Docs and a live demo: https://soctalk.ai/'
 			].join('\n')
 		},
@@ -133,7 +134,28 @@ if (AUTH_MODE) {
 				'',
 				'Hecho para equipos SOC y MSSP saturados de alertas.',
 				'In English: https://youtu.be/zXTcyIOf_Nc',
+				'Em português: https://youtu.be/TEVrV3pulq0',
 				'Documentación y demo en vivo: https://soctalk.ai/'
+			].join('\n')
+		},
+		'pt-br': {
+			title: 'SocTalk: A vida de um alerta',
+			captionLang: 'pt-BR',
+			captionName: 'Português (Brasil)',
+			linkComment: 'Documentação e demo ao vivo: https://soctalk.ai/',
+			description: [
+				'Um tenant, um dia inteiro de alertas, reproduzido do início ao fim. Este tour segue alertas reais pelo pipeline de triagem do SocTalk e mostra onde a automação para e uma pessoa decide.',
+				'',
+				'0:00 O dia, reproduzido: 276 alertas pelo pipeline',
+				'0:23 Um falso positivo fechado na primeira checagem, custo zero de modelo',
+				'1:14 Um veredicto do modelo corrigido: a verificação de segurança bloqueia um fechamento automático sem autorização',
+				'1:50 A fila de revisão humana, com o caso completo diante do analista',
+				'2:50 Fim do dia: o que fechou automaticamente e o que chegou a uma pessoa',
+				'',
+				'Feito para times de SOC e MSSP afogados em alertas.',
+				'In English: https://youtu.be/zXTcyIOf_Nc',
+				'En español: https://youtu.be/dTIXCcVF4v8',
+				'Documentação e demo ao vivo: https://soctalk.ai/'
 			].join('\n')
 		}
 	};
@@ -143,7 +165,7 @@ if (AUTH_MODE) {
 	if (localeIdx > -1) process.argv.splice(localeIdx, 2);
 	const TITLE = L.title;
 	const DESCRIPTION = L.description;
-	if (DESCRIPTION.includes('CHAPTERS_ES')) throw new Error('ES chapters placeholder not filled — compute chapters from walkthrough.json first');
+	if (/CHAPTERS_[A-Z]+/.test(DESCRIPTION)) throw new Error('chapters placeholder not filled — compute chapters from walkthrough.json first');
 	const TAGS = ['SocTalk', 'SOC', 'security operations', 'AI triage', 'MSSP', 'alert triage'];
 
 	// --delete <videoId>: remove a superseded upload

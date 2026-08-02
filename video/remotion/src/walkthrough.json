@@ -1,10 +1,10 @@
 {
   "river": {
     "file": "scenes/walk-river.mp4",
-    "videoDur": 60.833008,
-    "segStart": 3.1930079999999963,
-    "swarmAt": 25.777007999999995,
-    "plateauAt": 34.824008,
+    "videoDur": 61.033333,
+    "segStart": 3.441333000000002,
+    "swarmAt": 25.996333000000003,
+    "plateauAt": 35.025333,
     "counters": {
       "alertsIn": 276,
       "closed": 232,
@@ -13,12 +13,12 @@
     },
     "dots": {
       "normal": {
-        "x": 1443,
-        "y": 480
+        "x": 1446,
+        "y": 471
       },
       "veto": {
-        "x": 1438,
-        "y": 344
+        "x": 1431,
+        "y": 355
       }
     }
   },
@@ -27,18 +27,18 @@
     {
       "id": "river-dawn",
       "kind": "river",
-      "narration": "Un tenant, un día, reproducido. Doscientas setenta y seis alertas. Cada alerta comienza igual: una primera pasada contra reglas conocidas. Lo que las reglas no pueden resolver pasa a un veredicto del modelo, y una verificación de seguridad se ejecuta antes de actuar.",
-      "estSec": 19.783401,
+      "narration": "Um tenant, um dia, reproduzido. Duzentos e setenta e seis alertas. Cada alerta começa do mesmo jeito: uma primeira checagem com regras conhecidas. O que as regras não conseguem resolver segue para um veredicto do modelo, e uma verificação de segurança roda antes de qualquer ação.",
+      "estSec": 21.594558,
       "window": [
-        3.1930079999999963,
-        24.976408999999997
+        3.441333000000002,
+        27.035891
       ],
       "endCard": false,
       "enterNextVia": {
         "clickDot": "normal",
         "dot": {
-          "x": 1443,
-          "y": 480
+          "x": 1446,
+          "y": 471
         }
       },
       "audio": "audio/river-dawn.mp3",
@@ -47,21 +47,21 @@
     {
       "id": "dive-auto-closed",
       "kind": "dive",
-      "narration": "Cada punto es una investigación; haz clic para abrirla. Este es un falso positivo recurrente de Wazuh. Las reglas lo detectaron en la primera pasada y lo cerraron como actividad benigna recurrente: sin usar el modelo, con una ventana de reapertura por si el patrón regresa. La línea de tiempo muestra cada paso, y la ejecución del agente muestra el costo: cero tokens de un presupuesto de doscientos mil.",
-      "estSec": 28.281905,
+      "narration": "Cada ponto é uma investigação; clique para abrir. Este é um falso positivo recorrente do Wazuh. As regras o identificaram na primeira checagem e o fecharam como atividade benigna recorrente: sem usar o modelo, com uma janela de reabertura caso o padrão volte. A linha do tempo mostra cada etapa, e a execução do agente mostra o custo: zero tokens de um orçamento de duzentos mil.",
+      "estSec": 28.560544,
       "file": "scenes/walk-dive-auto-closed.mp4",
-      "videoDur": 32.033008,
-      "audioStart": 2.2500080000000016,
+      "videoDur": 32.133333,
+      "audioStart": 2.071332999999997,
       "focus": [
         {
-          "atSec": 12.170008000000001,
+          "atSec": 12.090332999999998,
           "x": 841,
           "y": 354,
           "scale": 1.35,
           "hold": 2.6
         },
         {
-          "atSec": 24.321008000000003,
+          "atSec": 24.365332999999996,
           "x": 675,
           "y": 839,
           "scale": 1.45,
@@ -76,18 +76,18 @@
     {
       "id": "river-swarm",
       "kind": "river",
-      "narration": "A media mañana el flujo es denso. Los falsos positivos conocidos se siguen cerrando en la primera pasada sin usar el modelo. El resto recibe un veredicto del modelo, y cada veredicto pasa por una verificación de seguridad antes de que tenga efecto.",
-      "estSec": 16.393288,
+      "narration": "No meio da manhã o fluxo fica denso. Falsos positivos conhecidos continuam sendo fechados na primeira checagem sem usar o modelo. O resto recebe um veredicto do modelo, e cada veredicto passa por uma verificação de segurança antes de ter efeito.",
+      "estSec": 17.275646,
       "window": [
-        23.777007999999995,
-        42.17029599999999
+        23.996333000000003,
+        43.271979
       ],
       "endCard": false,
       "enterNextVia": {
         "clickDot": "veto",
         "dot": {
-          "x": 1438,
-          "y": 344
+          "x": 1431,
+          "y": 355
         }
       },
       "audio": "audio/river-swarm.mp3",
@@ -96,21 +96,21 @@
     {
       "id": "dive-veto",
       "kind": "dive",
-      "narration": "Aquí el veredicto del modelo fue cerrar, con noventa por ciento de confianza: un sudo de una cuenta de servicio que interpretó como rutinario. La verificación de seguridad comparó ese veredicto con lo que realmente estaba autorizado: permisos, tickets de cambio, líneas base. Nada cubría este sudo, así que el cierre quedó bloqueado. Un bloqueo directo. La investigación pasó a revisión.",
-      "estSec": 26.238549,
+      "narration": "Aqui o veredicto do modelo foi fechar, com noventa por cento de confiança: um sudo de uma conta de serviço que ele interpretou como rotineiro. A verificação de segurança comparou esse veredicto com o que estava de fato autorizado: permissões, chamados de mudança, baselines. Nada cobria este sudo, então o fechamento foi bloqueado. Um bloqueio obrigatório. A investigação foi para revisão.",
+      "estSec": 30.418141,
       "file": "scenes/walk-dive-veto.mp4",
-      "videoDur": 31.333333,
-      "audioStart": 3.595332999999998,
+      "videoDur": 35.4,
+      "audioStart": 3.4809999999999977,
       "focus": [
         {
-          "atSec": 10.961332999999998,
+          "atSec": 12.016999999999998,
           "x": 1637,
           "y": 241,
           "scale": 1.35,
           "hold": 2.4
         },
         {
-          "atSec": 21.449333,
+          "atSec": 24.176,
           "x": 1540,
           "y": 586,
           "scale": 1.5,
@@ -125,14 +125,14 @@
     {
       "id": "review-consequence",
       "kind": "page",
-      "narration": "Los casos escalados llegan aquí con el contexto completo: la cadena de alertas, el veredicto, por qué el modelo lo interpretó así y qué faltaba cuando se bloqueó el cierre. Este es un sudo exitoso a root en fin-v5fx. En esta cola, el analista toma la decisión.",
-      "estSec": 19.040363,
+      "narration": "Os casos escalados chegam aqui com o contexto completo: a cadeia de alertas, o veredicto, por que o modelo interpretou dessa forma e o que faltava quando o fechamento foi bloqueado. Este é um sudo bem-sucedido para root em fin-v5fx. Nesta fila, o analista toma a decisão.",
+      "estSec": 22.430476,
       "file": "scenes/walk-review-consequence.mp4",
-      "videoDur": 23.433333,
-      "audioStart": 2.8933330000000015,
+      "videoDur": 26.266667,
+      "audioStart": 2.3346670000000027,
       "focus": [
         {
-          "atSec": 9.579333000000002,
+          "atSec": 10.206667000000003,
           "x": 531,
           "y": 707,
           "scale": 1.45,
@@ -145,35 +145,35 @@
     {
       "id": "review-detail",
       "kind": "page",
-      "narration": "Abre el caso. La recomendación es escalar, con noventa por ciento, y la intervención queda clara: el modelo propuso cerrar; la verificación de seguridad forzó el escalamiento porque ninguna autorización cubre esta actividad. Debajo están los hallazgos clave y el enriquecimiento. La decisión queda en manos del analista: pedir información, rechazar y cerrar, o aprobar y escalar, con un comentario escrito obligatorio para rechazar.",
-      "estSec": 33.204535,
+      "narration": "Abra o caso. A recomendação é escalar, com noventa por cento, e a intervenção fica clara: o modelo propôs fechar; a verificação de segurança forçou o escalonamento porque nenhuma autorização cobre esta atividade. Abaixo estão os principais achados e o enriquecimento. A decisão fica com o analista: pedir informações, rejeitar e fechar, ou aprovar e escalar, com um comentário escrito obrigatório para rejeitar.",
+      "estSec": 28.189025,
       "file": "scenes/walk-review-detail.mp4",
-      "videoDur": 39.6,
-      "audioStart": 4.895000000000004,
+      "videoDur": 34.233333,
+      "audioStart": 4.542333000000002,
       "focus": [
         {
-          "atSec": 8.903000000000004,
+          "atSec": 7.9453330000000015,
           "x": 1674,
           "y": 956,
           "scale": 1.4,
           "hold": 2.4
         },
         {
-          "atSec": 17.526000000000003,
+          "atSec": 15.264333000000002,
           "x": 1004,
           "y": 820,
           "scale": 1.45,
           "hold": 2.8
         },
         {
-          "atSec": 25.499000000000006,
+          "atSec": 22.033333000000002,
           "x": 1004,
           "y": 1118,
           "scale": 1.35,
           "hold": 2.2
         },
         {
-          "atSec": 32.794000000000004,
+          "atSec": 28.227333,
           "x": 1642,
           "y": 1446,
           "scale": 1.4,
@@ -186,11 +186,11 @@
     {
       "id": "river-midnight",
       "kind": "river",
-      "narration": "Fin del día: doscientas setenta y seis alertas recibidas, doscientas treinta y dos cerradas por el pipeline antes de revisión humana, cuarenta y cuatro atendidas por analistas, treinta y tres cierres automáticos bloqueados. Todo queda en el registro de auditoría, y cualquier investigación se reproduce como acaban de ver.",
-      "estSec": 20.48,
+      "narration": "Fim do dia: duzentos e setenta e seis alertas recebidos, duzentos e trinta e dois fechados pelo pipeline antes de revisão humana, quarenta e quatro tratados por analistas, trinta e três fechamentos automáticos bloqueados. Tudo fica na trilha de auditoria, e qualquer investigação pode ser reproduzida como vocês acabaram de ver.",
+      "estSec": 21.037279,
       "window": [
-        35.324008,
-        58.10400799999999
+        35.525333,
+        58.862612
       ],
       "endCard": false,
       "enterNextVia": null,
@@ -200,9 +200,9 @@
     {
       "id": "outro-site",
       "kind": "card",
-      "narration": "Visítanos en soctalk punto A I.",
-      "estSec": 1.857596,
-      "dur": 4.357596,
+      "narration": "Acesse soctalk ponto A I.",
+      "estSec": 1.532517,
+      "dur": 6.032517,
       "audio": "audio/outro-site.mp3",
       "audioStart": 0.6
     }
