@@ -1,10 +1,10 @@
 {
   "river": {
     "file": "scenes/walk-river.mp4",
-    "videoDur": 60.733333,
-    "segStart": 3.166333000000005,
-    "swarmAt": 25.693333000000006,
-    "plateauAt": 34.71533300000001,
+    "videoDur": 61.266667,
+    "segStart": 3.687666999999999,
+    "swarmAt": 26.221667,
+    "plateauAt": 35.250667,
     "counters": {
       "alertsIn": 276,
       "closed": 232,
@@ -13,12 +13,12 @@
     },
     "dots": {
       "normal": {
-        "x": 1438,
-        "y": 458
+        "x": 1441,
+        "y": 463
       },
       "veto": {
-        "x": 1445,
-        "y": 326
+        "x": 1447,
+        "y": 322
       }
     }
   },
@@ -30,15 +30,15 @@
       "narration": "One tenant, one day, replayed. Two hundred seventy-six alerts. Every alert starts the same way: a first pass against known rules. What the rules cannot settle goes on for a model verdict — and a safety check runs before anything is acted on.",
       "estSec": 14.489252,
       "window": [
-        3.166333000000005,
-        19.655585000000006
+        3.687666999999999,
+        20.176918999999998
       ],
       "endCard": false,
       "enterNextVia": {
         "clickDot": "normal",
         "dot": {
-          "x": 1438,
-          "y": 458
+          "x": 1441,
+          "y": 463
         }
       },
       "audio": "audio/river-dawn.mp3",
@@ -50,18 +50,18 @@
       "narration": "Each dot is an investigation; click one to open it. This is a recurring Wazuh false positive. The rules caught it on the first pass and closed it as recurring benign activity — no model involved, with a reopen window in case the pattern returns. The timeline shows each step, and the agent run shows the cost: zero tokens of a two-hundred-thousand budget.",
       "estSec": 22.058957,
       "file": "scenes/walk-dive-auto-closed.mp4",
-      "videoDur": 25.8,
-      "audioStart": 2.2409999999999988,
+      "videoDur": 25.833333,
+      "audioStart": 2.2743329999999995,
       "focus": [
         {
-          "atSec": 9.992999999999999,
+          "atSec": 10.028333,
           "x": 841,
           "y": 354,
           "scale": 1.35,
           "hold": 2.6
         },
         {
-          "atSec": 19.461,
+          "atSec": 19.496333,
           "x": 675,
           "y": 839,
           "scale": 1.45,
@@ -79,15 +79,15 @@
       "narration": "By mid-morning the stream is dense. Known false positives keep closing on the first pass without using the model. The rest get a model verdict — and every verdict gets a safety check before it counts.",
       "estSec": 10.959819,
       "window": [
-        23.693333000000006,
-        36.653152000000006
+        24.221667,
+        37.181486
       ],
       "endCard": false,
       "enterNextVia": {
         "clickDot": "veto",
         "dot": {
-          "x": 1445,
-          "y": 326
+          "x": 1447,
+          "y": 322
         }
       },
       "audio": "audio/river-swarm.mp3",
@@ -99,18 +99,18 @@
       "narration": "Here the model’s verdict was close at ninety percent confidence: a service-account sudo it read as routine. The safety check compared that verdict with what is actually allowed — grants, change tickets, baselines. Nothing covers this sudo, so the close was blocked. A hard stop. The investigation went to review instead.",
       "estSec": 20.2478,
       "file": "scenes/walk-dive-veto.mp4",
-      "videoDur": 25.233008,
-      "audioStart": 3.4830080000000025,
+      "videoDur": 25.8,
+      "audioStart": 4.051,
       "focus": [
         {
-          "atSec": 9.179008000000003,
+          "atSec": 9.738,
           "x": 1637,
           "y": 241,
           "scale": 1.35,
           "hold": 2.4
         },
         {
-          "atSec": 17.274008000000002,
+          "atSec": 17.833,
           "x": 1540,
           "y": 586,
           "scale": 1.5,
@@ -128,11 +128,11 @@
       "narration": "Escalations arrive here with the case attached: the alert chain, the verdict, why the model read it that way, and what was missing when the close was blocked. This one is a successful sudo to root on fin-v5fx. The queue is where an analyst makes the call.",
       "estSec": 17.182766,
       "file": "scenes/walk-review-consequence.mp4",
-      "videoDur": 21.033333,
-      "audioStart": 2.3493329999999992,
+      "videoDur": 21.233333,
+      "audioStart": 2.550332999999997,
       "focus": [
         {
-          "atSec": 8.387333,
+          "atSec": 8.595332999999997,
           "x": 531,
           "y": 707,
           "scale": 1.45,
@@ -148,32 +148,32 @@
       "narration": "Open the case. The recommendation is escalate at ninety percent, and the override is spelled out: the model drafted close, the safety check enforced escalate, because no authorization covers this activity. Key findings and enrichment sit below. The decision stays with the analyst: request info, reject and close, or approve and escalate — with written feedback required to reject.",
       "estSec": 26.470748,
       "file": "scenes/walk-review-detail.mp4",
-      "videoDur": 32.566667,
-      "audioStart": 4.594667000000004,
+      "videoDur": 32.666667,
+      "audioStart": 4.695666999999993,
       "focus": [
         {
-          "atSec": 7.791667000000004,
+          "atSec": 7.902666999999994,
           "x": 1674,
           "y": 956,
           "scale": 1.4,
           "hold": 2.4
         },
         {
-          "atSec": 14.687667000000005,
+          "atSec": 14.782666999999993,
           "x": 1004,
           "y": 820,
           "scale": 1.45,
           "hold": 2.8
         },
         {
-          "atSec": 21.040667000000003,
+          "atSec": 21.122666999999993,
           "x": 1004,
           "y": 1118,
           "scale": 1.35,
           "hold": 2.2
         },
         {
-          "atSec": 26.854667000000003,
+          "atSec": 26.950666999999992,
           "x": 1642,
           "y": 1446,
           "scale": 1.4,
@@ -189,8 +189,8 @@
       "narration": "End of day: two hundred seventy-six alerts in, two hundred thirty-two closed by the pipeline before analyst review, forty-four handled by analysts, thirty-three auto-closes blocked. It is all in the audit trail, and any investigation replays the way you just saw.",
       "estSec": 18.111565,
       "window": [
-        35.21533300000001,
-        55.626898000000004
+        35.750667,
+        56.162231999999996
       ],
       "endCard": false,
       "enterNextVia": null,

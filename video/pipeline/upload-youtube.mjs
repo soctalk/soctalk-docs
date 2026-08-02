@@ -97,23 +97,32 @@ if (AUTH_MODE) {
 	oauth2.setCredentials({ refresh_token: process.env.YT_REFRESH_TOKEN });
 	const yt = google.youtube({ version: 'v3', auth: oauth2 });
 
-	const TITLE = 'SocTalk — The Life of an Alert (walkthrough)';
-	// Content-only description (chapters match the rendered scene offsets).
-	// AI-narration disclosure is set via YouTube's altered-content flag in
-	// Studio, not here.
+	const TITLE = 'SocTalk: The Life of an Alert';
+	// Content-only description, plain punctuation (no em dashes). The
+	// altered-content disclosure is YouTube's Studio flag, not description
+	// text.
 	const DESCRIPTION = [
 		"One tenant, one day of alerts, replayed end to end. This walkthrough follows real alerts through SocTalk's triage pipeline and shows where automation stops and a human decides.",
 		'',
-		'0:00 The day, replayed — 276 alerts through the pipeline',
+		'0:00 The day, replayed: 276 alerts through the pipeline',
 		'0:16 A false positive closed on the first pass, zero model cost',
 		'0:55 A model verdict overruled: the guard blocks an auto-close with no authorization behind it',
-		'1:20 The human review queue — the full case in front of an analyst',
-		'2:13 End of day: what closed automatically, what reached a person',
+		'1:21 The human review queue, with the full case in front of an analyst',
+		'2:14 End of day: what closed automatically, what reached a person',
 		'',
 		'Built for SOC and MSSP teams drowning in alert volume.',
 		'Docs and a live demo: https://soctalk.ai'
 	].join('\n');
 	const TAGS = ['SocTalk', 'SOC', 'security operations', 'AI triage', 'MSSP', 'alert triage'];
+
+	// --delete <videoId>: remove a superseded upload
+	if (process.argv[2] === '--delete') {
+		const videoId = process.argv[3];
+		if (!videoId) throw new Error('usage: --delete <videoId>');
+		await yt.videos.delete({ id: videoId });
+		console.log(`deleted: ${videoId}`);
+		process.exit(0);
+	}
 
 	// --update <videoId>: patch metadata on an existing video (keeps the link)
 	if (process.argv[2] === '--update') {

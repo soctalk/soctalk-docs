@@ -90,6 +90,39 @@ Data API). OAuth lives in `video/.env`
 (`YT_CLIENT_ID/SECRET/REFRESH_TOKEN`); `--auth` runs the one-time consent.
 Per-locale finals each upload their own caption track.
 
+**Operations — the pipeline as actually run (alert-walkthrough, Jul–Aug 2026):**
+
+```sh
+cd video                                             # everything runs from here
+node pipeline/narrate.mjs $(pwd)/screenplays/<id>.mjs   # TTS, hash-cached: unchanged lines are free
+node pipeline/capture-walkthrough.mjs [screenplays/<id>.mjs]  # live capture, assertion-gated
+npx remotion render remotion/src/index.jsx Walkthrough out/<id>.mp4 --public-dir=remotion/public
+node pipeline/make-srt.mjs [<id>]                    # sidecar captions from real audio timings
+node pipeline/upload-youtube.mjs out/<id>.mp4 out/<id>.srt   # unlisted upload + captions
+#   --auth (one-time consent)  --update <videoId>  --delete <videoId>
+```
+
+- Stage 2 iterations are free and fast: capture+render only, ~8 min a cycle.
+  No TTS runs before the gate; after it, the narration cache means a text
+  edit re-bills only the changed lines.
+- The composition switches draft/final automatically: if `tmp/narration.json`
+  covers every scene, the render is voiced with no draft chrome; otherwise
+  it burns subtitles + scene labels for review.
+- Capture is drift-sensitive on purpose. Missing pinned text, focus targets
+  or counters ABORT the run — the answer is re-discovery (and a narration
+  update if a spoken number changed), never forcing the capture through.
+- Regeneration is reproducible to within sub-second live-capture jitter:
+  identical narration (cache hits prove the text), identical SRT cue text,
+  ±1s duration. Verified end-to-end on 2026-08-01.
+- Description chapters must be recomputed from `walkthrough.json` scene
+  offsets after ANY re-capture (scene starts shift by up to ~1s).
+- YouTube: metadata is mutable in place (`--update` merges the snippet so
+  omitted fields survive); MEDIA is not — a re-render is a new upload with a
+  new ID; `--delete` the superseded one. Give YouTube the master (it
+  re-transcodes); the `.web.mp4` re-encode is for docs/social embeds.
+- Long-running steps go in background tasks; anything invoking a CLI that
+  might read stdin gets `< /dev/null` or it hangs silently.
+
 **Hard rules (everything else is agent judgment):**
 - The shared demo tenant is read-only on camera — hover decisions, never
   submit state changes. Filmed mutations need a disposable tenant.
