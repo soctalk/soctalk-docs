@@ -1,0 +1,33 @@
+# Launchpad onboarding run against the nested Proxmox on the NUC.
+# Dry-run (Stage 1) uses a placeholder LLM key — the onboarding flow doesn't
+# exercise the model; FOSS models (Mistral-24B / DeepSeek-Flash) are set
+# post-onboarding in SocTalk's LLM settings (launchpad can't thread base_url).
+# Secrets (API token) come from env, not this file.
+run_id: soctalk-onboard
+target: proxmox
+plugin_config:
+  endpoint: https://100.102.223.8:8006
+  node: pve
+  storage: local-lvm         # VM disks (NOT `local`)
+  snippets: local            # storage that accepts type "snippets"
+  snippets_dir: /var/lib/vz/snippets
+  template: 9000
+  bridge: vmbr1
+  tailnet: tail6397c.ts.net
+  ssh_host: root@100.102.223.8
+  ssh_port: 2223
+ssh_keys:
+  - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMZ5OaSqOYMeKOXzvJcz6bXU21QY7nqt6NyoOfvdD8A0 gbrigandi@atricore.com"
+mssp:
+  key: mssp
+  role: mssp
+tenants:
+  - key: acme
+    role: tenant
+    tenant_slug: acme
+    name: Acme
+install:
+  mssp_admin_email: admin@launchpad.demo
+  mssp_admin_password: LaunchpadDemo123!
+  llm_provider: anthropic
+  llm_api_key: sk-launchpad-smoke-placeholder

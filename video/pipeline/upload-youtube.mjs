@@ -138,6 +138,25 @@ if (AUTH_MODE) {
 				'Documentación y demo en vivo: https://soctalk.ai/'
 			].join('\n')
 		},
+		onboarding: {
+			title: 'Roll out a SocTalk-based AI SOC in 20 minutes',
+			captionLang: 'en',
+			captionName: 'English',
+			linkComment: 'Docs and a live demo: https://soctalk.ai/',
+			tags: ['SocTalk', 'SOC', 'security operations', 'MSSP', 'managed SOC', 'alert triage', 'Wazuh', 'Proxmox', 'Tailscale', 'launchpad', 'onboarding'],
+			description: [
+				'Standing up a managed SOC on your own hardware, from one console. This walkthrough provisions an MSSP control plane and a tenant over a Tailscale tailnet, installs the SOC stack, then shows alerts arriving and the model taking the first pass before an analyst decides.',
+				'',
+				'0:00 One console, one run',
+				'0:17 Register the host',
+				'0:33 Launch and install',
+				'0:50 Tenant active, alerts flowing',
+				'1:05 The review queue',
+				'',
+				'Built for SOC and MSSP teams standing up their own stack.',
+				'Docs and a live demo: https://soctalk.ai/'
+			].join('\n')
+		},
 		'pt-br': {
 			title: 'SocTalk: A vida de um alerta',
 			captionLang: 'pt-BR',
@@ -166,7 +185,7 @@ if (AUTH_MODE) {
 	const TITLE = L.title;
 	const DESCRIPTION = L.description;
 	if (/CHAPTERS_[A-Z]+/.test(DESCRIPTION)) throw new Error('chapters placeholder not filled — compute chapters from walkthrough.json first');
-	const TAGS = ['SocTalk', 'SOC', 'security operations', 'AI triage', 'MSSP', 'alert triage'];
+	const TAGS = L.tags ?? ['SocTalk', 'SOC', 'security operations', 'AI triage', 'MSSP', 'alert triage'];
 
 	// --delete <videoId>: remove a superseded upload
 	if (process.argv[2] === '--delete') {

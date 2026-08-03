@@ -8,6 +8,8 @@ import { ReplayTour, replayTourFrames } from './ReplayTour.jsx';
 import { FleetFlow, fleetFlowFrames } from './FleetFlow.jsx';
 import { FleetTour, fleetTourFrames } from './FleetTour.jsx';
 import { Walkthrough, walkthroughFrames } from './Walkthrough.jsx';
+import { Onboarding, onboardingFrames } from './Onboarding.jsx';
+import { PresenterHost, presenterHostFrames } from './PresenterHost.jsx';
 import manifest from './manifest.json';
 
 export const Root = () => (
@@ -72,6 +74,22 @@ export const Root = () => (
 			id="Walkthrough"
 			component={Walkthrough}
 			durationInFrames={walkthroughFrames}
+			fps={manifest.fps}
+			width={1920}
+			height={1080}
+		/>
+		<Composition
+			id="Onboarding"
+			component={Onboarding}
+			durationInFrames={onboardingFrames}
+			fps={manifest.fps}
+			width={1920}
+			height={1080}
+		/>
+		<Composition
+			id="PresenterHost"
+			component={PresenterHost}
+			durationInFrames={presenterHostFrames}
 			fps={manifest.fps}
 			width={1920}
 			height={1080}

@@ -6,3 +6,4 @@ tmp/
 remotion/public/*.mp4
 remotion/public/scenes/
 remotion/public/audio/
+remotion/public/onboard/

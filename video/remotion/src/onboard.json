@@ -1,0 +1,177 @@
+{
+  "fps": 30,
+  "final": true,
+  "silent": false,
+  "consoleDur": 62.333333,
+  "scenes": [
+    {
+      "kind": "card",
+      "variant": "intro",
+      "label": "Roll out a SocTalk-based AI SOC in 20 minutes",
+      "narr": "Rolling out a SocTalk-based AI SOC: an MSSP control plane and one tenant, on your own Proxmox host. Start to finish, about twenty minutes.",
+      "id": "s1",
+      "audio": "audio/s1.mp3",
+      "audioStart": 0.35,
+      "dur": 10.12
+    },
+    {
+      "kind": "prereq",
+      "label": "Before you start",
+      "items": [
+        "A Proxmox host, KVM enabled, with 8 GB of RAM, 4 vCPU, and 60 GB of disk per VM",
+        "A Tailscale tailnet, and an API key with the keys:write scope",
+        "An SSH public key to authorize on every provisioned VM",
+        "A model API key for triage (any OpenAI-compatible provider)"
+      ],
+      "footer": "Full prerequisites: soctalk.ai/launchpad",
+      "narr": "You need four things. A Proxmox host with room for the VMs. A Tailscale tailnet and an API key. An SSH key for the machines. And a model key for triage.",
+      "id": "s2",
+      "audio": "audio/s2.mp3",
+      "audioStart": 0.35,
+      "dur": 12.44
+    },
+    {
+      "kind": "terminal",
+      "term": "workstation",
+      "lines": [
+        "# from github.com/soctalk/soctalk-launchpad/releases",
+        "$ curl -fsSL \"$base/launchpad_linux_amd64\" -o launchpad",
+        "$ chmod +x launchpad && sudo mv launchpad /usr/local/bin/",
+        "$ launchpad init      # download + verify the plugins",
+        "$ launchpad ui        # open the console"
+      ],
+      "footer": "github.com/soctalk/soctalk-launchpad",
+      "narr": "Install the launchpad binary from the GitHub releases. Let it verify its plugins, then start the console.",
+      "id": "s3",
+      "audio": "audio/s3.mp3",
+      "audioStart": 0.35,
+      "dur": 9
+    },
+    {
+      "kind": "browser",
+      "url": "http://localhost:8321",
+      "label": "Open the console",
+      "narr": "The console is a local web app. Point your browser at localhost, and you drive the whole rollout from three screens.",
+      "id": "s4",
+      "audio": "audio/s4.mp3",
+      "audioStart": 0.35,
+      "dur": 8.08
+    },
+    {
+      "kind": "clip",
+      "src": "console",
+      "in": 2.73,
+      "out": 11.87,
+      "label": "Network",
+      "narr": "Every machine in the run joins one tailnet. Add the tailnet and its key here, then test that the key works before you rely on it.",
+      "id": "s5",
+      "audio": "audio/s5.mp3",
+      "audioStart": 0.35,
+      "dur": 9.14
+    },
+    {
+      "kind": "clip",
+      "src": "console",
+      "in": 16.39,
+      "out": 25.77,
+      "label": "Host",
+      "narr": "The host is your Proxmox server. Choose the Proxmox platform, give it the API endpoint, and test the token before you rely on it.",
+      "id": "s6",
+      "audio": "audio/s6.mp3",
+      "audioStart": 0.35,
+      "dur": 9.38
+    },
+    {
+      "kind": "clip",
+      "src": "console",
+      "in": 37.71,
+      "out": 41.46,
+      "label": "The run form",
+      "narr": "The run assigns the machines to that host and takes the admin login for the control plane. On screen, the secrets stay masked.",
+      "id": "s7",
+      "audio": "audio/s7.mp3",
+      "audioStart": 0.35,
+      "dur": 8.4
+    },
+    {
+      "kind": "clip",
+      "src": "console",
+      "in": 41.34,
+      "out": 47.86,
+      "label": "Launch",
+      "narr": "Launch starts the rollout. It creates the machines, joins them to the tailnet, and installs the SOC stack on each.",
+      "id": "s8",
+      "audio": "audio/s8.mp3",
+      "audioStart": 0.35,
+      "dur": 8.63
+    },
+    {
+      "kind": "ff",
+      "label": "Provisioning + install",
+      "minutes": 15,
+      "narr": "The install runs on its own, about fifteen minutes, mostly waiting on downloads. k3s and Helm, then the control plane and the tenant SOC stack. We fast forward past it.",
+      "id": "s9",
+      "audio": "audio/s9.mp3",
+      "audioStart": 0.35,
+      "dur": 12.72
+    },
+    {
+      "kind": "clip",
+      "src": "proxmox",
+      "in": 4.8,
+      "out": 12.8,
+      "label": "On Proxmox",
+      "narr": "On the Proxmox host, both machines are up: the MSSP control plane and the tenant, cloned from one template.",
+      "id": "s10",
+      "audio": "audio/s10.mp3",
+      "audioStart": 0.35,
+      "dur": 8.03
+    },
+    {
+      "kind": "clip",
+      "src": "triage",
+      "in": 2.63,
+      "out": 8.63,
+      "label": "Tenant online",
+      "narr": "In the console, the tenant comes online within a minute or two, running its own SOC stack.",
+      "id": "s11",
+      "audio": "audio/s11.mp3",
+      "audioStart": 0.35,
+      "dur": 6.87
+    },
+    {
+      "kind": "clip",
+      "src": "triage",
+      "in": 76.19,
+      "out": 85.2,
+      "label": "Alerts flowing",
+      "narr": "A built-in attack simulator runs techniques against the tenant endpoint. Each one arrives here as an investigation, newest first.",
+      "id": "s12",
+      "audio": "audio/s12.mp3",
+      "audioStart": 0.35,
+      "dur": 9.01
+    },
+    {
+      "kind": "clip",
+      "src": "triage",
+      "in": 136.67,
+      "out": 147.53,
+      "label": "Cross-tenant dashboard",
+      "narr": "This is the cross-tenant fleet view. Every investigation gets a first pass from the model, and what it cannot close on its own becomes a pending review for an analyst.",
+      "id": "s13",
+      "audio": "audio/s13.mp3",
+      "audioStart": 0.35,
+      "dur": 10.86
+    },
+    {
+      "kind": "card",
+      "variant": "outro",
+      "label": "soctalk.ai",
+      "narr": "Start your pilot at soctalk dot A I.",
+      "id": "s14",
+      "audio": "audio/s14.mp3",
+      "audioStart": 0.35,
+      "dur": 6.5
+    }
+  ]
+}
