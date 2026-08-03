@@ -1,0 +1,103 @@
+1
+00:00:00,300 --> 00:00:02,671
+Un tenant, un día, reproducido.
+
+2
+00:00:02,671 --> 00:00:05,264
+Doscientas setenta y seis alertas.
+
+3
+00:00:05,264 --> 00:00:10,599
+Cada alerta comienza igual: una primera pasada contra reglas conocidas.
+
+4
+00:00:10,599 --> 00:00:20,083
+Lo que las reglas no pueden resolver pasa a un veredicto del modelo, y una verificación de seguridad se ejecuta antes de actuar.
+
+5
+00:00:24,050 --> 00:00:27,970
+Cada punto es una investigación; haz clic para abrirla.
+
+6
+00:00:27,970 --> 00:00:31,260
+Este es un falso positivo recurrente de Wazuh.
+
+7
+00:00:31,260 --> 00:00:43,231
+Las reglas lo detectaron en la primera pasada y lo cerraron como actividad benigna recurrente: sin usar el modelo, con una ventana de reapertura por si el patrón regresa.
+
+8
+00:00:43,231 --> 00:00:52,332
+La línea de tiempo muestra cada paso, y la ejecución del agente muestra el costo: cero tokens de un presupuesto de doscientos mil.
+
+9
+00:00:54,100 --> 00:00:56,347
+A media mañana el flujo es denso.
+
+10
+00:00:56,347 --> 00:01:02,363
+Los falsos positivos conocidos se siguen cerrando en la primera pasada sin usar el modelo.
+
+11
+00:01:02,363 --> 00:01:10,493
+El resto recibe un veredicto del modelo, y cada veredicto pasa por una verificación de seguridad antes de que tenga efecto.
+
+12
+00:01:15,795 --> 00:01:25,491
+Aquí el veredicto del modelo fue cerrar, con noventa por ciento de confianza: un sudo de una cuenta de servicio que interpretó como rutinario.
+
+13
+00:01:25,491 --> 00:01:34,508
+La verificación de seguridad comparó ese veredicto con lo que realmente estaba autorizado: permisos, tickets de cambio, líneas base.
+
+14
+00:01:34,508 --> 00:01:38,440
+Nada cubría este sudo, así que el cierre quedó bloqueado.
+
+15
+00:01:38,440 --> 00:01:39,796
+Un bloqueo directo.
+
+16
+00:01:39,796 --> 00:01:42,034
+La investigación pasó a revisión.
+
+17
+00:01:46,393 --> 00:01:59,062
+Los casos escalados llegan aquí con el contexto completo: la cadena de alertas, el veredicto, por qué el modelo lo interpretó así y qué faltaba cuando se bloqueó el cierre.
+
+18
+00:01:59,062 --> 00:02:02,285
+Este es un sudo exitoso a root en fin-v5fx.
+
+19
+00:02:02,285 --> 00:02:05,434
+En esta cola, el analista toma la decisión.
+
+20
+00:02:11,795 --> 00:02:12,871
+Abre el caso.
+
+21
+00:02:12,871 --> 00:02:29,089
+La recomendación es escalar, con noventa por ciento, y la intervención queda clara: el modelo propuso cerrar; la verificación de seguridad forzó el escalamiento porque ninguna autorización cubre esta actividad.
+
+22
+00:02:29,089 --> 00:02:33,316
+Debajo están los hallazgos clave y el enriquecimiento.
+
+23
+00:02:33,316 --> 00:02:45,000
+La decisión queda en manos del analista: pedir información, rechazar y cerrar, o aprobar y escalar, con un comentario escrito obligatorio para rechazar.
+
+24
+00:02:46,767 --> 00:03:01,014
+Fin del día: doscientas setenta y seis alertas recibidas, doscientas treinta y dos cerradas por el pipeline antes de revisión humana, cuarenta y cuatro atendidas por analistas, treinta y tres cierres automáticos bloqueados.
+
+25
+00:03:01,014 --> 00:03:07,247
+Todo queda en el registro de auditoría, y cualquier investigación se reproduce como acaban de ver.
+
+26
+00:03:09,833 --> 00:03:11,691
+Visítanos en soctalk punto A I.

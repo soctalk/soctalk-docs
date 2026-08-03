@@ -1,0 +1,103 @@
+1
+00:00:00,300 --> 00:00:02,164
+One tenant, one day, replayed.
+
+2
+00:00:02,164 --> 00:00:04,088
+Two hundred seventy-six alerts.
+
+3
+00:00:04,088 --> 00:00:08,116
+Every alert starts the same way: a first pass against known rules.
+
+4
+00:00:08,116 --> 00:00:14,789
+What the rules cannot settle goes on for a model verdict — and a safety check runs before anything is acted on.
+
+5
+00:00:18,774 --> 00:00:22,006
+Each dot is an investigation; click one to open it.
+
+6
+00:00:22,006 --> 00:00:24,615
+This is a recurring Wazuh false positive.
+
+7
+00:00:24,615 --> 00:00:34,060
+The rules caught it on the first pass and closed it as recurring benign activity — no model involved, with a reopen window in case the pattern returns.
+
+8
+00:00:34,060 --> 00:00:40,833
+The timeline shows each step, and the agent run shows the cost: zero tokens of a two-hundred-thousand budget.
+
+9
+00:00:42,600 --> 00:00:44,573
+By mid-morning the stream is dense.
+
+10
+00:00:44,573 --> 00:00:48,847
+Known false positives keep closing on the first pass without using the model.
+
+11
+00:00:48,847 --> 00:00:53,560
+The rest get a model verdict — and every verdict gets a safety check before it counts.
+
+12
+00:00:59,318 --> 00:01:06,151
+Here the model’s verdict was close at ninety percent confidence: a service-account sudo it read as routine.
+
+13
+00:01:06,151 --> 00:01:12,858
+The safety check compared that verdict with what is actually allowed — grants, change tickets, baselines.
+
+14
+00:01:12,858 --> 00:01:16,149
+Nothing covers this sudo, so the close was blocked.
+
+15
+00:01:16,149 --> 00:01:17,149
+A hard stop.
+
+16
+00:01:17,149 --> 00:01:19,565
+The investigation went to review instead.
+
+17
+00:01:23,584 --> 00:01:34,298
+Escalations arrive here with the case attached: the alert chain, the verdict, why the model read it that way, and what was missing when the close was blocked.
+
+18
+00:01:34,298 --> 00:01:37,734
+This one is a successful sudo to root on fin-v5fx.
+
+19
+00:01:37,734 --> 00:01:40,766
+The queue is where an analyst makes the call.
+
+20
+00:01:46,929 --> 00:01:47,971
+Open the case.
+
+21
+00:01:47,971 --> 00:02:01,241
+The recommendation is escalate at ninety percent, and the override is spelled out: the model drafted close, the safety check enforced escalate, because no authorization covers this activity.
+
+22
+00:02:01,241 --> 00:02:03,951
+Key findings and enrichment sit below.
+
+23
+00:02:03,951 --> 00:02:13,400
+The decision stays with the analyst: request info, reject and close, or approve and escalate — with written feedback required to reject.
+
+24
+00:02:15,167 --> 00:02:27,700
+End of day: two hundred seventy-six alerts in, two hundred thirty-two closed by the pipeline before analyst review, forty-four handled by analysts, thirty-three auto-closes blocked.
+
+25
+00:02:27,700 --> 00:02:33,278
+It is all in the audit trail, and any investigation replays the way you just saw.
+
+26
+00:02:35,867 --> 00:02:37,492
+Visit us at soctalk dot A I.
