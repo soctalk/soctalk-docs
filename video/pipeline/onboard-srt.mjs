@@ -36,6 +36,6 @@ for (const scene of data.scenes) {
   offset += scene.dur;
 }
 const srt = cues.map((c, i) => `${i + 1}\n${fmt(c.start)} --> ${fmt(c.end)}\n${c.text}\n`).join('\n');
-const out = path.join(root, 'out', `${process.argv[2] ?? 'onboarding'}.srt`);
+const out = path.join(root, 'captions', `${process.argv[2] ?? 'onboarding'}.srt`);
 writeFileSync(out, srt);
 console.log(`onboard-srt: ${cues.length} cues → ${out} (video span ${fmt(offset)})`);

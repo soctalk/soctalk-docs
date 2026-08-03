@@ -1,0 +1,115 @@
+1
+00:00:00,350 --> 00:00:06,778
+Rolling out a SocTalk-based AI SOC: an MSSP control plane and one tenant, on your own Proxmox host.
+
+2
+00:00:06,778 --> 00:00:09,220
+Start to finish, about twenty minutes.
+
+3
+00:00:10,470 --> 00:00:12,090
+You need four things.
+
+4
+00:00:12,090 --> 00:00:14,888
+A Proxmox host with room for the VMs.
+
+5
+00:00:14,888 --> 00:00:17,539
+A Tailscale tailnet and an API key.
+
+6
+00:00:17,539 --> 00:00:19,674
+An SSH key for the machines.
+
+7
+00:00:19,674 --> 00:00:21,662
+And a model key for triage.
+
+8
+00:00:22,910 --> 00:00:26,194
+Install the launchpad binary from the GitHub releases.
+
+9
+00:00:26,194 --> 00:00:29,179
+Let it verify its plugins, then start the console.
+
+10
+00:00:31,910 --> 00:00:33,793
+The console is a local web app.
+
+11
+00:00:33,793 --> 00:00:38,737
+Point your browser at localhost, and you drive the whole rollout from three screens.
+
+12
+00:00:39,990 --> 00:00:42,683
+Every machine in the run joins one tailnet.
+
+13
+00:00:42,683 --> 00:00:47,885
+Add the tailnet and its key here, then test that the key works before you rely on it.
+
+14
+00:00:49,130 --> 00:00:51,209
+The host is your Proxmox server.
+
+15
+00:00:51,209 --> 00:00:57,257
+Choose the Proxmox platform, give it the API endpoint, and test the token before you rely on it.
+
+16
+00:00:58,510 --> 00:01:03,675
+The run assigns the machines to that host and takes the admin login for the control plane.
+
+17
+00:01:03,675 --> 00:01:05,662
+On screen, the secrets stay masked.
+
+18
+00:01:06,910 --> 00:01:08,659
+Launch starts the rollout.
+
+19
+00:01:08,659 --> 00:01:14,294
+It creates the machines, joins them to the tailnet, and installs the SOC stack on each.
+
+20
+00:01:15,540 --> 00:01:21,070
+The install runs on its own, about fifteen minutes, mostly waiting on downloads.
+
+21
+00:01:21,070 --> 00:01:25,372
+k3s and Helm, then the control plane and the tenant SOC stack.
+
+22
+00:01:25,372 --> 00:01:27,011
+We fast forward past it.
+
+23
+00:01:28,260 --> 00:01:35,040
+On the Proxmox host, both machines are up: the MSSP control plane and the tenant, cloned from one template.
+
+24
+00:01:36,290 --> 00:01:41,909
+In the console, the tenant comes online within a minute or two, running its own SOC stack.
+
+25
+00:01:43,160 --> 00:01:47,549
+A built-in attack simulator runs techniques against the tenant endpoint.
+
+26
+00:01:47,549 --> 00:01:50,915
+Each one arrives here as an investigation, newest first.
+
+27
+00:01:52,170 --> 00:01:54,300
+This is the cross-tenant fleet view.
+
+28
+00:01:54,300 --> 00:02:01,783
+Every investigation gets a first pass from the model, and what it cannot close on its own becomes a pending review for an analyst.
+
+29
+00:02:03,030 --> 00:02:05,816
+Start your pilot at soctalk dot A I.
