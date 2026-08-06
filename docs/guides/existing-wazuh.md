@@ -76,7 +76,15 @@ One more thing specific to a single-box lab, where the "existing" Wazuh often ru
 
 ## Onboard the tenant
 
-In the MSSP UI, Tenants, then **+ New Tenant**, pick the `provided` profile and the wizard asks for the external connection material. The same operation over the API is one POST to the onboard endpoint. Note the path: `POST /api/mssp/tenants/onboard` is the wizard endpoint that understands profiles and external SIEM material. The plain `POST /api/mssp/tenants` is an identity-only create that silently ignores those fields, which leaves you a `poc` tenant that never provisions.
+In the MSSP UI, Tenants, then **+ New Tenant**, pick the `provided` profile and the wizard splices in an External SIEM step that a PoC or persistent tenant does not have.
+
+![The New Tenant wizard Profile step with Provided selected, described as bring your own Wazuh; the breadcrumb now includes an External SIEM step](/screenshots/existing-wazuh-profile.png)
+
+That step is where you point SocTalk at your Wazuh. The indexer (OpenSearch, port 9200) and the manager API (port 55000) authenticate with separate credentials, and a provided tenant supplies its own LLM key because the MSSP shared install key does not apply to this profile.
+
+![The External SIEM wizard step: indexer URL and credentials, manager API URL and credentials, an optional pre-minted API token, a Verify TLS certificates checkbox to uncheck for self-signed, and the required per-tenant LLM key](/screenshots/existing-wazuh-siem-form.png)
+
+The same operation over the API is one POST to the onboard endpoint. Note the path: `POST /api/mssp/tenants/onboard` is the wizard endpoint that understands profiles and external SIEM material. The plain `POST /api/mssp/tenants` is an identity-only create; on v0.2.0 it silently ignores those fields and leaves you a `poc` tenant that never provisions, so always send a provided onboard to `/onboard`.
 
 ```bash
 # authenticate once; the cookie jar carries the MSSP session
@@ -124,7 +132,11 @@ POST https://198.51.100.20:9200/wazuh-alerts-*/_search "HTTP/1.1 200 OK"
 heartbeat_ok
 ```
 
-A 401 here means the indexer credentials are wrong; a TLS error means `verify_ssl` does not match your certificate situation; a timeout means the SocTalk host cannot reach the indexer port.
+The tenant detail page shows the same thing without reading logs. The External SIEM panel echoes the indexer and API URLs you supplied, and the Adapter ingest status line reports `reachable` with a forwarded-alert count once the first alerts flow.
+
+![The Orion Labs tenant detail page: profile provided, state active, an External SIEM panel with the indexer and API URLs, and an Adapter ingest status of reachable with three alerts forwarded](/screenshots/existing-wazuh-tenant-detail.png)
+
+A 401 in the adapter log means the indexer credentials are wrong; a TLS error means `verify_ssl` does not match your certificate situation; a timeout means the SocTalk host cannot reach the indexer port.
 
 Credentials rotate without re-onboarding. `PATCH /api/mssp/tenants/{id}/external-siem` takes any subset of the onboard fields, rewrites the Secret, and rolls the adapter pod so it picks up the fresh material:
 
@@ -136,11 +148,15 @@ curl -sk -b cookies.txt -H "Origin: https://<your-host>" -H "Content-Type: appli
 
 ## The first triaged alert
 
-From here the pipeline behaves exactly as it does for a SocTalk-managed Wazuh: the adapter forwards new alerts at or above the minimum severity (rule level 10 by default, configurable with `SOCTALK_ADAPTER_MIN_SEVERITY`), the control plane promotes what matters into investigations, and the tenant's runs-worker executes AI triage with the tenant's own LLM key.
+From here the ingest, promotion, run-execution, and review workflow behave the same as for a SocTalk-managed Wazuh (the depth of enrichment differs on v0.2.0, see Current limitations): the adapter forwards new alerts at or above the minimum severity (rule level 10 by default, configurable with `SOCTALK_ADAPTER_MIN_SEVERITY`), the control plane promotes what matters into investigations, and the tenant's runs-worker executes AI triage with the tenant's own LLM key.
 
 The honest way to test is to make your existing Wazuh produce a real high-severity alert, for example a burst of failed SSH logins against a monitored agent followed by a success. If you would rather not touch production endpoints, indexing a synthetic alert document straight into `wazuh-alerts-4.x-<date>` with a `rule.level` of 12 exercises the identical path, since the adapter reads from the index rather than the manager.
 
-On the verified run, an SSH brute-force-then-success alert went from indexer document to finished triage in about a minute: forwarded by the adapter, promoted, investigated by the supervisor across several LLM calls, and closed as `escalate` with 0.95 confidence, landing in the [MSSP review queue](/mssp-ui#reviews-human-in-the-loop) for a human. Total spend for the run was about thirty cents against the tenant's Anthropic key, tracked against the per-run token budget described in [AI pipeline](/ai-pipeline).
+On the verified run, an SSH brute-force-then-success alert went from indexer document to finished triage in about a minute: forwarded by the adapter, promoted, investigated by the supervisor across several LLM calls, and closed as `escalate` with 0.95 confidence, landing in the [MSSP review queue](/mssp-ui#reviews-human-in-the-loop) for a human. Total spend for the run was about thirty cents against the tenant's Anthropic key, tracked against the per-run token budget described in [AI pipeline](/ai-pipeline). After a few such test alerts, the review queue holds them side by side.
+
+![The Human Review Queue with three Critical cases, each marked AI: Escalate and offering a Review action](/screenshots/existing-wazuh-review-queue.png)
+
+Each row carries the AI verdict and opens the full investigation, so an analyst confirms or overrides on the evidence rather than starting the triage themselves.
 
 ## Current limitations
 
