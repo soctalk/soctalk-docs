@@ -6,6 +6,7 @@
 |---|---|---|
 | `helm install soctalk-system` 在 pre-install 钩子中失败 | `kubectl logs -n soctalk-system job/<release>-preinstall-check` | 按照[安装](/zh-cn/install#cluster-prerequisites)指南安装缺失的集群前置组件（CNI、cert-manager、StorageClass） |
 | API pod 启动时出现 `CrashLoopBackOff` | `kubectl logs -n soctalk-system deploy/soctalk-system-api` | 最常见原因：`DATABASE_URL` Secret 错误、Postgres 尚未就绪，或 Alembic 迁移失败。请先检查 Postgres pod |
+| RHEL 系发行版上安装在 Helm 阶段超时，而 Postgres 显示 `1/1 Running` | `sudo /usr/local/bin/k3s kubectl -n soctalk-system logs -l app.kubernetes.io/component=api -c db-init` 显示 `No route to host` | firewalld 正在丢弃 flannel 网桥上的 pod 流量。请应用 [RHEL 软件包说明](/zh-cn/os-packages#firewalld)中的规则；仍在等待中的安装会自行恢复 |
 | `helm install` 成功但 MSSP UI 返回 502 | Ingress 控制器日志；确认 ingress Service 的 `endpoints` 已填充 | OIDC 代理未部署或未注入受信任的请求头。请检查受信任代理的 CIDR |
 | 创建租户返回 500 | API 日志显示 `ProvisionError` | 通常是 `helm install tenant-*` 失败。请检查 `helm status tenant-<slug>`。最常见的是命名空间和资源配额问题 |
 | 租户卡在 `provisioning` 超过 15 分钟 | `kubectl -n tenant-<slug> get events --sort-by=.lastTimestamp` | 参见运维文档中的[租户卡在预配阶段](/zh-cn/operations#tenant-stuck-in-provisioning) |

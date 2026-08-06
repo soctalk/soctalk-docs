@@ -49,7 +49,7 @@ sudo bash -c 'set -a; . /etc/soctalk/soctalk.env; soctalk install --skip-consent
 安装程序会在主机缺少时拉起 k3s 和 Helm，安装固定到该发布版本的 `soctalk-system` chart，并在完成时打印 URL 和登录信息。`soctalk-system` 命名空间中出现三个 pod（`api`、`app-ui`、`postgres`）即表示控制平面已就绪：
 
 ```bash
-sudo k3s kubectl -n soctalk-system get pods
+sudo /usr/local/bin/k3s kubectl -n soctalk-system get pods
 ```
 
 ## 上线前的一个开关：网络策略
@@ -63,9 +63,9 @@ no matches for kind "CiliumNetworkPolicy" in version "cilium.io/v2"
 租户随即落入 `degraded`。这在 v0.2.0 之后已修复（[soctalk#107](https://github.com/soctalk/soctalk/issues/107)）：chart 现在会以该 CRD 是否真实存在为条件来决定是否创建该对象，并为 IP 字面量形式的 SIEM 主机添加普通的 `NetworkPolicy` 出站规则，因此原生 flannel 安装也能干净地完成预配。在 v0.2.0 上，单主机安装的变通办法是在上线前禁用租户网络策略：
 
 ```bash
-sudo k3s kubectl -n soctalk-system set env deploy/soctalk-system-api \
+sudo /usr/local/bin/k3s kubectl -n soctalk-system set env deploy/soctalk-system-api \
   SOCTALK_TENANT_NETWORK_POLICIES_ENABLED=0
-sudo k3s kubectl -n soctalk-system rollout status deploy/soctalk-system-api
+sudo /usr/local/bin/k3s kubectl -n soctalk-system rollout status deploy/soctalk-system-api
 ```
 
 请清楚这一取舍：这会关闭之后预配的租户的命名空间隔离 NetworkPolicy，在专用的单一租户类别实验或试点主机上可以接受，但在共享的多租户生产集群上并不是你想要的。如果你以 Cilium 作为 CNI，则以上都不适用，你应当保持策略开启。
@@ -122,7 +122,7 @@ curl -sk -b cookies.txt -H "Origin: https://<your-host>" -H "Content-Type: appli
 租户命名空间中应当恰好包含两个工作负载，即 adapter 和 runs-worker，没有任何 Wazuh pod：
 
 ```bash
-sudo k3s kubectl -n tenant-orion-soc get pods
+sudo /usr/local/bin/k3s kubectl -n tenant-orion-soc get pods
 ```
 
 你的连接材料会落入一个名为 `tenant-external-siem-creds` 的命名空间本地 Secret，其中保存 `INDEXER_USERNAME`、`INDEXER_PASSWORD`、`WAZUH_API_USERNAME` 和 `WAZUH_API_PASSWORD`，若你提供了 API token 还会有 `WAZUH_API_TOKEN`。adapter 从其环境读取 indexer URL，从该 Secret 读取凭据。它的日志会在数秒内告诉你连接是否成功，因为它会持续轮询告警索引：

@@ -1,23 +1,33 @@
 # Instalar a partir de um pacote do sistema operacional (rpm / deb)
 
-Todo release do SocTalk publica pacotes nativos do sistema operacional junto com as imagens de VM, anexados
-ao mesmo GitHub Release que a tag de versão, para as duas famílias
-Linux baseadas em systemd:
+Todo release do SocTalk publica pacotes nativos do sistema operacional junto com as
+imagens de VM, anexados ao mesmo GitHub Release que a tag de versão, para as duas
+famílias Linux baseadas em systemd:
 
 | Arquivo | Gerenciador de pacotes | Verificado em | Também esperado que funcione |
 |---|---|---|---|
-| `soctalk-<ver>-1.x86_64.rpm` | dnf / yum | Rocky Linux 9 | RHEL, Fedora, AlmaLinux |
+| `soctalk-<ver>-1.x86_64.rpm` | dnf / yum | Rocky Linux 9.8 | RHEL, Fedora, AlmaLinux |
 | `soctalk_<ver>_amd64.deb` | apt / dpkg | Ubuntu 24.04 | Debian |
 
-Ambos são verificados de ponta a ponta: instale o pacote, execute `soctalk install`, acesse
-o app web e faça login. A coluna "também esperado" é a mesma família de pacotes,
-mas não foi testada especificamente nessas distribuições.
+Ambos são verificados de ponta a ponta: instale o pacote, execute `soctalk install`,
+acesse o app web e faça login. A coluna "também esperado" é a mesma família de
+pacotes, mas não foi testada especificamente nessas distribuições.
+
+No Rocky Linux 9.8 a verificação cobriu as duas formas que o produto publica, em
+VMs limpas com o SELinux no modo Enforcing. A instalação apenas do control plane
+subiu `api`, `app-ui` e `postgres`, e o admin de bootstrap conseguiu fazer login. A
+instalação completa adicionalmente integrou um tenant `poc` que levantou seu próprio
+Wazuh manager, indexer e dashboard e chegou a `active`. Essa segunda execução foi
+feita com o firewalld habilitado, o que exige as regras em
+[as notas sobre RHEL](#rhel-fedora-almalinux-rocky) abaixo antes que o cluster
+funcione. Essas notas cobrem o que o SELinux e o firewalld exigem e não exigem de
+você.
 
 **Alpine não é suportado** e nenhum `.apk` é publicado: `soctalk install`
 requer systemd, e o Alpine usa OpenRC. Consulte [Alpine e outros hosts sem
 systemd](#alpine-and-other-non-systemd-hosts) abaixo. **openSUSE / zypper** e
-**RHEL 10** não são testados; as notas sobre RHEL/Fedora podem não se aplicar totalmente. **Somente
-amd64**: não há pacote arm64.
+**RHEL 10** não são testados; as notas sobre RHEL/Fedora podem não se aplicar
+totalmente. **Somente amd64**: não há pacote arm64.
 
 Eles são publicados na página de releases de [`soctalk/soctalk`](https://github.com/soctalk/soctalk/releases).
 O release atual é **v0.2.0**:
@@ -57,6 +67,13 @@ sudo dnf install ./soctalk-0.2.0-1.x86_64.rpm
 
 O `dnf` puxa `curl` e `tar` se estiverem ausentes. Em hosts mais antigos use
 `sudo yum install ./soctalk-0.2.0-1.x86_64.rpm`.
+
+Algumas imagens de RHEL 9 trazem o `curl-minimal` no lugar do `curl` completo, o que
+pode conflitar com pacotes que exigem `curl` pelo nome. Aqui não há conflito.
+No host Rocky Linux 9.8 usado para a verificação, com o `curl` removido e apenas o
+`curl-minimal` instalado, o rpm foi instalado sem alterações: o `curl-minimal` traz
+`Provides: curl`, então a dependência é resolvida sem troca de pacote e sem
+`--allowerasing`.
 
 ### Debian, Ubuntu
 
@@ -127,11 +144,15 @@ A CLI encapsula as operações comuns de cluster para que você não precise lem
 caminho do `KUBECONFIG` nem do nome do release do Helm.
 
 ```bash
-soctalk status              # pods and their readiness in the soctalk namespace
-soctalk logs api            # tail a component's logs (api, orchestrator, adapter, app-ui)
+soctalk status              # pods and their readiness in soctalk-system
+soctalk logs api            # tail a component's logs (api, app-ui, postgres)
 sudo soctalk upgrade        # re-run the installer against the current chart (idempotent)
 soctalk version             # CLI version (matches the package version)
 ```
+
+O `soctalk logs` cobre o control plane em `soctalk-system`. Cargas de trabalho por
+tenant, como o adapter e o runs-worker, vivem em namespaces `tenant-<slug>`, então
+acesse essas com o `kubectl` apontando para aquele namespace.
 
 `soctalk upgrade` é um `helm upgrade --install`, então é seguro reexecutar e é
 como você migra para um chart mais novo após instalar um pacote mais novo.
@@ -151,19 +172,40 @@ a CLI e o instalador, mas não toca em um cluster em execução. Execute
 
 ### RHEL, Fedora, AlmaLinux, Rocky
 
-Verificado no Rocky Linux 9 com o SELinux no modo **Enforcing**. Nenhum trabalho manual de SELinux
-é necessário para colocar em funcionamento: o instalador do K3s puxa os pacotes de política `k3s-selinux` e
-`container-selinux` automaticamente durante o `soctalk install`, para que
-o cluster suba sob o modo Enforcing. Note que isso significa "roda corretamente sob a
-política targeted", não que o SELinux esteja confinando a carga de trabalho como uma camada de
-proteção; habilitar a própria imposição de SELinux do K3s (`--selinux` / `K3S_SELINUX=true`)
-não foi testado aqui. O RHEL 10 também precisa do pacote `kernel-modules-extra` para
-o K3s, o que não foi testado.
+#### SELinux
 
-Se o **firewalld** estiver ativo (comum em uma instalação completa de servidor RHEL, embora não nas
-imagens mínimas de nuvem), ele pode bloquear o tráfego do cluster, o que aparece como pods
-travados em `ContainerCreating` ou o app web ficando inacessível. Confie nas redes de pods
-e serviços do K3s, e abra as portas de ingress pelas quais você realmente acessa a UI:
+Verificado no Rocky Linux 9.8 com o SELinux no modo **Enforcing**, tanto para a
+instalação apenas do control plane quanto para a instalação completa com um tenant
+apoiado por Wazuh. Nenhum trabalho manual de SELinux é necessário. Durante o
+`soctalk install`, o instalador do K3s puxou por conta própria o `k3s-selinux` 1.6 e
+o `container-selinux`, e o cluster subiu sem ninguém tocar em um booleano, um rótulo
+ou um módulo personalizado. Nenhuma das duas execuções registrou uma negação AVC.
+
+Repare no que essa afirmação significa. Ela quer dizer que o SocTalk roda corretamente
+sob a política targeted, não que o SELinux esteja confinando a carga de trabalho como
+uma camada de proteção. Habilitar a própria imposição de SELinux do K3s
+(`--selinux` / `K3S_SELINUX=true`) não foi testado. O RHEL 10 também precisa do
+pacote `kernel-modules-extra` para o K3s, o que não foi testado.
+
+#### firewalld
+
+A imagem Rocky Linux 9.8 GenericCloud usada na verificação não inclui o firewalld,
+então em uma VM de nuvem muitas vezes não há nada a fazer aqui. Uma instalação
+completa de servidor tem o firewalld, habilitado. Com o firewalld rodando sob sua
+política padrão, a instalação travou até que as redes de pods e de serviços do K3s
+fossem confiadas, então em um host desses este passo é um pré-requisito, não um
+conselho de proteção.
+
+Vale reconhecer essa falha porque ela não parece um problema de firewall. O K3s
+instala sem erros, o nó fica `Ready`, as imagens são baixadas e todos os pods são
+agendados. O que quebra é o tráfego pod a pod e pod a Service na bridge do flannel,
+de modo que o init container `db-init` da API não consegue alcançar o Postgres e
+fica em loop com `No route to host` enquanto o próprio Postgres permanece ali
+`1/1 Running`. A instalação então consome toda a sua janela de `--wait` do Helm
+antes de falhar por timeout, com a causa real enterrada no log de um init container.
+
+Confie nas redes de pods e serviços do K3s, e abra as portas de ingress pelas quais
+você acessa a UI:
 
 ```bash
 sudo firewall-cmd --permanent --zone=trusted --add-source=10.42.0.0/16   # pods
@@ -172,9 +214,39 @@ sudo firewall-cmd --permanent --add-port=80/tcp --add-port=443/tcp       # web U
 sudo firewall-cmd --reload
 ```
 
-Os valores `10.42.0.0/16` e `10.43.0.0/16` são os padrões do K3s; se você definir um
-CIDR de cluster ou de serviço personalizado, use esses no lugar. Um cluster com múltiplos nós precisa de
-mais portas abertas entre os nós (consulte os requisitos de rede do K3s).
+Esses são os padrões do K3s; se você definir um CIDR de cluster ou de serviço
+personalizado, use esses no lugar. Um cluster com múltiplos nós precisa de mais
+portas abertas entre os nós (consulte os requisitos de rede do K3s).
+
+Se a instalação ainda estiver aguardando quando você aplicar as regras, ela se
+recupera na próxima tentativa e conclui; você não precisa começar de novo. Se o Helm
+já tiver estourado o timeout, aplique as regras e reexecute `sudo soctalk install`.
+Depois da v0.2.0, o preflight do instalador verifica isso e imprime esses comandos
+antes de tocar no host ([soctalk#118](https://github.com/soctalk/soctalk/issues/118)).
+
+O SocTalk não altera as regras do firewalld por você. Esse é o seu limite de
+segurança para abrir.
+
+#### sudo e /usr/local/bin
+
+O K3s e o Helm instalam seus binários, e o symlink do `kubectl`, em
+`/usr/local/bin`. As distribuições da família RHEL deixam esse diretório fora do
+`secure_path` do sudo (`Defaults secure_path = /sbin:/bin:/usr/sbin:/usr/bin`), então
+um `sudo k3s ...`, `sudo kubectl ...` ou `sudo helm ...` puro responde
+`command not found` mesmo com o binário ali e a instalação bem-sucedida.
+
+A CLI `soctalk` resolve esses caminhos por conta própria, então `sudo soctalk install`,
+`soctalk status` e `soctalk logs` funcionam exatamente como estão escritos. Quando você
+precisar do `kubectl` diretamente, informe o caminho completo ou adicione o diretório
+ao seu próprio `PATH`:
+
+```bash
+sudo /usr/local/bin/k3s kubectl -n soctalk-system get pods
+```
+
+A documentação em outras partes deste site às vezes escreve isso como
+`sudo k3s kubectl ...`, o que está correto no Debian e no Ubuntu, mas precisa do
+caminho completo em hosts da família RHEL.
 
 ### Alpine e outros hosts sem systemd {#alpine-and-other-non-systemd-hosts}
 

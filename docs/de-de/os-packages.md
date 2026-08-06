@@ -1,22 +1,33 @@
 # Installation aus einem OS-Paket (rpm / deb)
 
 Jedes SocTalk-Release liefert native OS-Pakete zusätzlich zu den VM-Images, angehängt
-an dasselbe GitHub-Release wie der Versions-Tag, für die beiden systemd-basierten Linux-Familien:
+an dasselbe GitHub-Release wie der Versions-Tag, für die beiden systemd-basierten
+Linux-Familien:
 
 | Datei | Paketmanager | Verifiziert auf | Voraussichtlich auch lauffähig |
 |---|---|---|---|
-| `soctalk-<ver>-1.x86_64.rpm` | dnf / yum | Rocky Linux 9 | RHEL, Fedora, AlmaLinux |
+| `soctalk-<ver>-1.x86_64.rpm` | dnf / yum | Rocky Linux 9.8 | RHEL, Fedora, AlmaLinux |
 | `soctalk_<ver>_amd64.deb` | apt / dpkg | Ubuntu 24.04 | Debian |
 
 Beide sind Ende zu Ende verifiziert: Paket installieren, `soctalk install` ausführen, die
-Web-App erreichen und sich anmelden. Die Spalte "Voraussichtlich auch lauffähig" bezeichnet dieselbe Paketfamilie,
-wurde aber auf diesen Distributionen nicht spezifisch getestet.
+Web-App erreichen und sich anmelden. Die Spalte "Voraussichtlich auch lauffähig" bezeichnet
+dieselbe Paketfamilie, wurde aber auf diesen Distributionen nicht spezifisch getestet.
+
+Auf Rocky Linux 9.8 deckte die Verifizierung beide Ausprägungen ab, die das Produkt
+ausliefert, auf frischen VMs mit SELinux im Modus Enforcing. Die Installation nur der
+Control Plane brachte `api`, `app-ui` und `postgres` hoch, und der Bootstrap-Admin konnte
+sich anmelden. Die vollständige Installation onboardete zusätzlich einen `poc`-Mandanten,
+der seinen eigenen Wazuh-Manager, Indexer und Dashboard aufsetzte und `active` erreichte.
+Dieser zweite Lauf erfolgte mit aktiviertem firewalld, was die Regeln aus
+[den RHEL-Hinweisen](#rhel-fedora-almalinux-rocky) weiter unten voraussetzt, bevor der
+Cluster funktioniert. Diese Hinweise beschreiben, was SELinux und firewalld jeweils von
+Ihnen verlangen und was nicht.
 
 **Alpine wird nicht unterstützt** und es wird kein `.apk` veröffentlicht: `soctalk install`
 benötigt systemd, und Alpine verwendet OpenRC. Siehe [Alpine und andere Hosts ohne
 systemd](#alpine-and-other-non-systemd-hosts) weiter unten. **openSUSE / zypper** und
-**RHEL 10** sind ungetestet; die RHEL/Fedora-Hinweise treffen möglicherweise nicht vollständig zu. **Nur amd64**:
-es gibt kein arm64-Paket.
+**RHEL 10** sind ungetestet; die RHEL/Fedora-Hinweise treffen möglicherweise nicht
+vollständig zu. **Nur amd64**: es gibt kein arm64-Paket.
 
 Sie werden auf der Releases-Seite von [`soctalk/soctalk`](https://github.com/soctalk/soctalk/releases)
 veröffentlicht. Die aktuelle Version ist **v0.2.0**:
@@ -56,6 +67,13 @@ sudo dnf install ./soctalk-0.2.0-1.x86_64.rpm
 
 `dnf` zieht `curl` und `tar` nach, falls sie fehlen. Auf älteren Hosts verwenden Sie
 `sudo yum install ./soctalk-0.2.0-1.x86_64.rpm`.
+
+Einige RHEL-9-Images enthalten `curl-minimal` anstelle des vollständigen `curl`, was mit
+Paketen kollidieren kann, die `curl` namentlich voraussetzen. Hier kollidiert es nicht.
+Auf dem für die Verifizierung genutzten Rocky-Linux-9.8-Host, mit entferntem `curl` und
+nur installiertem `curl-minimal`, wurde das rpm unverändert installiert: `curl-minimal`
+führt `Provides: curl`, sodass die Abhängigkeit ohne Austausch und ohne
+`--allowerasing` aufgelöst wird.
 
 ### Debian, Ubuntu
 
@@ -126,11 +144,15 @@ Die CLI kapselt die üblichen Cluster-Operationen, sodass Sie sich weder den
 `KUBECONFIG`-Pfad noch den Helm-Release-Namen merken müssen.
 
 ```bash
-soctalk status              # pods and their readiness in the soctalk namespace
-soctalk logs api            # tail a component's logs (api, orchestrator, adapter, app-ui)
+soctalk status              # pods and their readiness in soctalk-system
+soctalk logs api            # tail a component's logs (api, app-ui, postgres)
 sudo soctalk upgrade        # re-run the installer against the current chart (idempotent)
 soctalk version             # CLI version (matches the package version)
 ```
+
+`soctalk logs` deckt die Control Plane in `soctalk-system` ab. Workloads einzelner
+Mandanten wie der Adapter und der runs-worker liegen in `tenant-<slug>`-Namespaces;
+diese erreichen Sie stattdessen mit `kubectl` gegen den jeweiligen Namespace.
 
 `soctalk upgrade` ist ein `helm upgrade --install`, daher ist es gefahrlos erneut ausführbar und
 der Weg, um auf ein neueres Chart zu wechseln, nachdem Sie ein neueres Paket installiert haben.
@@ -150,19 +172,41 @@ die CLI und den Installer, berührt aber keinen laufenden Cluster. Führen Sie z
 
 ### RHEL, Fedora, AlmaLinux, Rocky
 
-Verifiziert auf Rocky Linux 9 mit SELinux im Modus **Enforcing**. Es ist keine manuelle SELinux-Arbeit
-erforderlich, um lauffähig zu sein: Der K3s-Installer zieht die Policy-Pakete `k3s-selinux` und
-`container-selinux` während `soctalk install` automatisch nach, sodass
-der Cluster unter Enforcing hochkommt. Beachten Sie, dass dies "läuft korrekt unter der
-targeted Policy" bedeutet, nicht dass SELinux die Workload als Härtungsschicht einschränkt;
-das Aktivieren von K3s' eigener SELinux-Durchsetzung (`--selinux` / `K3S_SELINUX=true`)
-wurde hier nicht getestet. RHEL 10 benötigt zusätzlich das Paket `kernel-modules-extra` für
-K3s, was nicht getestet wurde.
+#### SELinux
 
-Wenn **firewalld** aktiv ist (üblich bei einer vollständigen RHEL-Serverinstallation, jedoch nicht bei
-den minimalen Cloud-Images), kann es Cluster-Traffic blockieren, was sich als Pods
-zeigt, die in `ContainerCreating` feststecken, oder als nicht erreichbare Web-App. Vertrauen Sie dem K3s-Pod-
-und Service-Netzwerk und öffnen Sie die Ingress-Ports, über die Sie die UI tatsächlich erreichen:
+Verifiziert auf Rocky Linux 9.8 mit SELinux im Modus **Enforcing**, sowohl für die
+Installation nur der Control Plane als auch für die vollständige Installation mit einem
+Wazuh-gestützten Mandanten. Es ist keine manuelle SELinux-Arbeit erforderlich. Während
+`soctalk install` zog der K3s-Installer `k3s-selinux` 1.6 und `container-selinux` selbst
+nach, und der Cluster kam hoch, ohne dass jemand ein Boolean, ein Label oder ein eigenes
+Modul angefasst hätte. Keiner der beiden Läufe verzeichnete eine AVC-Verweigerung.
+
+Beachten Sie, was diese Aussage bedeutet. Sie besagt, dass SocTalk unter der targeted
+Policy korrekt läuft, nicht dass SELinux die Workload als Härtungsschicht einschränkt.
+Das Aktivieren von K3s' eigener SELinux-Durchsetzung (`--selinux` / `K3S_SELINUX=true`)
+wurde nicht getestet. RHEL 10 benötigt für K3s zusätzlich das Paket
+`kernel-modules-extra`, was ebenfalls nicht getestet wurde.
+
+#### firewalld
+
+Das für die Verifizierung genutzte Rocky Linux 9.8 GenericCloud-Image enthält firewalld
+überhaupt nicht, sodass auf einer Cloud-VM hier oft nichts zu tun ist. Eine vollständige
+Serverinstallation hat es, und zwar aktiviert. Mit laufendem firewalld unter seiner
+Standard-Policy blieb die Installation hängen, bis den K3s-Pod- und Service-Netzwerken
+vertraut wurde; auf einem solchen Host ist dieser Schritt daher eine Voraussetzung und
+kein Härtungstipp.
+
+Der Fehler verdient Beachtung, weil er nicht nach einem Firewall-Problem aussieht. K3s
+installiert sauber, der Knoten wird `Ready`, Images werden gezogen, und jeder Pod wird
+geplant. Was bricht, ist der Traffic zwischen Pods und zu Services auf der
+flannel-Bridge, sodass der `db-init`-Init-Container der API Postgres nicht erreicht und
+mit `No route to host` in einer Schleife hängt, während Postgres selbst dort mit
+`1/1 Running` steht. Die Installation verbringt dann ihr gesamtes Helm-`--wait`-Fenster,
+bevor sie an einem Timeout scheitert, wobei die eigentliche Ursache im Log eines
+Init-Containers vergraben ist.
+
+Vertrauen Sie den K3s-Pod- und Service-Netzwerken und öffnen Sie die Ingress-Ports, über
+die Sie die UI erreichen:
 
 ```bash
 sudo firewall-cmd --permanent --zone=trusted --add-source=10.42.0.0/16   # pods
@@ -171,9 +215,39 @@ sudo firewall-cmd --permanent --add-port=80/tcp --add-port=443/tcp       # web U
 sudo firewall-cmd --reload
 ```
 
-Die Werte `10.42.0.0/16` und `10.43.0.0/16` sind die K3s-Standardwerte; wenn Sie eine
-benutzerdefinierte Cluster- oder Service-CIDR gesetzt haben, verwenden Sie stattdessen diese. Ein Cluster mit mehreren Knoten benötigt
-weitere zwischen den Knoten offene Ports (siehe die K3s-Netzwerkanforderungen).
+Dies sind die K3s-Standardwerte; wenn Sie eine eigene Cluster- oder Service-CIDR gesetzt
+haben, verwenden Sie stattdessen diese. Ein Cluster mit mehreren Knoten benötigt weitere
+zwischen den Knoten offene Ports (siehe die K3s-Netzwerkanforderungen).
+
+Wenn die Installation noch wartet, während Sie die Regeln anwenden, erholt sie sich beim
+nächsten Versuch und läuft durch; Sie müssen nicht von vorn beginnen. Wenn Helm bereits in
+einen Timeout gelaufen ist, wenden Sie die Regeln an und führen Sie `sudo soctalk install`
+erneut aus. Nach v0.2.0 prüft der Preflight des Installers dies und gibt diese Befehle aus,
+bevor er den Host anfasst ([soctalk#118](https://github.com/soctalk/soctalk/issues/118)).
+
+SocTalk ändert keine firewalld-Regeln für Sie. Das ist Ihre Sicherheitsgrenze, die Sie
+öffnen müssen.
+
+#### sudo und /usr/local/bin
+
+K3s und Helm installieren ihre Binaries sowie den `kubectl`-Symlink nach
+`/usr/local/bin`. Distributionen der RHEL-Familie lassen dieses Verzeichnis aus sudos
+`secure_path` heraus (`Defaults secure_path = /sbin:/bin:/usr/sbin:/usr/bin`), sodass ein
+blankes `sudo k3s ...`, `sudo kubectl ...` oder `sudo helm ...` mit `command not found`
+antwortet, obwohl die Binary genau dort liegt und die Installation erfolgreich war.
+
+Die `soctalk`-CLI löst diese Pfade selbst auf, daher funktionieren `sudo soctalk install`,
+`soctalk status` und `soctalk logs` genau wie beschrieben. Wenn Sie `kubectl` direkt
+benötigen, geben Sie entweder den vollständigen Pfad an oder nehmen Sie das Verzeichnis in
+Ihren eigenen `PATH` auf:
+
+```bash
+sudo /usr/local/bin/k3s kubectl -n soctalk-system get pods
+```
+
+Die Dokumentation an anderer Stelle auf dieser Website schreibt dies mitunter als
+`sudo k3s kubectl ...`, was auf Debian und Ubuntu korrekt ist, auf Hosts der RHEL-Familie
+aber den vollständigen Pfad benötigt.
 
 ### Alpine und andere Hosts ohne systemd {#alpine-and-other-non-systemd-hosts}
 

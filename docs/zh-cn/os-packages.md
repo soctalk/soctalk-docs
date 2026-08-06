@@ -5,12 +5,20 @@
 
 | 文件 | 包管理器 | 已验证于 | 预期同样可用 |
 |---|---|---|---|
-| `soctalk-<ver>-1.x86_64.rpm` | dnf / yum | Rocky Linux 9 | RHEL、Fedora、AlmaLinux |
+| `soctalk-<ver>-1.x86_64.rpm` | dnf / yum | Rocky Linux 9.8 | RHEL、Fedora、AlmaLinux |
 | `soctalk_<ver>_amd64.deb` | apt / dpkg | Ubuntu 24.04 | Debian |
 
 两者都经过端到端验证：安装软件包，运行 `soctalk install`，打开
 Web 应用并登录。“预期同样可用”一列属于同一个软件包家族，
 只是未在这些具体的发行版上做过测试。
+
+在 Rocky Linux 9.8 上，验证覆盖了本产品提供的两种形态，均在 SELinux 处于
+Enforcing 模式的全新 VM 上进行。仅控制平面的安装拉起了 `api`、`app-ui`
+和 `postgres`，引导管理员可以登录。完整安装还额外开通了一个 `poc`
+租户，该租户自行拉起了 Wazuh manager、indexer 和 dashboard，并达到 `active`
+状态。第二次运行是在启用 firewalld 的情况下完成的，这需要先应用下方
+[RHEL 说明](#rhel-fedora-almalinux-rocky)中的规则，集群才能正常工作。
+那些说明介绍了 SELinux 和 firewalld 各自对你有哪些要求、又有哪些并不要求。
 
 **不支持 Alpine**，也没有发布 `.apk`：`soctalk install`
 需要 systemd，而 Alpine 使用 OpenRC。参见下方的 [Alpine 及其他非 systemd
@@ -56,6 +64,12 @@ sudo dnf install ./soctalk-0.2.0-1.x86_64.rpm
 
 `dnf` 会在 `curl` 和 `tar` 缺失时自动拉取。在较旧的主机上请使用
 `sudo yum install ./soctalk-0.2.0-1.x86_64.rpm`。
+
+部分 RHEL 9 镜像以 `curl-minimal` 取代完整的 `curl`，这可能与按名称要求
+`curl` 的软件包发生冲突。在这里不会发生冲突。在用于验证的 Rocky Linux 9.8
+主机上，移除 `curl` 且只安装 `curl-minimal` 时，该 rpm 照常完成安装：
+`curl-minimal` 带有 `Provides: curl`，因此依赖可以直接解析，无需替换，
+也不需要 `--allowerasing`。
 
 ### Debian、Ubuntu
 
@@ -123,11 +137,15 @@ CLI 封装了常见的集群操作，因此你无需记住
 `KUBECONFIG` 路径或 Helm release 名称。
 
 ```bash
-soctalk status              # pods and their readiness in the soctalk namespace
-soctalk logs api            # tail a component's logs (api, orchestrator, adapter, app-ui)
+soctalk status              # pods and their readiness in soctalk-system
+soctalk logs api            # tail a component's logs (api, app-ui, postgres)
 sudo soctalk upgrade        # re-run the installer against the current chart (idempotent)
 soctalk version             # CLI version (matches the package version)
 ```
+
+`soctalk logs` 覆盖 `soctalk-system` 中的控制平面。诸如适配器和 runs-worker
+之类的按租户工作负载位于 `tenant-<slug>` 命名空间中，因此请改用
+`kubectl` 针对该命名空间进行操作。
 
 `soctalk upgrade` 就是一次 `helm upgrade --install`，因此可以安全地重复运行，
 也是你在安装新软件包后迁移到更新 chart 的方式。
@@ -147,18 +165,34 @@ CLI 和安装程序，但不会触及正在运行的集群。如果你想彻底�
 
 ### RHEL、Fedora、AlmaLinux、Rocky
 
-已在 SELinux 处于 **Enforcing** 模式的 Rocky Linux 9 上验证。无需任何手动的
-SELinux 操作即可运行：K3s 安装程序会在 `soctalk install` 期间自动拉入
-`k3s-selinux` 和 `container-selinux` 策略包，因此集群会在 Enforcing 下正常启动。
-请注意，这意味着“在 targeted 策略下正确运行”，而不是说 SELinux
-正作为加固层来约束该工作负载；启用 K3s 自身的 SELinux 强制
-（`--selinux` / `K3S_SELINUX=true`）在此并未测试。RHEL 10 还需要为 K3s 安装
-`kernel-modules-extra` 包，这一点也未经测试。
+#### SELinux
 
-如果 **firewalld**处于活动状态（在完整的 RHEL 服务器安装中常见，但在
-最小化云镜像上通常不是），它可能会阻断集群流量，其表现为 pods
-卡在 `ContainerCreating` 状态，或 Web 应用无法访问。请信任 K3s 的 pod
-和 service 网络，并开放你实际用来访问 UI 的 ingress 端口：
+已在 SELinux 处于 **Enforcing** 模式的 Rocky Linux 9.8 上验证，涵盖仅控制平面的
+安装以及带 Wazuh 支撑租户的完整安装。无需任何手动的 SELinux 操作。在
+`soctalk install` 期间，K3s 安装程序自行拉入了 `k3s-selinux` 1.6 和
+`container-selinux`，集群顺利启动，无人改动任何布尔值、标签或自定义模块。
+两次运行都没有记录到 AVC 拒绝。
+
+请注意这一结论的含义。它表示 SocTalk 在 targeted 策略下能够正确运行，
+而不是说 SELinux 正作为加固层约束该工作负载。启用 K3s 自身的 SELinux 强制
+（`--selinux` / `K3S_SELINUX=true`）并未测试。RHEL 10 还需要为 K3s 安装
+`kernel-modules-extra` 包，这一点同样未经测试。
+
+#### firewalld
+
+用于验证的 Rocky Linux 9.8 GenericCloud 镜像根本不包含 firewalld，因此在
+云上的 VM 里通常无需做任何事。完整的服务器安装则带有 firewalld 并处于启用状态。
+在 firewalld 以默认策略运行时，安装会一直停滞，直到 K3s 的 pod 和 service
+网络被设为受信任，因此在这类主机上，这一步是前置条件，而不是加固建议。
+
+这个失败值得认清，因为它看上去并不像防火墙问题。K3s 安装顺利，节点变为
+`Ready`，镜像可以拉取，所有 pod 也都完成调度。真正中断的是 flannel 网桥上的
+pod 到 pod 以及 pod 到 Service 的流量，于是 API 的 `db-init` 初始化容器无法
+连上 Postgres，不断循环报 `No route to host`，而 Postgres 自身却安然处于
+`1/1 Running`。随后安装会耗尽整个 Helm `--wait` 窗口，最终因超时失败，
+真正的原因则埋在某个初始化容器的日志里。
+
+请信任 K3s 的 pod 和 service 网络，并开放你实际用来访问 UI 的 ingress 端口：
 
 ```bash
 sudo firewall-cmd --permanent --zone=trusted --add-source=10.42.0.0/16   # pods
@@ -167,9 +201,34 @@ sudo firewall-cmd --permanent --add-port=80/tcp --add-port=443/tcp       # web U
 sudo firewall-cmd --reload
 ```
 
-`10.42.0.0/16` 和 `10.43.0.0/16` 是 K3s 的默认值；如果你设置了
-自定义的集群或 service CIDR，请改用那些值。多节点集群需要在节点之间
-开放更多端口（参见 K3s 网络要求）。
+这些都是 K3s 的默认值；如果你设置了自定义的集群或 service CIDR，请改用那些值。
+多节点集群需要在节点之间开放更多端口（参见 K3s 网络要求）。
+
+如果你在安装仍处于等待状态时应用这些规则，它会在下一次重试时恢复并完成；
+你不必从头开始。如果 Helm 已经超时，请应用规则并重新运行 `sudo soctalk install`。
+在 v0.2.0 之后，安装程序的预检会检查这一点，并在改动主机之前打印这些命令
+（[soctalk#118](https://github.com/soctalk/soctalk/issues/118)）。
+
+SocTalk 不会替你修改 firewalld 规则。那是属于你自己的安全边界，需要你来开放。
+
+#### sudo 与 /usr/local/bin
+
+K3s 和 Helm 会把它们的二进制文件以及 `kubectl` 符号链接安装到
+`/usr/local/bin`。RHEL 系发行版并未把该目录纳入 sudo 的
+`secure_path`（`Defaults secure_path = /sbin:/bin:/usr/sbin:/usr/bin`），因此直接执行
+`sudo k3s ...`、`sudo kubectl ...` 或 `sudo helm ...` 会得到
+`command not found`，尽管二进制文件就在那里，安装也确实成功了。
+
+`soctalk` CLI 会自行解析这些路径，因此 `sudo soctalk install`、
+`soctalk status` 和 `soctalk logs` 都可以按文中所写直接使用。当你需要直接使用
+`kubectl` 时，要么给出完整路径，要么把该目录加入你自己的 `PATH`：
+
+```bash
+sudo /usr/local/bin/k3s kubectl -n soctalk-system get pods
+```
+
+本站其他文档有时会把它写成 `sudo k3s kubectl ...`，这在 Debian 和 Ubuntu
+上是正确的，但在 RHEL 系主机上需要完整路径。
 
 ### Alpine 及其他非 systemd 主机 {#alpine-and-other-non-systemd-hosts}
 

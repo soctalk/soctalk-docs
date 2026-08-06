@@ -49,7 +49,7 @@ sudo bash -c 'set -a; . /etc/soctalk/soctalk.env; soctalk install --skip-consent
 Der Installer bringt k3s und Helm hoch, falls der Host sie nicht hat, installiert das auf die Release-Version gepinnte `soctalk-system`-Chart und gibt am Ende die URL und den Login aus. Drei Pods im Namespace `soctalk-system` (`api`, `app-ui`, `postgres`) bedeuten, dass die Control Plane läuft:
 
 ```bash
-sudo k3s kubectl -n soctalk-system get pods
+sudo /usr/local/bin/k3s kubectl -n soctalk-system get pods
 ```
 
 ## Ein Schalter vor dem Onboarding: Netzwerkrichtlinien
@@ -63,9 +63,9 @@ no matches for kind "CiliumNetworkPolicy" in version "cilium.io/v2"
 und der Mandant landet in `degraded`. Das ist nach v0.2.0 behoben ([soctalk#107](https://github.com/soctalk/soctalk/issues/107)): Das Chart macht dieses Objekt nun davon abhängig, dass die CRD tatsächlich existiert, und ergänzt eine schlichte `NetworkPolicy`-Egress-Regel für SIEM-Hosts mit IP-Literalen, sodass eine unveränderte flannel-Installation sauber provisioniert. Auf v0.2.0 besteht der Workaround auf einer Single-Host-Installation darin, die Mandanten-Netzwerkrichtlinien vor dem Onboarding zu deaktivieren:
 
 ```bash
-sudo k3s kubectl -n soctalk-system set env deploy/soctalk-system-api \
+sudo /usr/local/bin/k3s kubectl -n soctalk-system set env deploy/soctalk-system-api \
   SOCTALK_TENANT_NETWORK_POLICIES_ENABLED=0
-sudo k3s kubectl -n soctalk-system rollout status deploy/soctalk-system-api
+sudo /usr/local/bin/k3s kubectl -n soctalk-system rollout status deploy/soctalk-system-api
 ```
 
 Seien Sie sich über den Kompromiss im Klaren: Dies schaltet die Namespace-Isolations-NetworkPolicies für danach provisionierte Mandanten ab, was auf einem dedizierten Lab- oder Piloten-Host mit einer einzelnen Mandantenklasse vertretbar ist und nicht das, was Sie auf einem geteilten, mandantenfähigen Produktionscluster wollen. Wenn Sie Cilium als CNI betreiben, trifft nichts davon zu, und Sie sollten die Richtlinien eingeschaltet lassen.
@@ -122,7 +122,7 @@ Das Provisioning eines provided-Mandanten geht schnell, weil es kein Wazuh-Chart
 Der Mandanten-Namespace sollte genau zwei Workloads enthalten, den Adapter und den Runs-Worker, und keine Wazuh-Pods:
 
 ```bash
-sudo k3s kubectl -n tenant-orion-soc get pods
+sudo /usr/local/bin/k3s kubectl -n tenant-orion-soc get pods
 ```
 
 Ihr Verbindungsmaterial landet in einem namespace-lokalen Secret namens `tenant-external-siem-creds`, das `INDEXER_USERNAME`, `INDEXER_PASSWORD`, `WAZUH_API_USERNAME` und `WAZUH_API_PASSWORD` enthält, plus `WAZUH_API_TOKEN`, wenn Sie eines angegeben haben. Der Adapter liest die Indexer-URL aus seiner Umgebung und die Zugangsdaten aus diesem Secret. Sein Log sagt Ihnen innerhalb von Sekunden, ob die Verbindung funktioniert, weil er den Alerts-Index kontinuierlich pollt:

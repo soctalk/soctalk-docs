@@ -6,6 +6,7 @@ Sintomo → diagnosi → soluzione. Runbook per le modalità di guasto più comu
 |---|---|---|
 | `helm install soctalk-system` fallisce nell'hook pre-install | `kubectl logs -n soctalk-system job/<release>-preinstall-check` | Installa il prerequisito di cluster mancante (CNI, cert-manager, StorageClass) seguendo la guida [Installazione](/it-it/install#cluster-prerequisites) |
 | Il pod API va in `CrashLoopBackOff` all'avvio | `kubectl logs -n soctalk-system deploy/soctalk-system-api` | Più spesso: Secret `DATABASE_URL` errato, Postgres non ancora pronto, o migrazione Alembic fallita. Controlla prima il pod Postgres |
+| L'installazione su famiglia RHEL va in timeout su Helm mentre Postgres è `1/1 Running` | `sudo /usr/local/bin/k3s kubectl -n soctalk-system logs -l app.kubernetes.io/component=api -c db-init` mostra `No route to host` | firewalld sta scartando il traffico dei pod sul bridge flannel. Applica le regole nelle [note sul pacchetto RHEL](/it-it/os-packages#firewalld); un'installazione ancora in attesa si riprende da sola |
 | `helm install` riesce ma la UI MSSP restituisce 502 | Log del controller di ingress; verifica che gli `endpoints` del Service di ingress siano popolati | Il proxy OIDC non è distribuito o non inietta gli header attendibili. Controlla il CIDR trusted-proxy |
 | La creazione del Tenant restituisce 500 | I log dell'API mostrano `ProvisionError` | Di solito `helm install tenant-*` è fallito. Controlla `helm status tenant-<slug>`. I problemi più comuni riguardano namespace e resource-quota |
 | Tenant bloccato in `provisioning` > 15 min | `kubectl -n tenant-<slug> get events --sort-by=.lastTimestamp` | Vedi [Tenant bloccato in provisioning](/it-it/operations#tenant-stuck-in-provisioning) nella sezione operations |
@@ -26,24 +27,24 @@ Sintomo → diagnosi → soluzione. Runbook per le modalità di guasto più comu
 Quando apri un'escalation al supporto, raccogli:
 
 ```bash
-# Stato a livello di sistema SocTalk
+# SocTalk system-level state
 kubectl get all,events,networkpolicies,resourcequotas \
   -n soctalk-system -o yaml > soctalk-system.yaml
 kubectl -n soctalk-system logs deploy/soctalk-system-api --tail=500 > api.log
-# (Il chart V1 include l'orchestrator nel pod API — nessun Deployment separato)
+# (V1 chart bundles the orchestrator into the API pod; no separate Deployment)
 
-# Tenant specifico
+# Specific tenant
 kubectl get all,events,networkpolicies,resourcequotas,limitranges \
   -n tenant-<slug> -o yaml > tenant.yaml
 kubectl -n tenant-<slug> logs deploy/soctalk-adapter --tail=500 > adapter.log
 
-# Stato Helm
+# Helm state
 helm status -n soctalk-system soctalk-system > helm-system.txt
 helm status -n tenant-<slug> tenant-<slug> > helm-tenant.txt
 
-# Versione SocTalk + eventi del ciclo di vita del tenant
-# soctalk-cli debug-bundle era documentato in bozze precedenti; non implementato.
-# Cattura i dati manualmente dai passaggi kubectl/helm qui sopra.
+# SocTalk version + lifecycle events for the tenant
+# soctalk-cli debug-bundle was documented in earlier drafts; not implemented.
+# Capture the data by hand from the kubectl/helm steps above.
 
 tar czf soctalk-debug-$(date +%s).tgz *.yaml *.log *.txt
 ```

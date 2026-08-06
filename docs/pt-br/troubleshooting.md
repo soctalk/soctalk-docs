@@ -6,6 +6,7 @@ Sintoma → diagnóstico → correção. Runbook para os modos de falha mais com
 |---|---|---|
 | `helm install soctalk-system` falha no hook de pré-instalação | `kubectl logs -n soctalk-system job/<release>-preinstall-check` | Instale o pré-requisito de cluster ausente (CNI, cert-manager, StorageClass) conforme o guia [Instalação](/pt-br/install#cluster-prerequisites) |
 | Pod da API em `CrashLoopBackOff` na inicialização | `kubectl logs -n soctalk-system deploy/soctalk-system-api` | Na maioria das vezes: Secret `DATABASE_URL` incorreto, Postgres ainda não pronto ou falha de migração do Alembic. Verifique primeiro o pod do Postgres |
+| Instalação em distribuições da família RHEL expira no Helm enquanto o Postgres está `1/1 Running` | `sudo /usr/local/bin/k3s kubectl -n soctalk-system logs -l app.kubernetes.io/component=api -c db-init` mostra `No route to host` | O firewalld está descartando o tráfego dos pods na bridge do flannel. Aplique as regras nas [notas de pacote RHEL](/pt-br/os-packages#firewalld); uma instalação ainda em espera se recupera sozinha |
 | `helm install` tem sucesso, mas a UI do MSSP retorna 502 | Logs do controlador de ingress; verifique se os `endpoints` do Service de ingress estão populados | Proxy OIDC não implantado ou não injetando headers confiáveis. Verifique o CIDR de trusted-proxy |
 | Criação de tenant retorna 500 | Os logs da API mostram `ProvisionError` | Normalmente `helm install tenant-*` falhou. Verifique `helm status tenant-<slug>`. Problemas de namespace e resource-quota são os mais comuns |
 | Tenant travado em `provisioning` > 15 min | `kubectl -n tenant-<slug> get events --sort-by=.lastTimestamp` | Consulte [Tenant travado em provisioning](/pt-br/operations#tenant-stuck-in-provisioning) em operações |
@@ -30,7 +31,7 @@ Ao escalar para o suporte, colete:
 kubectl get all,events,networkpolicies,resourcequotas \
   -n soctalk-system -o yaml > soctalk-system.yaml
 kubectl -n soctalk-system logs deploy/soctalk-system-api --tail=500 > api.log
-# (V1 chart bundles the orchestrator into the API pod — no separate Deployment)
+# (V1 chart bundles the orchestrator into the API pod; no separate Deployment)
 
 # Specific tenant
 kubectl get all,events,networkpolicies,resourcequotas,limitranges \

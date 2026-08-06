@@ -49,7 +49,7 @@ Passe `--skip-consent` (ou `-y`) explicitamente. Na v0.2.0 o prompt de consentim
 O instalador sobe o k3s e o Helm se o host não os tiver, instala o chart `soctalk-system` fixado na versão do release e imprime a URL e o login ao terminar. Três pods no namespace `soctalk-system` (`api`, `app-ui`, `postgres`) indicam que o control plane está de pé:
 
 ```bash
-sudo k3s kubectl -n soctalk-system get pods
+sudo /usr/local/bin/k3s kubectl -n soctalk-system get pods
 ```
 
 ## Um ajuste antes do onboarding: políticas de rede
@@ -63,9 +63,9 @@ no matches for kind "CiliumNetworkPolicy" in version "cilium.io/v2"
 e o tenant cai em `degraded`. Isso foi corrigido após a v0.2.0 ([soctalk#107](https://github.com/soctalk/soctalk/issues/107)): o chart agora condiciona esse objeto à existência real do CRD e adiciona egress de `NetworkPolicy` simples para hosts SIEM com IP literal, de modo que uma instalação flannel padrão provisiona sem problemas. Na v0.2.0 a solução de contorno em uma instalação de host único é desabilitar as políticas de rede de tenant antes do onboarding:
 
 ```bash
-sudo k3s kubectl -n soctalk-system set env deploy/soctalk-system-api \
+sudo /usr/local/bin/k3s kubectl -n soctalk-system set env deploy/soctalk-system-api \
   SOCTALK_TENANT_NETWORK_POLICIES_ENABLED=0
-sudo k3s kubectl -n soctalk-system rollout status deploy/soctalk-system-api
+sudo /usr/local/bin/k3s kubectl -n soctalk-system rollout status deploy/soctalk-system-api
 ```
 
 Seja claro sobre o tradeoff: isso desliga as NetworkPolicies de isolamento de namespace para os tenants provisionados depois disso, o que é aceitável em um host de laboratório ou piloto dedicado a uma única classe de tenant, e não o que você quer em um cluster de produção multi-tenant compartilhado. Se você roda o Cilium como CNI, nada disso se aplica e você deve deixar as políticas ligadas.
@@ -122,7 +122,7 @@ Provisionar um tenant provided é rápido porque não há chart do Wazuh para in
 O namespace do tenant deve conter exatamente dois workloads, o adaptador e o runs-worker, e nenhum pod do Wazuh:
 
 ```bash
-sudo k3s kubectl -n tenant-orion-soc get pods
+sudo /usr/local/bin/k3s kubectl -n tenant-orion-soc get pods
 ```
 
 Seu material de conexão vai parar em um Secret local ao namespace chamado `tenant-external-siem-creds`, contendo `INDEXER_USERNAME`, `INDEXER_PASSWORD`, `WAZUH_API_USERNAME` e `WAZUH_API_PASSWORD`, além de `WAZUH_API_TOKEN` quando você fornece um. O adaptador lê a URL do indexer do próprio ambiente e as credenciais desse Secret. O log dele diz em segundos se a conexão funciona, porque ele consulta o índice de alertas continuamente:
