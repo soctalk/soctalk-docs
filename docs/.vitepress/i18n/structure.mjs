@@ -52,6 +52,7 @@ export const SIDEBAR = [
       { id: 'guides/multi-tenant-wazuh-mssp', link: '/guides/multi-tenant-wazuh-mssp', en: 'Multi-tenant Wazuh for MSSPs' },
       { id: 'guides/ai-triage-wazuh-alerts', link: '/guides/ai-triage-wazuh-alerts', en: 'AI triage for Wazuh alerts' },
       { id: 'guides/wazuh-tenant-onboarding', link: '/guides/wazuh-tenant-onboarding', en: 'Onboarding a customer tenant' },
+      { id: 'guides/existing-wazuh', link: '/guides/existing-wazuh', en: 'Connecting an existing Wazuh' },
       { id: 'guides/open-source-soc-stack', link: '/guides/open-source-soc-stack', en: 'Open-source SOC stack' },
       { id: 'guides/inference-cost-optimization', link: '/guides/inference-cost-optimization', en: 'Keeping the AI triage bill low' },
       { id: 'guides/inference-cost-benchmark', link: '/guides/inference-cost-benchmark', en: 'What triage inference costs, measured' },
