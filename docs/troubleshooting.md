@@ -6,6 +6,7 @@ Symptom → diagnostic → fix. Runbook for the most common failure modes.
 |---|---|---|
 | `helm install soctalk-system` fails in pre-install hook | `kubectl logs -n soctalk-system job/<release>-preinstall-check` | Install the missing cluster prereq (CNI, cert-manager, StorageClass) per the [Install](/install#cluster-prerequisites) guide |
 | API pod `CrashLoopBackOff` on startup | `kubectl logs -n soctalk-system deploy/soctalk-system-api` | Most often: bad `DATABASE_URL` Secret, Postgres not ready yet, or Alembic migration failure. Check the Postgres pod first |
+| RHEL-family install times out on Helm while Postgres is `1/1 Running` | `sudo /usr/local/bin/k3s kubectl -n soctalk-system logs -l app.kubernetes.io/component=api -c db-init` shows `No route to host` | firewalld is dropping pod traffic on the flannel bridge. Apply the rules in the [RHEL package notes](/os-packages#firewalld); an install still waiting recovers on its own |
 | `helm install` succeeds but MSSP UI returns 502 | Ingress controller logs; verify ingress Service `endpoints` populated | OIDC proxy not deployed or not injecting trusted headers. Check trusted-proxy CIDR |
 | Tenant create returns 500 | API logs show `ProvisionError` | Usually `helm install tenant-*` failed. Check `helm status tenant-<slug>`. Namespace and resource-quota issues are most common |
 | Tenant stuck `provisioning` > 15 min | `kubectl -n tenant-<slug> get events --sort-by=.lastTimestamp` | See [Tenant stuck in provisioning](/operations#tenant-stuck-in-provisioning) in operations |
@@ -30,7 +31,7 @@ When escalating to support, collect:
 kubectl get all,events,networkpolicies,resourcequotas \
   -n soctalk-system -o yaml > soctalk-system.yaml
 kubectl -n soctalk-system logs deploy/soctalk-system-api --tail=500 > api.log
-# (V1 chart bundles the orchestrator into the API pod — no separate Deployment)
+# (V1 chart bundles the orchestrator into the API pod; no separate Deployment)
 
 # Specific tenant
 kubectl get all,events,networkpolicies,resourcequotas,limitranges \
