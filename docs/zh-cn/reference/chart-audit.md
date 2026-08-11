@@ -10,7 +10,7 @@
 | 上游 | 上游来源 | 目标版本 |
 |---|---|---|
 | Wazuh | `wazuh/wazuh-kubernetes` Helm chart（社区版）或官方 OCI chart | 支持单 manager HA 的最新稳定 4.x |
-| linux-ep | SocTalk L2 端点 agent 子 chart（组件键 `components.linuxep`） | `0.2.0` |
+| linux-ep | SocTalk L2 端点 agent 子 chart（组件键 `components.linuxep`） | `0.2.1` |
 | MISP | **推迟到后续版本** | |
 
 `soctalk-tenant` chart 恰好内置（vendor）两个子 chart：`wazuh` 和 `linux-ep`。对于每一个，我们都将其 manifest 模板（如有需要则附带补丁）以子 chart 依赖的形式内置于 `charts/soctalk-tenant/`：版本锁定是严格的。`Chart.yaml` 采用精确 semver，并在可用时（OCI）附带 digest。

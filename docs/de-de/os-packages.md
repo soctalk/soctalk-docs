@@ -30,8 +30,8 @@ systemd](#alpine-and-other-non-systemd-hosts) weiter unten. **openSUSE / zypper*
 vollständig zu. **Nur amd64**: es gibt kein arm64-Paket.
 
 Sie werden auf der Releases-Seite von [`soctalk/soctalk`](https://github.com/soctalk/soctalk/releases)
-veröffentlicht. Die aktuelle Version ist **v0.2.0**:
-[Release-Seite](https://github.com/soctalk/soctalk/releases/tag/v0.2.0). Das
+veröffentlicht. Die aktuelle Version ist **v0.2.1**:
+[Release-Seite](https://github.com/soctalk/soctalk/releases/tag/v0.2.1). Das
 Repository ist öffentlich, daher ist zum Herunterladen keine Authentifizierung erforderlich.
 
 ## Was das Paket installiert
@@ -55,18 +55,18 @@ direkt verwalten, und SocTalk in der System-Paketdatenbank registriert haben mö
 
 ## Das Paket installieren
 
-Wählen Sie den Block für Ihre Distribution. Ersetzen Sie `0.2.0` durch die aktuelle Version,
+Wählen Sie den Block für Ihre Distribution. Ersetzen Sie `0.2.1` durch die aktuelle Version,
 wenn Sie auf einem neueren Release sind.
 
 ### RHEL, Fedora, AlmaLinux, Rocky
 
 ```bash
-curl -fsSLO https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-0.2.0-1.x86_64.rpm
-sudo dnf install ./soctalk-0.2.0-1.x86_64.rpm
+curl -fsSLO https://github.com/soctalk/soctalk/releases/download/v0.2.1/soctalk-0.2.1-1.x86_64.rpm
+sudo dnf install ./soctalk-0.2.1-1.x86_64.rpm
 ```
 
 `dnf` zieht `curl` und `tar` nach, falls sie fehlen. Auf älteren Hosts verwenden Sie
-`sudo yum install ./soctalk-0.2.0-1.x86_64.rpm`.
+`sudo yum install ./soctalk-0.2.1-1.x86_64.rpm`.
 
 Einige RHEL-9-Images enthalten `curl-minimal` anstelle des vollständigen `curl`, was mit
 Paketen kollidieren kann, die `curl` namentlich voraussetzen. Hier kollidiert es nicht.
@@ -78,21 +78,23 @@ führt `Provides: curl`, sodass die Abhängigkeit ohne Austausch und ohne
 ### Debian, Ubuntu
 
 ```bash
-curl -fsSLO https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk_0.2.0_amd64.deb
-sudo apt install ./soctalk_0.2.0_amd64.deb
+curl -fsSLO https://github.com/soctalk/soctalk/releases/download/v0.2.1/soctalk_0.2.1_amd64.deb
+sudo apt install ./soctalk_0.2.1_amd64.deb
 ```
 
 `apt install ./file.deb` löst die `curl`- und `tar`-Abhängigkeiten aus Ihren
 konfigurierten Repositories auf. Auf einem minimalen Image ohne `apt` können Sie
-`sudo dpkg -i soctalk_0.2.0_amd64.deb && sudo apt-get -f install` verwenden.
+`sudo dpkg -i soctalk_0.2.1_amd64.deb && sudo apt-get -f install` verwenden.
 
 ## Den Download verifizieren
 
 Jedes Release enthält `SHA256SUMS.txt`, das alle Artefakte abdeckt, einschließlich der
 Pakete.
 
+**Hinweis:** `SHA256SUMS.txt` deckt derzeit **nur die VM-Images** ab — `.deb` und `.rpm` sind nicht enthalten ([soctalk#148](https://github.com/soctalk/soctalk/issues/148)). `--ignore-missing` lässt das wie einen Erfolg aussehen: Ist nur das Paket heruntergeladen, überspringt es alle Einträge und endet trotzdem mit 0.
+
 ```bash
-curl -fsSLO https://github.com/soctalk/soctalk/releases/download/v0.2.0/SHA256SUMS.txt
+curl -fsSLO https://github.com/soctalk/soctalk/releases/download/v0.2.1/SHA256SUMS.txt
 sha256sum -c SHA256SUMS.txt --ignore-missing
 ```
 
@@ -133,7 +135,7 @@ sudo -E soctalk install
 Wenn `SOCTALK_MSSP_NAME`, `SOCTALK_ADMIN_EMAIL` und `SOCTALK_ADMIN_PASSWORD`
 alle gesetzt sind, überspringt der Installer seine Zustimmungsabfrage, sodass dies ohne jegliche
 Interaktion läuft. Jedes Argument nach `install` wird an den Installer durchgereicht, zum
-Beispiel `soctalk install --chart-version 0.2.0`, um ein Chart zu pinnen, oder
+Beispiel `soctalk install --chart-version 0.2.1`, um ein Chart zu pinnen, oder
 `soctalk install --values-file /etc/soctalk/values.yaml` für eine Air-Gap-Installation.
 Siehe [Produktionsinstallation](/de-de/install) für die vollständige Flag-Referenz und den
 Cilium-basierten Cluster-Pfad.

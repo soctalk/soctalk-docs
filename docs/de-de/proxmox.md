@@ -15,7 +15,7 @@ Dieser Weg richtet sich an **Evaluatoren und Demos**: für eine Produktivinstall
 Per SSH auf den Proxmox-Node verbinden:
 
 ```bash
-VER=<ver>   # z. B. 0.2.0
+VER=<ver>   # z. B. 0.2.1
 curl -L -O https://github.com/soctalk/soctalk/releases/latest/download/soctalk-demo-$VER.qcow2.xz
 curl -L -O https://github.com/soctalk/soctalk/releases/latest/download/SHA256SUMS.txt
 sha256sum -c SHA256SUMS.txt --ignore-missing

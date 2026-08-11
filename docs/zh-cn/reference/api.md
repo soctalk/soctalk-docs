@@ -34,7 +34,7 @@ npm run gen:api
 
 <!-- BEGIN GENERATED:endpoints (do not edit — npm run gen:api) -->
 
-_146 operations across 33 groups, generated from the OpenAPI schema (API version `0.2.0`). Auth is derived from the route's `require_role` / `require_tenant_role` guards._
+_146 operations across 33 groups, generated from the OpenAPI schema (API version `0.2.1`). Auth is derived from the route's `require_role` / `require_tenant_role` guards._
 
 ### `auth`
 

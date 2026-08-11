@@ -26,8 +26,8 @@ SocTalk 主机本身需要通常的资源占用：基于 systemd 的 Linux（Ubu
 从[发布页面](https://github.com/soctalk/soctalk/releases)下载对应你发行版的软件包并安装；完整的规格矩阵见[从 OS 软件包安装](/zh-cn/os-packages)。
 
 ```bash
-curl -LO https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk_0.2.0_amd64.deb
-sudo apt-get install -y ./soctalk_0.2.0_amd64.deb
+curl -LO https://github.com/soctalk/soctalk/releases/download/v0.2.1/soctalk_0.2.1_amd64.deb
+sudo apt-get install -y ./soctalk_0.2.1_amd64.deb
 ```
 
 软件包在 `/etc/soctalk/soctalk.env.example` 提供了一个环境变量模板。复制它，填入你的 MSSP 身份、管理员凭据、主机名和 LLM 密钥，并保持仅 root 可读：
@@ -172,6 +172,6 @@ curl -sk -u '<indexer-user>:<indexer-password>' https://<host>:<port>/
 
 下面两条注意事项都在 v0.2.0 上得到验证，并在其之后的发布版本中修复，因此在更新的构建上你可以跳过这些变通办法。请查阅你所用版本的发布说明。
 
-- **触达外部 Wazuh 的富化（仅 v0.2.0）。**在 v0.2.0 上，runs-worker 的 Wazuh MCP 工具未接入 provided 租户的 manager API，因此分诊只在告警负载本身之上运行，无法实时下钻到代理状态或日志历史。已在 v0.2.0 之后修复（[soctalk#109](https://github.com/soctalk/soctalk/issues/109)）：worker 现在会把捆绑的 `mcp-server-wazuh` MCP 服务器连接到租户自己的 Wazuh，因此分诊图在调查过程中会像 SocTalk 托管租户那样查询代理、进程、端口、漏洞和 manager 日志。
+- **触达外部 Wazuh 的富化（仅 v0.2.0）。**在 v0.2.0 上，runs-worker 的 Wazuh MCP 工具未接入 provided 租户的 manager API，因此分诊只在告警负载本身之上运行，无法实时下钻到代理状态或日志历史。已在 v0.2.0 之后修复（[soctalk#109](https://github.com/soctalk/soctalk/issues/109)）：worker 现在会把捆绑的 `mcp-server-wazuh` MCP 服务器连接到租户自己的 Wazuh，因此分诊图在调查过程中会像 SocTalk 托管租户那样查询代理、进程、端口、漏洞和 manager 日志。 **已在 v0.2.1 中修复** ([soctalk#147](https://github.com/soctalk/soctalk/issues/147))：端口从你提供的 URL 中读取，任意端口均可使用。
 - **在原生 flannel 安装上的预配（仅 v0.2.0）。**即前文描述的 Cilium 出站策略问题及其网络策略变通办法。已在 v0.2.0 之后修复（[soctalk#107](https://github.com/soctalk/soctalk/issues/107)）。
-- **非标准 SIEM 端口（v0.2.1 及之前）。** 租户的出向 NetworkPolicy 会从你提供的 URL 中解析外部 SIEM 的*主机*，但把*端口*固定为 9200 和 55000。若你的 Wazuh 通过其他端口暴露，流量会在网络层被丢弃，而租户仍会进入 `active`、凭据 Secret 正常写入、adapter 心跳也正常，唯一的症状是 adapter 日志中的 `ingest_failed: All connection attempts failed`。在同一集群上仅改变端口进行了验证：以 NodePort `:31437` 暴露的 indexer 始终无法连接，而同一个 Wazuh 在 `:9200` 上则连接并完成认证。在修复 ([soctalk#147](https://github.com/soctalk/soctalk/issues/147)) 发布之前，请将 indexer 与 Manager API 以 9200 和 55000 端口暴露给 SocTalk。修复之后，端口将从你提供的 URL 中读取，任意端口均可使用。
+- **非标准 SIEM 端口（仅 v0.2.0）。** 租户的出向 NetworkPolicy 会从你提供的 URL 中解析外部 SIEM 的*主机*，但把*端口*固定为 9200 和 55000。若你的 Wazuh 通过其他端口暴露，流量会在网络层被丢弃，而租户仍会进入 `active`、凭据 Secret 正常写入、adapter 心跳也正常，唯一的症状是 adapter 日志中的 `ingest_failed: All connection attempts failed`。在同一集群上仅改变端口进行了验证：以 NodePort `:31437` 暴露的 indexer 始终无法连接，而同一个 Wazuh 在 `:9200` 上则连接并完成认证。在修复 ([soctalk#147](https://github.com/soctalk/soctalk/issues/147)) 发布之前，请将 indexer 与 Manager API 以 9200 和 55000 端口暴露给 SocTalk。修复之后，端口将从你提供的 URL 中读取，任意端口均可使用。

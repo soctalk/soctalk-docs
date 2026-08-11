@@ -147,7 +147,8 @@ install:
 
 image:
   registry: ghcr.io/soctalk
-  tag: "0.2.0"
+  # image.tag weglassen: das Chart nutzt standardmäßig seine eigene Version,
+  # das kann also nicht veralten. Nur setzen, um bewusst abzuweichen.
 
 ingress:
   enabled: true
@@ -197,7 +198,7 @@ install:
 
 ```bash
 helm install soctalk-system oci://ghcr.io/soctalk/charts/soctalk-system \
-  --version 0.2.0 \
+  --version 0.2.1 \
   --namespace soctalk-system --create-namespace \
   -f soctalk-system-values.yaml
 ```

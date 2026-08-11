@@ -12,7 +12,7 @@ If you want SocTalk to deploy and manage Wazuh for you instead, that is the `poc
 
 ## What you need before starting
 
-Your existing Wazuh must be reachable from the SocTalk host on two ports: the indexer's OpenSearch API (`:9200`) and the manager's REST API (`:55000`). Through v0.2.1 those are the **only** ports supported: the tenant's egress NetworkPolicy opens exactly 9200 and 55000, so a Wazuh republished on a different port (behind a NodePort, a load balancer, or a reverse proxy) is blocked before the connection is made, even though everything else reports healthy. Publish your indexer and manager API on their standard ports to SocTalk, or see [Current limitations](#current-limitations). SocTalk authenticates to each separately, so have both credential pairs ready:
+Your existing Wazuh must be reachable from the SocTalk host on two ports: the indexer's OpenSearch API (`:9200`) and the manager's REST API (`:55000`). Those are the defaults, and on **v0.2.0 they were the only ports that worked**: the tenant's egress NetworkPolicy opened exactly 9200 and 55000, so a Wazuh republished on a different port (behind a NodePort, a load balancer, or a reverse proxy) was blocked before the connection was made, even though everything else reported healthy. **Fixed in v0.2.1** ([soctalk#147](https://github.com/soctalk/soctalk/issues/147)): the egress ports are now derived from the URLs you supply, so any port works. On v0.2.0, publish your indexer and manager API on their standard ports. SocTalk authenticates to each separately, so have both credential pairs ready:
 
 - an indexer user allowed to search `wazuh-alerts-*` (the built-in `admin` works, though a read-only user is better practice),
 - a manager API user such as the built-in `wazuh-wui`.
@@ -26,8 +26,8 @@ The SocTalk host itself needs the usual footprint: a systemd-based Linux (Ubuntu
 Download the package for your distro from the [releases page](https://github.com/soctalk/soctalk/releases) and install it; the full flavor matrix is on [Install from an OS package](/os-packages).
 
 ```bash
-curl -LO https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk_0.2.0_amd64.deb
-sudo apt-get install -y ./soctalk_0.2.0_amd64.deb
+curl -LO https://github.com/soctalk/soctalk/releases/download/v0.2.1/soctalk_0.2.1_amd64.deb
+sudo apt-get install -y ./soctalk_0.2.1_amd64.deb
 ```
 
 The package ships an environment template at `/etc/soctalk/soctalk.env.example`. Copy it, fill in your MSSP identity, admin credentials, hostname, and LLM key, and keep it root-only:
@@ -136,7 +136,7 @@ The tenant detail page shows the same thing without reading logs. The External S
 
 ![The Orion Labs tenant detail page: profile provided, state active, an External SIEM panel with the indexer and API URLs, and an Adapter ingest status of reachable with three alerts forwarded](/screenshots/existing-wazuh-tenant-detail.png)
 
-The failure modes are easy to tell apart from that one log line. A 401 means the indexer credentials are wrong, and note the connection itself succeeded. A TLS error means `verify_ssl` does not match your certificate situation. `ingest_failed: All connection attempts failed` means nothing reached the indexer at all: the host is unreachable, or, through v0.2.1, your Wazuh is published on a port other than 9200/55000 and the tenant egress policy dropped it.
+The failure modes are easy to tell apart from that one log line. A 401 means the indexer credentials are wrong, and note the connection itself succeeded. A TLS error means `verify_ssl` does not match your certificate situation. `ingest_failed: All connection attempts failed` means nothing reached the indexer at all: the host is unreachable, or — on v0.2.0 only — your Wazuh is published on a port other than 9200/55000 and the tenant egress policy dropped it.
 
 One caveat if you republish your indexer on a different address or port to reach SocTalk, for example through a NodePort, a port-forward, or a reverse proxy. Test the credentials **through the exact URL you are going to configure**, not against the indexer's own `:9200`. On a lab rig built that way we saw the same indexer, the same pods and the same credentials answer `200` on `:9200` and `401` through the republished port, reproducible with plain `curl` from the host and therefore nothing to do with SocTalk. We did not chase the cause; the practical lesson is that the republished path is its own thing and deserves its own check:
 
@@ -173,4 +173,4 @@ The caveats below were verified on the versions noted. Check the release notes f
 
 - **Enrichment reaching the external Wazuh (v0.2.0 only).** On v0.2.0 the runs-worker's Wazuh MCP tooling was not wired to a provided tenant's manager API, so triage ran on the alert payload alone, without live pivots into agent state or log history. Fixed after v0.2.0 ([soctalk#109](https://github.com/soctalk/soctalk/issues/109)): the worker now connects the bundled `mcp-server-wazuh` MCP server to the tenant's own Wazuh, so the triage graph queries agents, processes, ports, vulnerabilities, and manager logs during an investigation the same way a SocTalk-managed tenant does.
 - **Provisioning on a stock flannel install (v0.2.0 only).** The Cilium egress policy issue described earlier, with its network-policy workaround. Fixed after v0.2.0 ([soctalk#107](https://github.com/soctalk/soctalk/issues/107)).
-- **Non-standard SIEM ports (through v0.2.1).** The tenant egress NetworkPolicy derives the external SIEM *host* from the URLs you supply but pins the *ports* to 9200 and 55000. A Wazuh reachable on anything else is dropped at the network layer while the tenant still reaches `active`, the credentials Secret is written, and the adapter heartbeats normally, so the only symptom is `ingest_failed: All connection attempts failed` in the adapter log. Verified side by side on one cluster with the ports as the only variable: a NodePort-published indexer on `:31437` never connected, while the same Wazuh on `:9200` connected and authenticated. Until the fix ships ([soctalk#147](https://github.com/soctalk/soctalk/issues/147)), expose your indexer and manager API to SocTalk on 9200 and 55000. After it, the ports are read from the URLs you supply and any port works.
+- **Non-standard SIEM ports (v0.2.0 only).** The tenant egress NetworkPolicy derived the external SIEM *host* from the URLs you supplied but pinned the *ports* to 9200 and 55000, so a Wazuh reachable on anything else was dropped at the network layer while the tenant still reached `active`, the credentials Secret was written and the adapter heartbeated normally — the only symptom being `ingest_failed: All connection attempts failed`. Verified side by side on one cluster with the ports as the only variable. **Fixed in v0.2.1** ([soctalk#147](https://github.com/soctalk/soctalk/issues/147)): the ports are read from the URLs you supply and any port works, including through a NodePort, load balancer or reverse proxy.

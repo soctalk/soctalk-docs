@@ -6,23 +6,23 @@ All images are the same Ubuntu 24.04 + K3s + setup wizard build, just converted 
 
 ## Latest release
 
-Current version: **v0.2.0**: [release page](https://github.com/soctalk/soctalk/releases/tag/v0.2.0) · [all releases](https://github.com/soctalk/soctalk/releases)
+Current version: **v0.2.1**: [release page](https://github.com/soctalk/soctalk/releases/tag/v0.2.1) · [all releases](https://github.com/soctalk/soctalk/releases)
 
 The release includes:
 
-- [`soctalk-demo-0.2.0.qcow2.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.qcow2.xz), KVM, QEMU, libvirt, Proxmox
-- [`soctalk-demo-0.2.0.vmdk.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.vmdk.xz), VMware ESXi, Workstation, Fusion, VirtualBox
-- [`soctalk-demo-0.2.0.vhdx.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.vhdx.xz), Microsoft Hyper-V (Generation 1)
-- [`soctalk-demo-0.2.0.vhd.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.vhd.xz), Microsoft Azure (fixed-size, 1 MiB aligned)
-- [`soctalk-demo-0.2.0.raw.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.raw.xz), generic cloud import (GCP, OpenStack), `dd` to physical disk
-- [`SHA256SUMS.txt`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/SHA256SUMS.txt), checksums for all of the above
+- [`soctalk-demo-0.2.1.qcow2.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.1/soctalk-demo-0.2.1.qcow2.xz), KVM, QEMU, libvirt, Proxmox
+- [`soctalk-demo-0.2.1.vmdk.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.1/soctalk-demo-0.2.1.vmdk.xz), VMware ESXi, Workstation, Fusion, VirtualBox
+- [`soctalk-demo-0.2.1.vhdx.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.1/soctalk-demo-0.2.1.vhdx.xz), Microsoft Hyper-V (Generation 1)
+- [`soctalk-demo-0.2.1.vhd.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.1/soctalk-demo-0.2.1.vhd.xz), Microsoft Azure (fixed-size, 1 MiB aligned)
+- [`soctalk-demo-0.2.1.raw.xz`](https://github.com/soctalk/soctalk/releases/download/v0.2.1/soctalk-demo-0.2.1.raw.xz), generic cloud import (GCP, OpenStack), `dd` to physical disk
+- [`SHA256SUMS.txt`](https://github.com/soctalk/soctalk/releases/download/v0.2.1/SHA256SUMS.txt), checksums for all of the above
 
 All disk images are compressed with `xz -9`. Decompress with `xz -d <file>.xz`.
 
 The same release also carries a one-step VMware OVA and the native OS packages:
 
-- [`soctalk-demo-0.2.0.ova`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.ova), VMware ESXi / vSphere one-step "Deploy OVF Template". See [Run on VMware ESXi](/vmware)
-- [`soctalk-0.2.0-1.x86_64.rpm`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-0.2.0-1.x86_64.rpm) · [`soctalk_0.2.0_amd64.deb`](https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk_0.2.0_amd64.deb), the `soctalk` CLI + installer for dnf/apt hosts. See [Install from an OS package](/os-packages)
+- [`soctalk-demo-0.2.1.ova`](https://github.com/soctalk/soctalk/releases/download/v0.2.1/soctalk-demo-0.2.1.ova), VMware ESXi / vSphere one-step "Deploy OVF Template". See [Run on VMware ESXi](/vmware)
+- [`soctalk-0.2.1-1.x86_64.rpm`](https://github.com/soctalk/soctalk/releases/download/v0.2.1/soctalk-0.2.1-1.x86_64.rpm) · [`soctalk_0.2.1_amd64.deb`](https://github.com/soctalk/soctalk/releases/download/v0.2.1/soctalk_0.2.1_amd64.deb), the `soctalk` CLI + installer for dnf/apt hosts. See [Install from an OS package](/os-packages)
 
 ## Format chooser
 
@@ -44,8 +44,8 @@ The same release also carries a one-step VMware OVA and the native OS packages:
 ## Verify the download
 
 ```bash
-curl -L -O https://github.com/soctalk/soctalk/releases/download/v0.2.0/SHA256SUMS.txt
-curl -L -O https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-demo-0.2.0.qcow2.xz
+curl -L -O https://github.com/soctalk/soctalk/releases/download/v0.2.1/SHA256SUMS.txt
+curl -L -O https://github.com/soctalk/soctalk/releases/download/v0.2.1/soctalk-demo-0.2.1.qcow2.xz
 sha256sum -c SHA256SUMS.txt --ignore-missing
 ```
 
@@ -75,7 +75,7 @@ Builds in ~1 minute on a modern host with KVM acceleration. Outputs land in `bui
 `build-packer-images.yml` is `workflow_dispatch`-only; Packer builds aren't fired on every push because they're slow and consume runner minutes. Fire intentionally for a new release:
 
 ```bash
-gh workflow run build-packer-images.yml -f version=0.2.0
+gh workflow run build-packer-images.yml -f version=0.2.1
 ```
 
 The workflow runs:

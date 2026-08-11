@@ -5913,7 +5913,7 @@
   "info": {
     "description": "MSSP-deployed SOC control plane. See docs/multi-tenant/ for architecture.",
     "title": "SocTalk V1",
-    "version": "0.2.0"
+    "version": "0.2.1"
   },
   "openapi": "3.1.0",
   "paths": {

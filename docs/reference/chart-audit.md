@@ -10,7 +10,7 @@ Charts to audit:
 | Upstream | Upstream source | Target version |
 |---|---|---|
 | Wazuh | `wazuh/wazuh-kubernetes` Helm chart (community) or official OCI chart | Latest stable 4.x supporting single-manager HA |
-| linux-ep | SocTalk L2 endpoint-agent subchart (component key `components.linuxep`) | `0.2.0` |
+| linux-ep | SocTalk L2 endpoint-agent subchart (component key `components.linuxep`) | `0.2.1` |
 | MISP | **deferred a future release** | |
 
 The `soctalk-tenant` chart vendors exactly two subcharts, `wazuh` and `linux-ep`. For each we vendor the manifest templates (with patches if needed) as subchart dependencies of `charts/soctalk-tenant/`: Version pinning is strict. `Chart.yaml` uses exact semver with digest (OCI) where available.

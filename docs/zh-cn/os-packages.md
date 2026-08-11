@@ -27,8 +27,8 @@ Enforcing 模式的全新 VM 上进行。仅控制平面的安装拉起了 `api`
 没有 arm64 软件包。
 
 它们发布于 [`soctalk/soctalk`](https://github.com/soctalk/soctalk/releases)
-的发布页面。当前版本为 **v0.2.0**：
-[发布页面](https://github.com/soctalk/soctalk/releases/tag/v0.2.0)。该
+的发布页面。当前版本为 **v0.2.1**：
+[发布页面](https://github.com/soctalk/soctalk/releases/tag/v0.2.1)。该
 仓库为公开仓库，因此无需身份验证即可下载。
 
 ## 软件包安装了什么
@@ -52,18 +52,18 @@ Enforcing 模式的全新 VM 上进行。仅控制平面的安装拉起了 `api`
 
 ## 安装软件包
 
-选择适合你发行版的代码块。如果你使用的是更新的版本，请将 `0.2.0`
+选择适合你发行版的代码块。如果你使用的是更新的版本，请将 `0.2.1`
 替换为当前版本。
 
 ### RHEL、Fedora、AlmaLinux、Rocky
 
 ```bash
-curl -fsSLO https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk-0.2.0-1.x86_64.rpm
-sudo dnf install ./soctalk-0.2.0-1.x86_64.rpm
+curl -fsSLO https://github.com/soctalk/soctalk/releases/download/v0.2.1/soctalk-0.2.1-1.x86_64.rpm
+sudo dnf install ./soctalk-0.2.1-1.x86_64.rpm
 ```
 
 `dnf` 会在 `curl` 和 `tar` 缺失时自动拉取。在较旧的主机上请使用
-`sudo yum install ./soctalk-0.2.0-1.x86_64.rpm`。
+`sudo yum install ./soctalk-0.2.1-1.x86_64.rpm`。
 
 部分 RHEL 9 镜像以 `curl-minimal` 取代完整的 `curl`，这可能与按名称要求
 `curl` 的软件包发生冲突。在这里不会发生冲突。在用于验证的 Rocky Linux 9.8
@@ -74,20 +74,22 @@ sudo dnf install ./soctalk-0.2.0-1.x86_64.rpm
 ### Debian、Ubuntu
 
 ```bash
-curl -fsSLO https://github.com/soctalk/soctalk/releases/download/v0.2.0/soctalk_0.2.0_amd64.deb
-sudo apt install ./soctalk_0.2.0_amd64.deb
+curl -fsSLO https://github.com/soctalk/soctalk/releases/download/v0.2.1/soctalk_0.2.1_amd64.deb
+sudo apt install ./soctalk_0.2.1_amd64.deb
 ```
 
 `apt install ./file.deb` 会从你配置的仓库中解析 `curl` 和 `tar`
 依赖。在没有 `apt` 的最小化镜像上，你可以使用
-`sudo dpkg -i soctalk_0.2.0_amd64.deb && sudo apt-get -f install`。
+`sudo dpkg -i soctalk_0.2.1_amd64.deb && sudo apt-get -f install`。
 
 ## 校验下载
 
 每个版本都包含 `SHA256SUMS.txt`，覆盖所有制品，包括软件包在内。
 
+**注意：** `SHA256SUMS.txt` 目前**只覆盖 VM 镜像**，不包含 `.deb` 和 `.rpm` ([soctalk#148](https://github.com/soctalk/soctalk/issues/148))。`--ignore-missing` 会让这种失败看起来像成功：如果你只下载了软件包，它会跳过所有条目并仍以 0 退出。
+
 ```bash
-curl -fsSLO https://github.com/soctalk/soctalk/releases/download/v0.2.0/SHA256SUMS.txt
+curl -fsSLO https://github.com/soctalk/soctalk/releases/download/v0.2.1/SHA256SUMS.txt
 sha256sum -c SHA256SUMS.txt --ignore-missing
 ```
 
@@ -127,7 +129,7 @@ sudo -E soctalk install
 当 `SOCTALK_MSSP_NAME`、`SOCTALK_ADMIN_EMAIL` 和 `SOCTALK_ADMIN_PASSWORD`
 全部设置后，安装程序会跳过其同意提示，因此这会在无需任何
 交互的情况下运行。`install` 之后的任何参数都会透传给安装程序，例如
-`soctalk install --chart-version 0.2.0` 用于固定某个 chart，或
+`soctalk install --chart-version 0.2.1` 用于固定某个 chart，或
 `soctalk install --values-file /etc/soctalk/values.yaml` 用于隔离网络（air-gapped）
 安装。完整的标志参考以及基于 Cilium 的集群路径请参见[生产环境安装](/zh-cn/install)。
 

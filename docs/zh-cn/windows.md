@@ -49,7 +49,7 @@ PowerShell 安装程序会引导 WSL2，然后运行与 Linux 设备镜像**相�
 # inside the WSL2 Ubuntu distro, as root:
 curl -sfL https://get.k3s.io | sh -          # k3s as a systemd service
 helm upgrade --install soctalk-system \
-  oci://ghcr.io/soctalk/charts/soctalk-system --version 0.2.0 \
+  oci://ghcr.io/soctalk/charts/soctalk-system --version 0.2.1 \
   --namespace soctalk-system --create-namespace -f values.yaml
 ```
 
