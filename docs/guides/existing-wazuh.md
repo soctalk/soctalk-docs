@@ -12,7 +12,7 @@ If you want SocTalk to deploy and manage Wazuh for you instead, that is the `poc
 
 ## What you need before starting
 
-Your existing Wazuh must be reachable from the SocTalk host on two ports: the indexer's OpenSearch API (`:9200`) and the manager's REST API (`:55000`). SocTalk authenticates to each separately, so have both credential pairs ready:
+Your existing Wazuh must be reachable from the SocTalk host on two ports: the indexer's OpenSearch API (`:9200`) and the manager's REST API (`:55000`). Through v0.2.1 those are the **only** ports supported: the tenant's egress NetworkPolicy opens exactly 9200 and 55000, so a Wazuh republished on a different port (behind a NodePort, a load balancer, or a reverse proxy) is blocked before the connection is made, even though everything else reports healthy. Publish your indexer and manager API on their standard ports to SocTalk, or see [Current limitations](#current-limitations). SocTalk authenticates to each separately, so have both credential pairs ready:
 
 - an indexer user allowed to search `wazuh-alerts-*` (the built-in `admin` works, though a read-only user is better practice),
 - a manager API user such as the built-in `wazuh-wui`.
@@ -136,7 +136,7 @@ The tenant detail page shows the same thing without reading logs. The External S
 
 ![The Orion Labs tenant detail page: profile provided, state active, an External SIEM panel with the indexer and API URLs, and an Adapter ingest status of reachable with three alerts forwarded](/screenshots/existing-wazuh-tenant-detail.png)
 
-A 401 in the adapter log means the indexer credentials are wrong; a TLS error means `verify_ssl` does not match your certificate situation; a timeout means the SocTalk host cannot reach the indexer port.
+The failure modes are easy to tell apart from that one log line. A 401 means the indexer credentials are wrong, and note the connection itself succeeded. A TLS error means `verify_ssl` does not match your certificate situation. `ingest_failed: All connection attempts failed` means nothing reached the indexer at all: the host is unreachable, or, through v0.2.1, your Wazuh is published on a port other than 9200/55000 and the tenant egress policy dropped it.
 
 Credentials rotate without re-onboarding. `PATCH /api/mssp/tenants/{id}/external-siem` takes any subset of the onboard fields, rewrites the Secret, and rolls the adapter pod so it picks up the fresh material:
 
@@ -160,7 +160,8 @@ Each row carries the AI verdict and opens the full investigation, so an analyst 
 
 ## Current limitations
 
-Both caveats below were verified on v0.2.0 and are fixed in the release after it, so on a newer build you can skip the workarounds. Check the release notes for your version.
+The caveats below were verified on the versions noted. Check the release notes for your version before applying a workaround.
 
 - **Enrichment reaching the external Wazuh (v0.2.0 only).** On v0.2.0 the runs-worker's Wazuh MCP tooling was not wired to a provided tenant's manager API, so triage ran on the alert payload alone, without live pivots into agent state or log history. Fixed after v0.2.0 ([soctalk#109](https://github.com/soctalk/soctalk/issues/109)): the worker now connects the bundled `mcp-server-wazuh` MCP server to the tenant's own Wazuh, so the triage graph queries agents, processes, ports, vulnerabilities, and manager logs during an investigation the same way a SocTalk-managed tenant does.
 - **Provisioning on a stock flannel install (v0.2.0 only).** The Cilium egress policy issue described earlier, with its network-policy workaround. Fixed after v0.2.0 ([soctalk#107](https://github.com/soctalk/soctalk/issues/107)).
+- **Non-standard SIEM ports (through v0.2.1).** The tenant egress NetworkPolicy derives the external SIEM *host* from the URLs you supply but pins the *ports* to 9200 and 55000. A Wazuh reachable on anything else is dropped at the network layer while the tenant still reaches `active`, the credentials Secret is written, and the adapter heartbeats normally, so the only symptom is `ingest_failed: All connection attempts failed` in the adapter log. Verified side by side on one cluster with the ports as the only variable: a NodePort-published indexer on `:31437` never connected, while the same Wazuh on `:9200` connected and authenticated. Until the fix ships ([soctalk#147](https://github.com/soctalk/soctalk/issues/147)), expose your indexer and manager API to SocTalk on 9200 and 55000. After it, the ports are read from the URLs you supply and any port works.
