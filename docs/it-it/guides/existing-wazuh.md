@@ -158,6 +158,16 @@ Nella run verificata, un alert SSH brute-force-then-success è passato da docume
 
 Ogni riga porta il verdetto dell'AI e apre l'indagine completa, così un analista conferma o corregge sulla base delle evidenze invece di avviare da sé il triage.
 
+
+Un avvertimento se ripubblichi l'indexer su un indirizzo o una porta diversi per raggiungere SocTalk, ad esempio tramite NodePort, port-forward o reverse proxy. Verifica le credenziali **attraverso l'URL esatto che configurerai**, non contro la `:9200` dell'indexer. Su un banco di prova costruito così abbiamo visto lo stesso indexer, gli stessi pod e le stesse credenziali rispondere `200` su `:9200` e `401` attraverso la porta ripubblicata, riproducibile con un semplice `curl` dall'host e quindi del tutto estraneo a SocTalk. Non ne abbiamo cercato la causa; la lezione pratica è che il percorso ripubblicato è una cosa a sé e va verificato a parte:
+
+```bash
+curl -sk -u '<indexer-user>:<indexer-password>' https://<host>:<port>/
+```
+
+
+Se restituisce 401 mentre la porta propria dell'indexer restituisce 200, correggi l'esposizione prima dell'onboarding: SocTalk riprodurrà fedelmente il 401.
+
 ## Limitazioni attuali
 
 Entrambi i caveat qui sotto sono stati verificati su v0.2.0 e sono risolti nella release successiva, quindi su una build più recente puoi saltare le soluzioni alternative. Controlla le note di rilascio della tua versione.

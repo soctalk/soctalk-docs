@@ -138,6 +138,15 @@ The tenant detail page shows the same thing without reading logs. The External S
 
 The failure modes are easy to tell apart from that one log line. A 401 means the indexer credentials are wrong, and note the connection itself succeeded. A TLS error means `verify_ssl` does not match your certificate situation. `ingest_failed: All connection attempts failed` means nothing reached the indexer at all: the host is unreachable, or, through v0.2.1, your Wazuh is published on a port other than 9200/55000 and the tenant egress policy dropped it.
 
+One caveat if you republish your indexer on a different address or port to reach SocTalk, for example through a NodePort, a port-forward, or a reverse proxy. Test the credentials **through the exact URL you are going to configure**, not against the indexer's own `:9200`. On a lab rig built that way we saw the same indexer, the same pods and the same credentials answer `200` on `:9200` and `401` through the republished port, reproducible with plain `curl` from the host and therefore nothing to do with SocTalk. We did not chase the cause; the practical lesson is that the republished path is its own thing and deserves its own check:
+
+```bash
+# must return 200 for the URL you will put in the onboard payload
+curl -sk -u '<indexer-user>:<indexer-password>' https://<host>:<port>/
+```
+
+If that returns 401 while the indexer's own port returns 200, fix the exposure before onboarding — SocTalk will faithfully reproduce the 401.
+
 Credentials rotate without re-onboarding. `PATCH /api/mssp/tenants/{id}/external-siem` takes any subset of the onboard fields, rewrites the Secret, and rolls the adapter pod so it picks up the fresh material:
 
 ```bash

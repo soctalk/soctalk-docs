@@ -158,6 +158,16 @@ En la corrida verificada, una alerta de fuerza bruta SSH seguida de éxito fue d
 
 Cada fila lleva el veredicto de la AI y abre la investigación completa, de modo que un analista confirma o anula sobre la evidencia en lugar de iniciar el triaje por su cuenta.
 
+
+Una advertencia si republicas el indexer en otra dirección o puerto para que SocTalk lo alcance, por ejemplo mediante NodePort, port-forward o un proxy inverso. Prueba las credenciales **a través de la URL exacta que vas a configurar**, no contra el `:9200` propio del indexer. En un banco de pruebas armado así vimos el mismo indexer, los mismos pods y las mismas credenciales responder `200` en `:9200` y `401` a través del puerto republicado, reproducible con un `curl` simple desde el host y por lo tanto ajeno a SocTalk. No investigamos la causa; la lección práctica es que la ruta republicada es algo aparte y merece su propia comprobación:
+
+```bash
+curl -sk -u '<indexer-user>:<indexer-password>' https://<host>:<port>/
+```
+
+
+Si devuelve 401 mientras el puerto propio del indexer devuelve 200, corrige la exposición antes del onboarding: SocTalk reproducirá fielmente ese 401.
+
 ## Limitaciones actuales
 
 Ambas salvedades a continuación fueron verificadas en v0.2.0 y están corregidas en el release posterior, así que en un build más nuevo puede saltarse las soluciones alternativas. Consulte las notas del release para su versión.

@@ -158,6 +158,16 @@ Auf dem verifizierten Lauf ging eine SSH-Brute-Force-dann-Erfolg-Warnung in etwa
 
 Jede Zeile trägt das KI-Verdikt und öffnet die vollständige Untersuchung, sodass ein Analyst anhand der Evidenz bestätigt oder überstimmt, statt die Triage selbst zu beginnen.
 
+
+Ein Hinweis, falls Sie Ihren Indexer unter einer anderen Adresse oder einem anderen Port veröffentlichen, damit SocTalk ihn erreicht, etwa über einen NodePort, ein Port-Forward oder einen Reverse Proxy. Testen Sie die Zugangsdaten **über genau die URL, die Sie konfigurieren werden**, nicht gegen den eigenen `:9200` des Indexers. Auf einem so aufgebauten Prüfstand antworteten derselbe Indexer, dieselben Pods und dieselben Zugangsdaten mit `200` auf `:9200` und mit `401` über den neu veröffentlichten Port — mit einem einfachen `curl` vom Host reproduzierbar und damit unabhängig von SocTalk. Wir sind der Ursache nicht nachgegangen; die praktische Lehre ist, dass der neu veröffentlichte Pfad eine eigene Sache ist und eine eigene Prüfung verdient:
+
+```bash
+curl -sk -u '<indexer-user>:<indexer-password>' https://<host>:<port>/
+```
+
+
+Gibt das 401 zurück, während der eigene Port des Indexers 200 liefert, korrigieren Sie die Veröffentlichung vor dem Onboarding: SocTalk gibt den 401 getreu wieder.
+
 ## Aktuelle Einschränkungen
 
 Beide Vorbehalte unten wurden auf v0.2.0 verifiziert und sind im darauffolgenden Release behoben, auf einem neueren Build können Sie die Workarounds also überspringen. Prüfen Sie die Release Notes für Ihre Version.

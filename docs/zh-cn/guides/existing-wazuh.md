@@ -158,6 +158,16 @@ curl -sk -b cookies.txt -H "Origin: https://<your-host>" -H "Content-Type: appli
 
 每一行都携带 AI 裁决，并可展开完整的调查，因此分析师是在证据基础上确认或推翻，而不是自己从头开始分诊。
 
+
+如果你为了让 SocTalk 访问而把 indexer 重新发布到其他地址或端口（例如通过 NodePort、port-forward 或反向代理），请注意一点：请**用你将要配置的那个确切 URL** 测试凭据，而不是直接测试 indexer 自身的 `:9200`。在这样搭建的实验环境中，我们看到同一个 indexer、同一批 Pod、同一组凭据在 `:9200` 上返回 `200`，而通过重新发布的端口返回 `401`；在宿主机上用普通 `curl` 即可复现，因此与 SocTalk 无关。我们没有深究原因；实际的经验是：重新发布的这条路径自成一体，需要单独验证：
+
+```bash
+curl -sk -u '<indexer-user>:<indexer-password>' https://<host>:<port>/
+```
+
+
+如果它返回 401 而 indexer 自身端口返回 200，请在 onboarding 之前修正暴露方式：SocTalk 会如实地把这个 401 反映出来。
+
 ## 当前限制
 
 下面两条注意事项都在 v0.2.0 上得到验证，并在其之后的发布版本中修复，因此在更新的构建上你可以跳过这些变通办法。请查阅你所用版本的发布说明。
