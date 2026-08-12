@@ -20,7 +20,7 @@
 | 客户用户登录时在 `/api/tenant/*` 上返回 403 | JWT 声明 | 确保该用户行已设置 `tenant_id` 且 `role=customer_viewer` |
 | MSSP 用户的模拟操作未出现在客户审计中 | 审计查询 | 确认写入时已填充 `acting_as` 列；客户审计视图的连接条件为 `tenant_id = own AND acting_as IS NOT NULL` |
 | 隔离测试在 CI 中失败（FORCE RLS 下管理员仍能看到行） | 迁移是否已应用？ | 重新运行 `alembic upgrade head`；确保每个租户范围的表都已应用 `FORCE ROW LEVEL SECURITY` |
-| 租户的 `soctalk-adapter` / `soctalk-runs-worker` 出现 ImagePullBackOff | `kubectl -n tenant-<slug> describe pod` 显示无法拉取 `ghcr.io/soctalk/soctalk-adapter:0.1.13-fixes`（或类似镜像） | 已知问题：`render.py` 默认使用的标签可能不在公共 ghcr 中。安装时覆盖：在 `soctalk-system` 的 values 中设置 `tenantProvisioning.adapterImageTag: latest` 和 `tenantProvisioning.runsWorkerImageTag: latest`。这些会渲染到 API Deployment 上的 `SOCTALK_TENANT_ADAPTER_IMAGE_TAG` / `SOCTALK_TENANT_RUNS_WORKER_IMAGE_TAG` 环境变量，供预配渲染读取 |
+| 租户 `soctalk-adapter` / `soctalk-runs-worker` 出现 ImagePullBackOff | `kubectl -n tenant-<slug> describe pod` 显示某个租户镜像标签拉取失败 | chart 会将它们固定到该版本：`tenantProvisioning.adapterImageTag` 和 `runsWorkerImageTag` 默认使用 chart 自身的版本（`0.2.1`）。若出现拉取失败，先确认 API 实际传给 provisioner 的标签 —— `kubectl -n soctalk-system get deploy soctalk-system-api -o yaml \| grep SOCTALK_TENANT_.*_IMAGE_TAG` —— 然后将其设置为**已发布的版本号**。不要设置为 `latest`：移动标签会让租户运行未发布的代码，且所运行的构建会在你不知情的情况下变化。 |
 
 ## 收集诊断数据包
 

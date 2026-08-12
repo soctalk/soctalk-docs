@@ -104,7 +104,7 @@ codex review --uncommitted
 发布版本从 `main` 打标签。目前的流程比规划中的 `just release` recipe 所暗示的有更多手动步骤：
 
 1. 手动在 `Chart.yaml` + `pyproject.toml` 中提升版本号，提交，推送。
-2. 为该提交打标签并推送标签（`git tag v0.1.x && git push --tags`）。
+2. 为该提交打标签并推送标签（`git tag vX.Y.Z && git push --tags`）。
 3. `just release`——运行 `just build-all push-all`。这**只会构建并推送容器镜像**；它不会打标签、发布 chart 或创建 GitHub Release。
 4. 触发时，`publish-images.yml` GH workflow 负责将镜像发布到 ghcr.io。
 5. 目前将 chart 发布到 `ghcr.io/soctalk/charts/` 是手动使用 `helm push` 完成的。

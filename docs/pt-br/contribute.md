@@ -104,7 +104,7 @@ Esta é a mesma passagem de revisão que executamos no momento da release. Ela c
 As releases são marcadas a partir da `main`. Hoje o fluxo tem mais passos manuais do que a receita `just release` planejada sugere:
 
 1. Ajuste manualmente as versões em `Chart.yaml` + `pyproject.toml`, faça commit e push.
-2. Marque o commit e faça push da tag (`git tag v0.1.x && git push --tags`).
+2. Marque o commit e faça push da tag (`git tag vX.Y.Z && git push --tags`).
 3. `just release`: executa `just build-all push-all`. Isso **apenas constrói e faz push das imagens de container**; não marca tags, não publica charts nem cria um GitHub Release.
 4. O workflow do GH `publish-images.yml` cuida da publicação das imagens no ghcr.io quando acionado.
 5. A publicação do chart em `ghcr.io/soctalk/charts/` é feita manualmente com `helm push` hoje.

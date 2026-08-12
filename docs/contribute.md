@@ -104,7 +104,7 @@ This is the same review pass we run at release time. It catches the obvious prob
 Releases are tagged from `main`. Today the flow has more manual steps than the planned `just release` recipe implies:
 
 1. Manually bump versions in `Chart.yaml` + `pyproject.toml`, commit, push.
-2. Tag the commit and push the tag (`git tag v0.1.x && git push --tags`).
+2. Tag the commit and push the tag (`git tag vX.Y.Z && git push --tags`).
 3. `just release`: runs `just build-all push-all`. This **only builds and pushes container images**; it does not tag, publish charts, or create a GitHub Release.
 4. `publish-images.yml` GH workflow handles the image publish to ghcr.io when triggered.
 5. Chart publish to `ghcr.io/soctalk/charts/` is done manually with `helm push` today.

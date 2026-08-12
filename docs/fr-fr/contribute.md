@@ -104,7 +104,7 @@ C'est la même passe d'examen que nous exécutons au moment de la release. Elle 
 Les releases sont taguées depuis `main`. Aujourd'hui, le flux comporte davantage d'étapes manuelles que ne le laisse entendre la recette `just release` prévue :
 
 1. Incrémentez manuellement les versions dans `Chart.yaml` + `pyproject.toml`, committez, poussez.
-2. Taguez le commit et poussez le tag (`git tag v0.1.x && git push --tags`).
+2. Taguez le commit et poussez le tag (`git tag vX.Y.Z && git push --tags`).
 3. `just release`: exécute `just build-all push-all`. Cela **construit et pousse uniquement les images de conteneurs** ; cela ne tague pas, ne publie pas les charts et ne crée pas de GitHub Release.
 4. Le workflow GH `publish-images.yml` gère la publication de l'image vers ghcr.io lorsqu'il est déclenché.
 5. La publication du chart vers `ghcr.io/soctalk/charts/` se fait manuellement avec `helm push` aujourd'hui.
