@@ -202,6 +202,6 @@ AWS AMI 由一个独立的 Packer 源（`amazon-ebs`）构建，该源不包含 
 | 向导提示 "invalid token" | 令牌位于 `/var/log/soctalk-setup-token`，**归 root 所有**。使用 `sudo cat`。每次启动都会重新生成令牌 |
 | 向导提示 "rate-limited" | 令牌尝试失败 10 次后，向导会锁定该 IP。等待 1 小时，或执行 `systemctl restart soctalk-setup-wizard`（这也会轮换令牌） |
 | `helm install` 卡住 | 在该机器上执行 `kubectl get pods -A`；`journalctl -u soctalk-firstboot -f` |
-| 演示租户的 adapter / runs-worker pod 卡在 ImagePullBackOff | 已知问题：控制器默认使用了一个未发布的镜像 tag。参阅[故障排查](/zh-cn/troubleshooting) |
+| 演示租户的 adapter / runs-worker Pod 卡在 ImagePullBackOff | chart 会将租户镜像标签固定到该版本；请检查 API 传给 provisioner 的标签，并设置为已发布的版本。参见[故障排查](/zh-cn/troubleshooting) |
 
 若要进行干净重置：删除 `/var/lib/soctalk-firstboot.done`、`/var/lib/soctalk-wizard.done`、`/etc/soctalk/values.yaml`，然后执行 `systemctl restart soctalk-setup-wizard`。

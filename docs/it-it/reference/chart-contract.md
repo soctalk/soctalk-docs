@@ -29,7 +29,7 @@ install:
 # Image sources
 image:
   registry: ghcr.io/soctalk
-  tag: v1.0.0                 # or `latest`
+  tag: 0.2.1                   # a published release version
   pullPolicy: IfNotPresent
 
 # Postgres
@@ -112,7 +112,7 @@ telemetry:
 tenantProvisioning:
   # Which tenant chart the controller renders + installs
   tenantChartRef: oci://ghcr.io/soctalk/charts/soctalk-tenant
-  tenantChartVersion: 0.2.0
+  tenantChartVersion: 0.2.1
 
   # Image overrides injected into each tenant render.
   # Empty repo means "use the chart's default repository"; only the tag is pinned here.

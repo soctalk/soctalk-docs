@@ -202,6 +202,6 @@ Você acabou de executar o SocTalk de ponta a ponta em uma única máquina co-lo
 | O assistente diz "invalid token" | O token está em `/var/log/soctalk-setup-token`, **de propriedade do root**. Use `sudo cat`. Cada inicialização regenera o token |
 | O assistente diz "rate-limited" | O assistente bloqueia o IP após 10 tentativas de token malsucedidas. Aguarde 1 h ou execute `systemctl restart soctalk-setup-wizard` (isso também rotaciona o token) |
 | O `helm install` trava | `kubectl get pods -A` a partir da máquina; `journalctl -u soctalk-firstboot -f` |
-| Os pods do adaptador / runs-worker do tenant de demonstração ficam presos em ImagePullBackOff | Conhecido: o controlador usa por padrão uma tag de imagem não publicada. Consulte [Solução de problemas](/pt-br/troubleshooting) |
+| Pods adapter / runs-worker do tenant demo em ImagePullBackOff | O chart fixa as tags de imagem do tenant na release; verifique a tag que a API entrega ao provisioner e defina uma versão publicada. Veja [Solução de problemas](/pt-br/troubleshooting) |
 
 Para um reset limpo: exclua `/var/lib/soctalk-firstboot.done`, `/var/lib/soctalk-wizard.done`, `/etc/soctalk/values.yaml`, depois execute `systemctl restart soctalk-setup-wizard`.

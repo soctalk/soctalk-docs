@@ -202,6 +202,6 @@ Vous venez d'exécuter SocTalk de bout en bout sur une seule machine co-localis�
 | L'assistant indique « invalid token » | Le jeton se trouve dans `/var/log/soctalk-setup-token`, **détenu par root**. Utilisez `sudo cat`. Chaque démarrage régénère le jeton |
 | L'assistant indique « rate-limited » | L'assistant verrouille l'IP après 10 tentatives de jeton échouées. Attendez 1 h ou exécutez `systemctl restart soctalk-setup-wizard` (cela fait aussi tourner le jeton) |
 | `helm install` se bloque | `kubectl get pods -A` depuis la machine ; `journalctl -u soctalk-firstboot -f` |
-| Les pods adapter / runs-worker du tenant de démonstration restent bloqués en ImagePullBackOff | Connu : le contrôleur utilise par défaut un tag d'image non publié. Consultez [Dépannage](/fr-fr/troubleshooting) |
+| Pods adapter / runs-worker du tenant démo bloqués en ImagePullBackOff | Le chart épingle les tags d'image du tenant sur la release ; vérifiez le tag que l'API transmet au provisioner et définissez une version publiée. Voir [Dépannage](/fr-fr/troubleshooting) |
 
 Pour une réinitialisation propre : supprimez `/var/lib/soctalk-firstboot.done`, `/var/lib/soctalk-wizard.done`, `/etc/soctalk/values.yaml`, puis exécutez `systemctl restart soctalk-setup-wizard`.

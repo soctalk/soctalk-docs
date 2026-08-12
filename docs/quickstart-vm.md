@@ -202,6 +202,6 @@ You've just run SocTalk end-to-end on a single co-located box. The natural next 
 | Wizard says "invalid token" | Token is in `/var/log/soctalk-setup-token`, **owned by root**. Use `sudo cat`. Each boot regenerates the token |
 | Wizard says "rate-limited" | The wizard locks the IP after 10 failed token attempts. Wait 1 h or `systemctl restart soctalk-setup-wizard` (this rotates the token too) |
 | `helm install` stalls | `kubectl get pods -A` from the box; `journalctl -u soctalk-firstboot -f` |
-| Demo tenant's adapter / runs-worker pods stuck in ImagePullBackOff | Known: the controller defaults to an unpublished image tag. See [Troubleshooting](/troubleshooting) |
+| Demo tenant's adapter / runs-worker pods stuck in ImagePullBackOff | The chart pins tenant image tags to the release; check the tag the API hands the provisioner and set a published version. See [Troubleshooting](/troubleshooting) |
 
 For a clean reset: delete `/var/lib/soctalk-firstboot.done`, `/var/lib/soctalk-wizard.done`, `/etc/soctalk/values.yaml`, then `systemctl restart soctalk-setup-wizard`.
